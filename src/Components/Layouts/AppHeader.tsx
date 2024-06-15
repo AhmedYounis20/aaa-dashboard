@@ -1,10 +1,45 @@
 import './AppHeader.css'
-const AppHeader = () => {
+import Breadcrumb from './BreadCrumb';
+import { useDispatch } from "react-redux";
+import {useNavigate } from "react-router-dom";
+import {
+  initialuserState,
+  setLoggedInUser,
+} from "../../Storage/Redux/userAuthSlice";
 
+
+const AppHeader = ({toggleSidebar}) => {
+ const dispatch = useDispatch();
+ const navigate = useNavigate();
+ const handleLogout = () => {
+   localStorage.removeItem("token");
+   dispatch(setLoggedInUser(initialuserState));
+   navigate("/login");
+ };
   return (
-    <nav className="bg-blue-600 text-white w-full fixed top-0 left-0 h-16 flex items-center px-4 z-20">
-      <span className="text-xl">Admin Dashboard</span>
-    </nav>
+    <>
+      <nav className="navbar navbar-expand-lg bg-light d-flex">
+        <div className="container-fluid">
+          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <button className="btn " onClick={() => toggleSidebar()}>
+              <i className="bx bx-menu"></i>
+            </button>
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+            <div className="nav-item d-flex">
+              <a
+                className="nav-link text-blue-950 "
+                aria-current="page"
+                onClick={handleLogout}
+                href="javasript:void(0)"
+              >
+                logout
+                <i className="bx bx-log-out"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }
 

@@ -3,4 +3,5 @@ import AppHeader from './Layouts/AppHeader'
 import AppContent from './Layouts/AppContent'
 import Sidebar from "./Layouts/AppSidebar";
 import DataTable from './DataTable';
-export { AppContent, AppFooter, AppHeader, Sidebar, DataTable };
+import Breadcrumb from "./Layouts/BreadCrumb";
+export { AppContent, AppFooter, AppHeader, Sidebar, DataTable,Breadcrumb };

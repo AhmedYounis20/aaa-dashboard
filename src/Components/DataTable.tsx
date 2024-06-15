@@ -1,89 +1,68 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  Grid,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  FormControl,
+  FormLabel,
+} from "@mui/material";
 
-const columns: GridColDef<(typeof rows)[number]>[] = [
-  { field: "id", headerName: "ID", width: 90 },
-  {
-    field: "firstName",
-    headerName: "First name",
-    width: 150,
-    editable: true,
-  },
-  {
-    field: "lastName",
-    headerName: "Last name",
-    width: 150,
-    editable: true,
-  },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 110,
-    editable: true,
-  },
-  {
-    field: "fullName",
-    headerName: "Full name",
-    description: "This column has a value getter and is not sortable.",
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.firstName || ""} ${row.lastName || ""}`,
-  },
-  {
-    field: "",
-    headerName: "Operations",
-    description: "This column has a value getter and is not sortable.",
-    sortable: false,
-    width: 300,
-    headerAlign:"center",
-    renderCell: (params :GridRenderCellParams<any,string>) => (
-      <strong>
-        <Button variant="outlined" size="small" style={{ marginLeft: 16 }}>
-          Edit {params.id}
-        </Button>
-        <Button variant="outlined" size="small" style={{ marginLeft: 16 }}>
-          Delete
-        </Button>
-        <Button variant="outlined" size="small" style={{ marginLeft: 16 }}>
-          Detials
-        </Button>
-      </strong>
-    ),
-  },
-];
+const DataTable = ({ data, defaultHiddenColumns = [] }) => {
+  const [columns, setColumns] = useState([]);
+  const [visibleColumns, setVisibleColumns] = useState([]);
 
-const rows = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 14 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 31 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 31 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 11 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
+  useEffect(() => {
+    if (data.length > 0) {
+      const initialColumns = Object.keys(data[0]).map((field) => ({
+        field: field,
+        headerName: field.charAt(0).toUpperCase() + field.slice(1),
+        width: 150,
+        hide: defaultHiddenColumns.includes(field),
+      }));
+      setColumns(initialColumns);
+      setVisibleColumns(initialColumns.filter((column) => !column.hide));
+    }
+  }, [data, defaultHiddenColumns]);
 
-export default function DataTable() {
+  const handleToggleColumn = (field) => {
+    const updatedColumns = columns.map((column) =>
+      column.field === field ? { ...column, hide: !column.hide } : column
+    );
+    setColumns(updatedColumns);
+    setVisibleColumns(updatedColumns.filter((column) => !column.hide));
+  };
+
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
-            },
-          },
-        }}
-        pageSizeOptions={[5]}
-        checkboxSelection
-        disableRowSelectionOnClick
-      />
-    </Box>
+    <Grid container spacing={2}>
+      <Grid item xs={12} style={{ marginBottom: "1rem" }}>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Columns Visibility</FormLabel>
+          <FormGroup row>
+            {columns.map((column) => (
+              <FormControlLabel
+                key={column.field}
+                control={
+                  <Checkbox
+                    checked={!column.hide}
+                    onChange={() => handleToggleColumn(column.field)}
+                    name={column.headerName}
+                    color="primary"
+                  />
+                }
+                label={column.headerName}
+                style={{ marginRight: "1rem" }}
+              />
+            ))}
+          </FormGroup>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} style={{ height: 400, width: "100%" }}>
+        <DataGrid rows={data} columns={visibleColumns} pageSize={5} disableColumnSelector />
+      </Grid>
+    </Grid>
   );
-}
+};
+
+export default DataTable;

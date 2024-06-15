@@ -1,25 +1,84 @@
+import { Link, useNavigate, NavLink } from "react-router-dom";
 import './AppSidebar.css'
+import { initialuserState, setLoggedInUser } from '../../Storage/Redux/userAuthSlice';
+import { useDispatch } from 'react-redux';
+import { Apps } from '@mui/icons-material';
 // sidebar nav config
 
 const Sidebar : React.FC<{ isCollapsed: boolean, toggleSidebar: () => void }> = ({ isCollapsed, toggleSidebar }) => {
+ const dispatch = useDispatch();
+ const navigate = useNavigate();
+    const handleLogout = () => {
+      
+      localStorage.removeItem("token");
+      dispatch(setLoggedInUser(initialuserState));
+      navigate("/login");
+    };
   return (
-    <div
-      className={`bg-gray-900 text-gray-200 h-full transition-width duration-300 ${
-        isCollapsed ? "w-16" : "w-64"
-      } fixed top-0 left-0 z-10`}
-    >
-      <button className="bg-gray-800 w-full py-2 mt-16" onClick={toggleSidebar}>
-        {isCollapsed ? ">" : "<"}
-      </button>
-      <ul className="mt-4">
-        <li className="px-4 py-2 hover:bg-gray-700">
-          <a href="#">Dashboard</a>
+    <div className="d-flex flex-column flex-shrink-0 bg-light">
+      <a
+        href="/"
+        className="d-flex align-items-center mb-md-0 me-md-auto p-3 py-2 pb-0 link-dark text-decoration-none"
+      >
+        <span className="fs-4">Accounting</span>
+      </a>
+      <hr />
+      <ul className="nav nav-pills flex-column mb-auto">
+        <li>
+          <NavLink to="/Home" className={`nav-link link-dark`}>
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Home
+          </NavLink>
         </li>
-        <li className="px-4 py-2 hover:bg-gray-700">
-          <a href="#">Users</a>
+        <li>
+          <NavLink to="/accountGuides" className={`nav-link link-dark`}>
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Account Guides
+          </NavLink>
         </li>
-        <li className="px-4 py-2 hover:bg-gray-700">
-          <a href="#">Settings</a>
+        <li>
+          <NavLink to="/ChartOfAccounts" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            ChartOfAccounts
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/subleadgers/Banks" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Banks
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/subleadgers/CashInBoxes" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Cash In boxes
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/subleadgers/Customers" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Customers
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/subleadgers/Suppliers" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Suppliers
+          </NavLink>
         </li>
       </ul>
     </div>

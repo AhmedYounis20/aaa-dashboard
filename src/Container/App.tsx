@@ -1,8 +1,8 @@
-import DataTable from '../Components/DataTreeTable';
-import Login from '../Pages/login/Login';
-import Page404 from '../Pages/page404/Page404';
-import Page500 from '../Pages/page500/Page500';
-import Register from '../Pages/register/Register';
+import {DataTable} from '../Components';
+import Login from '../Pages/Auth/login/Login';
+import Page404 from '../Pages/ErrorPages/page404/Page404';
+import Page500 from '../Pages/ErrorPages/page500/Page500';
+import Register from '../Pages/Auth/register/Register';
 import DefaultLayout from '../layout/DefaultLayout';
 import './App.css'
 
@@ -10,6 +10,12 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import AccountGuidesRoot from '../Pages/ProjectPages/AccountGuides/AccountGuidesRoot';
+import ChartOfAccountsRoot from '../Pages/ProjectPages/ChartOfAccounts/ChartOfAccountsRoot';
+import BanksRoot from '../Pages/ProjectPages/SubLeadgers/Banks/BanksRoot';
+import CashInBoxesRoot from '../Pages/ProjectPages/SubLeadgers/CashInBoxes/CashInBoxesRoot';
+import CustomersRoot from '../Pages/ProjectPages/SubLeadgers/Customers/CustomersRoot';
+import SuppliersRoot from '../Pages/ProjectPages/SubLeadgers/Suppliers/SuppliersRoot';
 
 
 const router = createBrowserRouter([
@@ -35,15 +41,32 @@ const router = createBrowserRouter([
     children: [
       {
         path: "accountguides",
-        element: <DataTable />,
+        element: <AccountGuidesRoot />,
       },
       {
         path: "chartOfAccounts",
-        element: <div>chartOfAccounts</div>,
+        element: <ChartOfAccountsRoot />,
       },
       {
         path: "GlSettings",
         element: <div>GlSettings</div>,
+      },
+
+      {
+        path: "subleadgers/banks",
+        element: <BanksRoot />,
+      },
+      {
+        path: "subleadgers/cashInBoxes",
+        element: <CashInBoxesRoot />,
+      },
+      {
+        path: "subleadgers/customers",
+        element: <CustomersRoot />,
+      },
+      {
+        path: "subleadgers/suppliers",
+        element: <SuppliersRoot/>,
       },
     ],
   },
@@ -51,7 +74,9 @@ const router = createBrowserRouter([
 function App() {
 
   return (
+    <>
     <RouterProvider router={router} />
+    </>
   );
 }
 
