@@ -1,27 +1,8 @@
 // routes config
-import DataTable from '../DataTable';
 import { Outlet } from "react-router-dom";
 
 import './AppContent.css'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
 
-const router = createBrowserRouter([
-  {
-    path: "/accountguides",
-    element: <DataTable />,
-  },
-  {
-    path: "/chartOfAccounts",
-    element: <div>chartOfAccounts</div>,
-  },
-  {
-    path: "/GlSettings",
-    element: <div>GlSettings</div>,
-  },
-]);
 
 const AppContent: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
   return (

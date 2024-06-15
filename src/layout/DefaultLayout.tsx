@@ -1,15 +1,7 @@
-import { useState } from 'react';
 import { AppContent, Sidebar, AppHeader } from "../Components/index";
-import { auto } from '@popperjs/core';
 import { withAuth } from '../Hoc';
 
 const DefaultLayout = () => {
-
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
 
   return (
     <div
@@ -21,7 +13,7 @@ const DefaultLayout = () => {
         overflowY: "hidden",
       }}
     >
-      <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
+      <Sidebar />
       <div
         className="flex flex-col w-full"
         style={{
@@ -32,10 +24,10 @@ const DefaultLayout = () => {
         }}
       >
         <AppHeader />
-        <AppContent isCollapsed={isCollapsed} />
+        <AppContent isCollapsed={false} />
       </div>
     </div>
   );
 }
 
-export default withAuth(DefaultLayout)
+export default withAuth(DefaultLayout) ?? null

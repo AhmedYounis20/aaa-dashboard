@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -9,17 +9,14 @@ import {
   CForm,
   CFormInput,
   CInputGroup,
-  CInputGroupText,
   CRow,
-  CSpinner,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useLoginMutation } from '../../../Apis/authApi'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useState } from 'react'
-import { RootState } from '../../../Storage/Redux/store'
-import { ApiResponse, UserLoginModel, UserModel } from '../../../interfaces'
+import { ApiResponse } from '../../../interfaces/ApiResponse'
+import { UserLoginModel } from '../../../interfaces/UserLoginModel'
+import { UserModel } from "../../../interfaces/UserModel";
 import { inputHelper } from '../../../Helper'
 import { jwtDecode } from "jwt-decode";
 import { setLoggedInUser } from '../../../Storage/Redux/userAuthSlice'
@@ -29,9 +26,7 @@ const Login : React.FC = () => {
  const [loginRequest] = useLoginMutation();
  const dispatch = useDispatch();
  const navigator = useNavigate();
- const userData = useSelector((state: RootState) => state.userAuthStore);
  const [loading, setLoading] = useState<boolean>(false);
- const [errors, setErrors] = useState<Array<string>>([]);
  const [userInput, setUserInput] = useState<UserLoginModel>({
    username: "",
    password: "",
@@ -60,7 +55,6 @@ const Login : React.FC = () => {
      localStorage.setItem("token", token);
    } else if (response.error) {
      response.error.data.errorMessages.map((e: string) => toastify(e, "error"));
-     setErrors(response.error.data.errorMessages);
      console.log(response.error.data.errorMessages);
    }
 

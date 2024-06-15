@@ -1,4 +1,3 @@
-import {DataTable} from '../Components';
 import Login from '../Pages/Auth/login/Login';
 import Page404 from '../Pages/ErrorPages/page404/Page404';
 import Page500 from '../Pages/ErrorPages/page500/Page500';

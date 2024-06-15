@@ -1,5 +1,5 @@
-const withAuth  = (WrappedComponent : any) => {
-    return (props: any)=>{
+const withAuth  = (WrappedComponent) => {
+    return (props)=>{
         console.log("HOC Called");
         const accessToken = localStorage.getItem('token');
         if(!accessToken){

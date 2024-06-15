@@ -1,5 +1,4 @@
 import './AppHeader.css'
-import Breadcrumb from './BreadCrumb';
 import { useDispatch } from "react-redux";
 import {useNavigate } from "react-router-dom";
 import {
@@ -8,7 +7,7 @@ import {
 } from "../../Storage/Redux/userAuthSlice";
 
 
-const AppHeader = ({toggleSidebar}) => {
+const AppHeader = () => {
  const dispatch = useDispatch();
  const navigate = useNavigate();
  const handleLogout = () => {
@@ -21,7 +20,7 @@ const AppHeader = ({toggleSidebar}) => {
       <nav className="navbar navbar-expand-lg bg-light d-flex">
         <div className="container-fluid">
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <button className="btn " onClick={() => toggleSidebar()}>
+            <button className="btn ">
               <i className="bx bx-menu"></i>
             </button>
             <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>

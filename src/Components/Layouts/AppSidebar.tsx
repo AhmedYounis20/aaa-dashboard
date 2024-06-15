@@ -1,19 +1,10 @@
-import { Link, useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import './AppSidebar.css'
-import { initialuserState, setLoggedInUser } from '../../Storage/Redux/userAuthSlice';
-import { useDispatch } from 'react-redux';
 import { Apps } from '@mui/icons-material';
 // sidebar nav config
 
-const Sidebar : React.FC<{ isCollapsed: boolean, toggleSidebar: () => void }> = ({ isCollapsed, toggleSidebar }) => {
- const dispatch = useDispatch();
- const navigate = useNavigate();
-    const handleLogout = () => {
-      
-      localStorage.removeItem("token");
-      dispatch(setLoggedInUser(initialuserState));
-      navigate("/login");
-    };
+const Sidebar : React.FC = () => {
+
   return (
     <div className="d-flex flex-column flex-shrink-0 bg-light">
       <a

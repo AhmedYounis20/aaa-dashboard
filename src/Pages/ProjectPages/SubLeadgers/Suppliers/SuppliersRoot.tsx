@@ -1,6 +1,14 @@
 import { useGetSuppliersQuery } from '../../../../Apis/SuppliersApi';
 import DataTreeTable from '../../../../Components/DataTreeTable';
-const columns = [
+interface Data {
+  code: string;
+  accountGuidId: string;
+  name: string;
+  nameSecondLanguage: string;
+  id: string;
+  children?: Data[];
+}
+const columns: { Header: string; accessor: keyof Data }[] = [
   {
     Header: "Code",
     accessor: "code", // accessor is the "key" in the data

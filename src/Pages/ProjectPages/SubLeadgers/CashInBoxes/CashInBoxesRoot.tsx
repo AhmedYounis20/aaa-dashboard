@@ -1,4 +1,4 @@
-import { useGetCashInBoxesByIdQuery, useGetCashInBoxesQuery } from '../../../../Apis/CashInBoxesApi';
+import { useGetCashInBoxesQuery } from '../../../../Apis/CashInBoxesApi';
 import DataTreeTable from '../../../../Components/DataTreeTable';
 const columns = [
   {

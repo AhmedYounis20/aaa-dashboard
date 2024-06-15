@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useState, useEffect } from "react";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   Grid,
   Checkbox,
@@ -9,7 +9,7 @@ import {
   FormLabel,
 } from "@mui/material";
 
-const DataTable = ({ data, defaultHiddenColumns = [] }) => {
+const DataTable = ({ data = [], defaultHiddenColumns = [] }) => {
   const [columns, setColumns] = useState([]);
   const [visibleColumns, setVisibleColumns] = useState([]);
 

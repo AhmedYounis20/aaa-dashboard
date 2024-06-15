@@ -1,3 +1,4 @@
+// src/Components/TreeTable.js
 import React, { useState } from "react";
 import {
   Table,
@@ -10,36 +11,28 @@ import {
   Collapse,
   Paper,
 } from "@mui/material";
-import { KeyboardArrowRight, KeyboardArrowDown,EditNote,Info,Delete } from "@mui/icons-material";
+import {
+  KeyboardArrowRight,
+  KeyboardArrowDown,
+  EditNote,
+  Info,
+  Delete,
+} from "@mui/icons-material";
 
-interface Data {
-  code: string;
-  accountGuidId: string;
-  name: string;
-  nameSecondLanguage: string;
-  id: string;
-  children?: Data[];
-}
+const DataTreeTable = ({ columns, data }) => {
+  const [openRows, setOpenRows] = useState({});
+  const [hoveredRow, setHoveredRow] = useState(null);
 
-interface TreeTableProps {
-  columns: { Header: string; accessor: keyof Data }[];
-  data: Data[];
-}
-
-const DataTreeTable: React.FC<TreeTableProps> = ({ columns, data }) => {
-  const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-
-  const handleToggle = (id: string) => {
+  const handleToggle = (id) => {
     setOpenRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const getBackgroundColor = (depth: number) => {
+  const getBackgroundColor = (depth) => {
     const colors = ["#f0f8ff", "#e6f7ff", "#cceeff", "#b3e6ff", "#99ddff"];
     return colors[depth % colors.length];
   };
 
-  const handleMouseEnter = (id: string) => {
+  const handleMouseEnter = (id) => {
     setHoveredRow(id);
   };
 
@@ -47,7 +40,12 @@ const DataTreeTable: React.FC<TreeTableProps> = ({ columns, data }) => {
     setHoveredRow(null);
   };
 
-  const renderRows = (rows: Data[], depth = 0) => {
+  const renderCell = (row, column) => {
+    const value = row[column.accessor];
+    return <TableCell key={column.accessor}>{value}</TableCell>;
+  };
+
+  const renderRows = (rows, depth = 0) => {
     return rows.map((row) => (
       <React.Fragment key={row.id}>
         <TableRow
@@ -69,12 +67,8 @@ const DataTreeTable: React.FC<TreeTableProps> = ({ columns, data }) => {
               </IconButton>
             )}
           </TableCell>
-          {columns.map((column) => (
-            <TableCell key={column.accessor as string}>
-              {row[column.accessor]}
-            </TableCell>
-          ))}
-          <TableCell key="operations" style={{ color: "GrayText" }}>
+          {columns.map((column) => renderCell(row, column))}
+          <TableCell style={{ color: "GrayText" }}>
             <IconButton
               size="small"
               style={{ marginInline: 2 }}
@@ -122,10 +116,8 @@ const DataTreeTable: React.FC<TreeTableProps> = ({ columns, data }) => {
         <TableHead>
           <TableRow>
             <TableCell />
-            {columns.map((column) => (
-              <TableCell key={column.accessor as string}>
-                {column.Header}
-              </TableCell>
+            {columns.map((column, index) => (
+              <TableCell key={index}>{column.Header}</TableCell>
             ))}
             <TableCell>Operations</TableCell>
           </TableRow>
