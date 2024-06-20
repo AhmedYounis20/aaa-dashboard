@@ -23,8 +23,15 @@ const ChartOfAccountsApi = createApi({
       query: (id) => `chartofAccounts/${id}`,
       providesTags: ["chartofAccounts"],
     }),
+    deleteChartOfAcountById: builder.mutation({
+      query: (id) => ({
+        url: `chartofAccounts/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["chartofAccounts"],
+    }),
   }),
 });
 
-export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery } = ChartOfAccountsApi;
+export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery,useDeleteChartOfAcountByIdMutation } = ChartOfAccountsApi;
 export default ChartOfAccountsApi;
