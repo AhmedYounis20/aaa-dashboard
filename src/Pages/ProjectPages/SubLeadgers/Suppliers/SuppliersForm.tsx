@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/FormType';
+import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery } from '../../../../Apis/SuppliersApi';
