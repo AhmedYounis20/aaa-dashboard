@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { UserRegisterModel } from "../interfaces/UserRegisterModel";
-import { UserLoginModel } from "../interfaces/UserLoginModel";
+import { UserRegisterModel } from "../interfaces/Auth/UserRegisterModel";
+import { UserLoginModel } from "../interfaces/Auth/UserLoginModel";
 
 const authApi = createApi({
   reducerPath: "authApi",

@@ -15,8 +15,8 @@ import { useLoginMutation } from '../../../Apis/authApi'
 import { useDispatch } from 'react-redux'
 import { useState } from 'react'
 import { ApiResponse } from '../../../interfaces/ApiResponse'
-import { UserLoginModel } from '../../../interfaces/UserLoginModel'
-import { UserModel } from "../../../interfaces/UserModel";
+import { UserLoginModel } from '../../../interfaces/Auth/UserLoginModel'
+import { UserModel } from "../../../interfaces/Auth/UserModel";
 import { inputHelper } from '../../../Helper'
 import { jwtDecode } from "jwt-decode";
 import { setLoggedInUser } from '../../../Storage/Redux/userAuthSlice'

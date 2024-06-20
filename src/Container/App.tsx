@@ -15,6 +15,10 @@ import BanksRoot from '../Pages/ProjectPages/SubLeadgers/Banks/BanksRoot';
 import CashInBoxesRoot from '../Pages/ProjectPages/SubLeadgers/CashInBoxes/CashInBoxesRoot';
 import CustomersRoot from '../Pages/ProjectPages/SubLeadgers/Customers/CustomersRoot';
 import SuppliersRoot from '../Pages/ProjectPages/SubLeadgers/Suppliers/SuppliersRoot';
+import CurrenciesRoot from '../Pages/ProjectPages/Settings/Currencies/CurrenciesRoot';
+import FinancialPeriods from '../Pages/ProjectPages/Settings/FinancialPeriods/FinancialPeriodsRoot';
+import FinancialPeriodsRoot from '../Pages/ProjectPages/Settings/FinancialPeriods/FinancialPeriodsRoot';
+import GlSettingsRoot from '../Pages/ProjectPages/Settings/GlSettings/GlSettingsRoot';
 
 
 const router = createBrowserRouter([
@@ -39,6 +43,18 @@ const router = createBrowserRouter([
     element: <DefaultLayout />,
     children: [
       {
+        path: "currencies",
+        element: <CurrenciesRoot />,
+      },
+      {
+        path: "glSettings",
+        element: <GlSettingsRoot />,
+      },
+      {
+        path: "financialPeriods",
+        element: <FinancialPeriodsRoot />,
+      },
+      {
         path: "accountguides",
         element: <AccountGuidesRoot />,
       },
@@ -46,11 +62,6 @@ const router = createBrowserRouter([
         path: "chartOfAccounts",
         element: <ChartOfAccountsRoot />,
       },
-      {
-        path: "GlSettings",
-        element: <div>GlSettings</div>,
-      },
-
       {
         path: "subleadgers/banks",
         element: <BanksRoot />,
@@ -65,7 +76,7 @@ const router = createBrowserRouter([
       },
       {
         path: "subleadgers/suppliers",
-        element: <SuppliersRoot/>,
+        element: <SuppliersRoot />,
       },
     ],
   },

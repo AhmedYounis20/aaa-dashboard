@@ -10,6 +10,7 @@ import {
   IconButton,
   Collapse,
   Paper,
+  colors,
 } from "@mui/material";
 import {
   KeyboardArrowRight,
@@ -17,9 +18,11 @@ import {
   EditNote,
   Info,
   Delete,
+  Folder,
 } from "@mui/icons-material";
+import { FormTypes } from "../../interfaces/Components/FormType";
 
-const DataTreeTable = ({ columns, data }) => {
+const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSelectId,showedit=true,showdelete=true }) => {
   const [openRows, setOpenRows] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
 
@@ -28,7 +31,7 @@ const DataTreeTable = ({ columns, data }) => {
   };
 
   const getBackgroundColor = (depth) => {
-    const colors = ["#f0f8ff", "#e6f7ff", "#cceeff", "#b3e6ff", "#99ddff"];
+    const colors = ["#f3f4f6", "#e5e7eb", "#d1d5db", "#9ca3af", "#6b7280"];
     return colors[depth % colors.length];
   };
 
@@ -40,9 +43,14 @@ const DataTreeTable = ({ columns, data }) => {
     setHoveredRow(null);
   };
 
+
   const renderCell = (row, column) => {
-    const value = row[column.accessor];
+
+    const value = (column.accessor == "chartOfAccount.code" && row.chartOfAccount) ? row["chartOfAccount"]["code"] : row[column.accessor];
+    
     return <TableCell key={column.accessor}>{value}</TableCell>;
+        
+      
   };
 
   const renderRows = (rows, depth = 0) => {
@@ -56,7 +64,7 @@ const DataTreeTable = ({ columns, data }) => {
           onMouseEnter={() => handleMouseEnter(row.id)}
           onMouseLeave={handleMouseLeave}
         >
-          <TableCell style={{ paddingLeft: depth * 20 }}>
+          <TableCell style={{ paddingLeft: depth * 15 }}>
             {row.children && row.children.length > 0 && (
               <IconButton size="small" onClick={() => handleToggle(row.id)}>
                 {openRows[row.id] ? (
@@ -67,26 +75,51 @@ const DataTreeTable = ({ columns, data }) => {
               </IconButton>
             )}
           </TableCell>
+          <TableCell style={{ width: 5, paddingLeft: 0 }}>
+            {row.nodeType == 1 ? (
+              <IconButton size="small" onClick={() => handleToggle(row.id)}>
+                <Folder />
+              </IconButton>
+            ) : (
+              <></>
+            )}
+          </TableCell>
           {columns.map((column) => renderCell(row, column))}
-          <TableCell style={{ color: "GrayText" }}>
+          <TableCell>
+            {showedit && (
+              <IconButton
+                size="small"
+                style={{ marginInline: 2 }}
+                onClick={() => {
+                  changeFormType(FormTypes.Edit);
+                  handleSelectId(row["id"]);
+                  handleShowForm();
+                }}
+              >
+                <EditNote titleAccess="edit" />
+              </IconButton>
+            )}
+            {showdelete && (
+              <IconButton
+                size="small"
+                style={{ marginInline: 2 }}
+                onClick={() => {
+                  changeFormType(FormTypes.Delete);
+                  handleSelectId(row["id"]);
+                  handleShowForm();
+                }}
+              >
+                <Delete titleAccess="delete" />
+              </IconButton>
+            )}
             <IconButton
               size="small"
               style={{ marginInline: 2 }}
-              onClick={() => handleToggle(row.id)}
-            >
-              <EditNote titleAccess="edit" />
-            </IconButton>
-            <IconButton
-              size="small"
-              style={{ marginInline: 2 }}
-              onClick={() => handleToggle(row.id)}
-            >
-              <Delete titleAccess="delete" />
-            </IconButton>
-            <IconButton
-              size="small"
-              style={{ marginInline: 2 }}
-              onClick={() => handleToggle(row.id)}
+              onClick={() => {
+                changeFormType(FormTypes.Details);
+                handleSelectId(row["id"]);
+                handleShowForm();
+              }}
             >
               <Info titleAccess="Details" />
             </IconButton>{" "}
@@ -94,7 +127,7 @@ const DataTreeTable = ({ columns, data }) => {
         </TableRow>
         {row.children && (
           <TableRow>
-            <TableCell style={{ padding: 0 }} colSpan={columns.length + 2}>
+            <TableCell style={{ padding: 0 }} colSpan={columns.length + 3}>
               <Collapse in={openRows[row.id]} timeout="auto" unmountOnExit>
                 <Table size="small">
                   <TableBody>{renderRows(row.children, depth + 1)}</TableBody>
@@ -116,13 +149,29 @@ const DataTreeTable = ({ columns, data }) => {
         <TableHead>
           <TableRow>
             <TableCell />
+            <TableCell style={{ width: 5, paddingLeft: 0 }} />
             {columns.map((column, index) => (
               <TableCell key={index}>{column.Header}</TableCell>
             ))}
             <TableCell>Operations</TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>{renderRows(data)}</TableBody>
+        <TableBody>
+          {data.length > 0 ? (
+            renderRows(data)
+          ) : (
+            <React.Fragment>
+              <TableRow style={{ backgroundColor: getBackgroundColor(1) }}>
+                <TableCell
+                  colSpan={columns.length + 3}
+                  style={{ textAlign: "center" }}
+                >
+                  No Data
+                </TableCell>
+              </TableRow>
+            </React.Fragment>
+          )}
+        </TableBody>
       </Table>
     </TableContainer>
   );

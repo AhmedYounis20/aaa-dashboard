@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import './AppSidebar.css'
 import { Apps } from '@mui/icons-material';
+import logo from "../../../public/ico.svg";
 // sidebar nav config
 
 const Sidebar : React.FC = () => {
@@ -9,8 +10,9 @@ const Sidebar : React.FC = () => {
     <div className="d-flex flex-column flex-shrink-0 bg-light">
       <a
         href="/"
-        className="d-flex align-items-center mb-md-0 me-md-auto p-3 py-2 pb-0 link-dark text-decoration-none"
+        className="d-flex align-items-center mb-md-0 me-md-auto p-1 py-2 pb-0 link-dark text-decoration-none"
       >
+        <img src={logo} height={40} width={40} className="mt-2 mx-1 ml-0" />
         <span className="fs-4">Accounting</span>
       </a>
       <hr />
@@ -69,6 +71,30 @@ const Sidebar : React.FC = () => {
               <Apps />
             </svg>
             Suppliers
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/Currencies" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Currencies
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/financialPeriods" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Financial Periods
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/glSettings" className="nav-link link-dark">
+            <svg className="bi me-2" width="16" height="16">
+              <Apps />
+            </svg>
+            Gl Settings
           </NavLink>
         </li>
       </ul>

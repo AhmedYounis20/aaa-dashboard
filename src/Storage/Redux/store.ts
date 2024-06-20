@@ -7,6 +7,9 @@ import BanksApi from "../../Apis/BanksApi";
 import CustomersApi from "../../Apis/CustomersApi";
 import SuppliersApi from "../../Apis/SuppliersApi";
 import CashInBoxesApi from "../../Apis/CashInBoxesApi";
+import GlSettingsApi from "../../Apis/GlSettingsApi";
+import CurrenciesApi from "../../Apis/CurrenciesApi";
+import FinancialPeriodsApi from "../../Apis/FinancialPeriodsApi";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +21,9 @@ const store = configureStore({
     [CustomersApi.reducerPath]: CustomersApi.reducer,
     [SuppliersApi.reducerPath]: SuppliersApi.reducer,
     [CashInBoxesApi.reducerPath]: CashInBoxesApi.reducer,
+    [GlSettingsApi.reducerPath]: GlSettingsApi.reducer,
+    [CurrenciesApi.reducerPath]: CurrenciesApi.reducer,
+    [FinancialPeriodsApi.reducerPath]: FinancialPeriodsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -27,6 +33,9 @@ const store = configureStore({
       .concat(CashInBoxesApi.middleware)
       .concat(CustomersApi.middleware)
       .concat(SuppliersApi.middleware)
+      .concat(FinancialPeriodsApi.middleware)
+      .concat(CurrenciesApi.middleware)
+      .concat(GlSettingsApi.middleware)
       .concat(ChartOfAccountsApi.middleware),
 });
 
