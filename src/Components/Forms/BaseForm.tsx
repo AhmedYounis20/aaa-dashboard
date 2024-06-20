@@ -4,11 +4,11 @@ import { FormTypes } from '../../interfaces/Components/FormType'
 const BaseForm: React.FC<{
   formType: FormTypes;
   handleCloseForm: () => void;
-  handleUpdate: () => Promise<boolean>;
-  handleDelete: () => Promise<boolean>;
-  handleAdd: () => Promise<boolean>;
+  handleUpdate: (() => Promise<boolean>) | undefined;
+  handleDelete: (() => Promise<boolean>) | undefined;
+  handleAdd: (() => Promise<boolean>) | undefined;
   children: JSX.Element;
-  isModal : boolean
+  isModal: boolean;
 }> = ({
   formType,
   handleCloseForm,
@@ -16,12 +16,14 @@ const BaseForm: React.FC<{
   handleDelete,
   handleAdd,
   children,
-  isModal = true
+  isModal = true,
 }) => {
   const handleSubmit = async () => {
-    if (formType == FormTypes.Add && await handleAdd()) handleCloseForm();
-    else if (formType == FormTypes.Edit && await handleUpdate()) handleCloseForm();
-    else if (formType == FormTypes.Delete && await handleDelete()) handleCloseForm();
+    if (formType == FormTypes.Add && (await handleAdd())) handleCloseForm();
+    else if (formType == FormTypes.Edit && (await handleUpdate()))
+      handleCloseForm();
+    else if (formType == FormTypes.Delete && (await handleDelete()))
+      handleCloseForm();
   };
   return (
     <div className={`${isModal && "modal "} fade show d-block modal-lg `}>

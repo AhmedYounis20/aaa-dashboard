@@ -4,7 +4,7 @@ export enum DepreciationApplication {
 }
 
 export const DepreciationApplicationOptions = Object.entries(DepreciationApplication)
-  .filter(([key, value]) => typeof value === "number")
+  .filter(([, value]) => typeof value === "number")
   .map(([key, value]) => ({ label: key, value }));
 
 export default DepreciationApplication;
