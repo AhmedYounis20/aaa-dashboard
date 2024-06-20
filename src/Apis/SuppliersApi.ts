@@ -16,15 +16,22 @@ const SuppliersApi = createApi({
   tagTypes: ["suppliers"],
   endpoints: (builder) => ({
     getSuppliers: builder.query({
-      query: () => "customers/GetLevel?level=10",
+      query: () => "suppliers/GetLevel?level=10",
       providesTags: ["suppliers"],
     }),
     getSuppliersById: builder.query({
-      query: (id) => `customers/${id}`,
+      query: (id) => `suppliers/${id}`,
       providesTags: ["suppliers"],
+    }),
+    deleteSupplierById: builder.mutation({
+      query: (id) => ({
+        url: `suppliers/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["suppliers"],
     }),
   }),
 });
 
-export const { useGetSuppliersQuery, useGetSuppliersByIdQuery } = SuppliersApi;
+export const { useGetSuppliersQuery, useGetSuppliersByIdQuery, useDeleteSupplierByIdMutation } = SuppliersApi;
 export default SuppliersApi;
