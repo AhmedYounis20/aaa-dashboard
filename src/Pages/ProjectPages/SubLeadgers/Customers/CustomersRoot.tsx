@@ -1,5 +1,5 @@
 import { useGetCustomersQuery } from '../../../../Apis/CustomersApi';
-import DataTreeTable from '../../../../Components/DataTreeTable';
+import DataTreeTable from '../../../../Components/Tables/DataTreeTable';
 const columns = [
   {
     Header: "Code",
@@ -20,11 +20,20 @@ const CustomersRoot = () => {
   return (
     <div className="container h-full">
       {isLoading ? (
-        <div className="spinner-border text-primary" role="status"></div>
+        <div
+          className="d-flex flex-row align-items-center justify-content-center"
+          style={{ height: "60vh" }}
+        >
+          <div className="spinner-border text-primary" role="status"></div>
+        </div>
       ) : (
         <>
           {data?.result && (
-            <DataTreeTable columns={columns} data={data.result} />
+            <>
+              <h2 className="mb-3"> Customers</h2>
+              <button className="btn btn-primary mb-2">new</button>
+              <DataTreeTable columns={columns} data={data.result} />
+            </>
           )}
         </>
       )}
