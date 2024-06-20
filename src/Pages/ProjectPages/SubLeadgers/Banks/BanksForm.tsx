@@ -3,37 +3,34 @@ import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery } from '../../../../Apis/SuppliersApi';
-import SupplierModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
-import {  TextField, TextareaAutosize } from '@mui/material';
+import { TextField, TextareaAutosize } from '@mui/material';
+import { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
+import BankModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel';
+import { useDeleteBankByIdMutation, useGetBanksByIdQuery } from '../../../../Apis/BanksApi';
 
-const SuppliersForm: React.FC<{
+const BanksForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
-  const [deleteFunc] = useDeleteSupplierByIdMutation();
-  const [model, setModel] = useState<SupplierModel>();
+  const [deleteFunc] = useDeleteBankByIdMutation();
+  const [model, setModel] = useState<BankModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const supplierResult = useGetSuppliersByIdQuery(id);
+  const bankResult = useGetBanksByIdQuery(id);
   useEffect(() => {
-    if (!supplierResult.isLoading) {
-      setModel(supplierResult.data.result);
-      if (supplierResult.data?.result.nodeType === 0) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: supplierResult.data.result.chartOfAccount.code,
-              }
-            : prevModel
-        );
+    if (!bankResult.isLoading) {
+      setModel(bankResult.data.result);
+      if (bankResult.data?.result.nodeType === 0) {
+        setModel((prevModel) => ({
+          ...prevModel,
+          code: bankResult.data.result.chartOfAccount.code,
+        }));
       }
       setIsLoading(false);
     }
-  }, [supplierResult.isLoading, supplierResult?.data?.result]);
+  }, [bankResult.isLoading]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
@@ -42,7 +39,7 @@ const SuppliersForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error : string) => {
+      response.error?.data?.errorMessages?.map((error) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -56,9 +53,6 @@ const SuppliersForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
-        handleUpdate={async () => await handleDelete()}
-        handleAdd={async () => await handleDelete()}
-        isModal
       >
         <div>
           {isLoading ? (
@@ -113,11 +107,7 @@ const SuppliersForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({
-                          target,
-                        }: {
-                          target: { value: NodeType };
-                        }) => {
+                        onChange={({ target }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -155,25 +145,6 @@ const SuppliersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Company Name"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.companyName ?? ""}
-                            onChange={(event) =>
-                              setModel((prevModel) => ({
-                                ...prevModel,
-                                companyName: event.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="row mb-4">
-                        <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
                             label="Phone"
                             variant="outlined"
                             fullWidth
@@ -187,19 +158,38 @@ const SuppliersForm: React.FC<{
                             }
                           />
                         </div>
+                      </div>
+                      <div className="row mb-4">
                         <div className="col col-md-6">
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Mobile"
+                            label="Bank Account"
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
-                            value={model?.mobile}
+                            value={model?.bankAccount}
                             onChange={(event) =>
                               setModel((prevModel) => ({
                                 ...prevModel,
-                                mobile: event.target.value,
+                                bankAccount: event.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="col col-md-6">
+                          <TextField
+                            type="text"
+                            className="form-input form-control"
+                            label="Email"
+                            variant="outlined"
+                            fullWidth
+                            disabled={formType === FormTypes.Details}
+                            value={model?.email}
+                            onChange={(event) =>
+                              setModel((prevModel) => ({
+                                ...prevModel,
+                                email: event.target.value,
                               }))
                             }
                           />
@@ -210,35 +200,23 @@ const SuppliersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Tax Number"
+                            label="Bank Address"
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
-                            value={model?.taxNumber}
+                            value={model?.bankAddress}
                             onChange={(event) =>
                               setModel((prevModel) => ({
                                 ...prevModel,
-                                taxNumber: event.target.value,
+                                bankAddress: event.target.value,
                               }))
                             }
                           />
                         </div>
-                        <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
-                            label="Address"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.address}
-                            onChange={(event) =>
-                              setModel((prevModel) => ({
-                                ...prevModel,
-                                address: event.target.value,
-                              }))
-                            }
-                          />
+                        <div
+                          className="col col-md-6 pt-0"
+                          style={{ marginTop: -10 }}
+                        >
                         </div>
                       </div>
                       <div className="row mb-3">
@@ -270,4 +248,4 @@ const SuppliersForm: React.FC<{
   );
 };
 
-export default SuppliersForm;
+export default BanksForm;

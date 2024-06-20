@@ -23,8 +23,15 @@ const CustomersApi = createApi({
       query: (id) => `customers/${id}`,
       providesTags: ["customers"],
     }),
+    deleteCustomerById: builder.mutation({
+      query: (id) => ({
+        url: `customers/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["customers"],
+    }),
   }),
 });
 
-export const { useGetCustomersQuery, useGetCustomersByIdQuery } = CustomersApi;
+export const { useGetCustomersQuery, useGetCustomersByIdQuery,useDeleteCustomerByIdMutation } = CustomersApi;
 export default CustomersApi;

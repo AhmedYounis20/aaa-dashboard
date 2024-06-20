@@ -23,8 +23,15 @@ const CashInBoxesApi = createApi({
       query: (id) => `cashInBoxes/${id}`,
       providesTags: ["cashInBoxes"],
     }),
+    deleteCashInBoxById: builder.mutation({
+      query: (id) => ({
+        url: `cashInBoxes/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["cashInBoxes"],
+    }),
   }),
 });
 
-export const { useGetCashInBoxesQuery, useGetCashInBoxesByIdQuery } = CashInBoxesApi;
+export const { useGetCashInBoxesQuery, useGetCashInBoxesByIdQuery,useDeleteCashInBoxByIdMutation } = CashInBoxesApi;
 export default CashInBoxesApi;

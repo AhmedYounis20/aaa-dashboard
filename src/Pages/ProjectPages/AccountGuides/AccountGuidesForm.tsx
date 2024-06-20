@@ -5,7 +5,6 @@ import { AccountGuideModel } from '../../../interfaces/ProjectInterfaces';
 import { TextField } from '@mui/material';
 import { useGetAccountGuidesByIdQuery } from '../../../Apis/AccountGuidesApi';
 
-
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -19,29 +18,18 @@ const AccountGuidesForm: React.FC<{
       setModel(accountGuidesResult.data.result);
       setIsLoading(false);
     }
-  }, [accountGuidesResult.isLoading]);
-
-  // const handleDelete = async (): Promise<boolean> => {
-  //   const response: ApiResponse = await deleteChartOfAccount(id);
-  //   if(response.data){
-
-  //     return true;
-  //   }
-  //   else {
-  //     console.log(response);
-
-  //     response.error?.data?.errorMessages?.map((error) =>{
-  //     toastify(error, "error");
-  //   console.log(error);
-  //     }
-  //     );
-  //     return false;
-  //   }
-  // };
+  }, [accountGuidesResult.isLoading, accountGuidesResult?.data?.result]);
 
   return (
     <div className="container h-full">
-      <BaseForm formType={formType} id={id} handleCloseForm={handleCloseForm}>
+      <BaseForm
+        formType={formType}
+        handleCloseForm={handleCloseForm}
+        isModal
+        handleAdd={undefined}
+        handleUpdate={undefined}
+        handleDelete={undefined}
+      >
         <div>
           {isLoading ? (
             <div
@@ -67,7 +55,11 @@ const AccountGuidesForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel({ ...model, name: event.target.value })
+                          setModel((prevModel) =>
+                            prevModel
+                              ? { ...prevModel, name: event.target.value }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -81,10 +73,14 @@ const AccountGuidesForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel({
-                            ...model,
-                            nameSecondLanguage: event.target.value,
-                          })
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  nameSecondLanguage: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>

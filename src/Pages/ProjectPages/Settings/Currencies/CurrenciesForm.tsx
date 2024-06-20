@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
-import { TextField } from '@mui/material';
+import { FormControlLabel, Switch, TextField } from '@mui/material';
 import { useGetCurrenciesByIdQuery } from '../../../../Apis/CurrenciesApi';
+import CurrencyModel from '../../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel';
 
 
 const CurrenciesForm: React.FC<{
@@ -11,15 +12,15 @@ const CurrenciesForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
-  const accountGuidesResult = useGetCurrenciesByIdQuery(id);
-  const [model, setModel] = useState<AccountGuideModel>();
+  const currencyResult = useGetCurrenciesByIdQuery(id);
+  const [model, setModel] = useState<CurrencyModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
-    if (!accountGuidesResult.isLoading) {
-      setModel(accountGuidesResult.data.result);
+    if (!currencyResult.isLoading) {
+      setModel(currencyResult.data.result);
       setIsLoading(false);
     }
-  }, [accountGuidesResult.isLoading]);
+  }, [currencyResult.isLoading]);
 
   // const handleDelete = async (): Promise<boolean> => {
   //   const response: ApiResponse = await deleteChartOfAccount(id);
@@ -56,7 +57,7 @@ const CurrenciesForm: React.FC<{
                 <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
               ) : (
                 <>
-                  <div className="row mb-3">
+                  <div className="row mb-4">
                     <div className="col col-md-6">
                       <TextField
                         type="text"
@@ -86,6 +87,75 @@ const CurrenciesForm: React.FC<{
                             nameSecondLanguage: event.target.value,
                           })
                         }
+                      />
+                    </div>
+                  </div>
+                  <div className="row mb-4">
+                    <div className="col col-md-6">
+                      <TextField
+                        type="text"
+                        className="form-input form-control"
+                        label="Symbol"
+                        variant="outlined"
+                        fullWidth
+                        disabled={formType === FormTypes.Details}
+                        value={model?.symbol}
+                        onChange={(event) =>
+                          setModel({ ...model, symbol: event.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="col col-md-6">
+                      <TextField
+                        type="number"
+                        className="form-input form-control"
+                        label="Exchange Rate"
+                        variant="outlined"
+                        fullWidth
+                        disabled={formType === FormTypes.Details}
+                        value={model?.exchangeRate}
+                        onChange={(event) =>
+                          setModel({
+                            ...model,
+                            exchangeRate: Number.parseFloat(event.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="row mb-4">
+                    <div className="col col-md-6">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={model?.isDefault}
+                            disabled={formType === FormTypes.Details}
+                            onChange={({ target }) =>
+                              setModel({
+                                ...model,
+                                isDefault: target.checked,
+                              })
+                            }
+                          />
+                        }
+                        label="Is Default"
+                      />
+                    </div>
+                    <div className="col col-md-6">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={model?.isActive}
+                            disabled={formType === FormTypes.Details}
+                            onChange={({ target }) =>
+                              setModel({
+                                ...model,
+                                isActive: target.checked,
+                              })
+                            }
+                          />
+                        }
+                        label="Is Active"
                       />
                     </div>
                   </div>

@@ -3,37 +3,34 @@ import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery } from '../../../../Apis/SuppliersApi';
-import SupplierModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
-import {  TextField, TextareaAutosize } from '@mui/material';
+import { TextField, TextareaAutosize } from '@mui/material';
+import { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
+import { useDeleteCustomerByIdMutation, useGetCustomersByIdQuery } from '../../../../Apis/CustomersApi';
+import CustomerModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerModel';
 
-const SuppliersForm: React.FC<{
+const CustomersForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
-  const [deleteFunc] = useDeleteSupplierByIdMutation();
-  const [model, setModel] = useState<SupplierModel>();
+  const [deleteFunc] = useDeleteCustomerByIdMutation();
+  const [model, setModel] = useState<CustomerModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const supplierResult = useGetSuppliersByIdQuery(id);
+  const customerResult = useGetCustomersByIdQuery(id);
   useEffect(() => {
-    if (!supplierResult.isLoading) {
-      setModel(supplierResult.data.result);
-      if (supplierResult.data?.result.nodeType === 0) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: supplierResult.data.result.chartOfAccount.code,
-              }
-            : prevModel
-        );
+    if (!customerResult.isLoading) {
+      setModel(customerResult.data.result);
+      if (customerResult.data?.result.nodeType === 0) {
+        setModel((prevModel) => ({
+          ...prevModel,
+          code: customerResult.data.result.chartOfAccount.code,
+        }));
       }
       setIsLoading(false);
     }
-  }, [supplierResult.isLoading, supplierResult?.data?.result]);
+  }, [customerResult.isLoading]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
@@ -42,7 +39,7 @@ const SuppliersForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error : string) => {
+      response.error?.data?.errorMessages?.map((error) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -56,9 +53,6 @@ const SuppliersForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
-        handleUpdate={async () => await handleDelete()}
-        handleAdd={async () => await handleDelete()}
-        isModal
       >
         <div>
           {isLoading ? (
@@ -152,20 +146,22 @@ const SuppliersForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
-                            label="Company Name"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.companyName ?? ""}
-                            onChange={(event) =>
-                              setModel((prevModel) => ({
-                                ...prevModel,
-                                companyName: event.target.value,
-                              }))
-                            }
+                          <InputSelect
+                            options={CustomerTypeOptions}
+                            label={"Customer Type"}
+                            defaultValue={model?.customerType}
+                            disabled={formType !== FormTypes.Add}
+                            multiple={false}
+                            onChange={({ target }) => {
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      customerType: target.value,
+                                    }
+                                  : undefined
+                              );
+                            }}
                           />
                         </div>
                       </div>
@@ -270,4 +266,4 @@ const SuppliersForm: React.FC<{
   );
 };
 
-export default SuppliersForm;
+export default CustomersForm;

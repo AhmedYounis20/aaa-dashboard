@@ -23,8 +23,15 @@ const BanksApi = createApi({
       query: (id) => `banks/${id}`,
       providesTags: ["banks"],
     }),
+    deleteBankById: builder.mutation({
+      query: (id) => ({
+        url: `banks/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["banks"],
+    }),
   }),
 });
 
-export const { useGetBanksQuery,useGetBanksByIdQuery } = BanksApi;
+export const { useGetBanksQuery,useGetBanksByIdQuery,useDeleteBankByIdMutation } = BanksApi;
 export default BanksApi;

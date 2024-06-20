@@ -3,14 +3,7 @@ import { useGetSuppliersQuery } from '../../../../Apis/SuppliersApi';
 import DataTreeTable from '../../../../Components/Tables/DataTreeTable';
 import SuppliersForm from './SuppliersForm';
 import { FormTypes } from '../../../../interfaces/Components';
-interface Data {
-  code: string;
-  accountGuidId: string;
-  name: string;
-  nameSecondLanguage: string;
-  id: string;
-  children?: Data[];
-}
+
 const columns: { Header: string; accessor: string }[] = [
   {
     Header: "Code",
@@ -53,7 +46,7 @@ const SuppliersRoot = () => {
           {showForm && (
             
             <SuppliersForm
-              id={selectedId}
+              id={selectedId || ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
             />
