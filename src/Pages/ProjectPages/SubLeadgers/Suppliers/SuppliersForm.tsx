@@ -113,18 +113,16 @@ const SuppliersForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({
-                          target,
-                        }: {
+                        onChange={({ target}: {
                           target: { value: NodeType };
-                        }) => {
+                          }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
                                   nodeType: target.value,
                                 }
-                              : undefined
+                              : prevModel
                           );
                         }}
                       />

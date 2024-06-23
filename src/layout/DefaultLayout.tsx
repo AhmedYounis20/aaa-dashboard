@@ -1,32 +1,36 @@
-import { AppContent, Sidebar, AppHeader } from "../Components/index";
+import { Box, useMediaQuery } from "@mui/material";
+import { AppHeader } from "../Components/index";
 import { withAuth } from '../Hoc';
+import { useState } from "react";
+import { Outlet } from 'react-router-dom'
+import AppSidebar from "../Components/Layouts/Sidebar";
+import sidebarItemsData from "../Utilities/routes";
+
 
 const DefaultLayout = () => {
+  const isMobile = useMediaQuery("(max-width: 1025px)");
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   return (
-    <div
-      className="main-div"
-      style={{
-        display: "flex",
-        flexWrap: "nowrap",
-        overflowX: "auto",
-        overflowY: "hidden",
-      }}
+    <Box
+      display='flex'
+      width="100%"
+      height="100%"
     >
-      <Sidebar />
-      <div
-        className="flex flex-col w-full"
-        style={{
-          width: "100vw",
-          overflowY: "auto",
-          height:
-            "calc(100vh - 32px)" /* Adjust height to account for margins or padding */,
-        }}
-      >
-        <AppHeader />
-        <AppContent isCollapsed={false} />
-      </div>
-    </div>
+      <AppSidebar 
+        items={sidebarItemsData} 
+        isMobile={isMobile}
+        isSidebarOpen={isSidebarOpen} 
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+      <Box width='100%'>
+        <AppHeader
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+        <Outlet />
+      </Box>
+    </Box>
   );
 }
 

@@ -9,7 +9,6 @@ export const initialuserState : UserModel  = {
 };
 
 
-
 export const userAuthSlice = createSlice({
   name: "authUser",
   initialState: initialuserState,
