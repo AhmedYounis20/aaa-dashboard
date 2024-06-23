@@ -1,11 +1,12 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { UserRegisterModel } from "../interfaces/Auth/UserRegisterModel";
 import { UserLoginModel } from "../interfaces/Auth/UserLoginModel";
+import { baseUrl } from "../Utilities/SD";
 
 const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://www.aaa-erp.somee.com/api/",
+    baseUrl: baseUrl,
   }),
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -31,5 +32,5 @@ const authApi = createApi({
   }),
 });
 
-export const {useRegisterMutation,useLoginMutation}  = authApi;
+export const { useRegisterMutation, useLoginMutation } = authApi;
 export default authApi;

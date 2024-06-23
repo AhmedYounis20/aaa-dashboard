@@ -4,10 +4,16 @@ import Page500 from '../Pages/ErrorPages/page500/Page500';
 import Register from '../Pages/Auth/register/Register';
 import DefaultLayout from '../layout/DefaultLayout';
 import './App.css'
+import { useSelector } from 'react-redux'
+import { useMemo } from 'react';
+
 
 import {
   createBrowserRouter,
   RouterProvider,
+  BrowserRouter,
+  Routes,
+  Route
 } from "react-router-dom";
 import AccountGuidesRoot from '../Pages/ProjectPages/AccountGuides/AccountGuidesRoot';
 import ChartOfAccountsRoot from '../Pages/ProjectPages/ChartOfAccounts/ChartOfAccountsRoot';
@@ -19,73 +25,46 @@ import CurrenciesRoot from '../Pages/ProjectPages/Settings/Currencies/Currencies
 import FinancialPeriods from '../Pages/ProjectPages/Settings/FinancialPeriods/FinancialPeriodsRoot';
 import FinancialPeriodsRoot from '../Pages/ProjectPages/Settings/FinancialPeriods/FinancialPeriodsRoot';
 import GlSettingsRoot from '../Pages/ProjectPages/Settings/GlSettings/GlSettingsRoot';
+import { createTheme } from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material'
+import { themeSettings } from '../Utilities/theme';
+import Dashboard from '../Pages/Dashboard';
+import { CssBaseline } from '@mui/material';
 
 
-const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    path: "/NotFound",
-    element: <Page404 />,
-  },
-  {
-    path: "/BadRequest",
-    element: <Page500 />,
-  },
-  {
-    path: "/*",
-    element: <DefaultLayout />,
-    children: [
-      {
-        path: "currencies",
-        element: <CurrenciesRoot />,
-      },
-      {
-        path: "glSettings",
-        element: <GlSettingsRoot />,
-      },
-      {
-        path: "financialPeriods",
-        element: <FinancialPeriodsRoot />,
-      },
-      {
-        path: "accountguides",
-        element: <AccountGuidesRoot />,
-      },
-      {
-        path: "chartOfAccounts",
-        element: <ChartOfAccountsRoot />,
-      },
-      {
-        path: "subleadgers/banks",
-        element: <BanksRoot />,
-      },
-      {
-        path: "subleadgers/cashInBoxes",
-        element: <CashInBoxesRoot />,
-      },
-      {
-        path: "subleadgers/customers",
-        element: <CustomersRoot />,
-      },
-      {
-        path: "subleadgers/suppliers",
-        element: <SuppliersRoot />,
-      },
-    ],
-  },
-]);
 function App() {
+  const mode = useSelector((state) => state.global.mode);
+
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode])
+
 
   return (
     <>
-    <RouterProvider router={router} />
+      {/* <RouterProvider router={router} /> */}
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Routes>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+
+          <Route path='/' element={<DefaultLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path='/currencies' element={<CurrenciesRoot />} />
+            <Route path='/glSettings' element={<GlSettingsRoot />} />
+            <Route path='/currencfinancialPeriodsies' element={<FinancialPeriodsRoot />} />
+            <Route path='/accountguides' element={<AccountGuidesRoot />} />
+            <Route path='/chartOfAccounts' element={<ChartOfAccountsRoot />} />
+
+            <Route path='/subleadgers/banks' element={<BanksRoot />} />
+            <Route path='/subleadgers/cashInBoxes' element={<CashInBoxesRoot />} />
+            <Route path='/subleadgers/customers' element={<CustomersRoot />} />
+            <Route path='/subleadgers/suppliers' element={<SuppliersRoot />} />
+          </Route>
+          <Route path='*' element={<Page404 />} />
+        </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
     </>
   );
 }

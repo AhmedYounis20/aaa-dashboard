@@ -19,6 +19,7 @@ const BanksForm: React.FC<{
   const [model, setModel] = useState<BankModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const bankResult = useGetBanksByIdQuery(id);
+  
   useEffect(() => {
     if (!bankResult.isLoading) {
       setModel(bankResult.data.result);
@@ -91,10 +92,10 @@ const BanksForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel((prevModel) => ({
+                          setModel((prevModel) => (prevModel ? {
                             ...prevModel,
                             nameSecondLanguage: event.target.value,
-                          }))
+                          } : prevModel))
                         }
                       />
                     </div>

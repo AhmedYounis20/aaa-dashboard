@@ -10,6 +10,7 @@ import CashInBoxesApi from "../../Apis/CashInBoxesApi";
 import GlSettingsApi from "../../Apis/GlSettingsApi";
 import CurrenciesApi from "../../Apis/CurrenciesApi";
 import FinancialPeriodsApi from "../../Apis/FinancialPeriodsApi";
+import globalTheme from './global'
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,8 @@ const store = configureStore({
     [GlSettingsApi.reducerPath]: GlSettingsApi.reducer,
     [CurrenciesApi.reducerPath]: CurrenciesApi.reducer,
     [FinancialPeriodsApi.reducerPath]: FinancialPeriodsApi.reducer,
+
+    global: globalTheme
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -40,5 +43,7 @@ const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatcher = typeof store.dispatch;
 
 export default store;

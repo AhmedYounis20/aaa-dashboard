@@ -23,7 +23,7 @@ const FinancialPeriodsRoot = () => {
     <div className="container h-full">
       {isLoading ? (
         <div
-          className="d-flex flex-row align-items-center justify-content-center"
+          className="flex flex-row align-items-center justify-content-center"
           style={{ height: "60vh" }}
         >
           <div className="spinner-border text-primary" role="status"></div>
