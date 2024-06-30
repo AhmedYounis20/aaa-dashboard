@@ -1,5 +1,6 @@
 import { useGetCashInBoxesQuery } from '../../../../Apis/CashInBoxesApi';
-import DataTreeTable from '../../../../Components/Tables/DataTreeTable';
+import { AppContent } from '../../../../Components';
+import Loader from '../../../../Components/Loader';
 const columns = [
   {
     Header: "Code",
@@ -13,7 +14,7 @@ const columns = [
     Header: "Name (Second Language)",
     accessor: "nameSecondLanguage",
   },
-  
+
   // Add more columns as needed
 ];
 
@@ -21,21 +22,23 @@ const CashInBoxesRoot = () => {
   const { data, isLoading } = useGetCashInBoxesQuery(null);
 
   return (
-    <div className="container h-full">
+    <div className="h-full">
       {isLoading ? (
-        <div
-          className="d-flex flex-row align-items-center justify-content-center"
-          style={{ height: "60vh" }}
-        >
-          <div className="spinner-border text-primary" role="status"></div>
-        </div>
+        <Loader/>
       ) : (
         <>
           {data?.result && (
-                        <>
-              <h2 className="mb-3"> Cash In Boxes</h2>
-              <button className="btn btn-primary mb-2">new</button>
-            <DataTreeTable columns={columns} data={data.result} />
+            <>
+              <AppContent
+                tableType='tree'
+                data={data.result}
+                columns={columns}
+                title='cash in box'
+                btn
+                addBtn
+                startIcon
+                btnName='add new'
+              />
             </>
           )}
         </>

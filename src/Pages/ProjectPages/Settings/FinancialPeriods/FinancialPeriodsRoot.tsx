@@ -3,7 +3,8 @@ import { DataTable } from '../../../../Components';
 import { FormTypes } from '../../../../interfaces/Components';
 import FinancialPeriodsForm from './FinancialPeriodsForm';
 import { useGetFinancialPeriodsQuery } from '../../../../Apis/FinancialPeriodsApi';
-import { Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
+import Loader from '../../../../Components/Loader';
 
 
 
@@ -20,14 +21,9 @@ const FinancialPeriodsRoot = () => {
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
   return (
-    <div className="container h-full">
+    <div className="h-full">
       {isLoading ? (
-        <div
-          className="flex flex-row align-items-center justify-content-center"
-          style={{ height: "60vh" }}
-        >
-          <div className="spinner-border text-primary" role="status"></div>
-        </div>
+        <Loader/>
       ) : (
         <>
           {showForm && (
@@ -38,8 +34,13 @@ const FinancialPeriodsRoot = () => {
             />
           )}
           {data?.result && (
-            <>
-            <h3 className="mb-4"> Financial Periods</h3>
+            <Box
+            display={'flex'}
+            flexDirection={'column'}
+            justifyContent={'start'}
+            alignItems={'start'}
+            >
+            <Typography variant='h2' mb={2}> Financial Periods</Typography>
               {data.result.length===0 && <button className="btn btn-primary mb-5">new</button>}
               <DataTable
                 data={data.result}
@@ -54,7 +55,7 @@ const FinancialPeriodsRoot = () => {
                   "modifiedBy",
                 ]}
               />
-            </>
+            </Box>
           )}
         </>
       )}

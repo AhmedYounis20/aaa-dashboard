@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useGetSuppliersQuery } from '../../../../Apis/SuppliersApi';
-import DataTreeTable from '../../../../Components/Tables/DataTreeTable';
 import SuppliersForm from './SuppliersForm';
 import { FormTypes } from '../../../../interfaces/Components';
+import Loader from '../../../../Components/Loader';
+import { AppContent } from '../../../../Components';
+import AddIcon from '@mui/icons-material/Add';
 
 const columns: { Header: string; accessor: string }[] = [
   {
@@ -21,30 +23,24 @@ const columns: { Header: string; accessor: string }[] = [
 
 const SuppliersRoot = () => {
   const { data, isLoading } = useGetSuppliersQuery(null);
-    const [showForm, setShowForm] = useState<boolean>(false);
-    const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-    const [selectedId, setSelectedId] = useState<string>();
-     const handleShowForm = () => {
-       setShowForm(true);
-     };
-     const handleCloseForm = () => {
-       setShowForm(false);
-     };
-     const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
+  const [selectedId, setSelectedId] = useState<string>();
+  const handleShowForm = () => {
+    setShowForm(true);
+  };
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
+  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
   return (
-    <div className="container h-full">
+    <div className="h-full">
       {isLoading ? (
-        <div
-          className="d-flex flex-row align-items-center justify-content-center"
-          style={{ height: "60vh" }}
-        >
-          <div className="spinner-border text-primary" role="status"></div>
-        </div>
+        <Loader />
       ) : (
         <>
           {showForm && (
-            
             <SuppliersForm
               id={selectedId || ""}
               handleCloseForm={handleCloseForm}
@@ -52,17 +48,19 @@ const SuppliersRoot = () => {
             />
           )}
           {data?.result && (
-                        <>
-              <h1 className="mb-3"> Suppliers</h1>
-              <button className="btn btn-primary mb-3">new</button>
-            <DataTreeTable
-              columns={columns}
+            <AppContent
+              tableType='tree'
               data={data.result}
+              columns={columns}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
+              title='Suppliers'
+              btn
+              btnName='new'
+              addBtn
+              startIcon
             />
-            </>
           )}
         </>
       )}

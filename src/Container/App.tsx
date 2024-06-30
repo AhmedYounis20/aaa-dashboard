@@ -6,15 +6,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import './App.css'
 import { useSelector } from 'react-redux'
 import { useMemo } from 'react';
-
-
-import {
-  createBrowserRouter,
-  RouterProvider,
-  BrowserRouter,
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter, Routes,Route } from "react-router-dom";
 import AccountGuidesRoot from '../Pages/ProjectPages/AccountGuides/AccountGuidesRoot';
 import ChartOfAccountsRoot from '../Pages/ProjectPages/ChartOfAccounts/ChartOfAccountsRoot';
 import BanksRoot from '../Pages/ProjectPages/SubLeadgers/Banks/BanksRoot';
@@ -31,7 +23,6 @@ import { themeSettings } from '../Utilities/theme';
 import Dashboard from '../Pages/Dashboard';
 import { CssBaseline } from '@mui/material';
 
-
 function App() {
   const mode = useSelector((state) => state.global.mode);
 
@@ -40,7 +31,6 @@ function App() {
 
   return (
     <>
-      {/* <RouterProvider router={router} /> */}
       <BrowserRouter>
         <ThemeProvider theme={theme}>
         <CssBaseline />

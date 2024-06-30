@@ -1,34 +1,30 @@
 import { useState } from 'react';
 import { useGetCurrenciesQuery } from "../../../../Apis/CurrenciesApi";
-import { DataTable } from '../../../../Components';
+import { AppContent } from '../../../../Components';
 import { FormTypes } from '../../../../interfaces/Components';
 import CurrenciesForm from './CurrenciesForm';
+import { Box } from '@mui/material';
+import Loader from '../../../../Components/Loader';
 
 
 
 const CurrenciesRoot = () => {
-    const [showForm, setShowForm] = useState<boolean>(false);
-    const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-    const [selectedId, setSelectedId] = useState<string>();
-    const { data, isLoading } = useGetCurrenciesQuery(null);
-      const handleShowForm = () => {
-        setShowForm(true);
-      };
-      const handleCloseForm = () => {
-        setShowForm(false);
-      };
-      const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
+  const [selectedId, setSelectedId] = useState<string>();
+  const { data, isLoading } = useGetCurrenciesQuery(null);
+
+  const handleShowForm = () => setShowForm(true);
+  const handleCloseForm = () => setShowForm(false);
+  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
+
   return (
-    <div className="container h-full">
+    <div className='w-full'>
       {isLoading ? (
-        <div
-          className="d-flex flex-row align-items-center justify-content-center"
-          style={{ height: "60vh" }}
-        >
-          <div className="spinner-border text-primary" role="status"></div>
-        </div>
+        <Loader />
       ) : (
-        <>
+        <Box>
           {showForm && (
             <CurrenciesForm
               id={selectedId}
@@ -37,25 +33,26 @@ const CurrenciesRoot = () => {
             />
           )}
           {data?.result && (
-            <>
-              <h3 className="mb-3"> Currencies</h3>
-              <button className="btn btn-primary mb-2">new</button>
-              <DataTable
-                data={data.result}
-                handleSelectId={handleSelectId}
-                changeFormType={setFormType}
-                handleShowForm={handleShowForm}
-                defaultHiddenColumns={[
-                  "id",
-                  "createdAt",
-                  "createdBy",
-                  "modifiedAt",
-                  "modifiedBy",
-                ]}
-              />
-            </>
+            <AppContent
+              tableType='table'
+              data={data.result}
+              title='Currencies'
+              btnName='new'
+              addBtn
+              startIcon
+              handleSelectId={handleSelectId}
+              changeFormType={setFormType}
+              handleShowForm={handleShowForm}
+              defaultHiddenCols={[
+                "id",
+                "createdAt",
+                "createdBy",
+                "modifiedAt",
+                "modifiedBy",
+              ]}
+            />
           )}
-        </>
+        </Box>
       )}
     </div>
   );

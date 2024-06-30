@@ -41,7 +41,7 @@ const CurrenciesForm: React.FC<{
   // };
 
   return (
-    <div className="container h-full">
+    <div className="h-full">
       <BaseForm formType={formType} id={id} handleCloseForm={handleCloseForm}>
         <div>
           {isLoading ? (

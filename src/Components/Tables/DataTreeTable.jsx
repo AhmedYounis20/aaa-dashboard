@@ -45,12 +45,9 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
 
 
   const renderCell = (row, column) => {
-
     const value = (column.accessor == "chartOfAccount.code" && row.chartOfAccount) ? row["chartOfAccount"]["code"] : row[column.accessor];
     
     return <TableCell key={column.accessor}>{value}</TableCell>;
-        
-      
   };
 
   const renderRows = (rows, depth = 0) => {
@@ -143,7 +140,7 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
   return (
     <TableContainer
       component={Paper}
-      style={{ maxHeight: 500, overflow: "auto" }}
+      style={{ maxHeight: 700, height: '100%', overflow: "auto" }}
     >
       <Table>
         <TableHead>
