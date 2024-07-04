@@ -2,15 +2,16 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
-import { FormControlLabel, Switch, TextField } from '@mui/material';
+import { Box, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import { useGetGlSettingsQuery } from '../../../../Apis/GlSettingsApi';
 import GlSettingsModel from '../../../../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel';
 import DecimalDigitsNumber, { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
+import Loader from '../../../../Components/Loader';
 
 
-const GlSettingsRoot : React.FC = () => {
+const GlSettingsRoot: React.FC = () => {
   const accountGuidesResult = useGetGlSettingsQuery(null);
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -40,21 +41,16 @@ const GlSettingsRoot : React.FC = () => {
   // };
 
   return (
-    <div className=" h-full">
+    <div className="h-full">
       <BaseForm formType={FormTypes.Edit} isModal={false}>
-      <h2 className="mb-3"> GlSettings</h2>
+        <Typography variant='h2' mb={3}> GL Settings</Typography>
         <div>
           {isLoading ? (
-            <div
-              className="d-flex flex-row align-items-center justify-content-center"
-              style={{ height: "100px" }}
-            >
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
+            <Loader/>
           ) : (
-            <>
-              <div className="row mb-3">
-                <div className="col col-md-6">
+            <div>
+              <Stack spacing={2} >
+                <div >
                   <TextField
                     type="number"
                     className="form-input form-control"
@@ -70,7 +66,7 @@ const GlSettingsRoot : React.FC = () => {
                     }
                   />
                 </div>
-                <div className="col col-md-6">
+                <div>
                   <InputSelect
                     options={DecimalDigitsNumberOptions}
                     label={"Decimal Digits Number"}
@@ -80,38 +76,38 @@ const GlSettingsRoot : React.FC = () => {
                       setModel((prevModel) =>
                         prevModel
                           ? {
-                              ...prevModel,
-                              decimalDigitsNumber: target.value,
-                            }
+                            ...prevModel,
+                            decimalDigitsNumber: target.value,
+                          }
                           : undefined
                       );
                     }}
                   />
                 </div>
-              </div>
-              <div className="row mb-3">
-                <div className="col col-md-6">
-                  <InputSelect
-                    options={DepreciationApplicationOptions}
-                    label={"Depreciation Application"}
-                    defaultValue={model?.depreciationApplication}
-                    multiple={false}
-                    onChange={({ target }) => {
-                      setModel((prevModel) =>
-                        prevModel
-                          ? {
+                <div >
+                  <div>
+                    <InputSelect
+                      options={DepreciationApplicationOptions}
+                      label={"Depreciation Application"}
+                      defaultValue={model?.depreciationApplication}
+                      multiple={false}
+                      onChange={({ target }) => {
+                        setModel((prevModel) =>
+                          prevModel
+                            ? {
                               ...prevModel,
                               depreciationApplication: target.value,
                             }
-                          : undefined
-                      );
-                    }}
-                  />
+                            : undefined
+                        );
+                      }}
+                    />
+                  </div>
+                  {/* <div className="col col-md-6"></div> */}
                 </div>
-                <div className="col col-md-6"></div>
-              </div>
-              <div className="row mb-3">
-                <div className="col col-md-6">
+              </Stack>
+              <div>
+                <div >
                   <FormControlLabel
                     control={
                       <Switch
@@ -127,7 +123,7 @@ const GlSettingsRoot : React.FC = () => {
                     label="Is Allowing Edit Voucher"
                   />
                 </div>
-                <div className="col col-md-6">
+                <div >
                   <FormControlLabel
                     control={
                       <Switch
@@ -144,8 +140,8 @@ const GlSettingsRoot : React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="row mb-3">
-                <div className="col col-md-6">
+              <div >
+                <div>
                   <FormControlLabel
                     control={
                       <Switch
@@ -162,7 +158,7 @@ const GlSettingsRoot : React.FC = () => {
                   />
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </BaseForm>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import {
   Grid,
@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { FormTypes } from "../../interfaces/Components";
 import { Delete, EditNote, Info } from "@mui/icons-material";
+import { appContext } from "../../layout/DefaultLayout";
 
 const DataTable = ({
   data = [],
@@ -25,6 +26,9 @@ const DataTable = ({
   const [columns, setColumns] = useState([]);
   const [visibleColumns, setVisibleColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
+
+  const { isSidebarOpen, isMobile} = useContext(appContext)
+
 
   useEffect(() => {
     if (data.length > 0) {
@@ -108,14 +112,27 @@ const DataTable = ({
     setVisibleColumns(updatedColumns.filter((column) => !column.hide));
   };
 
+
   return (
     <Grid
       container
-      style={{ padding: 10, borderRadius: 10 }}
+      style={{ 
+          padding: 10, 
+          borderRadius: 10,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'start',
+        }}
       className="border"
     >
-      <Grid item xs={12} style={{ marginBottom: 10 }}>
-        <FormControl style={{ minWidth: 200 }}>
+      <Grid 
+      item 
+      xs={8}
+      style={{ 
+        marginBottom: 10,
+      }}
+      >
+        <FormControl size="medium" fullWidth>
           <InputLabel id="demo-simple-select-label"  variant="outlined">
             {"columns Visiblity"}
           </InputLabel>
@@ -139,7 +156,16 @@ const DataTable = ({
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={12} style={{ height: 450, width: "100%" }}>
+      <Grid 
+        item 
+        style={{ 
+          height: 550,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'start',
+          padding: '18px'
+        }}
+      >
         <DataGrid
           rows={data}
           columns={visibleColumns}
@@ -147,7 +173,8 @@ const DataTable = ({
           slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           disableColumnSelector
-          style={{ border: 0 }}
+          style={{ border: 0, width: '100%' }}
+          
           sx={{
             ".MuiDataGrid-cell:focus": {
               outline: "none",
@@ -164,6 +191,8 @@ const DataTable = ({
             "& .MuiDataGrid-row:hover": {
               backgroundColor: "rgba(0, 0, 0, 0.1)",
             },
+            border: 0,
+            maxWidth: isSidebarOpen && !isMobile ? '1500px' : 'auto'
           }}
         />
       </Grid>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import {  useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
+import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
 import DataTreeTable from '../../../Components/Tables/DataTreeTable';
 import { FormTypes } from '../../../interfaces/Components';
 import ChartOfAccountsForm from './ChartOfAccountsForm';
+import Loader from '../../../Components/Loader';
+import { AppContent } from '../../../Components';
 const columns = [
   {
     Header: "Code",
@@ -16,7 +18,7 @@ const columns = [
     Header: "Name (Second Language)",
     accessor: "nameSecondLanguage",
   },
-  
+
   // Add more columns as needed
 ];
 
@@ -28,23 +30,18 @@ const ChartOfAccountsRoot = () => {
   const handleShowForm = () => {
     setShowForm(true);
   };
-    const handleCloseForm = () => {
-      setShowForm(false);
-    };
+  const handleCloseForm = () => {
+    setShowForm(false);
+  };
+
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
   return (
-    <div className="container h-full">
+    <div className="h-full">
       {isLoading ? (
-        <div
-          className="d-flex flex-row align-items-center justify-content-center"
-          style={{ height: "60vh" }}
-        >
-          <div className="spinner-border text-primary" role="status"></div>
-        </div>
+        <Loader />
       ) : (
         <>
-
           {showForm && (
             <ChartOfAccountsForm
               id={selectedId}
@@ -52,18 +49,29 @@ const ChartOfAccountsRoot = () => {
               formType={formType}
             />
           )}
+
           {data?.result && (
-            <>
-            <h2 className="mb-3"> Chart Of Accounts</h2>
-              <button className="btn btn-primary mb-2">new</button>
-              <DataTreeTable
-                columns={columns}
-                data={data.result}
-                handleShowForm={handleShowForm}
-                changeFormType={setFormType}
-                handleSelectId={handleSelectId}
-              />
-            </>
+            <AppContent
+              tableType='tree'
+              data={data.result}
+              title='chart of accounts'
+              columns={columns}
+              // btn
+              btnName='add new'
+              addBtn
+              showdelete={false}
+              showedit={false}
+              handleSelectId={handleSelectId}
+              changeFormType={setFormType}
+              handleShowForm={handleShowForm}
+              defaultHiddenCols={[
+                "id",
+                "createdAt",
+                "createdBy",
+                "modifiedAt",
+                "modifiedBy",
+              ]}
+            />
           )}
         </>
       )}
