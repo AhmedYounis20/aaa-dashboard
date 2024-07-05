@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useGetCustomersQuery } from '../../../../Apis/CustomersApi';
+import { useEffect, useState } from 'react';
 import { FormTypes } from '../../../../interfaces/Components';
-import CustomersForm from './CustomersForm';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
+import { useGetFixedAssetsQuery } from '../../../../Apis/FixedAssetsApi';
+import FixedAssetsForm from './FixedAssetsForm';
 const columns = [
   {
     Header: "Code",
@@ -17,13 +17,19 @@ const columns = [
     Header: "Name (Second Language)",
     accessor: "nameSecondLanguage",
   },
+
+  // Add more columns as needed
 ];
 
-const CustomersRoot = () => {
-  const { data, isLoading } = useGetCustomersQuery(null);
+const FixedAssetsRoot = () => {
+  const { data, isLoading } = useGetFixedAssetsQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
+  useEffect(()=>{
+    console.log("data::::",data);
+    console.log("isLoading:::",isLoading);
+  },[data,isLoading])
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -31,7 +37,6 @@ const CustomersRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
   return (
     <div className="h-full">
       {isLoading ? (
@@ -39,20 +44,20 @@ const CustomersRoot = () => {
       ) : (
         <>
           {showForm && (
-            <CustomersForm
+            <FixedAssetsForm
               id={selectedId ?? ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
             />
+            
           )}
           {data?.result && (
             <AppContent
-              tableType='tree'
-              title='customer'
+              tableType="tree"
+              title="FixedAssets"
               btn
               addBtn
-              startIcon
-              btnName='add new'
+              btnName="add new"
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}
@@ -66,4 +71,4 @@ const CustomersRoot = () => {
   );
 };
 
-export default CustomersRoot;
+export default FixedAssetsRoot;

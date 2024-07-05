@@ -11,10 +11,12 @@ import GlSettingsApi from "../../Apis/GlSettingsApi";
 import CurrenciesApi from "../../Apis/CurrenciesApi";
 import FinancialPeriodsApi from "../../Apis/FinancialPeriodsApi";
 import globalTheme from './global'
+import FixedAssetsApi from "../../Apis/FixedAssetsApi";
 
 const store = configureStore({
   reducer: {
     userAuthStore: userAuthReducer,
+    global: globalTheme,
     [authApi.reducerPath]: authApi.reducer,
     [AccountGuidesApi.reducerPath]: AccountGuidesApi.reducer,
     [ChartOfAccountsApi.reducerPath]: ChartOfAccountsApi.reducer,
@@ -22,11 +24,11 @@ const store = configureStore({
     [CustomersApi.reducerPath]: CustomersApi.reducer,
     [SuppliersApi.reducerPath]: SuppliersApi.reducer,
     [CashInBoxesApi.reducerPath]: CashInBoxesApi.reducer,
+    [FixedAssetsApi.reducerPath]: FixedAssetsApi.reducer,
     [GlSettingsApi.reducerPath]: GlSettingsApi.reducer,
     [CurrenciesApi.reducerPath]: CurrenciesApi.reducer,
     [FinancialPeriodsApi.reducerPath]: FinancialPeriodsApi.reducer,
 
-    global: globalTheme
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -39,6 +41,7 @@ const store = configureStore({
       .concat(FinancialPeriodsApi.middleware)
       .concat(CurrenciesApi.middleware)
       .concat(GlSettingsApi.middleware)
+      .concat(FixedAssetsApi.middleware)
       .concat(ChartOfAccountsApi.middleware),
 });
 
