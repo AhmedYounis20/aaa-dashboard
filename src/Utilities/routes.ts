@@ -1,4 +1,4 @@
-import { DashboardCustomize } from "@mui/icons-material";
+import { Construction, DashboardCustomize } from "@mui/icons-material";
 import React, { ReactElement } from "react";
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -23,58 +23,62 @@ export interface ISidebarItem {
 
 
 export const sidebarItemsData: ISidebarItem[] = [
-    {
-        title: "currencies",
-        icon: React.createElement(AttachMoneyIcon),
-        path: '/currencies'
-    },
-    {
-        title: "Sub Leadgers",
-        icon: React.createElement(LeaderboardIcon),
-        submenu: [
-            {
-                title: "banks",
-                icon: React.createElement(AccountBalanceIcon),
-                path: "/subleadgers/banks",
-            },
-            {
-                title: "cash in boxes",
-                icon: React.createElement(MonetizationOnIcon),
-                path: "/subleadgers/cashInBoxes",
-            },
-            {
-                title: "customers",
-                icon: React.createElement(FaceRetouchingNaturalIcon),
-                path: "/subleadgers/customers",
-            },
-            {
-                title: "suppliers",
-                icon: React.createElement(DashboardCustomize),
-                path: "/subleadgers/suppliers",
-            },
-        ],
-    },
-    {
-        title: "gl settings",
-        icon: React.createElement(DiamondIcon),
-        path: '/glSettings'
-    },
-    {
-        title: "financial Periods",
-        icon: React.createElement(CreditScoreIcon),
-        path: '/currencfinancialPeriodsies'
-    },
-    {
-        title: "account guides",
-        icon: React.createElement(WebhookIcon),
-        path: '/accountguides'
-    },
-    {
-        title: "chart Of Accounts",
-        icon: React.createElement(TableChartIcon),
-        path: '/chartOfAccounts'
-    },
-
+  {
+    title: "currencies",
+    icon: React.createElement(AttachMoneyIcon),
+    path: "/currencies",
+  },
+  {
+    title: "Sub Leadgers",
+    icon: React.createElement(LeaderboardIcon),
+    submenu: [
+      {
+        title: "banks",
+        icon: React.createElement(AccountBalanceIcon),
+        path: "/subleadgers/banks",
+      },
+      {
+        title: "cash in boxes",
+        icon: React.createElement(MonetizationOnIcon),
+        path: "/subleadgers/cashInBoxes",
+      },
+      {
+        title: "customers",
+        icon: React.createElement(FaceRetouchingNaturalIcon),
+        path: "/subleadgers/customers",
+      },
+      {
+        title: "suppliers",
+        icon: React.createElement(DashboardCustomize),
+        path: "/subleadgers/suppliers",
+      },
+      {
+        title: "Fixed Assets",
+        icon: React.createElement(Construction),
+        path: "/subleadgers/fixedAssets",
+      },
+    ],
+  },
+  {
+    title: "gl settings",
+    icon: React.createElement(DiamondIcon),
+    path: "/glSettings",
+  },
+  {
+    title: "financial Periods",
+    icon: React.createElement(CreditScoreIcon),
+    path: "/currencfinancialPeriodsies",
+  },
+  {
+    title: "account guides",
+    icon: React.createElement(WebhookIcon),
+    path: "/accountguides",
+  },
+  {
+    title: "chart Of Accounts",
+    icon: React.createElement(TableChartIcon),
+    path: "/chartOfAccounts",
+  },
 ];
 
 

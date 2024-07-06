@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
-import { Box, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
+import { FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import { useGetGlSettingsQuery } from '../../../../Apis/GlSettingsApi';
 import GlSettingsModel from '../../../../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel';
-import DecimalDigitsNumber, { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
+import { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
 import Loader from '../../../../Components/Loader';
