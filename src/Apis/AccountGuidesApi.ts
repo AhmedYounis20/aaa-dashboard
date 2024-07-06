@@ -26,5 +26,5 @@ const AccountGuidesApi = createApi({
   }),
 });
 
-export const {useGetAccountGuidesQuery,useGetAccountGuidesByIdQuery}  = AccountGuidesApi;
+export const {useGetAccountGuidesQuery, useGetAccountGuidesByIdQuery}  = AccountGuidesApi;
 export default AccountGuidesApi;

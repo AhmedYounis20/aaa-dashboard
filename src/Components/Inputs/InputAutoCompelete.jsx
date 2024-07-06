@@ -13,25 +13,27 @@ const InputAutoComplete = ({
   options,
   label,
   onChange,
-  defaultValue,
   disabled,
-  multiple
+  multiple,
+  name,
+  value,
+  handleBlur
 }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [selectedValues, setSelectedValues] = useState(defaultValue || []);
 
   const handleSortToggle = () => {
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   };
 
+
   const handleSelectAll = () => {
-    setSelectedValues(options.map((option) => option.value));
+    onChange(name, options?.map((option) => option?.value));
     setSelectAllChecked(true);
-  };
+  }
 
   const handleClearAll = () => {
-    setSelectedValues([]);
+    onChange(name, []);
     setSelectAllChecked(false);
   };
 
@@ -40,9 +42,8 @@ const InputAutoComplete = ({
     return order * a.label.localeCompare(b.label);
   });
 
-  const handleChange = (event, values) => {
-    setSelectedValues(values);
-    onChange(values);
+  const handleChange = (event, newValue) => {
+    onChange(name, newValue ? newValue?.value : '' )
   };
 
   return (
@@ -52,8 +53,10 @@ const InputAutoComplete = ({
         id="checkboxes-tags-demo"
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
+        // onChange={(e, values) => onChange(name, values)}
         onChange={handleChange}
-        value={selectedValues}
+        onBlur={handleBlur}
+        value={value}
         selectOnFocus
         clearOnEscape
         disabled={disabled}

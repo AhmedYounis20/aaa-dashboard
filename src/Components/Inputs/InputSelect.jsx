@@ -8,23 +8,30 @@ const InputSelect = ({
   defaultValue,
   multiple = false,
   disabled = false,
+  name,
+  onBlur
 }) => {
   return (
     <FormControl fullWidth>
-      <InputLabel id="demo-simple-select-label" disabled={disabled}>
+      <InputLabel 
+        id="demo-simple-select-label" 
+        disabled={disabled}
+      >
         {label}
       </InputLabel>
       <Select
         label={label}
         defaultValue={defaultValue}
         onChange={onChange}
+        onBlur={onBlur}
         multiple={multiple}
         autoComplete
         disabled={disabled}
+        name={name}
       >
         {options &&
           options.map((item) => {
-            console.log(item);
+            // console.log(item);
             return <MenuItem value={item.value}>{item.label} </MenuItem>;
           })}
       </Select>

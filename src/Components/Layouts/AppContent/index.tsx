@@ -8,7 +8,7 @@ type AppContentProps = {
   tableType: 'tree' | 'table';
   data: any;
   title: string,
-  btnName: string;
+  btnName?: string;
   btn?: boolean
 
   addBtn?: boolean;
