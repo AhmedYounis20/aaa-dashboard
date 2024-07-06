@@ -4,7 +4,7 @@ interface ChartOfAccountModel {
   id: string;
   name: string;
   nameSecondLanguage: string;
-  parentId: string;
+  parentId: string | null;
   accountGuidId: string;
   code: string;
   isPostedAccount: boolean;
@@ -12,6 +12,8 @@ interface ChartOfAccountModel {
   isDepreciable: boolean;
   isActiveAccount: boolean;
   accountNature: number;
+  description?: string;
 }
 
 export default ChartOfAccountModel;
+

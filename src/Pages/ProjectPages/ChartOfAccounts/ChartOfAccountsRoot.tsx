@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
 import DataTreeTable from '../../../Components/Tables/DataTreeTable';
 import { FormTypes } from '../../../interfaces/Components';
 import ChartOfAccountsForm from './ChartOfAccountsForm';
 import Loader from '../../../Components/Loader';
 import { AppContent } from '../../../Components';
+import ChartForm from './ChartForm';
+
 const columns = [
   {
     Header: "Code",
@@ -23,6 +25,7 @@ const columns = [
 ];
 
 const ChartOfAccountsRoot = () => {
+
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
@@ -55,10 +58,12 @@ const ChartOfAccountsRoot = () => {
               tableType='tree'
               data={data.result}
               title='chart of accounts'
-              columns={columns}
-              // btn
-              btnName='add new'
+              // actionBtn={() => setIsOpen(prev => !prev)}
+              btn
               addBtn
+              btnName='add new'
+              startIcon
+              columns={columns}
               showdelete={false}
               showedit={false}
               handleSelectId={handleSelectId}
