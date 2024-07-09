@@ -1,4 +1,5 @@
 interface BankModel {
+  id:string;
   name: string;
   nameSecondLanguage: string;
   parentId: string;

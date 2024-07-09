@@ -8,7 +8,7 @@ import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/Nod
 import { TextField, TextareaAutosize } from '@mui/material';
 import { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
 import BankModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel';
-import { useDeleteBankByIdMutation, useGetBanksByIdQuery } from '../../../../Apis/BanksApi';
+import { useDeleteBankByIdMutation, useGetBanksByIdQuery, useUpdateBankMutation } from '../../../../Apis/BanksApi';
 
 const BanksForm: React.FC<{
   formType: FormTypes;
@@ -19,7 +19,7 @@ const BanksForm: React.FC<{
   const [model, setModel] = useState<BankModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const bankResult = useGetBanksByIdQuery(id);
-  
+  const [update] = useUpdateBankMutation();
   useEffect(() => {
     if (!bankResult.isLoading) {
       setModel(bankResult.data.result);
@@ -33,6 +33,19 @@ const BanksForm: React.FC<{
     }
   }, [bankResult.isLoading]);
 
+     const handleUpdate = async () => {
+       if (model) {
+         const response: ApiResponse = await update(model);
+         if (response.data) {
+           toastify(response.data.successMessage);
+           return true;
+         } else if (response.error) {
+           toastify(response.error.data.errorMessages[0], "error");
+           return false;
+         }
+       }
+       return false;
+     };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -54,6 +67,7 @@ const BanksForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
+        handleUpdate={handleUpdate}
       >
         <div>
           {isLoading ? (
@@ -92,10 +106,14 @@ const BanksForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel((prevModel) => (prevModel ? {
-                            ...prevModel,
-                            nameSecondLanguage: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  nameSecondLanguage: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -217,8 +235,7 @@ const BanksForm: React.FC<{
                         <div
                           className="col col-md-6 pt-0"
                           style={{ marginTop: -10 }}
-                        >
-                        </div>
+                        ></div>
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-12">

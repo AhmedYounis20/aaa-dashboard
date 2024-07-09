@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import CashInBoxModel from "../interfaces/ProjectInterfaces/Subleadgers/CashInBoxes/CashInBoxModel";
 
 const CashInBoxesApi = createApi({
   reducerPath: "cashInBoxesApi",
@@ -30,8 +31,16 @@ const CashInBoxesApi = createApi({
       }),
       invalidatesTags: ["cashInBoxes"],
     }),
+    updateCashInBox: builder.mutation({
+      query: (body: CashInBoxModel) => ({
+        url: `cashInBoxes/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["cashInBoxes"],
+    }),
   }),
 });
 
-export const { useGetCashInBoxesQuery, useGetCashInBoxesByIdQuery,useDeleteCashInBoxByIdMutation } = CashInBoxesApi;
+export const { useGetCashInBoxesQuery, useGetCashInBoxesByIdQuery,useDeleteCashInBoxByIdMutation,useUpdateCashInBoxMutation } = CashInBoxesApi;
 export default CashInBoxesApi;

@@ -3,8 +3,10 @@ import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
 import { FormControlLabel, Switch, TextField } from '@mui/material';
-import { useGetCurrenciesByIdQuery } from '../../../../Apis/CurrenciesApi';
+import { useGetCurrenciesByIdQuery, useUpdateCurrencyMutation } from '../../../../Apis/CurrenciesApi';
 import CurrencyModel from '../../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel';
+import { ApiResponse } from '../../../../interfaces/ApiResponse';
+import { toastify } from '../../../../Helper/toastify';
 
 
 const CurrenciesForm: React.FC<{
@@ -13,7 +15,16 @@ const CurrenciesForm: React.FC<{
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
   const currencyResult = useGetCurrenciesByIdQuery(id);
-  const [model, setModel] = useState<CurrencyModel>();
+  const [model, setModel] = useState<CurrencyModel>({
+    id:id,
+    name:"",
+    nameSecondLanguage:"",
+    exchangeRate:0,
+    isActive:false,
+    isDefault:false,
+    symbol:"$"
+  });
+  const [updateCurrency] = useUpdateCurrencyMutation();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
     if (!currencyResult.isLoading) {
@@ -39,10 +50,26 @@ const CurrenciesForm: React.FC<{
   //     return false;
   //   }
   // };
+   const handleUpdate = async () => {
+     const response: ApiResponse = await updateCurrency(model);
+     if (response.data) {
+       toastify(response.data.successMessage);
+       return true;
+     } else if (response.error) {
+       toastify(response.error.data.errorMessages[0], "error");
+       return false;
+     }
+    return false;
+   };
 
   return (
     <div className="h-full">
-      <BaseForm formType={formType} id={id} handleCloseForm={handleCloseForm}>
+      <BaseForm
+        formType={formType}
+        id={id}
+        handleCloseForm={handleCloseForm}
+        handleUpdate={handleUpdate}
+      >
         <div>
           {isLoading ? (
             <div

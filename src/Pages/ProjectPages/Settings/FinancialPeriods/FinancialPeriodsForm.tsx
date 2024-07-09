@@ -3,7 +3,7 @@ import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { AccountGuideModel } from "../../../../interfaces/ProjectInterfaces";
 import { FormControl, InputLabel, TextField } from "@mui/material";
-import { useGetFinancialPeriodsByIdQuery } from "../../../../Apis/FinancialPeriodsApi";
+import { useGetFinancialPeriodsByIdQuery, useUpdateFinancialPeriodMutation } from "../../../../Apis/FinancialPeriodsApi";
 import FinancialPeriodModel from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodModel";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -14,6 +14,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { financialPeriodOptions } from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/financialPeriodTypes";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
+import { ApiResponse } from "../../../../interfaces/ApiResponse";
+import { toastify } from "../../../../Helper/toastify";
 
 const FinancialPeriodsForm: React.FC<{
   formType: FormTypes;
@@ -25,7 +27,7 @@ const FinancialPeriodsForm: React.FC<{
     undefined
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const [update] = useUpdateFinancialPeriodMutation();
   useEffect(() => {
     if (!accountGuidesResult.isLoading) {
       setModel(accountGuidesResult.data.result);
@@ -45,9 +47,26 @@ const FinancialPeriodsForm: React.FC<{
     }
   }, [model?.periodTypeByMonth, model?.startDate]);
 
+     const handleUpdate = async () => {
+       if (model) {
+         const response: ApiResponse = await update(model);
+         if (response.data) {
+           toastify(response.data.successMessage);
+           return true;
+         } else if (response.error) {
+           toastify(response.error.data.errorMessages[0], "error");
+           return false;
+         }
+       }
+       return false;
+     };
   return (
     <div className="container h-full">
-      <BaseForm formType={formType} id={id} handleCloseForm={handleCloseForm}>
+      <BaseForm
+        formType={formType}
+        handleCloseForm={handleCloseForm}
+        handleUpdate={handleUpdate}
+      >
         <div>
           {isLoading ? (
             <div

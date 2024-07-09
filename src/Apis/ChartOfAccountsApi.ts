@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import { ChartOfAccountModel } from "../interfaces/ProjectInterfaces";
 
 const ChartOfAccountsApi = createApi({
   reducerPath: "chartOfAccountsApi",
@@ -30,8 +31,16 @@ const ChartOfAccountsApi = createApi({
       }),
       invalidatesTags: ["chartofAccounts"],
     }),
+    updateChartOfAccount: builder.mutation({
+      query: (body: ChartOfAccountModel) => ({
+        url: `chartOfAccounts/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["chartofAccounts"],
+    }),
   }),
 });
 
-export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery,useDeleteChartOfAcountByIdMutation } = ChartOfAccountsApi;
+export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery,useDeleteChartOfAcountByIdMutation,useUpdateChartOfAccountMutation } = ChartOfAccountsApi;
 export default ChartOfAccountsApi;

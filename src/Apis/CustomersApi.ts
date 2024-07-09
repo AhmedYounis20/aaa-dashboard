@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import CustomerModel from "../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerModel";
 
 const CustomersApi = createApi({
   reducerPath: "customersApi",
@@ -30,8 +31,16 @@ const CustomersApi = createApi({
       }),
       invalidatesTags: ["customers"],
     }),
+    updateCustomer: builder.mutation({
+      query: (body: CustomerModel) => ({
+        url: `customers/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["customers"],
+    }),
   }),
 });
 
-export const { useGetCustomersQuery, useGetCustomersByIdQuery,useDeleteCustomerByIdMutation } = CustomersApi;
+export const { useGetCustomersQuery, useGetCustomersByIdQuery,useDeleteCustomerByIdMutation,useUpdateCustomerMutation } = CustomersApi;
 export default CustomersApi;

@@ -1,4 +1,5 @@
 interface CurrencyModel {
+  id: string,
   name: string;
   nameSecondLanguage: string;
   exchangeRate : number,

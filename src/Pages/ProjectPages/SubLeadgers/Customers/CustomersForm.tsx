@@ -7,7 +7,7 @@ import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import { TextField, TextareaAutosize } from '@mui/material';
 import { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
-import { useDeleteCustomerByIdMutation, useGetCustomersByIdQuery } from '../../../../Apis/CustomersApi';
+import { useDeleteCustomerByIdMutation, useGetCustomersByIdQuery, useUpdateCustomerMutation } from '../../../../Apis/CustomersApi';
 import CustomerModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerModel';
 
 const CustomersForm: React.FC<{
@@ -19,6 +19,7 @@ const CustomersForm: React.FC<{
   const [model, setModel] = useState<CustomerModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const customerResult = useGetCustomersByIdQuery(id);
+  const [update] = useUpdateCustomerMutation();
   useEffect(() => {
     if (!customerResult.isLoading) {
       setModel(customerResult.data.result);
@@ -32,14 +33,26 @@ const CustomersForm: React.FC<{
     }
   }, [customerResult.isLoading]);
 
+     const handleUpdate = async () => {
+       if (model) {
+         const response: ApiResponse = await update(model);
+         if (response.data) {
+           toastify(response.data.successMessage);
+           return true;
+         } else if (response.error) {
+           toastify(response.error.data.errorMessages[0], "error");
+           return false;
+         }
+       }
+       return false;
+     };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
       return true;
     } else {
       console.log(response);
-
-      response.error?.data?.errorMessages?.map((error) => {
+      response.error?.data?.errorMessages?.map((error : string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -52,7 +65,8 @@ const CustomersForm: React.FC<{
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
-        handleDelete={async () => await handleDelete()}
+        handleDelete={handleDelete}
+        handleUpdate={handleUpdate}
       >
         <div>
           {isLoading ? (

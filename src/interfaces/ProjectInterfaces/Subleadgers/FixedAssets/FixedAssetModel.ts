@@ -1,6 +1,7 @@
 import FixedAssetType from "./FixedAssetType";
 
 interface FixedAssetModel {
+  id:string;
   name: string;
   nameSecondLanguage: string;
   parentId: string;
