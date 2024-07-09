@@ -9,90 +9,41 @@ import { FormControlLabel, Switch, TextField } from '@mui/material';
 import InputSelect from '../../../Components/Inputs/InputSelect';
 import InputAutoComplete from '../../../Components/Inputs/InputAutoCompelete';
 import { useGetAccountGuidesQuery } from '../../../Apis/AccountGuidesApi';
-import { useFormik } from 'formik';
-import { chartsOfAccountSchema } from '../../../interfaces/ProjectInterfaces/ChartOfAccount/validation';
-
-const defaultInitialValues: ChartOfAccountModel = {
-  id: '',
-  name: '',
-  nameSecondLanguage: '',
-  parentId: '',
-  accountGuidId: '',
-  code: '',
-  isPostedAccount: false,
-  isActiveAccount: true,
-  isStopDealing: true,
-  isDepreciable: false,
-  accountNature: 0,
-}
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
-
+}> = ({formType,id,handleCloseForm}) => {
   const [deleteChartOfAccount] = useDeleteChartOfAcountByIdMutation();
   const accountGuidesResult = useGetAccountGuidesQuery(null);
-  const [model, setModel] = useState<ChartOfAccountModel>();
+  const [model,setModel] = useState<ChartOfAccountModel>();
   const chartOfAccountResult = useGetChartOfAccountsByIdQuery(id);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const onSubmit = () => {
-    console.log(values);
-  }
-
-  const {
-    values,
-    errors,
-    touched,
-    handleBlur,
-    handleChange,
-    handleSubmit,
-    setFieldValue
-  } = useFormik(
-    {
-      initialValues: model && model || defaultInitialValues,
-      validationSchema: chartsOfAccountSchema,
-      onSubmit,
-      enableReinitialize: true,
-    })
-
-
+  const [isLoading,setIsLoading] = useState<boolean>(true);
   useEffect(() => {
-    if (!chartOfAccountResult.isLoading && chartOfAccountResult.data?.result) {
-      const data = chartOfAccountResult.data.result;
-      setModel(data);
+    if (!chartOfAccountResult.isLoading) {
+      setModel(chartOfAccountResult.data.result);
       setIsLoading(false);
     }
   }, [chartOfAccountResult.isLoading, chartOfAccountResult?.data?.result]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteChartOfAccount(id);
-    if (response.data) {
+    if(response.data){
+      
       return true;
     }
-
     else {
       console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      }
+
+      response.error?.data?.errorMessages?.map((error :string) =>{
+      toastify(error, "error");
+    console.log(error);
+      } 
       );
       return false;
     }
-  };
-
-  const handleUpdate = async (): Promise<boolean> => {
-    console.log(values)
-    return true;
-  }
-
-
-  useEffect(() => {
-    console.table(values)
-  }, [values])
+  }; 
 
   return (
     <div className="container h-full">
@@ -100,7 +51,7 @@ const ChartOfAccountsForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleAdd={handleDelete}
-        handleUpdate={handleUpdate}
+        handleUpdate={handleDelete}
         handleDelete={handleDelete}
         isModal={true}
       >
@@ -117,107 +68,116 @@ const ChartOfAccountsForm: React.FC<{
               {formType === FormTypes.Delete ? (
                 <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
               ) : (
-                <form onSubmit={handleSubmit}>
+                <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
                       <TextField
-                        name='name'
                         type="text"
                         className="form-input form-control"
                         label="Name"
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
-                        value={model && values?.name}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.name && touched.name ? true : false}
+                        value={model?.name}
+                        onChange={(event) =>
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  name: event.target.value,
+                                }
+                              : prevModel
+                          )
+                        }
                       />
-                      {errors.name && <p>{errors?.name}</p>}
                     </div>
                     <div className="col col-md-6">
                       <TextField
-                        name='nameSecondLanguage'
                         type="text"
                         className="form-input form-control"
                         label="NameSecondLanguage"
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
-                        value={values?.nameSecondLanguage}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.nameSecondLanguage && touched.nameSecondLanguage ? true : false}
+                        value={model?.nameSecondLanguage}
+                        onChange={(event) =>
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  nameSecondLanguage: event.target.value,
+                                }
+                              : prevModel
+                          )
+                        }
                       />
                     </div>
                   </div>
                   <div className="row mb-3">
                     <div className="col col-md-6">
                       <TextField
-                        name='code'
                         type="text"
                         className="form-input form-control"
                         label="Code"
                         variant="outlined"
                         fullWidth
                         disabled
-                        value={values?.code}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        value={model?.code}
                       />
                     </div>
                     <div className="col col-md-6">
                       <InputSelect
                         options={AccountNatureOptions}
                         label={"AccountNature"}
-                        defaultValue={values?.accountNature.toString()}
+                        defaultValue={model?.accountNature.toString()}
                         disabled={formType === FormTypes.Details}
                         multiple={false}
-                        name={'accountNature'}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        onChange={() => console.log("changed AccountNature")}
                       />
                     </div>
                   </div>
-
                   <div className="row mb-3">
                     <div className="col col-md-6">
                       <InputAutoComplete
-                        name='accountGuidId'
-                        label={"Account Guide"}
-                        onChange={setFieldValue}
-                        value={
-                          accountGuidesResult?.data?.result
-                            ?.map((item: { name: string; id: string }) => ({
-                              label: item.name,
-                              value: item.id,
-                            }))
-                            ?.find((e: {value: string}) => e.value === values.accountGuidId) || null
-                        }
-                        options={accountGuidesResult && accountGuidesResult.data?.result.map(
+                        options={accountGuidesResult.data.result.map(
                           (item: { name: string; id: string }) => ({
                             label: item.name,
                             value: item.id,
                           })
                         )}
-                        handleBlur={handleBlur}
+                        label={"Account Guide"}
+                        defaultValue={accountGuidesResult.data.result
+                          .map((item: { name: string; id: string }) => ({
+                            label: item.name,
+                            value: item.id,
+                          }))
+                          .find(
+                            (e: { value: string }) =>
+                              e.value === model?.accountGuidId
+                          )}
                         disabled={formType === FormTypes.Details}
+                        onChange={() => console.log("idChanged")}
                         multiple={false}
                       />
                     </div>
                   </div>
-
                   <div className="row">
                     <div className="col col-md-6">
                       <FormControlLabel
                         control={
                           <Switch
-                            name='isPostedAccount'
-                            checked={values.isPostedAccount}
-                            value={values.isPostedAccount}
+                            checked={model?.isPostedAccount}
                             disabled={formType === FormTypes.Details}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
+                            onChange={({ target }) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      isPostedAccount: target.checked,
+                                    }
+                                  : prevModel
+                              )
+                            }
                           />
                         }
                         label="isPostedAccount"
@@ -227,12 +187,18 @@ const ChartOfAccountsForm: React.FC<{
                       <FormControlLabel
                         control={
                           <Switch
-                            name='isActiveAccount'
-                            checked={values.isActiveAccount}
-                            value={values.isActiveAccount}
+                            checked={model?.isActiveAccount}
                             disabled={formType === FormTypes.Details}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
+                            onChange={({ target }) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      isActiveAccount: target.checked,
+                                    }
+                                  : prevModel
+                              )
+                            }
                           />
                         }
                         label="isActiveAccount"
@@ -244,12 +210,18 @@ const ChartOfAccountsForm: React.FC<{
                       <FormControlLabel
                         control={
                           <Switch
-                            name='isStopDealing'
-                            checked={values.isStopDealing}
-                            value={values.isStopDealing}
+                            checked={model?.isStopDealing}
                             disabled={formType === FormTypes.Details}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
+                            onChange={({ target }) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      isStopDealing: target.checked,
+                                    }
+                                  : prevModel
+                              )
+                            }
                           />
                         }
                         label="IsStopDealing"
@@ -259,19 +231,25 @@ const ChartOfAccountsForm: React.FC<{
                       <FormControlLabel
                         control={
                           <Switch
-                            name='isDepreciable'
-                            checked={values.isDepreciable}
-                            value={values.isDepreciable}
+                            checked={model?.isDepreciable}
                             disabled={formType === FormTypes.Details}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            />
+                            onChange={({ target }) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      isDepreciable: target.checked,
+                                    }
+                                  : prevModel
+                              )
+                            }
+                          />
                         }
                         label="isDepreciable"
                       />
                     </div>
                   </div>
-                </form>
+                </>
               )}
             </>
           )}

@@ -1,4 +1,5 @@
 interface CashInBoxModel {
+  id:string;
   name: string;
   nameSecondLanguage: string;
   parentId: string;

@@ -1,6 +1,7 @@
 import CustomerType from "./CustomerType";
 
 interface CustomerModel {
+  id:string;
   name: string;
   nameSecondLanguage: string;
   parentId: string;

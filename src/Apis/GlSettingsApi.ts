@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import GlSettingsModel from "../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel";
 
 const GlSettingsApi = createApi({
   reducerPath: "glSettingsApi",
@@ -19,8 +20,16 @@ const GlSettingsApi = createApi({
       query: () => "glSettings",
       providesTags: ["glSettings"],
     }),
+    updateGlSettings: builder.mutation({
+      query: (body: GlSettingsModel) => ({
+        url: `glSettings`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags : ['glSettings']
+    }),
   }),
 });
 
-export const { useGetGlSettingsQuery } = GlSettingsApi;
+export const { useGetGlSettingsQuery,useUpdateGlSettingsMutation } = GlSettingsApi;
 export default GlSettingsApi;

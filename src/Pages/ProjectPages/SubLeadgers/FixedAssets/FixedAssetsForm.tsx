@@ -5,13 +5,10 @@ import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
-import { FormControlLabel, Switch, TextField, TextareaAutosize } from '@mui/material';
-import { useDeleteFixedAssetByIdMutation, useGetFixedAssetsByIdQuery } from '../../../../Apis/FixedAssetsApi';
+import { FormControlLabel, Switch, TextField } from '@mui/material';
+import { useDeleteFixedAssetByIdMutation, useGetFixedAssetsByIdQuery, useUpdateFixedAssetMutation } from '../../../../Apis/FixedAssetsApi';
 import FixedAssetModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetModel';
-import { Preview } from '@mui/icons-material';
-import { FixedAssetTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetType';
-import { Unstable_NumberInput as NumberInput } from "@mui/base/Unstable_NumberInput";
-
+import  { FixedAssetTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetType';
 
 const FixedAssetsForm: React.FC<{
   formType: FormTypes;
@@ -22,7 +19,7 @@ const FixedAssetsForm: React.FC<{
   const [model, setModel] = useState<FixedAssetModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const bankResult = useGetFixedAssetsByIdQuery(id);
-  
+  const [update] = useUpdateFixedAssetMutation();
   useEffect(() => {
     if (!bankResult.isLoading) {
       setModel(bankResult.data.result);
@@ -41,7 +38,19 @@ const FixedAssetsForm: React.FC<{
       setIsLoading(false);
     }
   }, [bankResult.isLoading]);
-
+   const handleUpdate = async () => {
+    if(model){
+      const response: ApiResponse = await update(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        toastify(response.error.data.errorMessages[0], "error");
+        return false;
+      }
+    }
+     return false;
+   };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -49,7 +58,7 @@ const FixedAssetsForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error) => {
+      response.error?.data?.errorMessages?.map((error:string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -63,6 +72,7 @@ const FixedAssetsForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
+        handleUpdate={handleUpdate}
       >
         <div>
           {isLoading ? (
@@ -123,12 +133,12 @@ const FixedAssetsForm: React.FC<{
                         multiple={false}
                         onChange={({ target }) => {
                           setModel((prevModel) =>
-                            prevModel
-                              ? {
+                            prevModel ? 
+                             {
                                   ...prevModel,
                                   nodeType: target.value,
-                                }
-                              : undefined
+                                } : prevModel
+                              
                           );
                         }}
                       />
@@ -209,7 +219,7 @@ const FixedAssetsForm: React.FC<{
                                   ? prevModel
                                   : {
                                       ...prevModel,
-                                      phone: event.target.value,
+                                      serial: event.target.value,
                                     }
                               )
                             }
@@ -230,7 +240,7 @@ const FixedAssetsForm: React.FC<{
                                   ? prevModel
                                   : {
                                       ...prevModel,
-                                      bankAccount: event.target.value,
+                                      version: event.target.value,
                                     }
                               )
                             }
@@ -253,7 +263,7 @@ const FixedAssetsForm: React.FC<{
                                   ? prevModel
                                   : {
                                       ...prevModel,
-                                      email: event.target.value,
+                                      manufactureCompany: event.target.value,
                                     }
                               )
                             }

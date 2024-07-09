@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import CurrencyModel from "../interfaces/ProjectInterfaces/Currencies/CurrencyModel";
 
 const CurrenciesApi = createApi({
   reducerPath: "currenciesApi",
@@ -23,8 +24,16 @@ const CurrenciesApi = createApi({
       query: (id) => `currencies/${id}`,
       providesTags: ["currencies"],
     }),
+    updateCurrency: builder.mutation({
+      query: (currencyBody: CurrencyModel) => ({
+        url: `currencies/${currencyBody.id}`,
+        method: "PUT",
+        body:currencyBody
+      }),
+      invalidatesTags: ["currencies"],
+    }),
   }),
 });
 
-export const { useGetCurrenciesQuery, useGetCurrenciesByIdQuery } = CurrenciesApi;
+export const { useGetCurrenciesQuery, useGetCurrenciesByIdQuery,useUpdateCurrencyMutation } = CurrenciesApi;
 export default CurrenciesApi;

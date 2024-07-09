@@ -3,7 +3,7 @@ import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery } from '../../../../Apis/SuppliersApi';
+import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery, useUpdateSupplierMutation } from '../../../../Apis/SuppliersApi';
 import SupplierModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
@@ -18,6 +18,7 @@ const SuppliersForm: React.FC<{
   const [model, setModel] = useState<SupplierModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const supplierResult = useGetSuppliersByIdQuery(id);
+  const [update] = useUpdateSupplierMutation();
   useEffect(() => {
     if (!supplierResult.isLoading) {
       setModel(supplierResult.data.result);
@@ -34,7 +35,19 @@ const SuppliersForm: React.FC<{
       setIsLoading(false);
     }
   }, [supplierResult.isLoading, supplierResult?.data?.result]);
-
+  const handleUpdate = async () => {
+    if (model) {
+      const response: ApiResponse = await update(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        toastify(response.error.data.errorMessages[0], "error");
+        return false;
+      }
+    }
+       return false;
+     };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -55,9 +68,9 @@ const SuppliersForm: React.FC<{
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
-        handleDelete={async () => await handleDelete()}
-        handleUpdate={async () => await handleDelete()}
-        handleAdd={async () => await handleDelete()}
+        handleDelete={handleDelete}
+        handleUpdate={handleUpdate}
+        handleAdd={handleDelete}
         isModal
       >
         <div>

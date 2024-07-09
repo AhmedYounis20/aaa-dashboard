@@ -7,7 +7,7 @@ import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import {  TextField } from '@mui/material';
 import CashInBoxModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/CashInBoxes/CashInBoxModel';
-import { useDeleteCashInBoxByIdMutation, useGetCashInBoxesByIdQuery } from '../../../../Apis/CashInBoxesApi';
+import { useDeleteCashInBoxByIdMutation, useGetCashInBoxesByIdQuery, useUpdateCashInBoxMutation } from '../../../../Apis/CashInBoxesApi';
 
 const CashInBoxesForm: React.FC<{
   formType: FormTypes;
@@ -18,6 +18,7 @@ const CashInBoxesForm: React.FC<{
   const [model, setModel] = useState<CashInBoxModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const cashInBoxResult = useGetCashInBoxesByIdQuery(id);
+  const [update] = useUpdateCashInBoxMutation();
   useEffect(() => {
     if (!cashInBoxResult.isLoading) {
       setModel(cashInBoxResult.data.result);
@@ -35,6 +36,19 @@ const CashInBoxesForm: React.FC<{
     }
   }, [cashInBoxResult.isLoading, cashInBoxResult?.data?.result]);
 
+       const handleUpdate = async () => {
+         if (model) {
+           const response: ApiResponse = await update(model);
+           if (response.data) {
+             toastify(response.data.successMessage);
+             return true;
+           } else if (response.error) {
+             toastify(response.error.data.errorMessages[0], "error");
+             return false;
+           }
+         }
+         return false;
+       };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -56,7 +70,7 @@ const CashInBoxesForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
-        handleUpdate={async () => await handleDelete()}
+        handleUpdate={handleUpdate}
         handleAdd={async () => await handleDelete()}
         isModal
       >
@@ -80,12 +94,14 @@ const CashInBoxesForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? 
-                            {
-                            ...prevModel,
-                            name: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  name: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -119,7 +135,11 @@ const CashInBoxesForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({ target  } : {target:{value:NodeType}}) => {
+                        onChange={({
+                          target,
+                        }: {
+                          target: { value: NodeType };
+                        }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {

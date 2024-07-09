@@ -2,24 +2,41 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
-import { useGetGlSettingsQuery } from '../../../../Apis/GlSettingsApi';
+import { useGetGlSettingsQuery, useUpdateGlSettingsMutation } from '../../../../Apis/GlSettingsApi';
 import GlSettingsModel from '../../../../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel';
 import { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
 import Loader from '../../../../Components/Loader';
+import { ApiResponse } from '../../../../interfaces/ApiResponse';
+import { toastify } from '../../../../Helper/toastify';
 
 
 const GlSettingsRoot: React.FC = () => {
   const accountGuidesResult = useGetGlSettingsQuery(null);
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [update]=  useUpdateGlSettingsMutation();
   useEffect(() => {
     if (!accountGuidesResult.isLoading) {
       setModel(accountGuidesResult.data.result);
       setIsLoading(false);
     }
   }, [accountGuidesResult.isLoading]);
+
+       const handleUpdate = async () => {
+         if (model) {
+           const response: ApiResponse = await update(model);
+           if (response.data) {
+             toastify(response.data.successMessage);
+             return true;
+           } else if (response.error) {
+             toastify(response.error.data.errorMessages[0], "error");
+             return false;
+           }
+         }
+         return false;
+       };
 
   // const handleDelete = async (): Promise<boolean> => {
   //   const response: ApiResponse = await deleteChartOfAccount(id);
@@ -41,15 +58,22 @@ const GlSettingsRoot: React.FC = () => {
 
   return (
     <div className="h-full">
-      <BaseForm formType={FormTypes.Edit} isModal={false}>
-        <Typography variant='h2' mb={3}> GL Settings</Typography>
+      <BaseForm
+        formType={FormTypes.Edit}
+        isModal={false}
+        handleUpdate={handleUpdate}
+      >
+        <Typography variant="h2" mb={3}>
+          {" "}
+          GL Settings
+        </Typography>
         <div>
           {isLoading ? (
-            <Loader/>
+            <Loader />
           ) : (
             <div>
-              <Stack spacing={2} >
-                <div >
+              <Stack spacing={2}>
+                <div>
                   <TextField
                     type="number"
                     className="form-input form-control"
@@ -75,15 +99,15 @@ const GlSettingsRoot: React.FC = () => {
                       setModel((prevModel) =>
                         prevModel
                           ? {
-                            ...prevModel,
-                            decimalDigitsNumber: target.value,
-                          }
+                              ...prevModel,
+                              decimalDigitsNumber: target.value,
+                            }
                           : undefined
                       );
                     }}
                   />
                 </div>
-                <div >
+                <div>
                   <div>
                     <InputSelect
                       options={DepreciationApplicationOptions}
@@ -94,9 +118,9 @@ const GlSettingsRoot: React.FC = () => {
                         setModel((prevModel) =>
                           prevModel
                             ? {
-                              ...prevModel,
-                              depreciationApplication: target.value,
-                            }
+                                ...prevModel,
+                                depreciationApplication: target.value,
+                              }
                             : undefined
                         );
                       }}
@@ -106,7 +130,7 @@ const GlSettingsRoot: React.FC = () => {
                 </div>
               </Stack>
               <div>
-                <div >
+                <div>
                   <FormControlLabel
                     control={
                       <Switch
@@ -122,7 +146,7 @@ const GlSettingsRoot: React.FC = () => {
                     label="Is Allowing Edit Voucher"
                   />
                 </div>
-                <div >
+                <div>
                   <FormControlLabel
                     control={
                       <Switch
@@ -139,7 +163,7 @@ const GlSettingsRoot: React.FC = () => {
                   />
                 </div>
               </div>
-              <div >
+              <div>
                 <div>
                   <FormControlLabel
                     control={

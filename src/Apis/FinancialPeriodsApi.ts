@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import FinancialPeriodModel from "../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodModel";
 
 const FinancialPeriodsApi = createApi({
   reducerPath: "financialPeriodsApi",
@@ -23,9 +24,17 @@ const FinancialPeriodsApi = createApi({
       query: (id) => `financialPeriods/${id}`,
       providesTags: ["financialPeriods"],
     }),
+    updateFinancialPeriod: builder.mutation({
+      query: (body: FinancialPeriodModel) => ({
+        url: `financialPeriods/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["financialPeriods"],
+    }),
   }),
 });
 
-export const { useGetFinancialPeriodsQuery, useGetFinancialPeriodsByIdQuery } =
+export const { useGetFinancialPeriodsQuery, useGetFinancialPeriodsByIdQuery,useUpdateFinancialPeriodMutation } =
   FinancialPeriodsApi;
 export default FinancialPeriodsApi;

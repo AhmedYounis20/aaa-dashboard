@@ -4,6 +4,7 @@ export type ApiResponse = {
     isSucess: boolean;
     errorMessages?: Array<string>;
     result: any;
+    successMessage :string;
   };
   error?: any;
 };

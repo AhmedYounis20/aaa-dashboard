@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import BankModel from "../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel";
 
 const BanksApi = createApi({
   reducerPath: "banksApi",
@@ -30,8 +31,16 @@ const BanksApi = createApi({
       }),
       invalidatesTags: ["banks"],
     }),
+    updateBank: builder.mutation({
+      query: (body: BankModel) => ({
+        url: `banks/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["banks"],
+    }),
   }),
 });
 
-export const { useGetBanksQuery,useGetBanksByIdQuery,useDeleteBankByIdMutation } = BanksApi;
+export const { useGetBanksQuery,useGetBanksByIdQuery,useDeleteBankByIdMutation,useUpdateBankMutation } = BanksApi;
 export default BanksApi;

@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import FixedAssetModel from "../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetModel";
 
 const FixedAssetsApi = createApi({
   reducerPath: "fixedAssetsApi",
@@ -30,6 +31,14 @@ const FixedAssetsApi = createApi({
       }),
       invalidatesTags: ["fixedAssets"],
     }),
+    updateFixedAsset: builder.mutation({
+      query: (body: FixedAssetModel) => ({
+        url: `fixedAssets/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["fixedAssets"],
+    }),
   }),
 });
 
@@ -37,5 +46,6 @@ export const {
   useGetFixedAssetsQuery,
   useGetFixedAssetsByIdQuery,
   useDeleteFixedAssetByIdMutation,
+  useUpdateFixedAssetMutation,
 } = FixedAssetsApi;
 export default FixedAssetsApi;

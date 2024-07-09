@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import SupplierModel from "../interfaces/ProjectInterfaces/Subleadgers/Suppliers/SupplierModel";
 
 const SuppliersApi = createApi({
   reducerPath: "SuppliersApi",
@@ -30,8 +31,16 @@ const SuppliersApi = createApi({
       }),
       invalidatesTags: ["suppliers"],
     }),
+    updateSupplier: builder.mutation({
+      query: (body: SupplierModel) => ({
+        url: `suppliers/${body.id}`,
+        method: "PUT",
+        body: body,
+      }),
+      invalidatesTags: ["suppliers"],
+    }),
   }),
 });
 
-export const { useGetSuppliersQuery, useGetSuppliersByIdQuery, useDeleteSupplierByIdMutation } = SuppliersApi;
+export const { useGetSuppliersQuery, useGetSuppliersByIdQuery, useDeleteSupplierByIdMutation,useUpdateSupplierMutation } = SuppliersApi;
 export default SuppliersApi;
