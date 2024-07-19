@@ -1,4 +1,4 @@
-import { Construction, DashboardCustomize } from "@mui/icons-material";
+import { Construction, DashboardCustomize, Store } from "@mui/icons-material";
 import React, { ReactElement } from "react";
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -56,6 +56,11 @@ export const sidebarItemsData: ISidebarItem[] = [
         title: "Fixed Assets",
         icon: React.createElement(Construction),
         path: "/subleadgers/fixedAssets",
+      },
+      {
+        title: "Branches",
+        icon: React.createElement(Store),
+        path: "/subleadgers/Branches",
       },
     ],
   },
