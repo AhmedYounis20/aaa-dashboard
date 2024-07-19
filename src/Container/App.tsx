@@ -21,6 +21,7 @@ import { themeSettings } from '../Utilities/theme';
 import Dashboard from '../Pages/Dashboard';
 import { CssBaseline } from '@mui/material';
 import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/FixedAssetsRoot';
+import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -67,6 +68,10 @@ function App() {
               <Route
                 path="/subleadgers/fixedAssets"
                 element={<FixedAssetsRoot />}
+              />
+              <Route
+                path="/subleadgers/branches"
+                element={<BranchesRoot />}
               />
             </Route>
             <Route path="*" element={<Page404 />} />
