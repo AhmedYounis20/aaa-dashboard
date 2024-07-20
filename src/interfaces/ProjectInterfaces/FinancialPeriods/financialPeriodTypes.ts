@@ -6,5 +6,5 @@ export enum FinancialPeriodType {
 }
 
 export const financialPeriodOptions = Object.entries(FinancialPeriodType)
-  .filter(([key, value]) => typeof value === "number")
+  .filter(([, value]) => typeof value === "number")
   .map(([key, value]) => ({ label:key, value }));

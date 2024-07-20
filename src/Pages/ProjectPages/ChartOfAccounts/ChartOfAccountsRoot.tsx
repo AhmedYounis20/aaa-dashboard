@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
-import DataTreeTable from '../../../Components/Tables/DataTreeTable';
 import { FormTypes } from '../../../interfaces/Components';
 import ChartOfAccountsForm from './ChartOfAccountsForm';
 import Loader from '../../../Components/Loader';
 import { AppContent } from '../../../Components';
-import ChartForm from './ChartForm';
 
 const columns = [
   {
@@ -28,7 +26,7 @@ const ChartOfAccountsRoot = () => {
 
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>("");
   const { data, isLoading } = useGetChartOfAccountsQuery(null);
   const handleShowForm = () => {
     setShowForm(true);

@@ -6,33 +6,32 @@ import { toastify } from '../../../../Helper/toastify';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import { TextField, TextareaAutosize } from '@mui/material';
-import CustomerType, { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
-import { useDeleteCustomerByIdMutation, useGetCustomersByIdQuery, useUpdateCustomerMutation } from '../../../../Apis/CustomersApi';
-import CustomerModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerModel';
+import { useDeleteBranchByIdMutation, useGetBranchesByIdQuery, useUpdateBranchMutation } from '../../../../Apis/BranchesApi';
+import BranchModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel';
 
-const CustomersForm: React.FC<{
+const BranchesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
-  const [deleteFunc] = useDeleteCustomerByIdMutation();
-  const [model, setModel] = useState<CustomerModel>();
+  const [deleteFunc] = useDeleteBranchByIdMutation();
+  const [model, setModel] = useState<BranchModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const customerResult = useGetCustomersByIdQuery(id);
-  const [update] = useUpdateCustomerMutation();
+  const bankResult = useGetBranchesByIdQuery(id);
+  const [update] = useUpdateBranchMutation();
   useEffect(() => {
-    if (!customerResult.isLoading) {
-      setModel(customerResult.data.result);
-      if (customerResult.data?.result.nodeType === 0) {
+    if (!bankResult.isLoading) {
+      setModel(bankResult.data.result);
+      if (bankResult.data?.result.nodeType === 0) {
         setModel((prevModel) => (
           prevModel ? {
           ...prevModel,
-          code: customerResult.data.result.chartOfAccount.code,
+          code: bankResult.data.result.chartOfAccount.code,
         } : prevModel ));
       }
       setIsLoading(false);
     }
-  }, [customerResult.isLoading,customerResult]);
+  }, [bankResult.isLoading,bankResult]);
 
      const handleUpdate = async () => {
        if (model) {
@@ -53,6 +52,7 @@ const CustomersForm: React.FC<{
       return true;
     } else {
       console.log(response);
+
       response.error?.data?.errorMessages?.map((error : string) => {
         toastify(error, "error");
         console.log(error);
@@ -66,9 +66,9 @@ const CustomersForm: React.FC<{
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
-        handleDelete={handleDelete}
+        handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
-        handleAdd={undefined}
+        handleAdd={handleUpdate}
         isModal
       >
         <div>
@@ -91,11 +91,14 @@ const CustomersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? {
-                            ...prevModel,
-                            name: event.target.value,
-                          } : prevModel ))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  name: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -109,11 +112,14 @@ const CustomersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? {
-                            ...prevModel,
-                            nameSecondLanguage: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  nameSecondLanguage: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -140,8 +146,8 @@ const CustomersForm: React.FC<{
                               : undefined
                           );
                         }}
-                        name="NodeType"
-                        onBlur={undefined}
+                        name={"NodeType"}
+                        onBlur={null}
                       />
                     </div>
                   </div>
@@ -159,33 +165,36 @@ const CustomersForm: React.FC<{
                             disabled
                             value={model?.code}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                name: event.target.value,
-                              } : prevModel))
-                            }
-                          />
-                        </div>
-                        <div className="col col-md-6">
-                          <InputSelect
-                            options={CustomerTypeOptions}
-                            label={"Customer Type"}
-                            defaultValue={model?.customerType}
-                            disabled={formType !== FormTypes.Add}
-                            multiple={false}
-                            onChange={({ target } : {target : {value: CustomerType}}) => {
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      customerType: target.value,
+                                      name: event.target.value,
                                     }
-                                  : undefined
-                              );
-                            }}
-                            name={"CustomerType"}
-                            onBlur={undefined}
+                                  : prevModel
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="col col-md-6">
+                          <TextField
+                            type="text"
+                            className="form-input form-control"
+                            label="Phone"
+                            variant="outlined"
+                            fullWidth
+                            disabled={formType === FormTypes.Details}
+                            value={model?.phone}
+                            onChange={(event) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      phone: event.target.value,
+                                    }
+                                  : prevModel
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -200,52 +209,18 @@ const CustomersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                phone: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      phone: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
-                        <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
-                            label="Mobile"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.mobile}
-                            onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                mobile: event.target.value,
-                              } : prevModel))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
-                            label="Tax Number"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.taxNumber}
-                            onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                taxNumber: event.target.value,
-                              } : prevModel))
-                            }
-                          />
-                        </div>
+
                         <div className="col col-md-6">
                           <TextField
                             type="text"
@@ -256,15 +231,19 @@ const CustomersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                address: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      address: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
                       </div>
+
                       <div className="row mb-3">
                         <div className="col col-md-12">
                           <label className="form-label"> notes</label>
@@ -274,11 +253,14 @@ const CustomersForm: React.FC<{
                             value={model?.notes}
                             aria-label="notes"
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                notes: event.target.value,
-                              } :prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      notes: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -295,4 +277,4 @@ const CustomersForm: React.FC<{
   );
 };
 
-export default CustomersForm;
+export default BranchesForm;

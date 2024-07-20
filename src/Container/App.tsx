@@ -21,9 +21,11 @@ import { themeSettings } from '../Utilities/theme';
 import Dashboard from '../Pages/Dashboard';
 import { CssBaseline } from '@mui/material';
 import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/FixedAssetsRoot';
+import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
+import { RootState } from '../Storage/Redux/store';
 
 function App() {
-  const mode = useSelector((state) => state.global.mode);
+  const mode = useSelector((state : RootState) => state.global.mode);
 
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode])
 
@@ -67,6 +69,10 @@ function App() {
               <Route
                 path="/subleadgers/fixedAssets"
                 element={<FixedAssetsRoot />}
+              />
+              <Route
+                path="/subleadgers/branches"
+                element={<BranchesRoot />}
               />
             </Route>
             <Route path="*" element={<Page404 />} />

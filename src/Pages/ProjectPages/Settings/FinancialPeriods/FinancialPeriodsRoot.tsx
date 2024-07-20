@@ -3,15 +3,13 @@ import { DataTable } from '../../../../Components';
 import { FormTypes } from '../../../../interfaces/Components';
 import FinancialPeriodsForm from './FinancialPeriodsForm';
 import { useGetFinancialPeriodsQuery } from '../../../../Apis/FinancialPeriodsApi';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Loader from '../../../../Components/Loader';
-
-
 
 const FinancialPeriodsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>("");
   const { data, isLoading } = useGetFinancialPeriodsQuery(null);
   const handleShowForm = () => {
     setShowForm(true);

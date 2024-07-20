@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useGetSuppliersQuery } from '../../../../Apis/SuppliersApi';
-import SuppliersForm from './SuppliersForm';
 import { FormTypes } from '../../../../interfaces/Components';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
-
-const columns: { Header: string; accessor: string }[] = [
+import { useGetBranchesQuery } from '../../../../Apis/BranchesApi';
+import BranchesForm from './BranchesForm';
+const columns = [
   {
     Header: "Code",
     accessor: "chartOfAccount.code", // accessor is the "key" in the data
@@ -18,10 +17,12 @@ const columns: { Header: string; accessor: string }[] = [
     Header: "Name (Second Language)",
     accessor: "nameSecondLanguage",
   },
+
+  // Add more columns as needed
 ];
 
-const SuppliersRoot = () => {
-  const { data, isLoading } = useGetSuppliersQuery(null);
+const BranchesRoot = () => {
+  const { data, isLoading } = useGetBranchesQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
@@ -31,8 +32,8 @@ const SuppliersRoot = () => {
   const handleCloseForm = () => {
     setShowForm(false);
   };
-  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
+  const handleSelectId: (id: string) => void = (id) =>
+    setSelectedId(id);
   return (
     <div className="h-full">
       {isLoading ? (
@@ -40,8 +41,8 @@ const SuppliersRoot = () => {
       ) : (
         <>
           {showForm && (
-            <SuppliersForm
-              id={selectedId || ""}
+            <BranchesForm
+              id={selectedId ?? ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
             />
@@ -49,22 +50,21 @@ const SuppliersRoot = () => {
           {data?.result && (
             <AppContent
               tableType='tree'
-              data={data.result}
+              title='Branches'
+              btn
+              addBtn
+              btnName='add new'
               columns={columns}
+              data={data.result}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
-              title='Suppliers'
-              btn
-              btnName='new'
-              addBtn
-              startIcon
             />
           )}
         </>
       )}
     </div>
   );
-};
+}
 
-export default SuppliersRoot;
+export default BranchesRoot;

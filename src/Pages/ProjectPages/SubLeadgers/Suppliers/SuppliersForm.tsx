@@ -93,10 +93,11 @@ const SuppliersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => ({
+                          setModel((prevModel) => (
+                            prevModel ? {
                             ...prevModel,
                             name: event.target.value,
-                          }))
+                          } : prevModel))
                         }
                       />
                     </div>
@@ -110,10 +111,11 @@ const SuppliersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel((prevModel) => ({
+                          setModel((prevModel) => (
+                            prevModel ? {
                             ...prevModel,
                             nameSecondLanguage: event.target.value,
-                          }))
+                          } : prevModel))
                         }
                       />
                     </div>
@@ -138,6 +140,8 @@ const SuppliersForm: React.FC<{
                               : prevModel
                           );
                         }}
+                        name={"NodeType"}
+                        onBlur={undefined}
                       />
                     </div>
                   </div>
@@ -155,10 +159,11 @@ const SuppliersForm: React.FC<{
                             disabled
                             value={model?.code}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 name: event.target.value,
-                              }))
+                              } : prevModel ))
                             }
                           />
                         </div>
@@ -172,10 +177,11 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.companyName ?? ""}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 companyName: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -191,10 +197,11 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 phone: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -208,10 +215,11 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.mobile}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 mobile: event.target.value,
-                              }))
+                              } : prevModel ))
                             }
                           />
                         </div>
@@ -227,10 +235,11 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.taxNumber}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 taxNumber: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -244,10 +253,11 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 address: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -261,10 +271,11 @@ const SuppliersForm: React.FC<{
                             value={model?.notes}
                             aria-label="notes"
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 notes: event.target.value,
-                              }))
+                              }: prevModel))
                             }
                           />
                         </div>

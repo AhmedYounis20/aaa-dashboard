@@ -6,11 +6,10 @@ import { useGetGlSettingsQuery, useUpdateGlSettingsMutation } from '../../../../
 import GlSettingsModel from '../../../../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel';
 import { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
-import { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
+import DepreciationApplication, { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
 import Loader from '../../../../Components/Loader';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-
 
 const GlSettingsRoot: React.FC = () => {
   const accountGuidesResult = useGetGlSettingsQuery(null);
@@ -22,7 +21,7 @@ const GlSettingsRoot: React.FC = () => {
       setModel(accountGuidesResult.data.result);
       setIsLoading(false);
     }
-  }, [accountGuidesResult.isLoading]);
+  }, [accountGuidesResult.isLoading,accountGuidesResult]);
 
        const handleUpdate = async () => {
          if (model) {
@@ -62,127 +61,168 @@ const GlSettingsRoot: React.FC = () => {
         formType={FormTypes.Edit}
         isModal={false}
         handleUpdate={handleUpdate}
+        handleAdd={undefined}
+        handleDelete={undefined}
+        handleCloseForm={undefined}
       >
-        <Typography variant="h2" mb={3}>
-          {" "}
-          GL Settings
-        </Typography>
         <div>
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <div>
-              <Stack spacing={2}>
-                <div>
-                  <TextField
-                    type="number"
-                    className="form-input form-control"
-                    label="month Days"
-                    variant="outlined"
-                    fullWidth
-                    value={model?.monthDays}
-                    onChange={(event) =>
-                      setModel({
-                        ...model,
-                        monthDays: Number.parseInt(event.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <InputSelect
-                    options={DecimalDigitsNumberOptions}
-                    label={"Decimal Digits Number"}
-                    defaultValue={model?.decimalDigitsNumber}
-                    multiple={false}
-                    onChange={({ target }) => {
-                      setModel((prevModel) =>
-                        prevModel
-                          ? {
-                              ...prevModel,
-                              decimalDigitsNumber: target.value,
-                            }
-                          : undefined
-                      );
-                    }}
-                  />
-                </div>
-                <div>
+          <Typography variant="h2" mb={3}>
+            {" "}
+            GL Settings
+          </Typography>
+          <div>
+            {isLoading ? (
+              <Loader />
+            ) : (
+              <div>
+                <Stack spacing={2}>
                   <div>
-                    <InputSelect
-                      options={DepreciationApplicationOptions}
-                      label={"Depreciation Application"}
-                      defaultValue={model?.depreciationApplication}
-                      multiple={false}
-                      onChange={({ target }) => {
+                    <TextField
+                      type="number"
+                      className="form-input form-control"
+                      label="month Days"
+                      variant="outlined"
+                      fullWidth
+                      value={model?.monthDays}
+                      onChange={(event) =>
                         setModel((prevModel) =>
                           prevModel
                             ? {
                                 ...prevModel,
-                                depreciationApplication: target.value,
+                                monthDays: Number.parseInt(event.target.value),
+                              }
+                            : prevModel
+                        )
+                      }
+                    />
+                  </div>
+                  <div>
+                    <InputSelect
+                      options={DecimalDigitsNumberOptions}
+                      label={"Decimal Digits Number"}
+                      defaultValue={model?.decimalDigitsNumber}
+                      multiple={false}
+                      onChange={({ target }: { target: { value: number } }) => {
+                        setModel((prevModel) =>
+                          prevModel
+                            ? {
+                                ...prevModel,
+                                decimalDigitsNumber: target.value,
                               }
                             : undefined
                         );
                       }}
+                      name={"DecimalDigitsNumber"}
+                      onBlur={undefined}
                     />
                   </div>
-                  {/* <div className="col col-md-6"></div> */}
-                </div>
-              </Stack>
-              <div>
-                <div>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={model?.isAllowingEditVoucher}
-                        onChange={({ target }) =>
-                          setModel({
-                            ...model,
-                            isAllowingEditVoucher: target.checked,
-                          })
-                        }
+                  <div>
+                    <div>
+                      <InputSelect
+                        options={DepreciationApplicationOptions}
+                        label={"Depreciation Application"}
+                        defaultValue={model?.depreciationApplication}
+                        multiple={false}
+                        onChange={({
+                          target,
+                        }: {
+                          target: { value: DepreciationApplication };
+                        }) => {
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  depreciationApplication: target.value,
+                                }
+                              : undefined
+                          );
+                        }}
+                        name={"DepreciationApplication"}
+                        onBlur={undefined}
                       />
-                    }
-                    label="Is Allowing Edit Voucher"
-                  />
+                    </div>
+                    {/* <div className="col col-md-6"></div> */}
+                  </div>
+                </Stack>
+                <div>
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={model?.isAllowingEditVoucher}
+                          onChange={({
+                            target,
+                          }: {
+                            target: { checked: boolean };
+                          }) =>
+                            setModel((prevModel) =>
+                              prevModel
+                                ? {
+                                    ...prevModel,
+                                    isAllowingEditVoucher: target.checked,
+                                  }
+                                : prevModel
+                            )
+                          }
+                        />
+                      }
+                      label="Is Allowing Edit Voucher"
+                    />
+                  </div>
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={model?.isAllowingNegativeBalances}
+                          onChange={({
+                            target,
+                          }: {
+                            target: { checked: boolean };
+                          }) =>
+                            setModel((prevModel) =>
+                              prevModel
+                                ? {
+                                    ...prevModel,
+                                    isAllowingNegativeBalances: target.checked,
+                                  }
+                                : prevModel
+                            )
+                          }
+                        />
+                      }
+                      label="is Allowing Negative Balances"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={model?.isAllowingNegativeBalances}
-                        onChange={({ target }) =>
-                          setModel({
-                            ...model,
-                            isAllowingNegativeBalances: target.checked,
-                          })
-                        }
-                      />
-                    }
-                    label="is Allowing Negative Balances"
-                  />
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={model?.isAllowingDeleteVoucher}
+                          onChange={({
+                            target,
+                          }: {
+                            target: { checked: boolean };
+                          }) =>
+                            setModel((prevModel) =>
+                              prevModel
+                                ? {
+                                    ...prevModel,
+                                    isAllowingDeleteVoucher: target.checked,
+                                  }
+                                : prevModel
+                            )
+                          }
+                        />
+                      }
+                      label="Is Allowing Delete Voucher"
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <div>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={model?.isAllowingDeleteVoucher}
-                        onChange={({ target }) =>
-                          setModel({
-                            ...model,
-                            isAllowingDeleteVoucher: target.checked,
-                          })
-                        }
-                      />
-                    }
-                    label="Is Allowing Delete Voucher"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </BaseForm>
     </div>

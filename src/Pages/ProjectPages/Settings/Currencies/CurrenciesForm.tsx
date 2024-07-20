@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
 import { FormControlLabel, Switch, TextField } from '@mui/material';
 import { useGetCurrenciesByIdQuery, useUpdateCurrencyMutation } from '../../../../Apis/CurrenciesApi';
 import CurrencyModel from '../../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-
 
 const CurrenciesForm: React.FC<{
   formType: FormTypes;
@@ -31,7 +29,7 @@ const CurrenciesForm: React.FC<{
       setModel(currencyResult.data.result);
       setIsLoading(false);
     }
-  }, [currencyResult.isLoading]);
+  }, [currencyResult.isLoading,currencyResult]);
 
   // const handleDelete = async (): Promise<boolean> => {
   //   const response: ApiResponse = await deleteChartOfAccount(id);
@@ -66,7 +64,9 @@ const CurrenciesForm: React.FC<{
     <div className="h-full">
       <BaseForm
         formType={formType}
-        id={id}
+        isModal
+        handleAdd={undefined}
+        handleDelete={undefined}        
         handleCloseForm={handleCloseForm}
         handleUpdate={handleUpdate}
       >

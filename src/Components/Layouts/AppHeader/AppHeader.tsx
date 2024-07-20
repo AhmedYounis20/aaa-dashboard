@@ -5,10 +5,10 @@ import {
     initialuserState,
     setLoggedInUser,
 } from "../../../Storage/Redux/userAuthSlice";
-import { AppBar, IconButton, InputBase, Toolbar, useTheme } from '@mui/material';
+import { AppBar, IconButton, Toolbar, useTheme } from '@mui/material';
 import FlexBetween from '../../FlexBetween';
 import { GridMenuIcon } from '@mui/x-data-grid';
-import { DarkModeOutlined, LightModeOutlined, Search, SettingsOutlined } from '@mui/icons-material';
+import { DarkModeOutlined, LightModeOutlined, SettingsOutlined } from '@mui/icons-material';
 import { setMode } from '../../../Storage/Redux/global';
 import LogoutIcon from '@mui/icons-material/Logout';
 

@@ -11,7 +11,7 @@ import Loader from '../../../../Components/Loader';
 const CurrenciesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>("");
   const { data, isLoading } = useGetCurrenciesQuery(null);
 
   const handleShowForm = () => setShowForm(true);

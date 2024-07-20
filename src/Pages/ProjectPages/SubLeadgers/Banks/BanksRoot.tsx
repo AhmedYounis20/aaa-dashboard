@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useGetBanksQuery } from '../../../../Apis/BanksApi';
-import DataTreeTable from '../../../../Components/Tables/DataTreeTable';
 import { FormTypes } from '../../../../interfaces/Components';
 import BanksForm from './BanksForm';
 import Loader from '../../../../Components/Loader';

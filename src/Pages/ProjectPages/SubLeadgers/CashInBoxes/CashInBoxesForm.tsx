@@ -146,9 +146,11 @@ const CashInBoxesForm: React.FC<{
                                   ...prevModel,
                                   nodeType: target.value,
                                 }
-                              : undefined
+                              : prevModel
                           );
                         }}
+                        name={"NodeType"}
+                        onBlur={null}
                       />
                     </div>
                   </div>
