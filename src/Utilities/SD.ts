@@ -1,4 +1,4 @@
-const baseUrl = "http://www.aaa-erp.somee.com/api/";
+const baseUrl = "https://www.aaa-erp.somee.com/api/";
 export  {
  baseUrl
 }
