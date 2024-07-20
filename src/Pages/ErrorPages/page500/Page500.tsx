@@ -1,40 +1,33 @@
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilMagnifyingGlass } from '@coreui/icons'
-
 const Page500 = () => {
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={6}>
-            <span className="clearfix">
-              <h1 className="float-start display-3 me-4">500</h1>
+    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-md-6">
+            <div className="text-center">
+              <h1 className="display-3">500</h1>
               <h4 className="pt-3">Houston, we have a problem!</h4>
-              <p className="text-body-secondary float-start">
+              <p className="text-muted">
                 The page you are looking for is temporarily unavailable.
               </p>
-            </span>
-            <CInputGroup className="input-prepend">
-              <CInputGroupText>
-                <CIcon icon={cilMagnifyingGlass} />
-              </CInputGroupText>
-              <CFormInput type="text" placeholder="What are you looking for?" />
-              <CButton color="info">Search</CButton>
-            </CInputGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
+            </div>
+            <div className="input-group mt-4">
+              <span className="input-group-text">
+                <i className="bi bi-search"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="What are you looking for?"
+              />
+              <button className="btn btn-info ms-2">Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
+
 
 export default Page500

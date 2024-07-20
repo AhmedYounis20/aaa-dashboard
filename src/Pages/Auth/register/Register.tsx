@@ -1,70 +1,77 @@
-import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCol,
-  CContainer,
-  CForm,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-
 const Register = () => {
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={9} lg={7} xl={6}>
-            <CCard className="mx-4">
-              <CCardBody className="p-4">
-                <CForm>
+    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-md-9 col-lg-7 col-xl-6">
+            <div className="card mx-4">
+              <div className="card-body p-4">
+                <form>
                   <h1>Register</h1>
-                  <p className="text-body-secondary">Create your account</p>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilUser} />
-                    </CInputGroupText>
-                    <CFormInput placeholder="Username" autoComplete="username" />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>@</CInputGroupText>
-                    <CFormInput placeholder="Email" autoComplete="email" />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Password"
-                      autoComplete="new-password"
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Repeat password"
-                      autoComplete="new-password"
-                    />
-                  </CInputGroup>
-                  <div className="d-grid">
-                    <CButton color="success">Create Account</CButton>
+                  <p className="text-muted">Create your account</p>
+                  <div className="mb-3">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-person"></i>
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Username"
+                        autoComplete="username"
+                      />
+                    </div>
                   </div>
-                </CForm>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
-      </CContainer>
+                  <div className="mb-3">
+                    <div className="input-group">
+                      <span className="input-group-text">@</span>
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Email"
+                        autoComplete="email"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-lock"></i>
+                      </span>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Password"
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-lock"></i>
+                      </span>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Repeat password"
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </div>
+                  <div className="d-grid">
+                    <button type="submit" className="btn btn-success">
+                      Create Account
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

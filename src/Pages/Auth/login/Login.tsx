@@ -1,122 +1,110 @@
-import { useNavigate } from 'react-router-dom'
-import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardGroup,
-  CCol,
-  CContainer,
-  CForm,
-  CFormInput,
-  CInputGroup,
-  CRow,
-} from '@coreui/react'
-import { useLoginMutation } from '../../../Apis/authApi'
-import { useDispatch } from 'react-redux'
-import { useState } from 'react'
-import { ApiResponse } from '../../../interfaces/ApiResponse'
-import { UserLoginModel } from '../../../interfaces/Auth/UserLoginModel'
+import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../../../Apis/authApi";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { ApiResponse } from "../../../interfaces/ApiResponse";
+import { UserLoginModel } from "../../../interfaces/Auth/UserLoginModel";
 import { UserModel } from "../../../interfaces/Auth/UserModel";
-import { inputHelper } from '../../../Helper'
+import { inputHelper } from "../../../Helper";
 import { jwtDecode } from "jwt-decode";
-import { setLoggedInUser } from '../../../Storage/Redux/userAuthSlice'
-import { toastify } from '../../../Helper/toastify'
+import { setLoggedInUser } from "../../../Storage/Redux/userAuthSlice";
+import { toastify } from "../../../Helper/toastify";
 
-const Login : React.FC = () => {
- const [loginRequest] = useLoginMutation();
- const dispatch = useDispatch();
- const navigator = useNavigate();
- const [loading, setLoading] = useState<boolean>(false);
- const [userInput, setUserInput] = useState<UserLoginModel>({
-   username: "",
-   password: "",
- });
- const handleUserInput = (
-   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
- ) => {
-   setLoading(true);
-   const tempData = inputHelper(e, userInput);
-   setUserInput(tempData);
-   setLoading(false);
- };
- const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-   e.preventDefault();
-   setLoading(true);
+const Login: React.FC = () => {
+  const [loginRequest] = useLoginMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [userInput, setUserInput] = useState<UserLoginModel>({
+    username: "",
+    password: "",
+  });
 
-   const response: ApiResponse = await loginRequest(userInput);
-   if (response.data) {
-     console.log(response.data);
-     const { token } = response.data.result;
-     console.log(token);
-     const userData: UserModel = jwtDecode(token);
-     console.log(userData);
-     dispatch(setLoggedInUser(userData));
-     navigator("/");
-     localStorage.setItem("token", token);
-   } else if (response.error) {
-     response.error.data.errorMessages.map((e: string) => toastify(e, "error"));
-     console.log(response.error.data.errorMessages);
-   }
+  const handleUserInput = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setLoading(true);
+    const tempData = inputHelper(e, userInput);
+    setUserInput(tempData);
+    setLoading(false);
+  };
 
-   setLoading(false);
- };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const response: ApiResponse = await loginRequest(userInput);
+    if (response.data) {
+      const { token } = response.data.result;
+      const userData: UserModel = jwtDecode(token);
+      dispatch(setLoggedInUser(userData));
+      navigate("/");
+      localStorage.setItem("token", token);
+    } else if (response.error) {
+      response.error.data.errorMessages.map((e: string) =>
+        toastify(e, "error")
+      );
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div
       className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center"
       style={{ width: "100vw" }}
     >
-      <CContainer>
-        <CRow className="justify-content-center">
+      <div className="container">
+        <div className="row justify-content-center">
           {loading ? (
-            <div className="spinner-border text-primary" role="status">
-            </div>
+            <div className="spinner-border text-primary" role="status"></div>
           ) : (
-            <CCol md={4}>
-              <CCardGroup>
-                <CCard className="p-4">
-                  <CCardBody>
-                    <CForm method="post" onSubmit={handleSubmit}>
+            <div className="col-md-4">
+              <div className="card-group">
+                <div className="card p-4">
+                  <div className="card-body">
+                    <form method="post" onSubmit={handleSubmit}>
                       <h1>Login</h1>
                       <p className="text-body-secondary">
                         Sign In to your account
                       </p>
-                      <CInputGroup className="mb-3">
-                        <CFormInput
+                      <div className="input-group mb-3">
+                        <input
+                          className="form-control"
                           placeholder="Username"
                           autoComplete="username"
                           name="username"
                           onChange={handleUserInput}
                           required
                         />
-                      </CInputGroup>
-                      <CInputGroup className="mb-4">
-                        <CFormInput
+                      </div>
+                      <div className="input-group mb-4">
+                        <input
                           type="password"
+                          className="form-control"
                           placeholder="Password"
                           name="password"
                           autoComplete="current-password"
                           onChange={handleUserInput}
                           required
                         />
-                      </CInputGroup>
-                          <CButton
-                            color="primary"
-                            className="px-2 form-control "
-                            type="submit"
-                            >
-                            Login
-                          </CButton>                        
-                    </CForm>
-                  </CCardBody>
-                </CCard>
-              </CCardGroup>
-            </CCol>
+                      </div>
+                      <button
+                        className="btn btn-primary px-2 form-control"
+                        type="submit"
+                      >
+                        Login
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
-        </CRow>
-      </CContainer>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default Login
+export default Login;
