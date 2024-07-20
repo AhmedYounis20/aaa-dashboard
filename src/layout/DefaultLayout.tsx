@@ -1,18 +1,17 @@
 import { Box, useMediaQuery } from "@mui/material";
-import { AppContent, AppHeader } from "../Components/index";
+import { AppHeader } from "../Components/index";
 import { withAuth } from '../Hoc';
 import { createContext, useState } from "react";
 import { Outlet } from 'react-router-dom'
 import AppSidebar from "../Components/Layouts/Sidebar";
 import sidebarItemsData from "../Utilities/routes";
+import { appProps } from "../interfaces/Components/appProps";
 
-// type appProps = {
-//   isMobile: boolean;
-//   isSidebarOpen: boolean;
-//   setIsSidebarOpen: (open: boolean) => void 
-// }
-
-export const appContext = createContext(undefined);
+export const appContext = createContext<appProps>({
+  isMobile: false,
+  isSidebarOpen: false,
+  setIsSidebarOpen :undefined
+});
 
 const DefaultLayout = () => {
   const isMobile = useMediaQuery("(max-width: 1550px)");

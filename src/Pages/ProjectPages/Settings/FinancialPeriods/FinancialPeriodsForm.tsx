@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
-import { AccountGuideModel } from "../../../../interfaces/ProjectInterfaces";
-import { FormControl, InputLabel, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useGetFinancialPeriodsByIdQuery, useUpdateFinancialPeriodMutation } from "../../../../Apis/FinancialPeriodsApi";
 import FinancialPeriodModel from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodModel";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { financialPeriodOptions } from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/financialPeriodTypes";
+import { financialPeriodOptions, FinancialPeriodType } from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/financialPeriodTypes";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
@@ -33,7 +31,7 @@ const FinancialPeriodsForm: React.FC<{
       setModel(accountGuidesResult.data.result);
       setIsLoading(false);
     }
-  }, [accountGuidesResult.isLoading]);
+  }, [accountGuidesResult.isLoading,accountGuidesResult]);
 
   useEffect(() => {
     if (model?.startDate && model?.periodTypeByMonth) {
@@ -66,6 +64,9 @@ const FinancialPeriodsForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         handleUpdate={handleUpdate}
+        handleAdd={undefined}
+        handleDelete={undefined}
+        isModal
       >
         <div>
           {isLoading ? (
@@ -110,7 +111,11 @@ const FinancialPeriodsForm: React.FC<{
                         defaultValue={model?.periodTypeByMonth}
                         disabled={formType === FormTypes.Details}
                         multiple={false}
-                        onChange={({ target }) => {
+                        onChange={({
+                          target,
+                        }: {
+                          target: { value: FinancialPeriodType };
+                        }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -120,6 +125,8 @@ const FinancialPeriodsForm: React.FC<{
                               : undefined
                           );
                         }}
+                        onBlur={undefined}
+                        name={"Financial Period Type In Months"}
                       />
                     </div>
                   </div>
@@ -140,18 +147,16 @@ const FinancialPeriodsForm: React.FC<{
                               model?.startDate ? dayjs(model.startDate) : null
                             }
                             onChange={(value) => {
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      startDate: value
-                                        ? value.format(
-                                            "YYYY-MM-DDTHH:mm:ss.SSS"
-                                          )
-                                        : null,
-                                    }
-                                  : undefined
-                              );
+                              if (value) {
+                                setModel((prevModel) =>
+                                  prevModel
+                                    ? {
+                                        ...prevModel,
+                                        startDate: value.toDate(), // Ensure startDate is a Date
+                                      }
+                                    : prevModel
+                                );
+                              }
                             }}
                           />
                         </DemoContainer>

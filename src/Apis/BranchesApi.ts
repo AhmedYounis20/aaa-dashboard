@@ -1,6 +1,5 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
-import BankModel from "../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel";
 import BranchModel from "../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel";
 
 const BranchesApi = createApi({

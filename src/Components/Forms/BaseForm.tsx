@@ -3,7 +3,7 @@ import { FormTypes } from '../../interfaces/Components/FormType'
 
 const BaseForm: React.FC<{
   formType: FormTypes;
-  handleCloseForm: () => void;
+  handleCloseForm: (() => void) | undefined;
   handleUpdate: (() => Promise<boolean>) | undefined;
   handleDelete: (() => Promise<boolean>) | undefined;
   handleAdd: (() => Promise<boolean>) | undefined;
@@ -11,18 +11,19 @@ const BaseForm: React.FC<{
   isModal: boolean;
 }> = ({
   formType,
-  handleCloseForm,
-  handleUpdate,
-  handleDelete,
-  handleAdd,
+  handleCloseForm = undefined,
+  handleUpdate = undefined,
+  handleDelete = undefined,
+  handleAdd = undefined,
   children,
   isModal = true,
 }) => {
   const handleSubmit = async () => {
-    if (formType == FormTypes.Add && (await handleAdd())) handleCloseForm();
-    else if (formType == FormTypes.Edit && (await handleUpdate()))
+    if (formType == FormTypes.Add && ( handleAdd && await handleAdd())&& handleCloseForm) 
       handleCloseForm();
-    else if (formType == FormTypes.Delete && (await handleDelete()))
+    else if (formType == FormTypes.Edit && (handleUpdate && await handleUpdate()) && handleCloseForm)
+      handleCloseForm();
+    else if (formType == FormTypes.Delete && (handleDelete && await handleDelete()) && handleCloseForm)
       handleCloseForm();
   };
   return (

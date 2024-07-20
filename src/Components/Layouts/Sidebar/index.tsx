@@ -7,8 +7,9 @@ import { Avatar, Box, Typography } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../Storage/Redux/store';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { appContext } from '../../../layout/DefaultLayout';
+import { appProps } from '../../../interfaces/Components/appProps';
 
 
 interface ISidebarProps {
@@ -19,7 +20,7 @@ interface ISidebarProps {
 }
 
 export default function AppSidebar({ items }: ISidebarProps) {
-    const {isMobile, isSidebarOpen, setIsSidebarOpen} = useContext(appContext)
+    const { isMobile, isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
     const userData = useSelector((state: RootState) => state.userAuthStore);
     const location = useLocation();
 
@@ -80,7 +81,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 >
                     <Box
                         role='button'
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        onClick={() => setIsSidebarOpen && setIsSidebarOpen(!isSidebarOpen)}
                         display="flex"
                         alignItems="center"
                         justifyContent="flex-start"

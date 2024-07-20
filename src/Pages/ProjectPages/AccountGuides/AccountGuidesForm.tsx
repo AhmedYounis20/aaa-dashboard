@@ -9,7 +9,7 @@ const AccountGuidesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+}> = ({ formType, id , handleCloseForm }) => {
   const accountGuidesResult = useGetAccountGuidesByIdQuery(id);
   const [model, setModel] = useState<AccountGuideModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);

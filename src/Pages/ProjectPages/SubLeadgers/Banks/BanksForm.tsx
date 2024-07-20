@@ -6,7 +6,6 @@ import { toastify } from '../../../../Helper/toastify';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import { TextField, TextareaAutosize } from '@mui/material';
-import { CustomerTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/Customers/CustomerType';
 import BankModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel';
 import { useDeleteBankByIdMutation, useGetBanksByIdQuery, useUpdateBankMutation } from '../../../../Apis/BanksApi';
 
@@ -24,28 +23,30 @@ const BanksForm: React.FC<{
     if (!bankResult.isLoading) {
       setModel(bankResult.data.result);
       if (bankResult.data?.result.nodeType === 0) {
-        setModel((prevModel) => ({
+        setModel((prevModel) => (
+          prevModel ? 
+          {
           ...prevModel,
           code: bankResult.data.result.chartOfAccount.code,
-        }));
+        } : prevModel));
       }
       setIsLoading(false);
     }
-  }, [bankResult.isLoading]);
+  }, [bankResult.isLoading,bankResult]);
 
-     const handleUpdate = async () => {
-       if (model) {
-         const response: ApiResponse = await update(model);
-         if (response.data) {
-           toastify(response.data.successMessage);
-           return true;
-         } else if (response.error) {
-           toastify(response.error.data.errorMessages[0], "error");
-           return false;
-         }
-       }
-       return false;
-     };
+  const handleUpdate = async () => {
+    if (model) {
+      const response: ApiResponse = await update(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        toastify(response.error.data.errorMessages[0], "error");
+        return false;
+      }
+    }
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -53,7 +54,7 @@ const BanksForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error) => {
+      response.error?.data?.errorMessages?.map((error : string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -68,6 +69,8 @@ const BanksForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
+        handleAdd={undefined}
+        isModal
       >
         <div>
           {isLoading ? (
@@ -89,10 +92,11 @@ const BanksForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => ({
+                          setModel((prevModel) => (
+                            prevModel ? {
                             ...prevModel,
                             name: event.target.value,
-                          }))
+                          } : prevModel))
                         }
                       />
                     </div>
@@ -126,7 +130,7 @@ const BanksForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({ target }) => {
+                        onChange={({ target } : {target : {value : NodeType}})  => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -136,6 +140,8 @@ const BanksForm: React.FC<{
                               : undefined
                           );
                         }}
+                        name={"NodeType"}
+                        onBlur={undefined}
                       />
                     </div>
                   </div>
@@ -153,10 +159,12 @@ const BanksForm: React.FC<{
                             disabled
                             value={model?.code}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 name: event.target.value,
-                              }))
+                              } : prevModel
+                            ))
                             }
                           />
                         </div>
@@ -170,10 +178,11 @@ const BanksForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 phone: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -189,10 +198,11 @@ const BanksForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.bankAccount}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 bankAccount: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -206,10 +216,11 @@ const BanksForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.email}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 email: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -225,10 +236,11 @@ const BanksForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.bankAddress}
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 bankAddress: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>
@@ -246,10 +258,11 @@ const BanksForm: React.FC<{
                             value={model?.notes}
                             aria-label="notes"
                             onChange={(event) =>
-                              setModel((prevModel) => ({
+                              setModel((prevModel) => (
+                                prevModel ? {
                                 ...prevModel,
                                 notes: event.target.value,
-                              }))
+                              } : prevModel))
                             }
                           />
                         </div>

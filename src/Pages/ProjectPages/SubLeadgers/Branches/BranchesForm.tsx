@@ -31,7 +31,7 @@ const BranchesForm: React.FC<{
       }
       setIsLoading(false);
     }
-  }, [bankResult.isLoading]);
+  }, [bankResult.isLoading,bankResult]);
 
      const handleUpdate = async () => {
        if (model) {
@@ -146,6 +146,8 @@ const BranchesForm: React.FC<{
                               : undefined
                           );
                         }}
+                        name={"NodeType"}
+                        onBlur={null}
                       />
                     </div>
                   </div>

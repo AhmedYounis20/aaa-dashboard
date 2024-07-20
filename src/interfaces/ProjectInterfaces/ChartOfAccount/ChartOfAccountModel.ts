@@ -11,7 +11,7 @@ interface ChartOfAccountModel {
   isStopDealing: boolean;
   isDepreciable: boolean;
   isActiveAccount: boolean;
-  accountNature: number;
+  accountNature: AccountNature;
   description?: string;
 }
 

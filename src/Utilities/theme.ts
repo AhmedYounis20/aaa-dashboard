@@ -1,4 +1,4 @@
-import { createTheme, PaletteMode, ThemeOptions } from "@mui/material";
+import { PaletteMode, ThemeOptions } from "@mui/material";
 
 type ColorTokens = {
     [key: string]: {
@@ -89,7 +89,6 @@ export const themeSettings = (mode: PaletteMode): ThemeOptions => {
                     },
                     background: {
                         default: tokensDark.primary[600],
-                        alt: tokensDark.primary[500],
                     },
                 }
                 : {
@@ -110,7 +109,6 @@ export const themeSettings = (mode: PaletteMode): ThemeOptions => {
                     },
                     background: {
                         default: tokensDark.grey[0],
-                        alt: tokensDark.grey[50],
                     },
                 }),
         },
