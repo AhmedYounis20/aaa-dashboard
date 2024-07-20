@@ -10,7 +10,6 @@ import {
   IconButton,
   Collapse,
   Paper,
-  colors,
 } from "@mui/material";
 import {
   KeyboardArrowRight,
@@ -19,10 +18,21 @@ import {
   Info,
   Delete,
   Folder,
+  Add,
 } from "@mui/icons-material";
 import { FormTypes } from "../../interfaces/Components/FormType";
 
-const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSelectId,showedit=true,showdelete=true }) => {
+const DataTreeTable = ({
+  columns,
+  data,
+  handleShowForm,
+  changeFormType,
+  handleSelectId,
+  handleSelectParentId,
+  showedit = true,
+  showadd = true,
+  showdelete = true,
+}) => {
   const [openRows, setOpenRows] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
 
@@ -43,10 +53,12 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
     setHoveredRow(null);
   };
 
-
   const renderCell = (row, column) => {
-    const value = (column.accessor == "chartOfAccount.code" && row.chartOfAccount) ? row["chartOfAccount"]["code"] : row[column.accessor];
-    
+    const value =
+      column.accessor == "chartOfAccount.code" && row.chartOfAccount
+        ? row["chartOfAccount"]["code"]
+        : row[column.accessor];
+
     return <TableCell key={column.accessor}>{value}</TableCell>;
   };
 
@@ -62,15 +74,16 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
           onMouseLeave={handleMouseLeave}
         >
           <TableCell style={{ paddingLeft: depth * 15 }}>
-            {row.children && row.children.length > 0 && (
-              <IconButton size="small" onClick={() => handleToggle(row.id)}>
-                {openRows[row.id] ? (
-                  <KeyboardArrowDown />
-                ) : (
-                  <KeyboardArrowRight />
-                )}
-              </IconButton>
-            )}
+            {data.filter((e) => e.parentId === row.id) &&
+              data.filter((e) => e.parentId === row.id).length > 0 && (
+                <IconButton size="small" onClick={() => handleToggle(row.id)}>
+                  {openRows[row.id] ? (
+                    <KeyboardArrowDown />
+                  ) : (
+                      <KeyboardArrowRight />
+                  )}
+                </IconButton>
+              )}
           </TableCell>
           <TableCell style={{ width: 5, paddingLeft: 0 }}>
             {row.nodeType == 1 ? (
@@ -83,6 +96,20 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
           </TableCell>
           {columns.map((column) => renderCell(row, column))}
           <TableCell>
+            {showadd && (
+              <IconButton
+                size="small"
+                style={{ marginInline: 2 }}
+                onClick={() => {
+                  handleSelectParentId(row["id"]);
+                  handleSelectId(row["id"]);
+                  changeFormType(FormTypes.Add);
+                  handleShowForm();
+                }}
+              >
+                <Add titleAccess="add" />
+              </IconButton>
+            )}
             {showedit && (
               <IconButton
                 size="small"
@@ -122,12 +149,17 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
             </IconButton>{" "}
           </TableCell>
         </TableRow>
-        {row.children && (
+        {data.filter((e) => e.parentId == row.id) && (
           <TableRow>
             <TableCell style={{ padding: 0 }} colSpan={columns.length + 3}>
               <Collapse in={openRows[row.id]} timeout="auto" unmountOnExit>
                 <Table size="small">
-                  <TableBody>{renderRows(row.children, depth + 1)}</TableBody>
+                  <TableBody>
+                    {renderRows(
+                      data.filter((e) => e["parentId"] === row.id),
+                      depth + 1
+                    )}
+                  </TableBody>
                 </Table>
               </Collapse>
             </TableCell>
@@ -140,7 +172,7 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
   return (
     <TableContainer
       component={Paper}
-      style={{ maxHeight: 700, height: '100%', overflow: "auto" }}
+      style={{ maxHeight: 700, height: "100%", overflow: "auto" }}
     >
       <Table>
         <TableHead>
@@ -155,7 +187,7 @@ const DataTreeTable = ({ columns, data,handleShowForm, changeFormType,handleSele
         </TableHead>
         <TableBody>
           {data.length > 0 ? (
-            renderRows(data)
+            renderRows(data.filter(e=>!e.parentId))
           ) : (
             <React.Fragment>
               <TableRow style={{ backgroundColor: getBackgroundColor(1) }}>

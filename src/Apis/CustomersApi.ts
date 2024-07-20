@@ -17,7 +17,7 @@ const CustomersApi = createApi({
   tagTypes: ["customers"],
   endpoints: (builder) => ({
     getCustomers: builder.query({
-      query: () => "customers/GetLevel?level=10",
+      query: () => "customers",
       providesTags: ["customers"],
     }),
     getCustomersById: builder.query({

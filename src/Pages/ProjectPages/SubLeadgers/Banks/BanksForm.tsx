@@ -137,7 +137,7 @@ const BanksForm: React.FC<{
                                   ...prevModel,
                                   nodeType: target.value,
                                 }
-                              : undefined
+                              : prevModel
                           );
                         }}
                         name={"NodeType"}

@@ -17,11 +17,17 @@ const ChartOfAccountsApi = createApi({
   tagTypes: ["chartofAccounts"],
   endpoints: (builder) => ({
     getChartOfAccounts: builder.query({
-      query: () => "chartofAccounts/GetLevel?level=10",
+      query: () => "chartofAccounts",
       providesTags: ["chartofAccounts"],
     }),
+
     getChartOfAccountsById: builder.query({
       query: (id) => `chartofAccounts/${id}`,
+      providesTags: ["chartofAccounts"],
+    }),
+    getDefaultChartOfAccount: builder.query({
+      query: (parentId) =>
+        `chartofAccounts/NextAccountDefaultData?parentId=${parentId}`,
       providesTags: ["chartofAccounts"],
     }),
     deleteChartOfAcountById: builder.mutation({
@@ -39,8 +45,16 @@ const ChartOfAccountsApi = createApi({
       }),
       invalidatesTags: ["chartofAccounts"],
     }),
+    createChartOfAccount: builder.mutation({
+      query: (body: ChartOfAccountModel) => ({
+        url: `chartOfAccounts`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["chartofAccounts"],
+    }),
   }),
 });
 
-export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery,useDeleteChartOfAcountByIdMutation,useUpdateChartOfAccountMutation } = ChartOfAccountsApi;
+export const { useGetChartOfAccountsQuery,useGetChartOfAccountsByIdQuery,useDeleteChartOfAcountByIdMutation,useUpdateChartOfAccountMutation,useGetDefaultChartOfAccountQuery,useCreateChartOfAccountMutation } = ChartOfAccountsApi;
 export default ChartOfAccountsApi;

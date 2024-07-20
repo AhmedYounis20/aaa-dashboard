@@ -17,7 +17,7 @@ const CashInBoxesApi = createApi({
   tagTypes: ["cashInBoxes"],
   endpoints: (builder) => ({
     getCashInBoxes: builder.query({
-      query: () => "cashInBoxes/GetLevel?level=10",
+      query: () => "cashInBoxes",
       providesTags: ["cashInBoxes"],
     }),
     getCashInBoxesById: builder.query({

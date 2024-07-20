@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import {
-  Checkbox,
   FormControl,
-  FormGroup,
-  FormControlLabel,
-  Button,
   TextField,
 } from "@mui/material";
 
@@ -54,7 +50,18 @@ const InputAutoComplete = ({
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
         // onChange={(e, values) => onChange(name, values)}
-        onChange={handleChange}
+        onChange={(event,value)=>{
+          console.log(event)
+
+          if (Array.isArray(value)) {
+            console.log("It is an array");
+            onChange(value.map((e) => e["value"]));
+          } else if (typeof value === "object" && value !== null) {
+            onChange(value["value"]);
+          } else {
+            console.log("It is neither an array nor an object");
+          }
+        }}
         onBlur={handleBlur}
         value={value}
         selectOnFocus

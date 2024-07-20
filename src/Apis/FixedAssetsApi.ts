@@ -17,7 +17,7 @@ const FixedAssetsApi = createApi({
   tagTypes: ["fixedAssets"],
   endpoints: (builder) => ({
     getFixedAssets: builder.query({
-      query: () => "fixedAssets/GetLevel?level=10",
+      query: () => "fixedAssets",
       providesTags: ["fixedAssets"],
     }),
     getFixedAssetsById: builder.query({

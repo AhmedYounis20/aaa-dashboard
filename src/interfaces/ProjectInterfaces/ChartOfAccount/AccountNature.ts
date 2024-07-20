@@ -5,11 +5,11 @@ export enum AccountNature{
 
 export const AccountNatureOptions = [
   {
-    value: "0",
+    value: 0,
     label: "Debit",
   },
   {
-    value: '1',
+    value: 1,
     label: "Credit",
   },
 ];

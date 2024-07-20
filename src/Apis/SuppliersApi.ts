@@ -17,7 +17,7 @@ const SuppliersApi = createApi({
   tagTypes: ["suppliers"],
   endpoints: (builder) => ({
     getSuppliers: builder.query({
-      query: () => "suppliers/GetLevel?level=10",
+      query: () => "suppliers",
       providesTags: ["suppliers"],
     }),
     getSuppliersById: builder.query({

@@ -17,7 +17,7 @@ const BranchesApi = createApi({
   tagTypes: ["Branches"],
   endpoints: (builder) => ({
     getBranches: builder.query({
-      query: () => "Branches/GetLevel?level=10",
+      query: () => "Branches",
       providesTags: ["Branches"],
     }),
     getBranchesById: builder.query({

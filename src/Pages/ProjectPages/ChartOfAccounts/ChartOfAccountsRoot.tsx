@@ -27,6 +27,7 @@ const ChartOfAccountsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [parentId, setParentId] = useState<string>("");
   const { data, isLoading } = useGetChartOfAccountsQuery(null);
   const handleShowForm = () => {
     setShowForm(true);
@@ -46,6 +47,7 @@ const ChartOfAccountsRoot = () => {
           {showForm && (
             <ChartOfAccountsForm
               id={selectedId}
+              parentId={parentId}
               handleCloseForm={handleCloseForm}
               formType={formType}
             />
@@ -53,18 +55,24 @@ const ChartOfAccountsRoot = () => {
 
           {data?.result && (
             <AppContent
-              tableType='tree'
+              tableType="tree"
               data={data.result}
-              title='chart of accounts'
+              title="chart of accounts"
               // actionBtn={() => setIsOpen(prev => !prev)}
               btn
               addBtn
-              btnName='add new'
+              actionBtn={() => {
+                setParentId("");
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
+              btnName="add new"
               startIcon
               columns={columns}
               showdelete={false}
               showedit={false}
               handleSelectId={handleSelectId}
+              handleSelectParentId={setParentId}
               changeFormType={setFormType}
               handleShowForm={handleShowForm}
               defaultHiddenCols={[

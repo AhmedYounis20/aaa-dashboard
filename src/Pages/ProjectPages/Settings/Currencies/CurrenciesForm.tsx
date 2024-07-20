@@ -61,7 +61,7 @@ const CurrenciesForm: React.FC<{
        toastify(response.error.data.errorMessages[0], "error");
        return false;
      }
-    return false;
+     return false;
    };
       const handleAdd = async () => {
         const response: ApiResponse = await createCurrency(model);

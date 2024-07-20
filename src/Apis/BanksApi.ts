@@ -17,7 +17,7 @@ const BanksApi = createApi({
   tagTypes: ["banks"],
   endpoints: (builder) => ({
     getBanks: builder.query({
-      query: () => "banks/GetLevel?level=10",
+      query: () => "banks",
       providesTags: ["banks"],
     }),
     getBanksById: builder.query({
