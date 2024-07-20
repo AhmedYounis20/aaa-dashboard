@@ -28,12 +28,27 @@ const CurrenciesApi = createApi({
       query: (currencyBody: CurrencyModel) => ({
         url: `currencies/${currencyBody.id}`,
         method: "PUT",
-        body:currencyBody
+        body: currencyBody,
+      }),
+      invalidatesTags: ["currencies"],
+    }),
+    createCurrency: builder.mutation({
+      query: (currencyBody: CurrencyModel) => ({
+        url: `currencies`,
+        method: "POST",
+        body: currencyBody,
+      }),
+      invalidatesTags: ["currencies"],
+    }),
+    deleteCurrency: builder.mutation({
+      query: (id: string) => ({
+        url: `currencies/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["currencies"],
     }),
   }),
 });
 
-export const { useGetCurrenciesQuery, useGetCurrenciesByIdQuery,useUpdateCurrencyMutation } = CurrenciesApi;
+export const { useGetCurrenciesQuery, useGetCurrenciesByIdQuery,useUpdateCurrencyMutation,useCreateCurrencyMutation,useDeleteCurrencyMutation } = CurrenciesApi;
 export default CurrenciesApi;

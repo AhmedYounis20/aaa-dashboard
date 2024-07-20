@@ -39,7 +39,12 @@ const CurrenciesRoot = () => {
               title='Currencies'
               btnName='new'
               addBtn
+              btn
               startIcon
+              actionBtn={()=>{
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
               handleSelectId={handleSelectId}
               changeFormType={setFormType}
               handleShowForm={handleShowForm}
