@@ -133,6 +133,8 @@ const ChartOfAccountsForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         multiple={false}
                         onChange={() => console.log("changed AccountNature")}
+                        name={"AccountNature"}
+                        onBlur={null}
                       />
                     </div>
                   </div>
@@ -146,18 +148,22 @@ const ChartOfAccountsForm: React.FC<{
                           })
                         )}
                         label={"Account Guide"}
-                        defaultValue={accountGuidesResult.data.result
-                          .map((item: { name: string; id: string }) => ({
-                            label: item.name,
-                            value: item.id,
-                          }))
-                          .find(
-                            (e: { value: string }) =>
-                              e.value === model?.accountGuidId
-                          )}
+                        value={
+                          accountGuidesResult?.data?.result
+                            ?.map((item: { name: string; id: string }) => ({
+                              label: item.name,
+                              value: item.id,
+                            }))
+                            ?.find(
+                              (e: { value: string }) =>
+                                e.value === model?.accountGuidId
+                            ) || null
+                        }
                         disabled={formType === FormTypes.Details}
                         onChange={() => console.log("idChanged")}
                         multiple={false}
+                        name={"AccountGuide"}
+                        handleBlur={null}
                       />
                     </div>
                   </div>

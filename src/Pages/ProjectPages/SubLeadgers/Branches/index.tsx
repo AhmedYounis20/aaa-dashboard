@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useGetBanksQuery } from '../../../../Apis/BanksApi';
 import { FormTypes } from '../../../../interfaces/Components';
-import BanksForm from './BanksForm';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
 import { useGetBranchesQuery } from '../../../../Apis/BranchesApi';

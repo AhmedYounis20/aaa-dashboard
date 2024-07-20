@@ -4,7 +4,6 @@ import SuppliersForm from './SuppliersForm';
 import { FormTypes } from '../../../../interfaces/Components';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
-import AddIcon from '@mui/icons-material/Add';
 
 const columns: { Header: string; accessor: string }[] = [
   {

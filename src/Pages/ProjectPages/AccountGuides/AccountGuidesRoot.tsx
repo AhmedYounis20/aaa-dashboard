@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { useGetAccountGuidesQuery } from '../../../Apis/AccountGuidesApi'
-import { AppContent, DataTable } from '../../../Components';
+import { AppContent } from '../../../Components';
 import { FormTypes } from '../../../interfaces/Components';
 import AccountGuidesForm from './AccountGuidesForm';
 import { Box } from '@mui/material';
 import Loader from '../../../Components/Loader';
 
-
 const AccountGuidesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>("");
   const { data, isLoading } = useGetAccountGuidesQuery(null);
   const handleShowForm = () => {
     setShowForm(true);
