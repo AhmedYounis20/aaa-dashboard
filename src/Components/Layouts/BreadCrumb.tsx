@@ -9,7 +9,7 @@ const capitalize = (s: string) =>{
 
 const Breadcrumb: React.FC = () => {
   const location = useLocation();
-  const pathnames = location.pathname.split("/").filter((x) => x);
+  const pathnames = location.pathname.split("/").filter((x :string) => x);
 
   return (
     <nav aria-label="breadcrumb">
@@ -19,7 +19,7 @@ const Breadcrumb: React.FC = () => {
             Home
           </Link>
         </li>
-        {pathnames.map((value, index) => {
+        {pathnames.map((value :string, index:number) => {
           const to = `/${pathnames.slice(0, index + 1).join("/")}`;
           const isLast = index === pathnames.length - 1;
 
