@@ -24,6 +24,19 @@ const CashInBoxesApi = createApi({
       query: (id) => `cashInBoxes/${id}`,
       providesTags: ["cashInBoxes"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) =>
+        `cashInBoxes/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["cashInBoxes"],
+    }),
+    createCashInBox: builder.mutation({
+      query: (body: CashInBoxModel) => ({
+        url: `cashInBoxes`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["cashInBoxes"],
+    }),
     deleteCashInBoxById: builder.mutation({
       query: (id) => ({
         url: `cashInBoxes/${id}`,
@@ -42,5 +55,11 @@ const CashInBoxesApi = createApi({
   }),
 });
 
-export const { useGetCashInBoxesQuery, useGetCashInBoxesByIdQuery,useDeleteCashInBoxByIdMutation,useUpdateCashInBoxMutation } = CashInBoxesApi;
+export const { useGetCashInBoxesQuery,
+   useGetCashInBoxesByIdQuery,
+   useDeleteCashInBoxByIdMutation,
+   useUpdateCashInBoxMutation,
+   useGetDefaultModelDataQuery,
+   useCreateCashInBoxMutation
+  } = CashInBoxesApi;
 export default CashInBoxesApi;

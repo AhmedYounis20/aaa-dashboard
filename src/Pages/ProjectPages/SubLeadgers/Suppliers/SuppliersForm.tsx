@@ -12,6 +12,7 @@ import {  TextField, TextareaAutosize } from '@mui/material';
 const SuppliersForm: React.FC<{
   formType: FormTypes;
   id: string;
+  parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
   const [deleteFunc] = useDeleteSupplierByIdMutation();
@@ -46,8 +47,8 @@ const SuppliersForm: React.FC<{
         return false;
       }
     }
-       return false;
-     };
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -55,7 +56,7 @@ const SuppliersForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error : string) => {
+      response.error?.data?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -93,11 +94,14 @@ const SuppliersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? {
-                            ...prevModel,
-                            name: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  name: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -111,11 +115,14 @@ const SuppliersForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? {
-                            ...prevModel,
-                            nameSecondLanguage: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  nameSecondLanguage: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -128,9 +135,11 @@ const SuppliersForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({ target}: {
+                        onChange={({
+                          target,
+                        }: {
                           target: { value: NodeType };
-                          }) => {
+                        }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -159,11 +168,14 @@ const SuppliersForm: React.FC<{
                             disabled
                             value={model?.code}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                name: event.target.value,
-                              } : prevModel ))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      name: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -177,11 +189,14 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.companyName ?? ""}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                companyName: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      companyName: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -197,11 +212,14 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                phone: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      phone: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -215,11 +233,14 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.mobile}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                mobile: event.target.value,
-                              } : prevModel ))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      mobile: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -235,11 +256,14 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.taxNumber}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                taxNumber: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      taxNumber: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -253,11 +277,14 @@ const SuppliersForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                address: event.target.value,
-                              } : prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      address: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>
@@ -271,11 +298,14 @@ const SuppliersForm: React.FC<{
                             value={model?.notes}
                             aria-label="notes"
                             onChange={(event) =>
-                              setModel((prevModel) => (
-                                prevModel ? {
-                                ...prevModel,
-                                notes: event.target.value,
-                              }: prevModel))
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      notes: event.target.value,
+                                    }
+                                  : prevModel
+                              )
                             }
                           />
                         </div>

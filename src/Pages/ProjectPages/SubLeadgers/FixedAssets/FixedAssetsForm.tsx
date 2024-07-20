@@ -13,6 +13,7 @@ import  FixedAssetType, { FixedAssetTypeOptions } from '../../../../interfaces/P
 const FixedAssetsForm: React.FC<{
   formType: FormTypes;
   id: string;
+  parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
   const [deleteFunc] = useDeleteFixedAssetByIdMutation();
@@ -37,9 +38,9 @@ const FixedAssetsForm: React.FC<{
       }
       setIsLoading(false);
     }
-  }, [bankResult.isLoading,bankResult]);
-   const handleUpdate = async () => {
-    if(model){
+  }, [bankResult.isLoading, bankResult]);
+  const handleUpdate = async () => {
+    if (model) {
       const response: ApiResponse = await update(model);
       if (response.data) {
         toastify(response.data.successMessage);
@@ -49,8 +50,8 @@ const FixedAssetsForm: React.FC<{
         return false;
       }
     }
-     return false;
-   };
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -58,7 +59,7 @@ const FixedAssetsForm: React.FC<{
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error:string) => {
+      response.error?.data?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -96,12 +97,14 @@ const FixedAssetsForm: React.FC<{
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(event) =>
-                          setModel((prevModel) => (
-                            prevModel ? 
-                            {
-                            ...prevModel,
-                            name: event.target.value,
-                          } : prevModel))
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  name: event.target.value,
+                                }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
@@ -135,14 +138,18 @@ const FixedAssetsForm: React.FC<{
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
-                        onChange={({ target } : {target : {value:NodeType}}) => {
+                        onChange={({
+                          target,
+                        }: {
+                          target: { value: NodeType };
+                        }) => {
                           setModel((prevModel) =>
-                            prevModel ? 
-                             {
+                            prevModel
+                              ? {
                                   ...prevModel,
                                   nodeType: target.value,
-                                } : prevModel
-                              
+                                }
+                              : prevModel
                           );
                         }}
                         name={"nodeType"}
@@ -161,7 +168,11 @@ const FixedAssetsForm: React.FC<{
                             defaultValue={model?.fixedAssetType}
                             multiple={false}
                             disabled={formType != FormTypes.Add}
-                            onChange={({ target } : {target : {value : FixedAssetType}}) => {
+                            onChange={({
+                              target,
+                            }: {
+                              target: { value: FixedAssetType };
+                            }) => {
                               setModel((prevModel) =>
                                 prevModel
                                   ? {

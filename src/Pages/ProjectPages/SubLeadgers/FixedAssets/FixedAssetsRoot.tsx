@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FormTypes } from '../../../../interfaces/Components';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
@@ -26,10 +26,8 @@ const FixedAssetsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
-  useEffect(()=>{
-    console.log("data::::",data);
-    console.log("isLoading:::",isLoading);
-  },[data,isLoading])
+  const [parentId, setParentId] = useState<string>("");
+
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -48,8 +46,8 @@ const FixedAssetsRoot = () => {
               id={selectedId ?? ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
+              parentId={parentId}
             />
-            
           )}
           {data?.result && (
             <AppContent
@@ -57,12 +55,18 @@ const FixedAssetsRoot = () => {
               title="FixedAssets"
               btn
               addBtn
+              actionBtn={() => {
+                setParentId("");
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
               btnName="add new"
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
+              handleSelectParentId={setParentId}
             />
           )}
         </>

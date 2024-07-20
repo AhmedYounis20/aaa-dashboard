@@ -24,6 +24,19 @@ const CustomersApi = createApi({
       query: (id) => `customers/${id}`,
       providesTags: ["customers"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) =>
+        `customers/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["customers"],
+    }),
+    createCustomer: builder.mutation({
+      query: (body: CustomerModel) => ({
+        url: `customers`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["customers"],
+    }),
     deleteCustomerById: builder.mutation({
       query: (id) => ({
         url: `customers/${id}`,
@@ -42,5 +55,12 @@ const CustomersApi = createApi({
   }),
 });
 
-export const { useGetCustomersQuery, useGetCustomersByIdQuery,useDeleteCustomerByIdMutation,useUpdateCustomerMutation } = CustomersApi;
+export const {
+  useGetCustomersQuery,
+  useGetCustomersByIdQuery,
+  useDeleteCustomerByIdMutation,
+  useUpdateCustomerMutation,
+  useGetDefaultModelDataQuery,
+  useCreateCustomerMutation,
+} = CustomersApi;
 export default CustomersApi;

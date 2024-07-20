@@ -7,48 +7,98 @@ import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import {  TextField } from '@mui/material';
 import CashInBoxModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/CashInBoxes/CashInBoxModel';
-import { useDeleteCashInBoxByIdMutation, useGetCashInBoxesByIdQuery, useUpdateCashInBoxMutation } from '../../../../Apis/CashInBoxesApi';
+import { useCreateCashInBoxMutation, useDeleteCashInBoxByIdMutation, useGetCashInBoxesByIdQuery, useGetDefaultModelDataQuery, useUpdateCashInBoxMutation } from '../../../../Apis/CashInBoxesApi';
 
 const CashInBoxesForm: React.FC<{
   formType: FormTypes;
   id: string;
+  parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+}> = ({ formType, id,parentId, handleCloseForm }) => {
   const [deleteFunc] = useDeleteCashInBoxByIdMutation();
-  const [model, setModel] = useState<CashInBoxModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const cashInBoxResult = useGetCashInBoxesByIdQuery(id);
+  const [model, setModel] = useState<CashInBoxModel>({
+    name: "",
+    nameSecondLanguage: "",
+    id: "",
+    parentId: parentId,
+    nodeType: NodeType.Category,
+    code: "",
+    notes: ""
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+  const cashInBoxResult = useGetCashInBoxesByIdQuery(id,{
+    skip : formType == FormTypes.Add
+  });
+    const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
+      skip: formType != FormTypes.Add,
+    });
   const [update] = useUpdateCashInBoxMutation();
+  const [create] = useCreateCashInBoxMutation();
   useEffect(() => {
-    if (!cashInBoxResult.isLoading) {
-      setModel(cashInBoxResult.data.result);
-      if (cashInBoxResult.data?.result.nodeType === 0) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: cashInBoxResult.data.result.chartOfAccount.code,
-              }
-            : prevModel
-        );
+    if(formType !== FormTypes.Add){
+      if (!cashInBoxResult.isLoading) {
+        setModel(cashInBoxResult.data.result);
+        if (cashInBoxResult.data?.result.nodeType === 0) {
+          setModel((prevModel) =>
+            prevModel
+              ? {
+                  ...prevModel,
+                  code: cashInBoxResult.data.result.chartOfAccount.code,
+                }
+              : prevModel
+          );
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
-  }, [cashInBoxResult.isLoading, cashInBoxResult?.data?.result]);
-
-       const handleUpdate = async () => {
-         if (model) {
-           const response: ApiResponse = await update(model);
-           if (response.data) {
-             toastify(response.data.successMessage);
-             return true;
-           } else if (response.error) {
-             toastify(response.error.data.errorMessages[0], "error");
-             return false;
-           }
-         }
-         return false;
-       };
+  }, [cashInBoxResult.isLoading, cashInBoxResult?.data?.result,formType]);
+    useEffect(() => {
+      if (formType == FormTypes.Add) {
+        if (!modelDefaultDataResult.isLoading) {
+          setModel((prevModel) =>
+            prevModel
+              ? {
+                  ...prevModel,
+                  code: modelDefaultDataResult?.data?.result?.code,
+                }
+              : prevModel
+          );
+        }
+      }
+    }, [
+      model?.nodeType,
+      formType,
+      modelDefaultDataResult,
+      modelDefaultDataResult.isLoading,
+    ]);
+  const handleAdd = async () => {
+    if (model) {
+      const response: ApiResponse = await create(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        response.error?.data?.errorMessages?.map((error: string) => {
+          toastify(error, "error");
+        });
+        return false;
+      }
+    }
+    return false;
+  };
+  const handleUpdate = async () => {
+    if (model) {
+      const response: ApiResponse = await update(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        toastify(response.error.data.errorMessages[0], "error");
+        return false;
+      }
+    }
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -71,7 +121,7 @@ const CashInBoxesForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
-        handleAdd={async () => await handleDelete()}
+        handleAdd={handleAdd}
         isModal
       >
         <div>

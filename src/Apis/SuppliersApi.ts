@@ -24,6 +24,19 @@ const SuppliersApi = createApi({
       query: (id) => `suppliers/${id}`,
       providesTags: ["suppliers"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) =>
+        `suppliers/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["suppliers"],
+    }),
+    createSupplier: builder.mutation({
+      query: (body: SupplierModel) => ({
+        url: `suppliers`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["suppliers"],
+    }),
     deleteSupplierById: builder.mutation({
       query: (id) => ({
         url: `suppliers/${id}`,
@@ -42,5 +55,12 @@ const SuppliersApi = createApi({
   }),
 });
 
-export const { useGetSuppliersQuery, useGetSuppliersByIdQuery, useDeleteSupplierByIdMutation,useUpdateSupplierMutation } = SuppliersApi;
+export const {
+  useGetSuppliersQuery,
+  useGetSuppliersByIdQuery,
+  useDeleteSupplierByIdMutation,
+  useUpdateSupplierMutation,
+  useGetDefaultModelDataQuery,
+  useCreateSupplierMutation,
+} = SuppliersApi;
 export default SuppliersApi;

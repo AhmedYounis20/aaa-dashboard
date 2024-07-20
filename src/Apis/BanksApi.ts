@@ -24,6 +24,10 @@ const BanksApi = createApi({
       query: (id) => `banks/${id}`,
       providesTags: ["banks"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) => `banks/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["banks"],
+    }),
     deleteBankById: builder.mutation({
       query: (id) => ({
         url: `banks/${id}`,
@@ -39,8 +43,16 @@ const BanksApi = createApi({
       }),
       invalidatesTags: ["banks"],
     }),
+    createBank: builder.mutation({
+      query: (body: BankModel) => ({
+        url: `banks`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["banks"],
+    }),
   }),
 });
 
-export const { useGetBanksQuery,useGetBanksByIdQuery,useDeleteBankByIdMutation,useUpdateBankMutation } = BanksApi;
+export const { useGetBanksQuery,useGetBanksByIdQuery,useDeleteBankByIdMutation,useUpdateBankMutation, useGetDefaultModelDataQuery,useCreateBankMutation } = BanksApi;
 export default BanksApi;

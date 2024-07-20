@@ -8,7 +8,7 @@ import { AppContent } from '../../../Components';
 const columns = [
   {
     Header: "Code",
-    accessor: "code", // accessor is the "key" in the data
+    accessor: "code",
   },
   {
     Header: "Name",
@@ -18,8 +18,6 @@ const columns = [
     Header: "Name (Second Language)",
     accessor: "nameSecondLanguage",
   },
-
-  // Add more columns as needed
 ];
 
 const ChartOfAccountsRoot = () => {

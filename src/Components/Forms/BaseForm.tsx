@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { FormTypes } from '../../interfaces/Components/FormType'
-
+import Loader from '../Loader';
 
 const BaseForm: React.FC<{
   formType: FormTypes;
@@ -18,13 +19,18 @@ const BaseForm: React.FC<{
   children,
   isModal = true,
 }) => {
+  const [waitingResponse,setWaitingResponse]= useState<boolean>(false);
+
+
   const handleSubmit = async () => {
+    setWaitingResponse(true);
     if (formType == FormTypes.Add && ( handleAdd && await handleAdd())&& handleCloseForm) 
       handleCloseForm();
     else if (formType == FormTypes.Edit && (handleUpdate && await handleUpdate()) && handleCloseForm)
       handleCloseForm();
     else if (formType == FormTypes.Delete && (handleDelete && await handleDelete()) && handleCloseForm)
       handleCloseForm();
+    setWaitingResponse(false);
   };
   return (
     <div className={`${isModal && "modal "} fade show d-block modal-lg `}>
@@ -53,6 +59,8 @@ const BaseForm: React.FC<{
                 type="button"
                 className="btn btn-secondary"
                 onClick={handleCloseForm}
+                disabled={waitingResponse}
+                style={{ height: 40 }}
               >
                 Close
               </button>
@@ -61,9 +69,15 @@ const BaseForm: React.FC<{
               <button
                 type="button"
                 className="btn btn-primary"
+                style={{ height: 40 }}
                 onClick={async () => await handleSubmit()}
+                disabled={waitingResponse}
               >
-                Save
+                {waitingResponse ? (
+                  <Loader height={"5px"} color="text-white" />
+                ) : (
+                  <>{formType == FormTypes.Delete ? "Delete" : "Save"}</>
+                )}
               </button>
             )}
           </div>

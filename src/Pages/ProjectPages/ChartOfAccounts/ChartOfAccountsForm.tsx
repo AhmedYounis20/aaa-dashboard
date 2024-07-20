@@ -21,7 +21,9 @@ const ChartOfAccountsForm: React.FC<{
   const [deleteChartOfAccount] = useDeleteChartOfAcountByIdMutation();
   const [updateChartOfAccount] = useUpdateChartOfAccountMutation();
   const [createChartOfAccount] = useCreateChartOfAccountMutation();
-  const accountGuidesResult = useGetAccountGuidesQuery(null);
+  const accountGuidesResult = useGetAccountGuidesQuery(null,{
+    skip : formType == FormTypes.Delete
+  });
   const [model,setModel] = useState<ChartOfAccountModel>({
     accountGuidId:"",
     accountNature: AccountNature.Debit,

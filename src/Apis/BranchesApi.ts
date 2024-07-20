@@ -24,6 +24,19 @@ const BranchesApi = createApi({
       query: (id) => `Branches/${id}`,
       providesTags: ["Branches"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) =>
+        `branches/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["Branches"],
+    }),
+    createBranch: builder.mutation({
+      query: (body: BranchModel) => ({
+        url: `branches`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["Branches"],
+    }),
     deleteBranchById: builder.mutation({
       query: (id) => ({
         url: `Branches/${id}`,
@@ -47,5 +60,7 @@ export const {
   useGetBranchesByIdQuery,
   useDeleteBranchByIdMutation,
   useUpdateBranchMutation,
+  useCreateBranchMutation,
+  useGetDefaultModelDataQuery
 } = BranchesApi;
 export default BranchesApi;

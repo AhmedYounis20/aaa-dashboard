@@ -24,6 +24,8 @@ const CustomersRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
+    const [parentId, setParentId] = useState<string | null>(null);
+
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -43,21 +45,28 @@ const CustomersRoot = () => {
               id={selectedId ?? ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
+              parentId={parentId}
             />
           )}
           {data?.result && (
             <AppContent
-              tableType='tree'
-              title='customer'
+              tableType="tree"
+              title="customer"
               btn
               addBtn
+              actionBtn={() => {
+                setParentId(null);
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
               startIcon
-              btnName='add new'
+              btnName="add new"
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
+              handleSelectParentId={setParentId}
             />
           )}
         </>

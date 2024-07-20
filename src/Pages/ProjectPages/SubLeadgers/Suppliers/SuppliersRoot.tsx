@@ -25,6 +25,8 @@ const SuppliersRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
+    const [parentId, setParentId] = useState<string>("");
+
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -44,20 +46,27 @@ const SuppliersRoot = () => {
               id={selectedId || ""}
               handleCloseForm={handleCloseForm}
               formType={formType}
+              parentId={parentId}
             />
           )}
           {data?.result && (
             <AppContent
-              tableType='tree'
+              tableType="tree"
               data={data.result}
               columns={columns}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
-              title='Suppliers'
+              handleSelectParentId={setParentId}
+              title="Suppliers"
               btn
-              btnName='new'
               addBtn
+              actionBtn={() => {
+                setParentId("");
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
+              btnName="new"
               startIcon
             />
           )}

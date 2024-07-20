@@ -24,6 +24,19 @@ const FixedAssetsApi = createApi({
       query: (id) => `fixedAssets/${id}`,
       providesTags: ["fixedAssets"],
     }),
+    getDefaultModelData: builder.query({
+      query: (parentId) =>
+        `fixedAssets/NextAccountDefaultData?parentId=${parentId}`,
+      providesTags: ["fixedAssets"],
+    }),
+    createFixedAsset: builder.mutation({
+      query: (body: FixedAssetModel) => ({
+        url: `fixedAssets`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["fixedAssets"],
+    }),
     deleteFixedAssetById: builder.mutation({
       query: (id) => ({
         url: `fixedAssets/${id}`,
@@ -47,5 +60,7 @@ export const {
   useGetFixedAssetsByIdQuery,
   useDeleteFixedAssetByIdMutation,
   useUpdateFixedAssetMutation,
+  useCreateFixedAssetMutation,
+  useGetDefaultModelDataQuery
 } = FixedAssetsApi;
 export default FixedAssetsApi;

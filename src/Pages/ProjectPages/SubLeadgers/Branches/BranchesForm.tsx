@@ -1,59 +1,125 @@
-import { useEffect, useState } from 'react';
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { ApiResponse } from '../../../../interfaces/ApiResponse';
-import { toastify } from '../../../../Helper/toastify';
-import InputSelect from '../../../../Components/Inputs/InputSelect';
-import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
-import { TextField, TextareaAutosize } from '@mui/material';
-import { useDeleteBranchByIdMutation, useGetBranchesByIdQuery, useUpdateBranchMutation } from '../../../../Apis/BranchesApi';
-import BranchModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel';
+import { useEffect, useState } from "react";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import { ApiResponse } from "../../../../interfaces/ApiResponse";
+import { toastify } from "../../../../Helper/toastify";
+import InputSelect from "../../../../Components/Inputs/InputSelect";
+import {
+  NodeType,
+  NodeTypeOptions,
+} from "../../../../interfaces/Components/NodeType";
+import { TextField, TextareaAutosize } from "@mui/material";
+import {
+  useCreateBranchMutation,
+  useDeleteBranchByIdMutation,
+  useGetBranchesByIdQuery,
+  useGetDefaultModelDataQuery,
+  useUpdateBranchMutation,
+} from "../../../../Apis/BranchesApi";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel";
 
 const BranchesForm: React.FC<{
   formType: FormTypes;
   id: string;
+  parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+}> = ({ formType, id, parentId, handleCloseForm }) => {
   const [deleteFunc] = useDeleteBranchByIdMutation();
-  const [model, setModel] = useState<BranchModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const bankResult = useGetBranchesByIdQuery(id);
+  const [model, setModel] = useState<BranchModel>({
+    name: "",
+    nameSecondLanguage: "",
+    id: "",
+    parentId: parentId,
+    nodeType: NodeType.Category,
+    address: "",
+    phone: "",
+    code: "",
+    notes: "",
+  });
+  const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
+    skip: formType != FormTypes.Add,
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+  const bankResult = useGetBranchesByIdQuery(id, {
+    skip: formType == FormTypes.Add,
+  });
   const [update] = useUpdateBranchMutation();
+  const [create] = useCreateBranchMutation();
   useEffect(() => {
-    if (!bankResult.isLoading) {
-      setModel(bankResult.data.result);
-      if (bankResult.data?.result.nodeType === 0) {
-        setModel((prevModel) => (
-          prevModel ? {
-          ...prevModel,
-          code: bankResult.data.result.chartOfAccount.code,
-        } : prevModel ));
+    if (formType != FormTypes.Add) {
+      if (!bankResult.isLoading) {
+        setModel(bankResult.data.result);
+        if (bankResult.data?.result.nodeType === 0) {
+          setModel((prevModel) =>
+            prevModel
+              ? {
+                  ...prevModel,
+                  code: bankResult.data.result.chartOfAccount.code,
+                }
+              : prevModel
+          );
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
-  }, [bankResult.isLoading,bankResult]);
-
-     const handleUpdate = async () => {
-       if (model) {
-         const response: ApiResponse = await update(model);
-         if (response.data) {
-           toastify(response.data.successMessage);
-           return true;
-         } else if (response.error) {
-           toastify(response.error.data.errorMessages[0], "error");
-           return false;
-         }
-       }
-       return false;
-     };
+  }, [bankResult.isLoading, bankResult, formType]);
+  useEffect(() => {
+    if (formType == FormTypes.Add) {
+      if (!modelDefaultDataResult.isLoading) {
+        setModel((prevModel) =>
+          prevModel
+            ? {
+                ...prevModel,
+                code: modelDefaultDataResult?.data?.result?.code,
+              }
+            : prevModel
+        );
+      }
+    }
+  }, [
+    model?.nodeType,
+    formType,
+    modelDefaultDataResult,
+    modelDefaultDataResult.isLoading,
+  ]);
+  const handleAdd = async () => {
+    if (model) {
+      const response: ApiResponse = await create(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        response.error?.data?.errorMessages?.map((error: string) => {
+          toastify(error, "error");
+        });
+        return false;
+      }
+    }
+    return false;
+  };
+  const handleUpdate = async () => {
+    if (model) {
+      const response: ApiResponse = await update(model);
+      if (response.data) {
+        toastify(response.data.successMessage);
+        return true;
+      } else if (response.error) {
+        response.error?.data?.errorMessages?.map((error: string) => {
+          toastify(error, "error");
+        });
+        return false;
+      }
+    }
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
+      toastify(response.data.successMessage);
       return true;
     } else {
       console.log(response);
-
-      response.error?.data?.errorMessages?.map((error : string) => {
+      response.error?.data?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -68,7 +134,7 @@ const BranchesForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
-        handleAdd={handleUpdate}
+        handleAdd={handleAdd}
         isModal
       >
         <div>
@@ -143,7 +209,7 @@ const BranchesForm: React.FC<{
                                   ...prevModel,
                                   nodeType: target.value,
                                 }
-                              : undefined
+                              : prevModel
                           );
                         }}
                         name={"NodeType"}
