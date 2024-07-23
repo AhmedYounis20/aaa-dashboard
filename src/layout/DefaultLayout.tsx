@@ -15,7 +15,7 @@ export const appContext = createContext<appProps>({
 
 const DefaultLayout = () => {
   const isMobile = useMediaQuery("(max-width: 1550px)");
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   return (
     <appContext.Provider value={{
