@@ -26,7 +26,9 @@ const SuppliersApi = createApi({
     }),
     getDefaultModelData: builder.query({
       query: (parentId) =>
-        `suppliers/NextAccountDefaultData?parentId=${parentId}`,
+        `suppliers/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["suppliers"],
     }),
     createSupplier: builder.mutation({

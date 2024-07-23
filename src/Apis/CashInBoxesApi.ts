@@ -26,7 +26,9 @@ const CashInBoxesApi = createApi({
     }),
     getDefaultModelData: builder.query({
       query: (parentId) =>
-        `cashInBoxes/NextAccountDefaultData?parentId=${parentId}`,
+        `cashInBoxes/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["cashInBoxes"],
     }),
     createCashInBox: builder.mutation({

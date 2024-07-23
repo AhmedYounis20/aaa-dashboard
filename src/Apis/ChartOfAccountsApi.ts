@@ -27,7 +27,9 @@ const ChartOfAccountsApi = createApi({
     }),
     getDefaultChartOfAccount: builder.query({
       query: (parentId) =>
-        `chartofAccounts/NextAccountDefaultData?parentId=${parentId}`,
+        `chartofAccounts/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["chartofAccounts"],
     }),
     deleteChartOfAcountById: builder.mutation({

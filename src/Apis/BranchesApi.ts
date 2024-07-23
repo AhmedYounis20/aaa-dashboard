@@ -26,7 +26,9 @@ const BranchesApi = createApi({
     }),
     getDefaultModelData: builder.query({
       query: (parentId) =>
-        `branches/NextAccountDefaultData?parentId=${parentId}`,
+        `branches/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["Branches"],
     }),
     createBranch: builder.mutation({

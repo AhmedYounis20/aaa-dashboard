@@ -25,7 +25,8 @@ const BanksApi = createApi({
       providesTags: ["banks"],
     }),
     getDefaultModelData: builder.query({
-      query: (parentId) => `banks/NextAccountDefaultData?parentId=${parentId}`,
+      query: (parentId) =>
+        `banks/NextAccountDefaultData${parentId == null ? "":`?parentId=${parentId}`}`  ,
       providesTags: ["banks"],
     }),
     deleteBankById: builder.mutation({

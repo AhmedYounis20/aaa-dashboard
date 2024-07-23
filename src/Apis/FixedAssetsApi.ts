@@ -26,7 +26,9 @@ const FixedAssetsApi = createApi({
     }),
     getDefaultModelData: builder.query({
       query: (parentId) =>
-        `fixedAssets/NextAccountDefaultData?parentId=${parentId}`,
+        `fixedAssets/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["fixedAssets"],
     }),
     createFixedAsset: builder.mutation({

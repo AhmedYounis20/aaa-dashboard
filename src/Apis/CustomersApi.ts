@@ -26,7 +26,9 @@ const CustomersApi = createApi({
     }),
     getDefaultModelData: builder.query({
       query: (parentId) =>
-        `customers/NextAccountDefaultData?parentId=${parentId}`,
+        `customers/NextAccountDefaultData${
+          parentId == null ? "" : `?parentId=${parentId}`
+        }`,
       providesTags: ["customers"],
     }),
     createCustomer: builder.mutation({
