@@ -79,6 +79,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 color: "#29292981",
               },
             }}
+            
           >
             <Box
               role="button"

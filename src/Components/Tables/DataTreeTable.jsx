@@ -172,9 +172,13 @@ const DataTreeTable = ({
   return (
     <TableContainer
       component={Paper}
-      style={{ maxHeight: 700, height: "100%", overflow: "auto" }}
+      style={{
+        maxHeight: "72vh",
+        height: "100%",
+        overflow: "auto",
+      }}
     >
-      <Table>
+      <Table >
         <TableHead>
           <TableRow>
             <TableCell />
@@ -187,7 +191,7 @@ const DataTreeTable = ({
         </TableHead>
         <TableBody>
           {data.length > 0 ? (
-            renderRows(data.filter(e=>!e.parentId))
+            renderRows(data.filter((e) => !e.parentId))
           ) : (
             <React.Fragment>
               <TableRow style={{ backgroundColor: getBackgroundColor(1) }}>

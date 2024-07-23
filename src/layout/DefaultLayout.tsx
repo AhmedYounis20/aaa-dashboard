@@ -18,27 +18,26 @@ const DefaultLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   return (
-    <appContext.Provider value={{
-      isMobile,
-      isSidebarOpen,
-      setIsSidebarOpen
-    }}>
-      <Box
-        display='flex'
-        width="100%"
-      >
+    <appContext.Provider
+      value={{
+        isMobile,
+        isSidebarOpen,
+        setIsSidebarOpen,
+      }}
+    >
+      <Box display="flex" width="100%" height={"100vh"} overflow={"hidden"}>
         <AppSidebar
           items={sidebarItemsData}
-          // isMobile={isMobile}
+          isMobile={isMobile}
           // isSidebarOpen={isSidebarOpen}
           // setIsSidebarOpen={setIsSidebarOpen}
         />
-        <Box width='100%'>
+        <Box width="100%" height={"10vh"}>
           <AppHeader
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
           />
-          <Box p={4}>
+          <Box p={4} height={"90vh"} overflow={"auto"}>
             <Outlet />
           </Box>
         </Box>

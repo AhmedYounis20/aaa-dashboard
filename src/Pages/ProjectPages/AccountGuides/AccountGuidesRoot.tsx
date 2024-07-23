@@ -19,11 +19,7 @@ const AccountGuidesRoot = () => {
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
   return (
-    <div className="h-full pt-0"
-      style={{
-        width: '100%'
-      }}
-    >
+    <div className="w-full">
       {isLoading 
       ? ( <Loader /> ) 
       : (
@@ -45,6 +41,7 @@ const AccountGuidesRoot = () => {
               addBtn
               btn
               startIcon
+              actionBtn={null}
               showdelete={false}
               showedit={false}
               handleSelectId={handleSelectId}

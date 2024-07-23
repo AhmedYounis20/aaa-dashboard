@@ -159,7 +159,7 @@ const DataTable = ({
       <Grid 
         item 
         style={{ 
-          height: 550,
+          height: "60vh",
           width: '100%',
           display: 'flex',
           justifyContent: 'start',
@@ -170,11 +170,11 @@ const DataTable = ({
           rows={data}
           columns={visibleColumns}
           pageSize={5}
-          slots={{ toolbar: GridToolbar }}
+          slots={{ toolbar: GridToolbar}}
           disableRowSelectionOnClick
           disableColumnSelector
           style={{ border: 0, width: '100%' }}
-          
+          scrollbarSize={5}
           sx={{
             ".MuiDataGrid-cell:focus": {
               outline: "none",
@@ -192,7 +192,7 @@ const DataTable = ({
               backgroundColor: "rgba(0, 0, 0, 0.1)",
             },
             border: 0,
-            maxWidth: isSidebarOpen && !isMobile ? '1500px' : 'auto'
+            maxWidth: isSidebarOpen && !isMobile ? '1500px' : 'auto',
           }}
         />
       </Grid>

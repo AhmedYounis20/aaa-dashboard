@@ -49,7 +49,7 @@ export default function AppContent({
   btn = false,
 }: AppContentProps) {
   return (
-    <Box width={"100%"} display={"flex"} flexDirection={"column"}>
+    <Box width={"100%"} display={"flex"} flexDirection={"column"} paddingBottom={0}>
       <Stack
         direction={"row"}
         justifyContent={"space-between"}
@@ -86,7 +86,7 @@ export default function AppContent({
           changeFormType={changeFormType}
           handleSelectId={handleSelectId}
           handleSelectParentId={handleSelectParentId}
-          showadd = {showadd}
+          showadd={showadd}
         />
       ) : (
         <DataTable
