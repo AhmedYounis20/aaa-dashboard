@@ -3,7 +3,7 @@ import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
-import { useDeleteSupplierByIdMutation, useGetSuppliersByIdQuery, useUpdateSupplierMutation } from '../../../../Apis/SuppliersApi';
+import { useCreateSupplierMutation, useDeleteSupplierByIdMutation, useGetDefaultModelDataQuery, useGetSuppliersByIdQuery, useUpdateSupplierMutation } from '../../../../Apis/SuppliersApi';
 import SupplierModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
@@ -14,28 +14,74 @@ const SuppliersForm: React.FC<{
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+}> = ({ formType, id,parentId, handleCloseForm }) => {
   const [deleteFunc] = useDeleteSupplierByIdMutation();
-  const [model, setModel] = useState<SupplierModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const supplierResult = useGetSuppliersByIdQuery(id);
+  const [model, setModel] = useState<SupplierModel>({
+    name: "",
+    nameSecondLanguage: "",
+    id: "",
+    parentId: parentId,
+    nodeType: NodeType.Category,
+    code: "",
+    email: "",
+    notes: "",
+    phone: "",
+    address: "",
+    mobile: "",
+    companyName:"",
+    taxNumber: "",
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(
+    formType != FormTypes.Add
+  );
+  const supplierResult = useGetSuppliersByIdQuery(id, {
+    skip: formType == FormTypes.Add,
+  });
+    const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
+      skip: formType != FormTypes.Add,
+    });
   const [update] = useUpdateSupplierMutation();
+  const [create] = useCreateSupplierMutation();
+
   useEffect(() => {
-    if (!supplierResult.isLoading) {
-      setModel(supplierResult.data.result);
-      if (supplierResult.data?.result.nodeType === 0) {
+    if(formType != FormTypes.Add){
+
+      if (!supplierResult.isLoading) {
+        setModel(supplierResult.data.result);
+        if (supplierResult.data?.result.nodeType === 0) {
+          setModel((prevModel) =>
+            prevModel
+              ? {
+                  ...prevModel,
+                  code: supplierResult.data.result.chartOfAccount.code,
+                }
+              : prevModel
+          );
+        }
+        setIsLoading(false);
+      }
+    }
+  }, [supplierResult.isLoading, supplierResult?.data?.result,formType]);
+  useEffect(() => {
+    if (formType == FormTypes.Add) {
+      if (!modelDefaultDataResult.isLoading) {
         setModel((prevModel) =>
           prevModel
             ? {
                 ...prevModel,
-                code: supplierResult.data.result.chartOfAccount.code,
+                code: modelDefaultDataResult?.data?.result?.code,
               }
             : prevModel
         );
       }
-      setIsLoading(false);
     }
-  }, [supplierResult.isLoading, supplierResult?.data?.result]);
+  }, [
+    model?.nodeType,
+    formType,
+    modelDefaultDataResult,
+    modelDefaultDataResult.isLoading,
+  ]);
+  useEffect(()=> console.log(model),[]);
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
@@ -49,6 +95,21 @@ const SuppliersForm: React.FC<{
     }
     return false;
   };
+   const handleAdd = async () => {
+     if (model) {
+       const response: ApiResponse = await create(model);
+       if (response.data) {
+         toastify(response.data.successMessage);
+         return true;
+       } else if (response.error) {
+         response.error?.data?.errorMessages?.map((error: string) => {
+           toastify(error, "error");
+         });
+         return false;
+       }
+     }
+     return false;
+   };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -71,7 +132,7 @@ const SuppliersForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleDelete={handleDelete}
         handleUpdate={handleUpdate}
-        handleAdd={handleDelete}
+        handleAdd={handleAdd}
         isModal
       >
         <div>
@@ -250,6 +311,27 @@ const SuppliersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
+                            label="Email"
+                            variant="outlined"
+                            fullWidth
+                            disabled={formType === FormTypes.Details}
+                            value={model?.email}
+                            onChange={(event) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      email: event.target.value,
+                                    }
+                                  : prevModel
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="col col-md-6">
+                          <TextField
+                            type="text"
+                            className="form-input form-control"
                             label="Tax Number"
                             variant="outlined"
                             fullWidth
@@ -267,6 +349,8 @@ const SuppliersForm: React.FC<{
                             }
                           />
                         </div>
+                      </div>
+                      <div className="row mb-3">
                         <div className="col col-md-6">
                           <TextField
                             type="text"
