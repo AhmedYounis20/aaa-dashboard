@@ -3,7 +3,9 @@ import BaseForm from '../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../interfaces/ProjectInterfaces';
 import { TextField } from '@mui/material';
-import { useGetAccountGuidesByIdQuery } from '../../../Apis/AccountGuidesApi';
+import { useCreateAccountGuideMutation, useDeleteAccountGuideMutation, useGetAccountGuidesByIdQuery, useUpdateAccountGuideMutation } from '../../../Apis/AccountGuidesApi';
+import { toastify } from '../../../Helper/toastify';
+import { ApiResponse } from '../../../interfaces/ApiResponse';
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
@@ -11,14 +13,64 @@ const AccountGuidesForm: React.FC<{
   handleCloseForm: () => void;
 }> = ({ formType, id , handleCloseForm }) => {
   const accountGuidesResult = useGetAccountGuidesByIdQuery(id);
-  const [model, setModel] = useState<AccountGuideModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [model, setModel] = useState<AccountGuideModel>({
+    id:"",
+    name:"",
+    nameSecondLanguage:""
+  });
+    const [isLoading, setIsLoading] = useState<boolean>(
+      formType != FormTypes.Add
+    );
+  const [updateGuide] = useUpdateAccountGuideMutation();
+  const [createGuide] = useCreateAccountGuideMutation();
+  const [deleteGuide] = useDeleteAccountGuideMutation();
+
   useEffect(() => {
-    if (!accountGuidesResult.isLoading) {
-      setModel(accountGuidesResult.data.result);
-      setIsLoading(false);
+    if(formType != FormTypes.Add){
+      if (!accountGuidesResult.isLoading) {
+        setModel(accountGuidesResult.data.result);
+        setIsLoading(false);
+      }
     }
-  }, [accountGuidesResult.isLoading, accountGuidesResult?.data?.result]);
+  }, [accountGuidesResult.isLoading, accountGuidesResult?.data?.result,formType]);
+
+   const handleDelete = async (): Promise<boolean> => {
+     const response: ApiResponse = await deleteGuide(id);
+     if (response.data) {
+       toastify(response.data.successMessage);
+       return true;
+     } else {
+       console.log(response);
+       response.error?.data?.errorMessages?.map((error: string) => {
+         toastify(error, "error");
+         console.log(error);
+       });
+       return false;
+     }
+   };
+   const handleUpdate = async () => {
+     const response: ApiResponse = await updateGuide(model);
+     if (response.data) {
+       toastify(response.data.successMessage);
+       return true;
+     } else if (response.error) {
+       toastify(response.error.data.errorMessages[0], "error");
+       return false;
+     }
+     return false;
+   };
+   const handleAdd = async () => {
+     const response: ApiResponse = await createGuide(model);
+     if (response.data) {
+       toastify(response.data.successMessage);
+       console.log(response);
+       return true;
+     } else if (response.error) {
+       toastify(response.error.data.errorMessages[0], "error");
+       return false;
+     }
+     return false;
+   };
 
   return (
     <div className="container h-full">
@@ -26,9 +78,9 @@ const AccountGuidesForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         isModal
-        handleAdd={undefined}
-        handleUpdate={undefined}
-        handleDelete={undefined}
+        handleAdd={handleAdd}
+        handleUpdate={handleUpdate}
+        handleDelete={handleDelete}
       >
         <div>
           {isLoading ? (

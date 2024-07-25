@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
+import { AccountGuideModel } from "../interfaces/ProjectInterfaces";
 
 const AccountGuidesApi = createApi({
   reducerPath: "accountGuidesApi",
@@ -23,8 +24,31 @@ const AccountGuidesApi = createApi({
       query: (id) => `accountGuides/${id}`,
       providesTags: ["accountGuides"],
     }),
+    updateAccountGuide: builder.mutation({
+      query: (currencyBody: AccountGuideModel) => ({
+        url: `accountGuides/${currencyBody.id}`,
+        method: "PUT",
+        body: currencyBody,
+      }),
+      invalidatesTags: ["accountGuides"],
+    }),
+    createAccountGuide: builder.mutation({
+      query: (currencyBody: AccountGuideModel) => ({
+        url: `accountGuides`,
+        method: "POST",
+        body: currencyBody,
+      }),
+      invalidatesTags: ["accountGuides"],
+    }),
+    deleteAccountGuide: builder.mutation({
+      query: (id: string) => ({
+        url: `accountGuides/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["accountGuides"],
+    }),
   }),
 });
 
-export const {useGetAccountGuidesQuery, useGetAccountGuidesByIdQuery}  = AccountGuidesApi;
+export const {useGetAccountGuidesQuery, useGetAccountGuidesByIdQuery,useCreateAccountGuideMutation,useUpdateAccountGuideMutation,useDeleteAccountGuideMutation}  = AccountGuidesApi;
 export default AccountGuidesApi;

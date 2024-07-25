@@ -1,4 +1,5 @@
 interface AccountGuideModel {
+    id:string;
     name:string,
     nameSecondLanguage:string
 }

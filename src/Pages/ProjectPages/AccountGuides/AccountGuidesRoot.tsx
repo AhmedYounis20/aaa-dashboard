@@ -20,30 +20,31 @@ const AccountGuidesRoot = () => {
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
   return (
     <div className="w-full">
-      {isLoading 
-      ? ( <Loader /> ) 
-      : (
+      {isLoading ? (
+        <Loader />
+      ) : (
         <Box>
-          {showForm &&  
-            <AccountGuidesForm 
-                id={selectedId} 
-                handleCloseForm={handleCloseForm} 
-                formType={formType}
+          {showForm && (
+            <AccountGuidesForm
+              id={selectedId}
+              handleCloseForm={handleCloseForm}
+              formType={formType}
             />
-          }
+          )}
 
           {data?.result && (
             <AppContent
-              tableType='table'
+              tableType="table"
               data={data.result}
-              title='Account Guides'
-              btnName='add new'
+              title="Account Guides"
+              btnName="add new"
               addBtn
               btn
               startIcon
-              actionBtn={null}
-              showdelete={false}
-              showedit={false}
+              actionBtn={() => {
+                setFormType(FormTypes.Add);
+                handleShowForm();
+              }}
               handleSelectId={handleSelectId}
               changeFormType={setFormType}
               handleShowForm={handleShowForm}
