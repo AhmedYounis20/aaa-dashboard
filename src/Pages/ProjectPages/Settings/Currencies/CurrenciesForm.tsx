@@ -22,7 +22,7 @@ const CurrenciesForm: React.FC<{
     exchangeRate:0,
     isActive:false,
     isDefault:false,
-    symbol:"$"
+    symbol:""
   });
   const [updateCurrency] = useUpdateCurrencyMutation();
   const [createCurrency] = useCreateCurrencyMutation();
@@ -140,6 +140,7 @@ const CurrenciesForm: React.FC<{
                         className="form-input form-control"
                         label="Symbol"
                         variant="outlined"
+                        placeholder='خلاص ي امجد شيلتلك علامة الدولار'
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.symbol}
