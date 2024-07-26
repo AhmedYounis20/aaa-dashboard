@@ -1,7 +1,7 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
 import FixedAssetModel from "../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetModel";
-
+import FixedAssetType from "../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetType";
 
 const FixedAssetsApi = createApi({
   reducerPath: "fixedAssetsApi",
