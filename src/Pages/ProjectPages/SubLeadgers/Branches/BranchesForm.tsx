@@ -40,13 +40,15 @@ const BranchesForm: React.FC<{
     skip: formType != FormTypes.Add,
   });
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
   const bankResult = useGetBranchesByIdQuery(id, {
     skip: formType == FormTypes.Add,
   });
   const [update] = useUpdateBranchMutation();
   const [create] = useCreateBranchMutation();
   useEffect(() => {
-    if (formType != FormTypes.Add) {
+    if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
         setModel(bankResult.data.result);
         if (bankResult.data?.result.nodeType === 0) {
@@ -62,7 +64,7 @@ const BranchesForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [bankResult.isLoading, bankResult, formType]);
+  }, [bankResult.isLoading, bankResult, formType,isUpdated]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       if (!modelDefaultDataResult.isLoading) {
@@ -100,6 +102,7 @@ const BranchesForm: React.FC<{
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
+      setIsUpdated(true);
       if (response.data) {
         toastify(response.data.successMessage);
         return true;

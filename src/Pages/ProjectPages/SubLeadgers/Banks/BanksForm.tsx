@@ -41,6 +41,8 @@ const BanksForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
+      const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
   const bankResult = useGetBanksByIdQuery(id, {
     skip: formType == FormTypes.Add,
   });
@@ -50,7 +52,7 @@ const BanksForm: React.FC<{
   const [update] = useUpdateBankMutation();
   const [create] = useCreateBankMutation();
   useEffect(() => {
-    if (formType != FormTypes.Add) {
+    if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
         setModel(bankResult.data.result);
         if (bankResult.data?.result.nodeType === 0) {
@@ -66,7 +68,7 @@ const BanksForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [bankResult.isLoading, bankResult, formType]);
+  }, [bankResult.isLoading, bankResult, formType,isUpdated]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       if (!modelDefaultDataResult.isLoading) {
@@ -89,6 +91,7 @@ const BanksForm: React.FC<{
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
+      setIsUpdated(true);
       if (response.data) {
         toastify(response.data.successMessage);
         return true;

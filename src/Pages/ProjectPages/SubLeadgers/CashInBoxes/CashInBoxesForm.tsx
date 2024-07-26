@@ -5,7 +5,7 @@ import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
-import {  TextField } from '@mui/material';
+import {  TextareaAutosize, TextField } from '@mui/material';
 import CashInBoxModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/CashInBoxes/CashInBoxModel';
 import { useCreateCashInBoxMutation, useDeleteCashInBoxByIdMutation, useGetCashInBoxesByIdQuery, useGetDefaultModelDataQuery, useUpdateCashInBoxMutation } from '../../../../Apis/CashInBoxesApi';
 
@@ -26,6 +26,7 @@ const CashInBoxesForm: React.FC<{
     notes: ""
   });
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const cashInBoxResult = useGetCashInBoxesByIdQuery(id,{
     skip : formType == FormTypes.Add
   });
@@ -35,7 +36,7 @@ const CashInBoxesForm: React.FC<{
   const [update] = useUpdateCashInBoxMutation();
   const [create] = useCreateCashInBoxMutation();
   useEffect(() => {
-    if(formType !== FormTypes.Add){
+    if(formType !== FormTypes.Add && !isUpdated){
       if (!cashInBoxResult.isLoading) {
         setModel(cashInBoxResult.data.result);
         if (cashInBoxResult.data?.result.nodeType === 0) {
@@ -51,7 +52,7 @@ const CashInBoxesForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [cashInBoxResult.isLoading, cashInBoxResult?.data?.result,formType]);
+  }, [cashInBoxResult.isLoading, cashInBoxResult?.data?.result,formType,isLoading,isUpdated]);
     useEffect(() => {
       if (formType == FormTypes.Add) {
         if (!modelDefaultDataResult.isLoading) {
@@ -89,6 +90,7 @@ const CashInBoxesForm: React.FC<{
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
+      setIsUpdated(true);
       if (response.data) {
         toastify(response.data.successMessage);
         return true;
@@ -223,6 +225,27 @@ const CashInBoxesForm: React.FC<{
                                   ? {
                                       ...prevModel,
                                       name: event.target.value,
+                                    }
+                                  : prevModel
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col col-md-12">
+                          <label className="form-label"> notes</label>
+                          <TextareaAutosize
+                            className="form-input form-control"
+                            disabled={formType === FormTypes.Details}
+                            value={model?.notes}
+                            aria-label="notes"
+                            onChange={(event) =>
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? {
+                                      ...prevModel,
+                                      notes: event.target.value,
                                     }
                                   : prevModel
                               )

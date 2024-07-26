@@ -44,6 +44,7 @@ const CustomersForm: React.FC<{
     taxNumber:"",
   });
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const customerResult = useGetCustomersByIdQuery(id, {
     skip: formType == FormTypes.Add,
   });
@@ -53,7 +54,7 @@ const CustomersForm: React.FC<{
   const [update] = useUpdateCustomerMutation();
   const [create] = useCreateCustomerMutation();
   useEffect(() => {
-    if (formType != FormTypes.Add) {
+    if (formType != FormTypes.Add && !isUpdated) {
       if (!customerResult.isLoading) {
         setModel(customerResult.data.result);
         if (customerResult.data?.result.nodeType === 0) {
@@ -69,7 +70,7 @@ const CustomersForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [customerResult.isLoading, customerResult,formType]);
+  }, [customerResult.isLoading, customerResult,formType,isUpdated]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       if (!modelDefaultDataResult.isLoading) {
@@ -92,6 +93,7 @@ const CustomersForm: React.FC<{
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
+      setIsUpdated(true);
       if (response.data) {
         toastify(response.data.successMessage);
         return true;

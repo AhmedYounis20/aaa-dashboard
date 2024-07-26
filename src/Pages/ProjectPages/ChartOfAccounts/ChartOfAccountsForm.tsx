@@ -45,6 +45,8 @@ const ChartOfAccountsForm: React.FC<{
       skip: formType != FormTypes.Add,
     });
   const [isLoading,setIsLoading] = useState<boolean>(true);
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
   useEffect(() => {
     if(formType == FormTypes.Add){
 
@@ -53,14 +55,14 @@ const ChartOfAccountsForm: React.FC<{
         setIsLoading(false);
       }
     }
-     else{
+     else if (!isUpdated){
           if (!chartOfAccountResult.isLoading) {
             setModel(chartOfAccountResult.data.result);
             setIsLoading(false);
           }
         }
 
-  }, [chartOfAccountResult?.isLoading, chartOfAccountResult?.data?.result,defaultChartOfAccountResult?.isLoading,defaultChartOfAccountResult?.data?.result,formType]);
+  }, [chartOfAccountResult?.isLoading, chartOfAccountResult?.data?.result,defaultChartOfAccountResult?.isLoading,defaultChartOfAccountResult?.data?.result,formType,isUpdated]);
 
      const handleAdd = async () => {
        const response: ApiResponse = await createChartOfAccount(model);
@@ -75,6 +77,7 @@ const ChartOfAccountsForm: React.FC<{
      };
         const handleUpdate = async () => {
           const response: ApiResponse = await updateChartOfAccount(model);
+          setIsUpdated(true);
           if (response.data) {
             toastify(response.data.successMessage);
             return true;

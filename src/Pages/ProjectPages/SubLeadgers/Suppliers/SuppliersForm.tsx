@@ -34,6 +34,8 @@ const SuppliersForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
   const supplierResult = useGetSuppliersByIdQuery(id, {
     skip: formType == FormTypes.Add,
   });
@@ -44,7 +46,7 @@ const SuppliersForm: React.FC<{
   const [create] = useCreateSupplierMutation();
 
   useEffect(() => {
-    if(formType != FormTypes.Add){
+    if(formType != FormTypes.Add && !isUpdated){
 
       if (!supplierResult.isLoading) {
         setModel(supplierResult.data.result);
@@ -61,7 +63,7 @@ const SuppliersForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [supplierResult.isLoading, supplierResult?.data?.result,formType]);
+  }, [supplierResult.isLoading, supplierResult?.data?.result,formType,isUpdated]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       if (!modelDefaultDataResult.isLoading) {
@@ -81,10 +83,10 @@ const SuppliersForm: React.FC<{
     modelDefaultDataResult,
     modelDefaultDataResult.isLoading,
   ]);
-  useEffect(()=> console.log(model),[]);
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
+      setIsUpdated(true);
       if (response.data) {
         toastify(response.data.successMessage);
         return true;
@@ -113,6 +115,7 @@ const SuppliersForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
+      toastify(response.data.successMessage);
       return true;
     } else {
       console.log(response);

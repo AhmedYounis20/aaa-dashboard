@@ -15,16 +15,18 @@ const GlSettingsRoot: React.FC = () => {
   const accountGuidesResult = useGetGlSettingsQuery(null);
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const [update]=  useUpdateGlSettingsMutation();
   useEffect(() => {
-    if (!accountGuidesResult.isLoading) {
+    if (!accountGuidesResult.isLoading && !isUpdated) {
       setModel(accountGuidesResult.data.result);
       setIsLoading(false);
     }
-  }, [accountGuidesResult.isLoading,accountGuidesResult]);
+  }, [accountGuidesResult.isLoading,accountGuidesResult,isUpdated]);
 
        const handleUpdate = async () => {
          if (model) {
+           setIsUpdated(true);
            const response: ApiResponse = await update(model);
            if (response.data) {
              toastify(response.data.successMessage);

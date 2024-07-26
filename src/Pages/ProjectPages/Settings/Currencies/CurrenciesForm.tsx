@@ -28,14 +28,16 @@ const CurrenciesForm: React.FC<{
   const [createCurrency] = useCreateCurrencyMutation();
   const [deleteCurrency] = useDeleteCurrencyMutation();
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+    const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
   useEffect(() => {
-    if(formType != FormTypes.Add){
+    if(formType != FormTypes.Add && !isUpdated){
       if (!currencyResult.isLoading) {
         setModel(currencyResult?.data?.result);
         setIsLoading(false);
       }
     }
-  }, [currencyResult.isLoading,currencyResult,formType]);
+  }, [currencyResult.isLoading,currencyResult,formType,isUpdated]);
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteCurrency(id);
     if(response.data){
@@ -54,6 +56,7 @@ const CurrenciesForm: React.FC<{
   };
    const handleUpdate = async () => {
      const response: ApiResponse = await updateCurrency(model);
+     setIsUpdated(true);
      if (response.data) {
        toastify(response.data.successMessage);
        return true;
