@@ -2,6 +2,7 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../Utilities/SD";
 import FixedAssetModel from "../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetModel";
 
+
 const FixedAssetsApi = createApi({
   reducerPath: "fixedAssetsApi",
   baseQuery: fetchBaseQuery({
@@ -25,10 +26,17 @@ const FixedAssetsApi = createApi({
       providesTags: ["fixedAssets"],
     }),
     getDefaultModelData: builder.query({
-      query: (parentId) =>
+      query: (query: {
+        parentId?: string | null;
+        fixedAssetType: FixedAssetType;
+      }) =>
         `fixedAssets/NextAccountDefaultData${
-          parentId == null ? "" : `?parentId=${parentId}`
+          `?fixedAssetType=${query.fixedAssetType}` + 
+            (!query.parentId 
+            ? ""
+            : `&parentId=${query.parentId}`)
         }`,
+
       providesTags: ["fixedAssets"],
     }),
     createFixedAsset: builder.mutation({

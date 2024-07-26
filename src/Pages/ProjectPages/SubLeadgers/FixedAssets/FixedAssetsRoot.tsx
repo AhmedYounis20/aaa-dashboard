@@ -26,7 +26,7 @@ const FixedAssetsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
-  const [parentId, setParentId] = useState<string>("");
+  const [parentId, setParentId] = useState<string | null >(null);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -56,7 +56,7 @@ const FixedAssetsRoot = () => {
               btn
               addBtn
               actionBtn={() => {
-                setParentId("");
+                setParentId(null);
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React,{ useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
@@ -6,7 +6,7 @@ import { toastify } from '../../../../Helper/toastify';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import { FormControlLabel, Switch, TextField } from '@mui/material';
-import { useDeleteFixedAssetByIdMutation, useGetFixedAssetsByIdQuery, useUpdateFixedAssetMutation } from '../../../../Apis/FixedAssetsApi';
+import { useCreateFixedAssetMutation, useDeleteFixedAssetByIdMutation, useGetDefaultModelDataQuery, useGetFixedAssetsByIdQuery, useUpdateFixedAssetMutation } from '../../../../Apis/FixedAssetsApi';
 import FixedAssetModel from '../../../../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetModel';
 import  FixedAssetType, { FixedAssetTypeOptions } from '../../../../interfaces/ProjectInterfaces/Subleadgers/FixedAssets/FixedAssetType';
 
@@ -15,30 +15,92 @@ const FixedAssetsForm: React.FC<{
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+}> = ({ formType, id,parentId, handleCloseForm }) => {  
   const [deleteFunc] = useDeleteFixedAssetByIdMutation();
-  const [model, setModel] = useState<FixedAssetModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const bankResult = useGetFixedAssetsByIdQuery(id);
+  const [model, setModel] = useState<FixedAssetModel>({
+    accumelatedCode :"",
+    assetLifeSpanByYears :0,
+    depreciationRate :0,
+    code:"",
+    expensesCode:"",
+    fixedAssetType : FixedAssetType.Buildings,
+    id:"",
+    isDepreciable:false,
+    manufactureCompany:"",
+    name:"",
+    nameSecondLanguage:"",
+    nodeType : NodeType.Category,
+    notes:"",
+    parentId:parentId,
+    serial:"",
+    version:""
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(
+    formType != FormTypes.Add
+  );
+  const bankResult = useGetFixedAssetsByIdQuery(id,{
+    skip: formType == FormTypes.Add
+  });
   const [update] = useUpdateFixedAssetMutation();
-  useEffect(() => {
-    if (!bankResult.isLoading) {
-      setModel(bankResult.data.result);
-      if (bankResult.data?.result.nodeType === 0) {
+  const [create] = useCreateFixedAssetMutation();
+    const modelDefaultDataResult = useGetDefaultModelDataQuery({parentId : parentId, fixedAssetType : model.fixedAssetType}, {
+      skip: formType != FormTypes.Add,
+    });
+
+    useEffect(()=>{ 
+      if (formType == FormTypes.Add) {
         setModel((prevModel) =>
           prevModel == null
             ? prevModel
             : {
                 ...prevModel,
-                code: bankResult.data.result.chartOfAccount.code,
-                accumelatedCode: bankResult.data.result.accumlatedAccount.code,
-                expensesCode: bankResult.data.result.expensesAccount.code,
+                code: "Loading...",
+                accumelatedCode: "Loading...",
+                expensesCode: "Loading...",
               }
         );
+        modelDefaultDataResult.refetch(); 
+      }
+
+    },[model.fixedAssetType,formType]);
+  useEffect(() => {
+
+    if(formType == FormTypes.Add){
+       if (!modelDefaultDataResult.isLoading) {
+         setModel((prevModel) =>
+           prevModel
+             ? {
+                 ...prevModel,
+                 code: modelDefaultDataResult?.data?.result?.code,
+                 expensesCode:
+                   modelDefaultDataResult?.data?.result?.expensesCode,
+                 accumelatedCode:
+                   modelDefaultDataResult?.data?.result?.accumelatedCode,
+               }
+             : prevModel
+         );
+       }
+    }
+    else {
+
+      if (!bankResult.isLoading) {
+        setModel(bankResult.data.result);
+        if (bankResult.data?.result.nodeType === 0) {
+        setModel((prevModel) =>
+          prevModel == null
+            ? prevModel
+            : {
+              ...prevModel,
+              code: bankResult.data.result.chartOfAccount.code,
+              accumelatedCode: bankResult.data.result.accumlatedAccount.code,
+                expensesCode: bankResult.data.result.expensesAccount.code,
+              }
+            );
       }
       setIsLoading(false);
     }
-  }, [bankResult.isLoading, bankResult]);
+    }
+  }, [bankResult.isLoading, bankResult,formType,modelDefaultDataResult.isLoading,modelDefaultDataResult?.data?.result]);
   const handleUpdate = async () => {
     if (model) {
       const response: ApiResponse = await update(model);
@@ -52,6 +114,21 @@ const FixedAssetsForm: React.FC<{
     }
     return false;
   };
+    const handleAdd = async () => {
+      if (model) {
+        const response: ApiResponse = await create(model);
+        if (response.data) {
+          toastify(response.data.successMessage);
+          return true;
+        } else if (response.error) {
+          response.error?.data?.errorMessages?.map((error: string) => {
+            toastify(error, "error");
+          });
+          return false;
+        }
+      }
+      return false;
+    };
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -74,7 +151,7 @@ const FixedAssetsForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
-        handleAdd={undefined}
+        handleAdd={handleAdd}
         isModal
       >
         <div>
@@ -218,7 +295,11 @@ const FixedAssetsForm: React.FC<{
                             variant="outlined"
                             fullWidth
                             disabled
-                            value={model?.expensesCode}
+                            value={
+                              modelDefaultDataResult.isLoading
+                                ? "loading..."
+                                : model?.expensesCode
+                            }
                           />
                         </div>
                       </div>
@@ -289,58 +370,6 @@ const FixedAssetsForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
-                            type="number"
-                            className="form-input form-control"
-                            label="Asset Life Span By Years"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.assetLifeSpanByYears}
-                            onChange={(event) => {
-                              const value =
-                                event.target.value === ""
-                                  ? 0
-                                  : Number.parseInt(event.target.value, 10);
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      assetLifeSpanByYears: value,
-                                    }
-                                  : prevModel
-                              );
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col col-md-6">
-                          <TextField
-                            type="number"
-                            className="form-input form-control"
-                            label="Depreciation Rate"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.depreciationRate}
-                            onChange={(event) => {
-                              const value =
-                                event.target.value === ""
-                                  ? 0
-                                  : Number.parseInt(event.target.value, 10);
-                              setModel((prevModel) =>
-                                prevModel == null
-                                  ? prevModel
-                                  : {
-                                      ...prevModel,
-                                      depreciationRate: value,
-                                    }
-                              );
-                            }}
-                          />
-                        </div>
-                        <div className="col col-md-6">
                           <FormControlLabel
                             control={
                               <Switch
@@ -362,6 +391,69 @@ const FixedAssetsForm: React.FC<{
                           />
                         </div>
                       </div>
+                      {model.isDepreciable && (
+                        <div className="row mb-3">
+                          <div className="col col-md-6">
+                            <TextField
+                              type="number"
+                              className="form-input form-control"
+                              label="Asset Life Span By Years"
+                              variant="outlined"
+                              fullWidth
+                              disabled={formType === FormTypes.Details}
+                              value={model?.assetLifeSpanByYears}
+                              onChange={(event) => {
+                                const value =
+                                  event.target.value === ""
+                                    ? 0
+                                    : Number.parseInt(event.target.value, 10);
+                                setModel((prevModel) =>
+                                  prevModel
+                                    ? {
+                                        ...prevModel,
+                                        assetLifeSpanByYears: value,
+                                        depreciationRate:
+                                          value == 0
+                                            ? prevModel.depreciationRate
+                                            : 100 / value,
+                                      }
+                                    : prevModel
+                                );
+                              }}
+                            />
+                          </div>
+                          <div className="col col-md-6">
+                            <TextField
+                              type="number"
+                              className="form-input form-control"
+                              label="Depreciation Rate"
+                              variant="outlined"
+                              fullWidth
+                              disabled={formType === FormTypes.Details}
+                              value={model?.depreciationRate}
+                              
+                              onChange={(event) => {
+                                const value =
+                                  event.target.value === ""
+                                    ? 0
+                                    : Number.parseFloat(event.target.value);
+                                setModel((prevModel) =>
+                                  prevModel == null
+                                    ? prevModel
+                                    : {
+                                        ...prevModel,
+                                        depreciationRate: value,
+                                        assetLifeSpanByYears:
+                                          value == 0
+                                            ? prevModel.assetLifeSpanByYears
+                                            : 100 / value,
+                                      }
+                                );
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
