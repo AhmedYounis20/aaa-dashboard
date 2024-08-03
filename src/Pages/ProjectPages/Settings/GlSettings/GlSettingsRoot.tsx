@@ -39,24 +39,6 @@ const GlSettingsRoot: React.FC = () => {
          return false;
        };
 
-  // const handleDelete = async (): Promise<boolean> => {
-  //   const response: ApiResponse = await deleteChartOfAccount(id);
-  //   if(response.data){
-
-  //     return true;
-  //   }
-  //   else {
-  //     console.log(response);
-
-  //     response.error?.data?.errorMessages?.map((error) =>{
-  //     toastify(error, "error");
-  //   console.log(error);
-  //     }
-  //     );
-  //     return false;
-  //   }
-  // };
-
   return (
     <div className="h-full">
       <BaseForm
@@ -78,26 +60,6 @@ const GlSettingsRoot: React.FC = () => {
             ) : (
               <div>
                 <Stack spacing={2}>
-                  <div>
-                    <TextField
-                      type="number"
-                      className="form-input form-control"
-                      label="month Days"
-                      variant="outlined"
-                      fullWidth
-                      value={model?.monthDays}
-                      onChange={(event) =>
-                        setModel((prevModel) =>
-                          prevModel
-                            ? {
-                                ...prevModel,
-                                monthDays: Number.parseInt(event.target.value),
-                              }
-                            : prevModel
-                        )
-                      }
-                    />
-                  </div>
                   <div>
                     <InputSelect
                       options={DecimalDigitsNumberOptions}
@@ -145,6 +107,31 @@ const GlSettingsRoot: React.FC = () => {
                     </div>
                     {/* <div className="col col-md-6"></div> */}
                   </div>
+                  {model?.depreciationApplication ==
+                    DepreciationApplication.Monthly && (
+                    <div>
+                      <TextField
+                        type="number"
+                        className="form-input form-control"
+                        label="month Days"
+                        variant="outlined"
+                        fullWidth
+                        value={model?.monthDays}
+                        onChange={(event) =>
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  monthDays: Number.parseInt(
+                                    event.target.value
+                                  ),
+                                }
+                              : prevModel
+                          )
+                        }
+                      />
+                    </div>
+                  )}
                 </Stack>
                 <div>
                   <div>
