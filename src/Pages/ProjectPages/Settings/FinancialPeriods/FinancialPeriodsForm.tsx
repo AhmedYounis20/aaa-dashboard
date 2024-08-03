@@ -131,37 +131,39 @@ const FinancialPeriodsForm: React.FC<{
                     </div>
                   </div>
                   <div className="row mb-3">
-                    <div className="col col-md-6">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer
-                          components={["DateTimePicker", "DateTimePicker"]}
-                        >
-                          <DateTimePicker
-                            label="Start Date"
-                            viewRenderers={{
-                              hours: renderTimeViewClock,
-                              minutes: renderTimeViewClock,
-                              seconds: renderTimeViewClock,
-                            }}
-                            value={
-                              model?.startDate ? dayjs(model.startDate) : null
-                            }
-                            onChange={(value) => {
-                              if (value) {
-                                setModel((prevModel) =>
-                                  prevModel
-                                    ? {
-                                        ...prevModel,
-                                        startDate: value.toDate(), // Ensure startDate is a Date
-                                      }
-                                    : prevModel
-                                );
+                    {formType != FormTypes.Details && (
+                      <div className="col col-md-6">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DemoContainer
+                            components={["DateTimePicker", "DateTimePicker"]}
+                          >
+                            <DateTimePicker
+                              label="Start Date"
+                              viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                              }}
+                              value={
+                                model?.startDate ? dayjs(model.startDate) : null
                               }
-                            }}
-                          />
-                        </DemoContainer>
-                      </LocalizationProvider>
-                    </div>
+                              onChange={(value) => {
+                                if (value) {
+                                  setModel((prevModel) =>
+                                    prevModel
+                                      ? {
+                                          ...prevModel,
+                                          startDate: value.toDate(), // Ensure startDate is a Date
+                                        }
+                                      : prevModel
+                                  );
+                                }
+                              }}
+                            />
+                          </DemoContainer>
+                        </LocalizationProvider>
+                      </div>
+                    )}
                     <div className="col col-md-6">
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer
