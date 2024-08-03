@@ -20,7 +20,7 @@ const CurrenciesForm: React.FC<{
     name:"",
     nameSecondLanguage:"",
     exchangeRate:0,
-    isActive:false,
+    isActive:true,
     isDefault:false,
     symbol:""
   });
@@ -143,12 +143,15 @@ const CurrenciesForm: React.FC<{
                         className="form-input form-control"
                         label="Symbol"
                         variant="outlined"
-                        placeholder='خلاص ي امجد شيلتلك علامة الدولار'
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.symbol}
-                        onChange={(event) =>
-                          setModel({ ...model, symbol: event.target.value })
+                        onChange={(event: { target: { value: string } }) =>
+                          setModel((prevModel) =>
+                            prevModel
+                              ? { ...prevModel, symbol: event.target.value }
+                              : prevModel
+                          )
                         }
                       />
                     </div>
