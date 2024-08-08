@@ -74,8 +74,8 @@ const DataTreeTable = ({
           onMouseLeave={handleMouseLeave}
         >
           <TableCell style={{ paddingLeft: depth * 15 }}>
-            {data.filter((e) => e.parentId === row.id) &&
-              data.filter((e) => e.parentId === row.id).length > 0 && (
+            {data?.filter((e) => e.parentId === row.id) &&
+              data?.find((e) => e.parentId === row.id) && (
                 <IconButton size="small" onClick={() => handleToggle(row.id)}>
                   {openRows[row.id] ? (
                     <KeyboardArrowDown />
