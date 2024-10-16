@@ -182,6 +182,7 @@ const CashInBoxesForm: React.FC<{
                   <div className="row">
                     <div className="col col-md-6">
                       <InputSelect
+                        error={undefined}
                         options={NodeTypeOptions}
                         label={"Node Type"}
                         defaultValue={model?.nodeType}

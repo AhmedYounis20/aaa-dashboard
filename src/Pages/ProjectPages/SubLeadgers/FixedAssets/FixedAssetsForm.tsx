@@ -210,6 +210,7 @@ const FixedAssetsForm: React.FC<{
                   <div className="row">
                     <div className="col col-md-6">
                       <InputSelect
+                        error={undefined}
                         options={NodeTypeOptions}
                         label={"Node Type"}
                         defaultValue={model?.nodeType}
@@ -240,6 +241,7 @@ const FixedAssetsForm: React.FC<{
                       <div className="row mb-4">
                         <div className="col col-md-6">
                           <InputSelect
+                            error={undefined}
                             options={FixedAssetTypeOptions}
                             label={"Fixed Asset Type"}
                             defaultValue={model?.fixedAssetType}
