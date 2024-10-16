@@ -84,6 +84,11 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(TableChartIcon),
     path: "/chartOfAccounts",
   },
+  {
+    title: "cost center",
+    icon: React.createElement(WebhookIcon),
+    path: '/costCenter'
+  }
 ];
 
 
