@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { FormTypes } from "../../../interfaces/Components"
 import { CostCenterModel } from "../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import { NodeType, NodeTypeOptions } from "../../../interfaces/Components/NodeType";
-import { useCreateCostCenterMutation } from "../../../Apis/CostCenterApi";
+import { useCreateCostCenterMutation, useGetCostCenterByIdQuery, useUpdateCostCenterMutation } from "../../../Apis/CostCenterApi";
 import BaseForm from "../../../Components/Forms/BaseForm";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
@@ -16,9 +16,11 @@ import InputAutoComplete from "../../../Components/Inputs/InputAutoCompelete";
 import { CostCentersSchema } from "../../../interfaces/ProjectInterfaces/CostCenter/validation-costCenter";
 import * as yup from 'yup';
 
-function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: FormTypes, parentId: string | null, handleCloseForm: () => void }) {
+function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string, formType: FormTypes, parentId: string | null, handleCloseForm: () => void }) {
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const costCenterResult = useGetCostCenterByIdQuery(id)
     const [model, setModel] = useState<CostCenterModel>({
+        id: "",
         parentId: parentId || null,
         name: "",
         nameSecondLanguage: "",
@@ -27,26 +29,41 @@ function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: For
         costCenterType: CostCenterType.NotRelated,
         chartOfAccounts: []
     });
+    const [isLoading, setIsLoading] = useState<boolean>(
+        formType != FormTypes.Add
+    );
 
     const [createCostCenter] = useCreateCostCenterMutation();
-    const { data, isLoading } = useGetChartOfAccountsQuery(null);
+    const [updateCostCenter] = useUpdateCostCenterMutation();
+    const { data } = useGetChartOfAccountsQuery(null);
     const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState([]);
-
+    
 
     const validate = async () => {
         try {
-          await CostCentersSchema.validate(model, { abortEarly: false });
-          setErrors({});
-          return true;
+            await CostCentersSchema.validate(model, { abortEarly: false });
+            setErrors({});
+            return true;
         } catch (validationErrors) {
-          const validationErrorsMap: Record<string, string> = {};
-          (validationErrors as yup.ValidationError).inner.forEach((error) => {
+            const validationErrorsMap: Record<string, string> = {};
+            (validationErrors as yup.ValidationError).inner.forEach((error) => {
             if (error.path) validationErrorsMap[error.path] = error.message;
-          });
-          setErrors(validationErrorsMap);
-          return false;
+        });
+            setErrors(validationErrorsMap);
+            return false;
         }
-      };
+    };
+
+    useEffect(() => {
+        if(formType != FormTypes.Add){
+            if (!costCenterResult.isLoading) {
+                setModel(costCenterResult.data.result);
+                setIsLoading(false);
+            }
+        }
+    }, [costCenterResult.isLoading, costCenterResult?.data?.result,formType]);
+    
+
     const handleAdd = async () => {
         if(await validate() === false) return false;
         const response: ApiResponse = await createCostCenter(model);
@@ -60,6 +77,20 @@ function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: For
         }
         return false;
     };
+    
+    const handleUpdate = async () => {
+        console.log(data, "charts of accounts")
+        const response: ApiResponse = await updateCostCenter(model);
+        if(response.data) {
+            toastify(response.data.successMessage);
+            return true;
+        } else if (response.error) {
+            toastify(response.error.data.errorMessages[0], "error");
+            return false;
+        }
+        return false;
+    }
+
 
     useEffect(() => {
         if (model.chartOfAccounts.length > 0) {
@@ -79,13 +110,22 @@ function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: For
         setSelectedChartOfAccounts(data?.result.filter((item: any) => updatedChartOfAccounts.includes(item.id)));
     };
 
-    useEffect(() => {
-        console.log(errors)
-     },[errors])
-     
-     useEffect(() => {
-        console.log(model)
-     },[model])
+        useEffect(() => {
+            console.log(errors)
+        },[errors])
+        
+        useEffect(() => {
+            console.log(model)
+        },[model])
+    
+    if(isLoading) return (
+        <div
+            className="d-flex flex-row align-items-center justify-content-center"
+            style={{ height: "100px" }}
+        >
+            <div className="spinner-border text-primary" role="status"></div>
+        </div>
+    )
 
     return (
         <div className="h-full">
@@ -93,7 +133,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: For
                 formType={formType}
                 isModal
                 handleAdd={handleAdd}
-                handleUpdate={undefined}
+                handleUpdate={handleUpdate}
                 handleDelete={undefined}
                 handleCloseForm={handleCloseForm}
             >
@@ -209,15 +249,17 @@ function CostCenterForm({ formType, parentId, handleCloseForm }: { formType: For
                             </Box>
                             {model?.costCenterType === CostCenterType.RelatedToAccount && (
                                 <InputAutoComplete
-                                    options={data?.result?.map(
-                                        (item: { name: string; id: string }) => ({
+                                    options={data?.result && data?.result?.map(
+                                        (item: { name: string; id: string }) => {
+                                            console.log(item)
+                                            return({
                                             label: item.name,
                                             value: item.id,
                                         })
-                                    )}
+                                    }) || null}
                                     label={"Chart of Accounts"}
                                     value={
-                                        data?.result
+                                        data?.result && data?.result
                                             ?.map((item: { name: string; id: string }) => ({
                                                 label: item.name,
                                                 value: item.id,

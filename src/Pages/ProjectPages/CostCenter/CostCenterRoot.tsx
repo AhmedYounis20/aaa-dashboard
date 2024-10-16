@@ -46,6 +46,7 @@ const CostCenterRoot = () => {
                 <>
                     {showForm && (
                         <CostCenterForm
+                            id={selectedId}
                             parentId={parentId}
                             formType={formType}
                             handleCloseForm={handleCloseForm}
