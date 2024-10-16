@@ -38,7 +38,7 @@ const CostCenterApi = createApi({
                 body: body
             }),
             invalidatesTags: ["costCenters"]
-        })
+        }),
     })
 });
 

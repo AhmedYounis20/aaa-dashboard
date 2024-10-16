@@ -58,13 +58,7 @@ const GlSettingsRoot: React.FC = () => {
          return false;
        };
 
-       useEffect(() => {
-          console.log(errors)
-       },[errors])
-       
-       useEffect(() => {
-          console.log(model)
-       },[model])
+
 
 
   return (

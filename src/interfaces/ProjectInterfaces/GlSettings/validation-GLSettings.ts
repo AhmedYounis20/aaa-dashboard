@@ -17,7 +17,6 @@ export const GLSettingsSchema = yup.object().shape({
         "greater-than-zero",
         "month days is required",
         (val) => {
-            console.log(val)
             return val !== undefined && val > 0
         }
     ),
