@@ -9,7 +9,8 @@ const InputSelect = ({
   multiple = false,
   disabled = false,
   name,
-  onBlur
+  onBlur,
+  error
 }) => {
   return (
     <FormControl fullWidth>
@@ -28,6 +29,7 @@ const InputSelect = ({
         autoComplete
         disabled={disabled}
         name={name}
+        error={error}
       >
         {options &&
           options.map((item) => {

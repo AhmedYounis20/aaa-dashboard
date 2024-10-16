@@ -106,6 +106,7 @@ const FinancialPeriodsForm: React.FC<{
                     </div>
                     <div className="col col-md-6">
                       <InputSelect
+                        error={undefined}
                         options={financialPeriodOptions}
                         label={"Financial Period Type In Months"}
                         defaultValue={model?.periodTypeByMonth}

@@ -23,6 +23,7 @@ import { CssBaseline } from '@mui/material';
 import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/FixedAssetsRoot';
 import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
 import { RootState } from '../Storage/Redux/store';
+import CostCenterRoot from '../Pages/ProjectPages/CostCenter/CostCenterRoot';
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);
@@ -73,6 +74,10 @@ function App() {
               <Route
                 path="/subleadgers/branches"
                 element={<BranchesRoot />}
+              />
+              <Route
+                path='/costCenter'
+                element={<CostCenterRoot/>}
               />
             </Route>
             <Route path="*" element={<Page404 />} />

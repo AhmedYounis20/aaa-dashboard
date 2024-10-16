@@ -208,6 +208,7 @@ const ChartOfAccountsForm: React.FC<{
                         }}
                         name={"AccountNature"}
                         onBlur={null}
+                        error={undefined}
                       />
                     </div>
                   </div>
@@ -218,6 +219,8 @@ const ChartOfAccountsForm: React.FC<{
                         <Loader/> :
 
                       <InputAutoComplete
+                        error={undefined}
+                        helperText={undefined}
                       options={accountGuidesResult?.data?.result?.map(
                           (item: { name: string; id: string }) => ({
                             label: item.name,

@@ -200,6 +200,7 @@ const CustomersForm: React.FC<{
                   <div className="row">
                     <div className="col col-md-6">
                       <InputSelect
+                      error={undefined}
                         options={NodeTypeOptions}
                         label={"Node Type"}
                         defaultValue={model?.nodeType}
@@ -251,6 +252,7 @@ const CustomersForm: React.FC<{
                         </div>
                         <div className="col col-md-6">
                           <InputSelect
+                            error={undefined}
                             options={CustomerTypeOptions}
                             label={"Customer Type"}
                             defaultValue={model?.customerType}
