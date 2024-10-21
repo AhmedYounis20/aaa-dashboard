@@ -13,7 +13,9 @@ const InputAutoComplete = ({
   multiple,
   name,
   value,
-  handleBlur
+  handleBlur,
+  error,
+  helperText
 }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -68,7 +70,7 @@ const InputAutoComplete = ({
         clearOnEscape
         disabled={disabled}
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label={label} />
+          <TextField {...params} variant="outlined" label={label} error={error} helperText={helperText} />
         )}
       />
     </FormControl>

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { FormTypes } from "../../../interfaces/Components"
 import { CostCenterModel } from "../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import { NodeType, NodeTypeOptions } from "../../../interfaces/Components/NodeType";
-import { useCreateCostCenterMutation, useGetCostCenterByIdQuery, useUpdateCostCenterMutation } from "../../../Apis/CostCenterApi";
+import { useCreateCostCenterMutation, useDeleteCostCenterMutation, useGetCostCenterByIdQuery, useUpdateCostCenterMutation } from "../../../Apis/CostCenterApi";
 import BaseForm from "../../../Components/Forms/BaseForm";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
@@ -15,10 +15,10 @@ import CostCenterType, { CostCenterTypeOptions } from "../../../interfaces/Proje
 import InputAutoComplete from "../../../Components/Inputs/InputAutoCompelete";
 import { CostCentersSchema } from "../../../interfaces/ProjectInterfaces/CostCenter/validation-costCenter";
 import * as yup from 'yup';
+import { ChartOfAccountModel } from "../../../interfaces/ProjectInterfaces";
 
 function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string, formType: FormTypes, parentId: string | null, handleCloseForm: () => void }) {
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const costCenterResult = useGetCostCenterByIdQuery(id)
     const [model, setModel] = useState<CostCenterModel>({
         id: "",
         parentId: parentId || null,
@@ -33,11 +33,21 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
         formType != FormTypes.Add
     );
 
+    const costCenterResult = useGetCostCenterByIdQuery(id);
     const [createCostCenter] = useCreateCostCenterMutation();
     const [updateCostCenter] = useUpdateCostCenterMutation();
+    const [deleteCostCenter] = useDeleteCostCenterMutation();
     const { data } = useGetChartOfAccountsQuery(null);
     const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState([]);
-    
+
+    useEffect(() => {
+        if(formType != FormTypes.Add){
+            if (!costCenterResult.isLoading) {
+                setModel(costCenterResult.data.result);
+                setIsLoading(false);
+            }
+        }
+    }, [costCenterResult.isLoading, costCenterResult?.data?.result,formType]);
 
     const validate = async () => {
         try {
@@ -53,16 +63,6 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
             return false;
         }
     };
-
-    useEffect(() => {
-        if(formType != FormTypes.Add){
-            if (!costCenterResult.isLoading) {
-                setModel(costCenterResult.data.result);
-                setIsLoading(false);
-            }
-        }
-    }, [costCenterResult.isLoading, costCenterResult?.data?.result,formType]);
-    
 
     const handleAdd = async () => {
         if(await validate() === false) return false;
@@ -91,18 +91,32 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
         return false;
     }
 
+    const handleDelete = async () => {
+        const response: ApiResponse = await deleteCostCenter(id);
+        if(response.data) {
+            toastify(response.data.successMessage)
+            return true;
+        } else {
+            response.error?.data?.errorMessages.map((error: string) => {
+                toastify(error, "error");
+                console.log(error)
+            });
+            return false;
+        }
+    }
 
     useEffect(() => {
         if (model.chartOfAccounts.length > 0) {
-            const filterdData = data?.result.filter((item: any) =>
-                model.chartOfAccounts.includes(item?.id)
+            const filterdData = data?.result.filter((item: ChartOfAccountModel) =>
+                // model.chartOfAccounts.includes(item?.id)
+                (model.chartOfAccounts as string[]).includes(item.id)
             )
             setSelectedChartOfAccounts(filterdData);
         }
     }, [model?.chartOfAccounts, data?.result]);
 
     const handleDeleteRow = (id: string) => {
-        const updatedChartOfAccounts = model.chartOfAccounts.filter(itemId => itemId !== id);
+        const updatedChartOfAccounts = model.chartOfAccounts.filter((itemId: string) => itemId !== id);
         setModel(prevModel => ({
             ...prevModel,
             chartOfAccounts: updatedChartOfAccounts
@@ -134,7 +148,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                 isModal
                 handleAdd={handleAdd}
                 handleUpdate={handleUpdate}
-                handleDelete={undefined}
+                handleDelete={handleDelete}
                 handleCloseForm={handleCloseForm}
             >
                 <Box
@@ -198,7 +212,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                         name={"nodeType"}
                         onBlur={undefined}
                         error={!!errors.nodeType}
-                        helperText={!!errors.nodeType}
+                        // helperText={errors.nodeType}
                     />
 
                     {model?.nodeType === NodeType.Domain && (
@@ -230,7 +244,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                                     name={"costCenterType"}
                                     onBlur={undefined}
                                     error={!!errors.costCenterType}
-                                    helperText={!!errors.costCenterType}
+                                    // helperText={!!errors.costCenterType}
                                 />
                                 <TextField
                                     type="number"
@@ -249,25 +263,23 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                             </Box>
                             {model?.costCenterType === CostCenterType.RelatedToAccount && (
                                 <InputAutoComplete
-                                    options={data?.result && data?.result?.map(
+                                    options={data?.result?.map(
                                         (item: { name: string; id: string }) => {
-                                            console.log(item)
-                                            return({
+                                            return{
                                             label: item.name,
                                             value: item.id,
-                                        })
-                                    }) || null}
+                                        }
+                                    }) || []}
                                     label={"Chart of Accounts"}
-                                    value={
-                                        data?.result && data?.result
+                                    value={data?.result
                                             ?.map((item: { name: string; id: string }) => ({
                                                 label: item.name,
                                                 value: item.id,
                                             }))
                                             ?.filter(
                                                 (e: { value: string }) =>
-                                                    model.chartOfAccounts.find(c => c === e.value)
-                                            ) || null
+                                                    costCenterResult.data.result.chartOfAccounts.find((c: any) => c.chartOfAccountId === e.value)
+                                            ) || []
                                     }
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string[] | undefined) => {
