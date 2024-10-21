@@ -19,6 +19,7 @@ const InputAutoComplete = ({
 }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [values, setValues] = useState(value);
 
   const handleSortToggle = () => {
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -51,26 +52,37 @@ const InputAutoComplete = ({
         id="checkboxes-tags-demo"
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
+        filterSelectedOptions={true}
         // onChange={(e, values) => onChange(name, values)}
-        onChange={(event,value)=>{
-          console.log(event)
+        onChange={(event, val) => {
+          console.log(event);
+          console.log(val);
+          console.log(typeof val);
 
-          if (Array.isArray(value)) {
+          if (Array.isArray(val)) {
             console.log("It is an array");
-            onChange(value.map((e) => e["value"]));
-          } else if (typeof value === "object" && value !== null) {
-            onChange(value["value"]);
+            setValues(val.map((e) => e));
+            onChange(val.map((e) => e["value"]));
+          } else if (typeof val === "object" && val !== null) {
+            onChange(val["value"]);
+            setValues(val);
           } else {
             console.log("It is neither an array nor an object");
           }
         }}
         onBlur={handleBlur}
-        value={value}
+        value={values}
         selectOnFocus
         clearOnEscape
         disabled={disabled}
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label={label} error={error} helperText={helperText} />
+          <TextField
+            {...params}
+            variant="outlined"
+            label={label}
+            error={error}
+            helperText={helperText}
+          />
         )}
       />
     </FormControl>
