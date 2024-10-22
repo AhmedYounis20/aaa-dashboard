@@ -153,15 +153,6 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
         useEffect(() => {
             console.log(model)
         },[model])
-    
-    if(isLoading) return (
-        <div
-            className="d-flex flex-row align-items-center justify-content-center"
-            style={{ height: "100px" }}
-        >
-            <div className="spinner-border text-primary" role="status"></div>
-        </div>
-    )
 
     return (
       <div className="h-full">
@@ -173,7 +164,15 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
           handleDelete={handleDelete}
           handleCloseForm={handleCloseForm}
         >
-          <Box display={"flex"} flexDirection={"column"} gap={2}>
+          {isLoading ? (
+              <div
+                className="d-flex flex-row align-items-center justify-content-center"
+                style={{ height: "100px" }}
+              >
+                <div className="spinner-border text-primary" role="status"></div>
+            </div>
+          ): (
+            <Box display={"flex"} flexDirection={"column"} gap={2}>
             <Box display={"flex"} gap={1}>
               <TextField
                 type="text"
@@ -267,6 +266,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                     }}
                     error={!!errors.percent}
                     helperText={errors.percent}
+                    disabled={formType === FormTypes.Details}
                   />
                 </Box>
                 {model?.costCenterType === CostCenterType.RelatedToAccount && (
@@ -326,6 +326,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
               </>
             )}
           </Box>
+          )}
         </BaseForm>
       </div>
     );
