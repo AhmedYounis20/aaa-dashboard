@@ -37,15 +37,16 @@ const InputAutoComplete = ({
     setSelectAllChecked(false);
   };
 
-  const sortedOptions = [...options].sort((a, b) => {
+  const sortedOptions = [...options]
+  .filter((option) => !values.some((val) => val.value === option.value)) 
+  .sort((a, b) => {
     const order = sortDirection === "asc" ? 1 : -1;
     return order * a.label.localeCompare(b.label);
   });
 
-  // const handleChange = (event, newValue) => {
-  //   console.log("this is new Value", newValue)
-  //   onChange(name, newValue ? newValue?.value : '' )
-  // };
+  useEffect(() => {
+    setValues(value)
+  },[value]);
 
   return (
     <FormControl fullWidth variant="outlined">
