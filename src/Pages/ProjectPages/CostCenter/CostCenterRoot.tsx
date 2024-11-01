@@ -25,7 +25,7 @@ const CostCenterRoot = () => {
 
     const [showForm, setShowForm] = useState<boolean>(false);
     const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-    const [, setSelectedId] = useState<string>("");
+    const [selectedId, setSelectedId] = useState<string>("");
     const [parentId, setParentId] = useState<string | null>(null);
     const { data, isLoading } = useGetCostCenterQuery(null);
     const handleShowForm = () => {
@@ -45,6 +45,7 @@ const CostCenterRoot = () => {
                 <>
                     {showForm && (
                         <CostCenterForm
+                            id={selectedId}
                             parentId={parentId}
                             formType={formType}
                             handleCloseForm={handleCloseForm}

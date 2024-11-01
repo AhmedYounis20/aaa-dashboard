@@ -12,12 +12,10 @@ import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import { GLSettingsSchema } from '../../../../interfaces/ProjectInterfaces/GlSettings/validation-GLSettings';
 import * as yup from 'yup';
-import { GLSettingsSchema } from '../../../../interfaces/ProjectInterfaces/GlSettings/validation-GLSettings';
-import * as yup from 'yup';
+
 
 const GlSettingsRoot: React.FC = () => {
   const accountGuidesResult = useGetGlSettingsQuery(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -45,20 +43,6 @@ const GlSettingsRoot: React.FC = () => {
     }
   };
 
-  const validate = async () => {
-    try {
-      await GLSettingsSchema.validate(model, { abortEarly: false });
-      setErrors({});
-      return true;
-    } catch (validationErrors) {
-      const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error) => {
-        if (error.path) validationErrorsMap[error.path] = error.message;
-      });
-      setErrors(validationErrorsMap);
-      return false;
-    }
-  };
 
        const handleUpdate = async () => {
         if(await validate() === false) return false;
@@ -172,14 +156,11 @@ const GlSettingsRoot: React.FC = () => {
                                   ...prevModel,
                                   monthDays: Number.parseInt(
                                     event.target.value || '0'
-                                    event.target.value || '0'
                                   ),
                                 }
                               : prevModel
                           )
                         }
-                        error={!!errors.monthDay}
-                        helperText={errors.monthDay}
                         error={!!errors.monthDay}
                         helperText={errors.monthDay}
                       />
