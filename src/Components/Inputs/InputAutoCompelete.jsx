@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import {
   FormControl,
@@ -13,12 +13,14 @@ const InputAutoComplete = ({
   multiple,
   name,
   value,
+  defaultValue,
   handleBlur,
   error,
   helperText
 }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [values, setValues] = useState(value);
 
   const handleSortToggle = () => {
     setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -40,9 +42,10 @@ const InputAutoComplete = ({
     return order * a.label.localeCompare(b.label);
   });
 
-  const handleChange = (event, newValue) => {
-    onChange(name, newValue ? newValue?.value : '' )
-  };
+  // const handleChange = (event, newValue) => {
+  //   console.log("this is new Value", newValue)
+  //   onChange(name, newValue ? newValue?.value : '' )
+  // };
 
   return (
     <FormControl fullWidth variant="outlined">
@@ -51,21 +54,22 @@ const InputAutoComplete = ({
         id="checkboxes-tags-demo"
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
-        // onChange={(e, values) => onChange(name, values)}
-        onChange={(event,value)=>{
-          console.log(event)
-
-          if (Array.isArray(value)) {
+        filterSelectedOptions={true}
+        defaultValue={defaultValue}
+        onChange={(event, val) => {
+          if (Array.isArray(val)) {
             console.log("It is an array");
-            onChange(value.map((e) => e["value"]));
-          } else if (typeof value === "object" && value !== null) {
-            onChange(value["value"]);
+            setValues(val.map((e) => e));
+            onChange(val.map((e) => e["value"]));
+          } else if (typeof val === "object" && val !== null) {
+            onChange(val["value"]);
+            setValues(val);
           } else {
             console.log("It is neither an array nor an object");
           }
         }}
         onBlur={handleBlur}
-        value={value}
+        value={values}
         selectOnFocus
         clearOnEscape
         disabled={disabled}

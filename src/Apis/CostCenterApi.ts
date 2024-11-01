@@ -39,7 +39,22 @@ const CostCenterApi = createApi({
             }),
             invalidatesTags: ["costCenters"]
         }),
-    })
+        updateCostCenter: builder.mutation({
+            query: (costCenterBody: CostCenterModel) => ({
+            url: `CostCenters/${costCenterBody.id}`,
+            method: "PUT",
+            body: costCenterBody,
+            }),
+            invalidatesTags: ["costCenters"],
+        }),
+        deleteCostCenter: builder.mutation({
+            query: (id: string) => ({
+                url: `CostCenters/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["costCenters"]
+        }),
+    }),
 });
 
 export const {
@@ -47,5 +62,7 @@ export const {
     useCreateCostCenterMutation,
     useGetCostCenterByIdQuery,
     useGetCostCenterQuery,
+    useUpdateCostCenterMutation,
+    useDeleteCostCenterMutation
 } = CostCenterApi;
 export default CostCenterApi;
