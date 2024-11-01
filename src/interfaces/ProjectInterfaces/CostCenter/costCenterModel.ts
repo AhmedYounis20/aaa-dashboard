@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NodeType } from "../../Components/NodeType";
 import CostCenterType from "./costCenterType";
 
@@ -14,7 +15,7 @@ export interface CostCenterModel {
 }
 
 export const costCenterMapper = (costCenterObject: any): CostCenterModel => {
-  var result: CostCenterModel = {
+  const result: CostCenterModel = {
     id: costCenterObject.id,
     parentId: costCenterObject.parentId,
     name: costCenterObject.name,
@@ -23,7 +24,7 @@ export const costCenterMapper = (costCenterObject: any): CostCenterModel => {
     percent: costCenterObject.percent,
     costCenterType: costCenterObject.costCenterType,
     chartOfAccounts: costCenterObject.chartOfAccounts.map(
-      (e) => e.chartOfAccountId
+      (e: any) => e.chartOfAccountId
     ),
   };
   return result;

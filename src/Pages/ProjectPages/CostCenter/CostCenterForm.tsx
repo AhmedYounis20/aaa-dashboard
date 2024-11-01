@@ -7,9 +7,9 @@ import { useCreateCostCenterMutation, useDeleteCostCenterMutation, useGetCostCen
 import BaseForm from "../../../Components/Forms/BaseForm";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
-import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
+import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import { useGetChartOfAccountsQuery } from "../../../Apis/ChartOfAccountsApi";
-import DeleteIcon from '@mui/icons-material/Delete';
+// import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../Components/Inputs/InputSelect";
 import CostCenterType, { CostCenterTypeOptions } from "../../../interfaces/ProjectInterfaces/CostCenter/costCenterType";
 import InputAutoComplete from "../../../Components/Inputs/InputAutoCompelete";
@@ -46,7 +46,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
     useEffect(() => {
         if(formType != FormTypes.Add){
             if (!costCenterResult.isLoading) {
-                console.log("result Object " , costCenterResult.data.result.chartOfAccounts.map(e=>e.chartOfAccountId));
+                console.log("result Object " , costCenterResult.data.result.chartOfAccounts.map((e: any)=>e.chartOfAccountId));
                 setModel(costCenterMapper(costCenterResult.data.result));
                 resetChartOfAccountsAutoComplete();
 
@@ -136,15 +136,15 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
         }
     }, [model?.chartOfAccounts, data?.result]);
 
-    const handleDeleteRow = (id: string) => {
-        const updatedChartOfAccounts = model.chartOfAccounts.filter((itemId: string) => itemId !== id);
-        setModel(prevModel => ({
-            ...prevModel,
-            chartOfAccounts: updatedChartOfAccounts
-        }));
-        setSelectedChartOfAccounts(data?.result.filter((item: any) => updatedChartOfAccounts.includes(item.id)));
-        resetChartOfAccountsAutoComplete();
-    };
+    // const handleDeleteRow = (id: string) => {
+    //     const updatedChartOfAccounts = model.chartOfAccounts.filter((itemId: string) => itemId !== id);
+    //     setModel(prevModel => ({
+    //         ...prevModel,
+    //         chartOfAccounts: updatedChartOfAccounts
+    //     }));
+    //     setSelectedChartOfAccounts(data?.result.filter((item: any) => updatedChartOfAccounts.includes(item.id)));
+    //     resetChartOfAccountsAutoComplete();
+    // };
 
         useEffect(() => {
             console.log(errors)
@@ -282,6 +282,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                       ) || []
                     }
                     label={"Chart of Accounts"}
+                    defaultValue={model.chartOfAccounts}
                     value={chartOfAccountsValues}
                     disabled={formType === FormTypes.Details}
                     onChange={(value: string[] | undefined) => {

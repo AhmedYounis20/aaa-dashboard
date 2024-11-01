@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
+// import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
 import { FormTypes } from '../../../interfaces/Components';
 
 import Loader from '../../../Components/Loader';
@@ -27,7 +27,7 @@ const CostCenterRoot = () => {
     const [showForm, setShowForm] = useState<boolean>(false);
     const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
     const [selectedId, setSelectedId] = useState<string>("");
-    const [parentId, setParentId] = useState<string | null>("" || null);
+    const [parentId, setParentId] = useState<string | null>(null);
     const { data, isLoading } = useGetCostCenterQuery(null);
     const handleShowForm = () => {
         setShowForm(true);

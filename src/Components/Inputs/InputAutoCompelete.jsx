@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import {
   FormControl,
@@ -13,6 +13,7 @@ const InputAutoComplete = ({
   multiple,
   name,
   value,
+  defaultValue,
   handleBlur,
   error,
   helperText
@@ -41,9 +42,10 @@ const InputAutoComplete = ({
     return order * a.label.localeCompare(b.label);
   });
 
-  const handleChange = (event, newValue) => {
-    onChange(name, newValue ? newValue?.value : '' )
-  };
+  // const handleChange = (event, newValue) => {
+  //   console.log("this is new Value", newValue)
+  //   onChange(name, newValue ? newValue?.value : '' )
+  // };
 
   return (
     <FormControl fullWidth variant="outlined">
@@ -53,12 +55,8 @@ const InputAutoComplete = ({
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
         filterSelectedOptions={true}
-        // onChange={(e, values) => onChange(name, values)}
+        defaultValue={defaultValue}
         onChange={(event, val) => {
-          console.log(event);
-          console.log(val);
-          console.log(typeof val);
-
           if (Array.isArray(val)) {
             console.log("It is an array");
             setValues(val.map((e) => e));
