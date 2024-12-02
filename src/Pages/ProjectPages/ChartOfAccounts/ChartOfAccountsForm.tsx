@@ -219,9 +219,10 @@ const ChartOfAccountsForm: React.FC<{
                         <Loader/> :
 
                       <InputAutoComplete
+                        defaultValue={undefined}
                         error={undefined}
                         helperText={undefined}
-                      options={accountGuidesResult?.data?.result?.map(
+                        options={accountGuidesResult?.data?.result?.map(
                           (item: { name: string; id: string }) => ({
                             label: item.name,
                             value: item.id,
