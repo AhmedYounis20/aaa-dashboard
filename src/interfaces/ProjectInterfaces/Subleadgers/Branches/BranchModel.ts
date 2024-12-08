@@ -8,6 +8,7 @@ interface BranchModel {
   phone:string;
   address: string;
   notes: string;
+  logo : File | null;
 }
 
 export default BranchModel;

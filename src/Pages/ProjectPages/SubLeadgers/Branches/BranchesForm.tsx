@@ -35,6 +35,7 @@ const BranchesForm: React.FC<{
     phone: "",
     code: "",
     notes: "",
+    logo: null
   });
   const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
     skip: formType != FormTypes.Add,

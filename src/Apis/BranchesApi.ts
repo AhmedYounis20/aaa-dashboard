@@ -32,7 +32,7 @@ const BranchesApi = createApi({
       providesTags: ["Branches"],
     }),
     createBranch: builder.mutation({
-      query: (body: BranchModel & { logo: File | null }) => {
+      query: (body: BranchModel) => {
         const formData = new FormData();
 
         // Append the branch model properties
@@ -65,7 +65,7 @@ const BranchesApi = createApi({
       invalidatesTags: ["Branches"],
     }),
     updateBranch: builder.mutation({
-      query: (body: BranchModel & { logo: File | null }) => {
+      query: (body: BranchModel) => {
         const formData = new FormData();
 
         // Append the branch model properties
