@@ -5,6 +5,11 @@ import { AppContent } from '../../../../Components';
 import { useGetBranchesQuery } from '../../../../Apis/BranchesApi';
 import BranchesForm from './BranchesForm';
 const columns = [
+
+  {
+    Header: "Logo",
+    accessor: "attachment", 
+  },
   {
     Header: "Code",
     accessor: "chartOfAccount.code", // accessor is the "key" in the data
@@ -33,8 +38,13 @@ const BranchesRoot = () => {
   const handleCloseForm = () => {
     setShowForm(false);
   };
-  const handleSelectId: (id: string) => void = (id) =>
-    setSelectedId(id);
+  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
+
+  if(!data?.result) return <div className='h-screen flex items-center justify-center'>
+    <Loader />
+  </div>
+
   return (
     <div className="h-full">
       {isLoading ? (
@@ -62,7 +72,7 @@ const BranchesRoot = () => {
               }}
               btnName="add new"
               columns={columns}
-              data={data.result}
+              data={data && data?.result}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}

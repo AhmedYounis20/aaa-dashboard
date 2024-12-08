@@ -53,12 +53,34 @@ const DataTreeTable = ({
     setHoveredRow(null);
   };
 
-  const renderCell = (row, column) => {
-    const value =
-      column.accessor == "chartOfAccount.code" && row.chartOfAccount
-        ? row["chartOfAccount"]["code"]
-        : row[column.accessor];
+  // const renderCell = (row, column) => {
+  //   const value =
+  //     column.accessor == "chartOfAccount.code" && row.chartOfAccount
+  //       ? row["chartOfAccount"]["code"]
+  //       : row[column.accessor];
 
+  //   return <TableCell key={column.accessor}>{value}</TableCell>;
+  // };
+
+
+  const renderCell = (row, column) => {
+    let value;
+  
+    if (column.accessor === "chartOfAccount.code" && row.chartOfAccount) {
+      value = row["chartOfAccount"]["code"];
+    } else if (column.accessor === "attachment" && row[column.accessor]?.fileData) {
+      const fileType = row[column.accessor]?.fileContentType || "image/png"; 
+      value = (
+        <img
+          src={`data:${fileType};base64,${row[column.accessor].fileData}`}
+          alt={row[column.accessor]?.fileName || "attachment"}
+          className="!w-8 !h-8 aspect-square object-cover"
+        />
+      );
+    } else {
+      value = row[column.accessor] 
+    }
+  
     return <TableCell key={column.accessor}>{value}</TableCell>;
   };
 
