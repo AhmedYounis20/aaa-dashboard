@@ -32,11 +32,29 @@ const BranchesApi = createApi({
       providesTags: ["Branches"],
     }),
     createBranch: builder.mutation({
-      query: (body: BranchModel) => ({
-        url: `branches`,
-        method: "POST",
-        body: body,
-      }),
+      query: (body: BranchModel & { logo: File | null }) => {
+        const formData = new FormData();
+
+        // Append the branch model properties
+        formData.append("name", body.name);
+        formData.append("nameSecondLanguage", body.nameSecondLanguage);
+        formData.append("phone", body.phone);
+        formData.append("address", body.address);
+        formData.append("nodeType", body.nodeType.toString());
+        formData.append("notes", body.notes);
+        if (body.parentId) formData.append("parentId", body.parentId);
+
+        // Append the logo if it exists
+        if (body.logo) {
+          formData.append("logo", body.logo);
+        }
+
+        return {
+          url: `branches`,
+          method: "POST",
+          body: formData,
+        };
+      },
       invalidatesTags: ["Branches"],
     }),
     deleteBranchById: builder.mutation({
@@ -47,11 +65,29 @@ const BranchesApi = createApi({
       invalidatesTags: ["Branches"],
     }),
     updateBranch: builder.mutation({
-      query: (body: BranchModel) => ({
+      query: (body: BranchModel & { logo: File | null }) => {
+        const formData = new FormData();
+
+        // Append the branch model properties
+        formData.append("name", body.name);
+        formData.append("nameSecondLanguage", body.nameSecondLanguage);
+        formData.append("phone", body.phone);
+        formData.append("address", body.address);
+        formData.append("nodeType", body.nodeType.toString());
+        formData.append("notes", body.notes);
+        if (body.parentId) formData.append("parentId", body.parentId);
+
+        // Append the logo if it exists
+        if (body.logo) {
+          formData.append("logo", body.logo);
+        }
+
+        return {
         url: `Branches/${body.id}`,
         method: "PUT",
-        body: body,
-      }),
+        body: formData,
+        };
+      },
       invalidatesTags: ["Branches"],
     }),
   }),
