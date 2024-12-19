@@ -34,7 +34,7 @@ const InputSelect = ({
         {options &&
           options.map((item) => {
             // console.log(item);
-            return <MenuItem value={item.value}>{item.label} </MenuItem>;
+            return <MenuItem value={item.value} key={item.value}>{item.label} </MenuItem>;
           })}
       </Select>
     </FormControl>

@@ -1,4 +1,4 @@
-import AttachmentModel from "../../../BaseModels/BranchModel";
+import AttachmentModel from "../../../BaseModels/AttachmentModel";
 
 interface BranchModel {
   id: string;
