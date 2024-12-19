@@ -17,6 +17,8 @@ import {
   useUpdateBranchMutation,
 } from "../../../../Apis/BranchesApi";
 import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel";
+import InputFile from "../../../../Components/Inputs/InputFile";
+import AttachmentModel from "../../../../interfaces/BaseModels/AttachmentModel";
 
 const BranchesForm: React.FC<{
   formType: FormTypes;
@@ -52,12 +54,20 @@ const BranchesForm: React.FC<{
     if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
         setModel(bankResult.data.result);
+        console.log(bankResult.data.result);
         if (bankResult.data?.result.nodeType === 0) {
           setModel((prevModel) =>
             prevModel
               ? {
                   ...prevModel,
                   code: bankResult.data.result.chartOfAccount.code,
+                  logo: {
+                    fileContent: bankResult.data.result.attachment.fileData,
+                    contentType:
+                      bankResult.data.result.attachment.fileContentType,
+                    fileName:
+                      bankResult.data.result.attachment.fileName,
+                  },
                 }
               : prevModel
           );
@@ -116,6 +126,15 @@ const BranchesForm: React.FC<{
     }
     return false;
   };
+
+  const handleLogoSelect = (selectedAttachments :  AttachmentModel[]) => {
+    if(selectedAttachments.length > 0){
+      const file : AttachmentModel  = selectedAttachments[0];
+            console.log("data:" + file.contentType + ";" + file.fileContent);
+
+      setModel((prevModel)=> prevModel ? {...prevModel,file} : prevModel)
+    }
+  }
   const handleDelete = async (): Promise<boolean> => {
     const response: ApiResponse = await deleteFunc(id);
     if (response.data) {
@@ -333,6 +352,20 @@ const BranchesForm: React.FC<{
                                   : prevModel
                               )
                             }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col col-md-8">
+                          <label className="form-label"> Logo</label>
+                          <InputFile
+                            value={model.logo ? [model.logo] : []}
+                            onFilesChange={handleLogoSelect}
+                            disabled={formType === FormTypes.Details}
+                            multiSelect = {false}
+                            allowedTypes={[]}
+                            onlySelectedTypes={false}                            
                           />
                         </div>
                       </div>

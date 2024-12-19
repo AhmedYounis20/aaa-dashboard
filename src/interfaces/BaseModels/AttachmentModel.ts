@@ -4,4 +4,4 @@ interface AttachmentModel {
   contentType: string;
 }
 
-export default AttachmentModel;
+export default AttachmentModel; 
