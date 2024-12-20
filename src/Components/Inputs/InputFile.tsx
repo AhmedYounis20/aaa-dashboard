@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AttachmentModel from "../../interfaces/BaseModels/AttachmentModel";
 import UploadIcon from "@mui/icons-material/Upload";
-import { Delete } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
+import DescriptionIcon from '@mui/icons-material/Description';
+import ImagePreview from "../Images/ImagePreview";
 interface InputFileProps {
   allowedTypes: string[];
   onFilesChange: (attachments: AttachmentModel[]) => void;
@@ -48,6 +50,39 @@ const InputFile: React.FC<InputFileProps> = ({
     if(onFilesChange != null)
       onFilesChange(newAttachments);
   };
+
+    const handleAddFile = async (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const fileArray = Array.from(files);
+
+      // Filter files by allowed types
+      const validFiles = fileArray.filter(
+        (file) => allowedTypes.includes(file.type) || !onlySelectedTypes
+      );
+
+      // Limit number of files to maxFiles
+
+      // Convert files to AttachmentModel
+      const attachmentPromises = validFiles.map((file) =>
+        convertToAttachmentModel(file)
+      );
+
+      const newAttachments = await Promise.all(attachmentPromises);
+
+      setAttachments((prevattachments) =>
+        prevattachments
+          ? [ ...prevattachments,...newAttachments ]
+          : [...newAttachments]
+      );
+    };
+
+    useEffect(()=>{
+      onFilesChange(attachments);
+    },[attachments,onFilesChange])
 
   const convertToAttachmentModel = (file: File): Promise<AttachmentModel> => {
     return new Promise((resolve, reject) => {
@@ -97,55 +132,104 @@ const InputFile: React.FC<InputFileProps> = ({
             disabled={disabled}
           />
 
-        
-          <IconButton size="large" component="span" disabled={disabled}>
+          <IconButton
+            size="large"
+            style={{ borderRadius: 20 }}
+            component="span"
+            disabled={disabled}
+          >
             <UploadIcon />
+            <span style={{ fontSize: 20, opacity: 0.5 }}>{"upload"}</span>
           </IconButton>
-          <span style={{ fontSize: 20, opacity: 0.5 }}>
-            {attachments.length
-              ? attachments.length + " file" + (attachments.length>1 ? "s":"")
-              : disabled
-              ? "no files"
-              : "upload"}
-          </span>
+        </label>
+        <label style={{ display: "inline-block" }}>
+          {/* Hidden file input */}
+          <input
+            type="file"
+            style={{
+              display: "none",
+            }}
+            onChange={handleAddFile}
+            multiple={multiSelect}
+            accept={allowedTypes.join(",")}
+            disabled={disabled}
+          />
+
+          <IconButton
+            size="medium"
+            style={{ borderRadius: 20 }}
+            className="btn form-control"
+            component="span"
+            disabled={disabled}
+          >
+            <Add />
+            <span style={{ fontSize: 20, opacity: 0.5 }}>{"Add"}</span>
+          </IconButton>
+        </label>
+        <label>
+          <IconButton
+            size="medium"
+            style={{ borderRadius: 20 }}
+            className="btn form-control"
+            component="span"
+            disabled={true}
+          >
+            <span style={{ fontSize: 20, opacity: 0.5 }}>
+              {attachments.length
+                ? attachments.length +
+                  " file" +
+                  (attachments.length > 1 ? "s" : "")
+                :"no files" }
+            </span>
+          </IconButton>
         </label>
       </div>
       {attachments.length > 0 && (
-        <div>
+        <div style={{ maxHeight: 200, overflowY: "scroll" }}>
           {attachments.map((attachment, index) => (
             <div key={index}>
               <div
-                className="card card-body m-0"
+                className="card card-body m-0 mb-2"
                 style={{ width: "auto", backgroundColor: "whitesmoke" }}
               >
                 <div className="row">
-                  <div className="col col-md-2  text-center">
-                    {attachment.contentType.startsWith("image") && (
-                      <img
-                        src={
-                          "data:" +
-                          attachment.contentType +
-                          ";base64," +
-                          attachment.fileContent
-                        }
-                        alt="image"
-                        height={50}
-                        width={50}
-                        style={{ borderRadius: 50 }}
-                      />
-                    )}
-                    {attachment.contentType.split("/")[0] != "image" &&
-                      attachment.contentType.split("/")[0]}
+                  <div className="col col-md-3 justify-content-center align-items-center">
+                    <div>
+                      {attachment.contentType.startsWith("image") ? (
+                        <ImagePreview
+                          src={
+                            "data:" +
+                            attachment.contentType +
+                            ";base64," +
+                            attachment.fileContent
+                          }
+                          alt="image"
+                          height={50}
+                          width={50}
+                        />
+                      ) : (
+                        <DescriptionIcon />
+                      )}
+                    </div>
+                    <div>
+                      {attachment.contentType.split("/")[0] != "image" &&
+                        attachment.contentType.split("/")[1]}
+                    </div>
                   </div>
-                  <div className="col col-md-6">
+                  <div className="col col-md-7">
                     <strong>{attachment.fileName}</strong>
                   </div>
-                  <div className="col col-md-4 align-content-center">
-                    <div style={{ position: "absolute", right: 20, top: 25 }}>
+                  <div className="col col-md-2 align-content-center">
+                    <div
+                      style={{
+                        justifyContent: "end",
+                        alignItems: "end",
+                        display: "flex",
+                      }}
+                    >
                       {!disabled && (
                         <IconButton
                           size="small"
-                          style={{ marginInline: 2 }}
                           onClick={() => removeSelectedFile(index)}
                         >
                           <Delete />
@@ -154,6 +238,24 @@ const InputFile: React.FC<InputFileProps> = ({
                     </div>
                   </div>
                 </div>
+
+                <style>
+                  {`
+                      div::-webkit-scrollbar {
+                        width: 8px;
+                      }
+                      div::-webkit-scrollbar-track {
+                        background: #f1f1f1;
+                      }
+                      div::-webkit-scrollbar-thumb {
+                        background: #888;
+                        border-radius: 4px;
+                      }
+                      div::-webkit-scrollbar-thumb:hover {
+                        background: #555;
+                      }
+                    `}
+                </style>
               </div>
             </div>
           ))}

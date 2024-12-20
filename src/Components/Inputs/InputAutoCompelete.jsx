@@ -16,7 +16,8 @@ const InputAutoComplete = ({
   defaultValue,
   handleBlur,
   error,
-  helperText
+  helperText,
+  size,
 }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -52,6 +53,7 @@ useEffect(() => {
   return (
     <FormControl fullWidth variant="outlined">
       <Autocomplete
+      size={size}
         multiple={multiple}
         id="checkboxes-tags-demo"
         options={sortedOptions}
