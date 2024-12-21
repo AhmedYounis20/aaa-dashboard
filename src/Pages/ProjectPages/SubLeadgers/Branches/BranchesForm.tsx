@@ -61,13 +61,13 @@ const BranchesForm: React.FC<{
               ? {
                   ...prevModel,
                   code: bankResult.data.result.chartOfAccount.code,
-                  logo: {
+                  logo: bankResult.data.result.attachment ? {
                     fileContent: bankResult.data.result.attachment.fileData,
                     contentType:
                       bankResult.data.result.attachment.fileContentType,
                     fileName:
-                      bankResult.data.result.attachment.fileName,
-                  },
+                       bankResult.data.result.attachment.fileName ,
+                  } : null,
                 }
               : prevModel
           );
@@ -128,11 +128,18 @@ const BranchesForm: React.FC<{
   };
 
   const handleLogoSelect = (selectedAttachments :  AttachmentModel[]) => {
+    console.log(selectedAttachments);
     if(selectedAttachments.length > 0){
       const file : AttachmentModel  = selectedAttachments[0];
             console.log("data:" + file.contentType + ";" + file.fileContent);
 
-      setModel((prevModel)=> prevModel ? {...prevModel,file} : prevModel)
+      setModel((prevModel)=> prevModel ? {...prevModel,logo:file} : prevModel)
+    }
+    else {
+            setModel((prevModel) =>
+              prevModel ? { ...prevModel, logo: null } : prevModel
+            );
+
     }
   }
   const handleDelete = async (): Promise<boolean> => {

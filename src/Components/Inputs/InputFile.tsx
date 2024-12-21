@@ -47,8 +47,6 @@ const InputFile: React.FC<InputFileProps> = ({
     const newAttachments = await Promise.all(attachmentPromises);
 
     setAttachments(newAttachments);
-    if(onFilesChange != null)
-      onFilesChange(newAttachments);
   };
 
     const handleAddFile = async (
@@ -81,8 +79,9 @@ const InputFile: React.FC<InputFileProps> = ({
     };
 
     useEffect(()=>{
+      if(onFilesChange!=null)
       onFilesChange(attachments);
-    },[attachments,onFilesChange])
+    },[attachments])
 
   const convertToAttachmentModel = (file: File): Promise<AttachmentModel> => {
     return new Promise((resolve, reject) => {
@@ -142,30 +141,32 @@ const InputFile: React.FC<InputFileProps> = ({
             <span style={{ fontSize: 20, opacity: 0.5 }}>{"upload"}</span>
           </IconButton>
         </label>
-        <label style={{ display: "inline-block" }}>
-          {/* Hidden file input */}
-          <input
-            type="file"
-            style={{
-              display: "none",
-            }}
-            onChange={handleAddFile}
-            multiple={multiSelect}
-            accept={allowedTypes.join(",")}
-            disabled={disabled}
-          />
+        {attachments.length > 0 && multiSelect && (
+          <label style={{ display: "inline-block" }}>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              style={{
+                display: "none",
+              }}
+              onChange={handleAddFile}
+              multiple={multiSelect}
+              accept={allowedTypes.join(",")}
+              disabled={disabled}
+            />
 
-          <IconButton
-            size="medium"
-            style={{ borderRadius: 20 }}
-            className="btn form-control"
-            component="span"
-            disabled={disabled}
-          >
-            <Add />
-            <span style={{ fontSize: 20, opacity: 0.5 }}>{"Add"}</span>
-          </IconButton>
-        </label>
+            <IconButton
+              size="medium"
+              style={{ borderRadius: 20 }}
+              className="btn form-control"
+              component="span"
+              disabled={disabled}
+            >
+              <Add />
+              <span style={{ fontSize: 20, opacity: 0.5 }}>{"Add"}</span>
+            </IconButton>
+          </label>
+        )}
         <label>
           <IconButton
             size="medium"
@@ -179,7 +180,7 @@ const InputFile: React.FC<InputFileProps> = ({
                 ? attachments.length +
                   " file" +
                   (attachments.length > 1 ? "s" : "")
-                :"no files" }
+                : "no files"}
             </span>
           </IconButton>
         </label>

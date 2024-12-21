@@ -38,6 +38,7 @@ const ImagePreview : React.FC<ImagePreviewProps> = ({src,height,width,alt} : Ima
               height: "100%",
               zIndex: 1050,
             }}
+            onClick={() => setShowPreview(false)}
           >
             <div
               className="modal-dialog"
@@ -57,31 +58,7 @@ const ImagePreview : React.FC<ImagePreviewProps> = ({src,height,width,alt} : Ima
                   position: "relative",
                 }}
               >
-                <button
-                  type="button"
-                  className="close btn"
-                  aria-label="Close"
-                  onClick={() => setShowPreview(false)}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    zIndex: 10,
-                    background: "white",
-                    borderRadius: "50%",
-                    width: "30px",
-                    height: "30px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    border: "none",
-                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                  }}
-                >
-                  <span aria-hidden="true" style={{ fontSize: "20px" }}>
-                    &times;
-                  </span>
-                </button>
+
                 <div
                   className="modal-body"
                   style={{

@@ -74,6 +74,7 @@ useEffect(() => {
         onBlur={handleBlur}
         value={values}
         selectOnFocus
+
         clearOnEscape
         disabled={disabled}
         renderInput={(params) => (

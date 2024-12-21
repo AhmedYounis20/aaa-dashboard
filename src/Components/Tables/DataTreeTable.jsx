@@ -21,6 +21,7 @@ import {
   Add,
 } from "@mui/icons-material";
 import { FormTypes } from "../../interfaces/Components/FormType";
+import ImagePreview from "../Images/ImagePreview";
 
 const DataTreeTable = ({
   columns,
@@ -71,10 +72,13 @@ const DataTreeTable = ({
     } else if (column.accessor === "attachment" && row[column.accessor]?.fileData) {
       const fileType = row[column.accessor]?.fileContentType || "image/png"; 
       value = (
-        <img
+        <ImagePreview
           src={`data:${fileType};base64,${row[column.accessor].fileData}`}
           alt={row[column.accessor]?.fileName || "attachment"}
           className="!w-8 !h-8 aspect-square object-cover"
+          height={50}
+          width={50}
+          style={{borderRadius:50}}
         />
       );
     } else {
