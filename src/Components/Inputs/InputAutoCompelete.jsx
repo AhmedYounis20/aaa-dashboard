@@ -19,47 +19,50 @@ const InputAutoComplete = ({
   helperText,
   size,
 }) => {
-  const [sortDirection, setSortDirection] = useState("asc");
-  const [selectAllChecked, setSelectAllChecked] = useState(false);
+  // const [sortDirection, setSortDirection] = useState("asc");
+  const [sortDirection, ] = useState("asc");
+  // const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [values, setValues] = useState(value);
 
-  const handleSortToggle = () => {
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  };
+  // const handleSortToggle = () => {
+  //   setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  // };
 
+  // const handleSelectAll = () => {
+  //   onChange(
+  //     name,
+  //     options?.map((option) => option?.value)
+  //   );
+  //   setSelectAllChecked(true);
+  // };
 
-  const handleSelectAll = () => {
-    onChange(name, options?.map((option) => option?.value));
-    setSelectAllChecked(true);
-  }
-
-  const handleClearAll = () => {
-    onChange(name, []);
-    setSelectAllChecked(false);
-  };
+  // const handleClearAll = () => {
+  //   onChange(name, []);
+  //   setSelectAllChecked(false);
+  // };
 
   const sortedOptions = [...options]
-  .filter((option) => !values.some((val) => val.value === option.value)) // Exclude selected values
-  .sort((a, b) => {
-    const order = sortDirection === "asc" ? 1 : -1;
-    return order * a.label.localeCompare(b.label);
-  });
+    .filter((option) => !values.some((val) => val.value === option.value)) // Exclude selected values
+    .sort((a, b) => {
+      const order = sortDirection === "asc" ? 1 : -1;
+      return order * a.label.localeCompare(b.label);
+    });
 
-useEffect(() => {
-  setValues(value);
-}, [value]);
-
+  useEffect(() => {
+    setValues(value);
+  }, [value]);
 
   return (
     <FormControl fullWidth variant="outlined">
       <Autocomplete
-      size={size}
+        size={size}
         multiple={multiple}
         id="checkboxes-tags-demo"
         options={sortedOptions}
         getOptionLabel={(option) => option.label}
         filterSelectedOptions={true}
         defaultValue={defaultValue}
+        
         onChange={(event, val) => {
           if (Array.isArray(val)) {
             setValues(val.map((e) => e));
@@ -74,11 +77,17 @@ useEffect(() => {
         onBlur={handleBlur}
         value={values}
         selectOnFocus
-
         clearOnEscape
         disabled={disabled}
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label={label} helperText={helperText} error={error} />
+          <TextField
+            {...params}
+            variant="outlined"
+            label={label}
+            helperText={helperText}
+            error={error}
+            name={name}
+          />
         )}
       />
     </FormControl>

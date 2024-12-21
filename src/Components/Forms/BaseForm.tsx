@@ -33,7 +33,7 @@ const BaseForm: React.FC<{
     setWaitingResponse(false);
   };
   return (
-    <div className={`${isModal && "modal "} fade show d-block modal-lg `}>
+    <div className={`${isModal && "modal "} fade show d-block modal-xl `}>
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           {isModal && (

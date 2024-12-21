@@ -297,6 +297,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                           : prevModel;
                       });
                     }}
+                    size={"medium"}
                     multiple
                     name={"chartofAccounts"}
                     handleBlur={null}

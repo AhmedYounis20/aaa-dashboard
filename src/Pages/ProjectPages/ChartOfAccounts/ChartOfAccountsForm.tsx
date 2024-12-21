@@ -219,6 +219,7 @@ const ChartOfAccountsForm: React.FC<{
                         <Loader/> :
 
                       <InputAutoComplete
+                        size='medium'
                         defaultValue={undefined}
                         error={undefined}
                         helperText={undefined}

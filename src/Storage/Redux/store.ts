@@ -14,6 +14,7 @@ import globalTheme from './global'
 import FixedAssetsApi from "../../Apis/FixedAssetsApi";
 import BranchesApi from "../../Apis/BranchesApi";
 import CostCenterApi from "../../Apis/CostCenterApi";
+import EntriesApi from "../../Apis/EntriesApi";
 
 const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ const store = configureStore({
     [FinancialPeriodsApi.reducerPath]: FinancialPeriodsApi.reducer,
     [BranchesApi.reducerPath]: BranchesApi.reducer,
     [CostCenterApi.reducerPath]: CostCenterApi.reducer,
+    [EntriesApi.reducerPath]: EntriesApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -48,6 +50,7 @@ const store = configureStore({
       .concat(ChartOfAccountsApi.middleware)
       .concat(BranchesApi.middleware)
       .concat(CostCenterApi.middleware)
+      .concat(EntriesApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -24,6 +24,7 @@ import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/Fixed
 import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
 import { RootState } from '../Storage/Redux/store';
 import CostCenterRoot from '../Pages/ProjectPages/CostCenter/CostCenterRoot';
+import EntriesRoot from "../Pages/ProjectPages/Entry/EntriesRoot";
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);
@@ -44,6 +45,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="/currencies" element={<CurrenciesRoot />} />
               <Route path="/glSettings" element={<GlSettingsRoot />} />
+              <Route path="/entries" element={<EntriesRoot />} />
               <Route
                 path="/currencfinancialPeriodsies"
                 element={<FinancialPeriodsRoot />}
@@ -71,14 +73,8 @@ function App() {
                 path="/subleadgers/fixedAssets"
                 element={<FixedAssetsRoot />}
               />
-              <Route
-                path="/subleadgers/branches"
-                element={<BranchesRoot />}
-              />
-              <Route
-                path='/costCenter'
-                element={<CostCenterRoot/>}
-              />
+              <Route path="/subleadgers/branches" element={<BranchesRoot />} />
+              <Route path="/costCenter" element={<CostCenterRoot />} />
             </Route>
             <Route path="*" element={<Page404 />} />
           </Routes>

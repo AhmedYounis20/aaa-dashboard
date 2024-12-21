@@ -9,9 +9,8 @@ import DiamondIcon from '@mui/icons-material/Diamond';
 import WebhookIcon from '@mui/icons-material/Webhook';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import TableChartIcon from '@mui/icons-material/TableChart';
-
-
-
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 export interface ISidebarItem {
     icon?: ReactElement;
     title: string;
@@ -65,6 +64,17 @@ export const sidebarItemsData: ISidebarItem[] = [
     ],
   },
   {
+    title: "Entries",
+    icon: React.createElement(LibraryBooksIcon),
+    submenu: [
+      {
+        title: "Complex Entries",
+        icon: React.createElement(ChangeCircleIcon),
+        path: "/entries",
+      },
+    ],
+  },
+  {
     title: "gl settings",
     icon: React.createElement(DiamondIcon),
     path: "/glSettings",
@@ -87,8 +97,8 @@ export const sidebarItemsData: ISidebarItem[] = [
   {
     title: "cost center",
     icon: React.createElement(WebhookIcon),
-    path: '/costCenter'
-  }
+    path: "/costCenter",
+  },
 ];
 
 
