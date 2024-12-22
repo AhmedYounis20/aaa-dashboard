@@ -1,84 +1,78 @@
 import React, { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
-import {
-  FormControl,
-  TextField,
-} from "@mui/material";
+import { FormControl, TextField } from "@mui/material";
 
 const InputAutoComplete = ({
   options,
   label,
   onChange,
   disabled,
-  multiple,
+  multiple = false, // Default to single-select
   name,
-  value,
-  defaultValue,
+  value, // Can be null, empty array, or valid values
   handleBlur,
   error,
   helperText,
   size,
 }) => {
-  // const [sortDirection, setSortDirection] = useState("asc");
-  const [sortDirection, ] = useState("asc");
-  // const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [values, setValues] = useState(value);
+  const [dropDownOptions, setDropDownOptions] = useState(options || []); // Default empty options
+  const [values, setValues] = useState(multiple ? [] : null); // Initialize as empty
+  const [isLoading, setIsLoading] = useState(true);
 
-  // const handleSortToggle = () => {
-  //   setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  // };
+  // Map values to objects for rendering
+  const mapValuesToObjects = (val) => {
+    if (multiple) {
+      return Array.isArray(val)
+        ? options.filter((option) => val.includes(option.value))
+        : [];
+    } else {
+      return val
+        ? options.find((option) => option.value === val) || null
+        : null;
+    }
+  };
 
-  // const handleSelectAll = () => {
-  //   onChange(
-  //     name,
-  //     options?.map((option) => option?.value)
-  //   );
-  //   setSelectAllChecked(true);
-  // };
-
-  // const handleClearAll = () => {
-  //   onChange(name, []);
-  //   setSelectAllChecked(false);
-  // };
-
-  const sortedOptions = [...options]
-    .filter((option) => !values.some((val) => val.value === option.value)) // Exclude selected values
-    .sort((a, b) => {
-      const order = sortDirection === "asc" ? 1 : -1;
-      return order * a.label.localeCompare(b.label);
-    });
-
+  // Sync values with external value prop
   useEffect(() => {
-    setValues(value);
-  }, [value]);
+    if (value !== undefined && value !== null) {
+      setValues(mapValuesToObjects(value)); // Map only when value is valid
+    } else {
+      setValues(multiple ? [] : null); // Handle empty initial values
+    }
+    setIsLoading(false);
+  }, [value, options]); // Re-run on value or options change
+
+  // Handle options change to update dropDownOptions
+  useEffect(() => {
+    setDropDownOptions(options || []); // Update options only when necessary
+  }, [options]);
 
   return (
     <FormControl fullWidth variant="outlined">
       <Autocomplete
         size={size}
         multiple={multiple}
-        id="checkboxes-tags-demo"
-        options={sortedOptions}
-        getOptionLabel={(option) => option.label}
-        filterSelectedOptions={true}
-        defaultValue={defaultValue}
-        
+        id={`autocomplete-${name}`}
+        options={dropDownOptions}
+        getOptionLabel={(option) => option.label || ""}
+        filterSelectedOptions
+        loading={isLoading}
+        value={values} // Mapped values
+        disabled={disabled}
         onChange={(event, val) => {
-          if (Array.isArray(val)) {
-            setValues(val.map((e) => e));
-            onChange(val.map((e) => e["value"]));
-          } else if (typeof val === "object" && val !== null) {
-            onChange(val["value"]);
+          if (multiple) {
+            const selectedValues = val.map((e) => e.value); // Extract values
             setValues(val);
+            onChange(selectedValues); // Emit values only
           } else {
-            console.log("It is neither an array nor an object");
+            const selectedValue = val ? val.value : null; // Single value or null
+            setValues(val);
+            onChange(selectedValue);
           }
         }}
         onBlur={handleBlur}
-        value={values}
         selectOnFocus
         clearOnEscape
-        disabled={disabled}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -87,6 +81,15 @@ const InputAutoComplete = ({
             helperText={helperText}
             error={error}
             name={name}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {isLoading ? <span>Loading...</span> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
           />
         )}
       />

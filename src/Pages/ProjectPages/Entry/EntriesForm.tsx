@@ -21,6 +21,10 @@ import InputAutoComplete from '../../../Components/Inputs/InputAutoCompelete';
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { Add, Delete } from '@mui/icons-material';
 import { EntrySchema } from '../../../interfaces/ProjectInterfaces/Entries/entry-validation';
+import { useGetCurrenciesQuery } from '../../../Apis/CurrenciesApi';
+import CurrencyModel from '../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel';
+import BranchModel from '../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel';
+import { useGetBranchesQuery } from '../../../Apis/BranchesApi';
 
 
 
@@ -32,6 +36,13 @@ const EntriesForm: React.FC<{
   const currencyResult = useGetEntryByIdQuery(id, {
     skip: formType == FormTypes.Add,
   });
+    const currenciesApiResult = useGetCurrenciesQuery({
+      skip: formType == FormTypes.Delete,
+    });
+
+        const branchesApiResult = useGetBranchesQuery({
+          skip: formType == FormTypes.Delete,
+        });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [updateEntry] = useUpdateEntryMutation();
   const [createEntry] = useCreateEntryMutation();
@@ -40,8 +51,28 @@ const EntriesForm: React.FC<{
     formType != FormTypes.Add
   );
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
+  const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber,setTransactionNumber]=useState<number>(1);
 
+  useEffect( ()=>{
+    if(currenciesApiResult.isSuccess && !currenciesApiResult.isLoading){
+      setCurrencies(currenciesApiResult.data.result);
+    }
+  },[currenciesApiResult,currenciesApiResult.isLoading,currenciesApiResult.isSuccess,currencies]);
+
+    useEffect(() => {
+      if (branchesApiResult.isSuccess && !branchesApiResult.isLoading) {
+        setBranches(branchesApiResult.data.result);
+      }
+    }, [
+      branchesApiResult,
+      branchesApiResult.isLoading,
+      branchesApiResult.isSuccess,
+      branches,
+    ]);
+
+ 
   const createFinancialTransaction: () => FinancialTransactionModel = () => {
     const transaction: FinancialTransactionModel = {
       creditAccountId: "",
@@ -67,26 +98,35 @@ const EntriesForm: React.FC<{
       setTransactionNumber(prev=>prev+1);
     return transaction;
   };
-
+  const [model, setModel] = useState<EntryModel>({
+    id: id,
+    exchangeRate: 0,
+    entryNumber: "",
+    branchId: "",
+    currencyId: "",
+    entryDate: new Date(),
+    documentNumber: "",
+    financialPeriodId: "",
+    notes: "",
+    receiverName: "",
+    financialTransactions: [createFinancialTransaction()],
+    attachments: [],
+    financialPeriodNumber:""
+  });
+  useEffect(() => {
+    const currency = currencies.find((e) => e.id == model.currencyId);
+    console.log(currency);
+    setModel((prev) =>
+      prev
+        ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
+        : prev
+    );
+  }, [model.currencyId, model.exchangeRate]);
   const removetransaction : (transactionNumber :number)=>void =(transactionNumber : number)=>{
     const transactions =model.financialTransactions.filter(e=> e.orderNumber!=transactionNumber);
     const updatedTransactions =transactions.map(e=> e.orderNumber < transactionNumber ? e: {...e,orderNumber:e.orderNumber-1});
     setModel((prevModel)=> prevModel ? {...prevModel,financialTransactions:updatedTransactions}:prevModel);
   }
-const [model, setModel] = useState<EntryModel>({
-  id: id,
-  exchangeRate: 0,
-  entryNumber: "",
-  branchId: "",
-  currencyId: "",
-  entryDate: new Date(),
-  documentNumber: "",
-  financialPeriodId: "",
-  notes: "",
-  receiverName: "",
-  financialTransactions: [createFinancialTransaction()],
-  attachments: [],
-});
 
   const onAddFinancialTrancastion =()=>{
    setModel((prevModel) => ({
@@ -209,22 +249,10 @@ const [model, setModel] = useState<EntryModel>({
                                 variant="outlined"
                                 fullWidth
                                 size="small"
-                                disabled={formType === FormTypes.Details}
-                                value={model?.entryNumber}
-                                onChange={(event: {
-                                  target: { value: string };
-                                }) =>
-                                  setModel((prevModel) =>
-                                    prevModel
-                                      ? {
-                                          ...prevModel,
-                                          symbol: event.target.value,
-                                        }
-                                      : prevModel
-                                  )
-                                }
-                                error={!!errors.symbol}
-                                helperText={errors.symbol}
+                                disabled={true}
+                                value={model?.financialPeriodNumber}
+                                error={!!errors.financialPeriodNumber}
+                                helperText={errors.financialPeriodNumber}
                               />
                             </div>
                             <div className="col col-md-6">
@@ -235,22 +263,10 @@ const [model, setModel] = useState<EntryModel>({
                                 label="Entry Number"
                                 variant="outlined"
                                 fullWidth
-                                disabled={formType === FormTypes.Details}
+                                disabled={true}
                                 value={model?.entryNumber}
-                                onChange={(event: {
-                                  target: { value: string };
-                                }) =>
-                                  setModel((prevModel) =>
-                                    prevModel
-                                      ? {
-                                          ...prevModel,
-                                          symbol: event.target.value,
-                                        }
-                                      : prevModel
-                                  )
-                                }
-                                error={!!errors.symbol}
-                                helperText={errors.symbol}
+                                error={!!errors.entryNumber}
+                                helperText={errors.entryNumber}
                               />
                             </div>
                           </div>
@@ -272,13 +288,13 @@ const [model, setModel] = useState<EntryModel>({
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      symbol: event.target.value,
+                                      documentNumber: event.target.value,
                                     }
                                   : prevModel
                               )
                             }
-                            error={!!errors.symbol}
-                            helperText={errors.symbol}
+                            error={!!errors.documentNumber}
+                            helperText={errors.documentNumber}
                           />
                         </div>
                       </div>
@@ -286,36 +302,23 @@ const [model, setModel] = useState<EntryModel>({
                         <div className="col col-md-8">
                           <InputAutoComplete
                             size={"small"}
-                            defaultValue={undefined}
                             error={undefined}
                             helperText={undefined}
-                            options={[]}
-                            // options={accountGuidesResult?.data?.result?.map(
-                            //   (item: { name: string; id: string }) => ({
-                            //     label: item.name,
-                            //     value: item.id,
-                            //   })
-                            // )}
+                            options={currencies?.map(
+                              (item: { name: string; id: string }) => ({
+                                label: item.name,
+                                value: item.id,
+                              })
+                            )}
                             label={"Currency"}
-                            // value={
-                            //   accountGuidesResult?.data?.result
-                            //     ?.map((item: { name: string; id: string }) => ({
-                            //       label: item.name,
-                            //       value: item.id,
-                            //     }))
-                            //     ?.find(
-                            //       (e: { value: string }) =>
-                            //         e.value === model?.accountGuidId
-                            //     ) || null
-                            // }
-                            value= {null}
+                            value={ model?.currencyId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: string | undefined) => {
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      accountGuidId: value || "",
+                                      currencyId: value || "",
                                     }
                                   : prevModel
                               );
@@ -416,16 +419,14 @@ const [model, setModel] = useState<EntryModel>({
                         <div className="col col-md-12">
                           <InputAutoComplete
                             size={"small"}
-                            defaultValue={undefined}
                             error={undefined}
                             helperText={undefined}
-                            options={[]}
-                            // options={accountGuidesResult?.data?.result?.map(
-                            //   (item: { name: string; id: string }) => ({
-                            //     label: item.name,
-                            //     value: item.id,
-                            //   })
-                            // )}
+                            options={branches?.map(
+                              (item: { name: string; id: string }) => ({
+                                label: item.name,
+                                value: item.id,
+                              })
+                            )}
                             label={"Branch"}
                             // value={
                             //   accountGuidesResult?.data?.result
@@ -438,14 +439,14 @@ const [model, setModel] = useState<EntryModel>({
                             //         e.value === model?.accountGuidId
                             //     ) || null
                             // }
-                            value={null}
+                            value={model?.branchId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: string | undefined) => {
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      accountGuidId: value || "",
+                                      branchId: value || "",
                                     }
                                   : prevModel
                               );
@@ -531,7 +532,6 @@ const [model, setModel] = useState<EntryModel>({
                         <div className="col col-md-5">
                           <InputAutoComplete
                             size={"small"}
-                            defaultValue={undefined}
                             options={[]}
                             // options={accountGuidesResult?.data?.result?.map(
                             //   (item: { name: string; id: string }) => ({
@@ -564,16 +564,16 @@ const [model, setModel] = useState<EntryModel>({
                               );
                             }}
                             multiple={false}
-                            name={"Debt Account"}
+                            name={"DebtAccount"}
                             handleBlur={null}
                             error={
                               !!errors[
-                                `financialTransactions[${idx}].creditAccountId`
+                                `financialTransactions[${idx}].debitAccountId`
                               ]
                             }
                             helperText={
                               errors[
-                                `financialTransactions[${idx}].creditAccountId`
+                                `financialTransactions[${idx}].debitAccountId`
                               ]
                             }
                           />
@@ -595,9 +595,16 @@ const [model, setModel] = useState<EntryModel>({
                         <div className="col col-md-5">
                           <InputAutoComplete
                             size={"small"}
-                            defaultValue={undefined}
-                            error={undefined}
-                            helperText={undefined}
+                            error={
+                              !!errors[
+                                `financialTransactions[${idx}].creditAccountId`
+                              ]
+                            }
+                            helperText={
+                              errors[
+                                `financialTransactions[${idx}].creditAccountId`
+                              ]
+                            }
                             options={[]}
                             // options={accountGuidesResult?.data?.result?.map(
                             //   (item: { name: string; id: string }) => ({
@@ -605,7 +612,7 @@ const [model, setModel] = useState<EntryModel>({
                             //     value: item.id,
                             //   })
                             // )}
-                            label={"Currencies"}
+                            label={"Credit Account"}
                             // value={
                             //   accountGuidesResult?.data?.result
                             //     ?.map((item: { name: string; id: string }) => ({
@@ -631,7 +638,7 @@ const [model, setModel] = useState<EntryModel>({
                             }}
                             value={null}
                             multiple={false}
-                            name={"Currencies"}
+                            name={"DebtAccount"}
                             handleBlur={null}
                           />
                         </div>
@@ -703,9 +710,9 @@ const [model, setModel] = useState<EntryModel>({
                             minRows={2}
                             onChange={(event) => {
                               console.log(e.orderNumber);
-                               console.log(
-                                 `financialTransactions[${idx}].creditAccountId`
-                               );
+                              console.log(
+                                `financialTransactions[${idx}].creditAccountId`
+                              );
                               setModel((prevModel) =>
                                 prevModel
                                   ? {

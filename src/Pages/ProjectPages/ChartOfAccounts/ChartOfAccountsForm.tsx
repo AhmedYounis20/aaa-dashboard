@@ -214,48 +214,38 @@ const ChartOfAccountsForm: React.FC<{
                   </div>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      {
-                        accountGuidesResult.isLoading ? 
-                        <Loader/> :
-
-                      <InputAutoComplete
-                        size='medium'
-                        defaultValue={undefined}
-                        error={undefined}
-                        helperText={undefined}
-                        options={accountGuidesResult?.data?.result?.map(
-                          (item: { name: string; id: string }) => ({
-                            label: item.name,
-                            value: item.id,
-                          })
-                        )}
-                        label={"Account Guide"}
-                        value={
-                          accountGuidesResult?.data?.result
-                          ?.map((item: { name: string; id: string }) => ({
+                      {accountGuidesResult.isLoading ? (
+                        <Loader />
+                      ) : (
+                        <InputAutoComplete
+                          size="medium"
+                          error={undefined}
+                          helperText={undefined}
+                          options={accountGuidesResult?.data?.result?.map(
+                            (item: { name: string; id: string }) => ({
                               label: item.name,
                               value: item.id,
-                            }))
-                            ?.find(
-                              (e: { value: string }) =>
-                                e.value === model?.accountGuidId
-                            ) || null
-                        }
-                        disabled={formType === FormTypes.Details}
-                        onChange={(value:string | undefined) => {
-                          setModel((prevModel)=> 
-                        prevModel ? {
-                          ...prevModel,
-                          accountGuidId: value || ""
-                        } : prevModel
-                      );
-                      console.log(value);
-                    }}
-                        multiple={false}
-                        name={"AccountGuide"}
-                        handleBlur={null}
+                            })
+                          )}
+                          label={"Account Guide"}
+                          value={model?.accountGuidId}
+                          disabled={formType === FormTypes.Details}
+                          onChange={(value: string | undefined) => {
+                            setModel((prevModel) =>
+                              prevModel
+                                ? {
+                                    ...prevModel,
+                                    accountGuidId: value || "",
+                                  }
+                                : prevModel
+                            );
+                            console.log(value);
+                          }}
+                          multiple={false}
+                          name={"AccountGuide"}
+                          handleBlur={null}
                         />
-                      }
+                      )}
                     </div>
                   </div>
                   <div className="row">

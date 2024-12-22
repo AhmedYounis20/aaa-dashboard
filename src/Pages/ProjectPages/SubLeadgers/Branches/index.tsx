@@ -4,11 +4,24 @@ import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
 import { useGetBranchesQuery } from '../../../../Apis/BranchesApi';
 import BranchesForm from './BranchesForm';
+import ImagePreview from '../../../../Components/Images/ImagePreview';
+import AttachmentResult from '../../../../interfaces/BaseModels/AttachmentResult';
 const columns = [
-
   {
     Header: "Logo",
-    accessor: "attachment", 
+    accessor: "attachment",
+    function: (attachment : AttachmentResult | null | undefined) => (
+      (attachment != null && attachment != undefined)
+      ?
+        <ImagePreview
+          src={`data:${attachment?.fileType};base64,${attachment?.fileData}`}
+          alt={attachment?.fileName || "attachment"}
+          height={50}
+          width={50}
+        />
+        :
+        null
+    ),
   },
   {
     Header: "Code",

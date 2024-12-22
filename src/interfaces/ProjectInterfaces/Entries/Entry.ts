@@ -12,6 +12,7 @@ interface EntryModel {
   entryDate: Date;
   notes: string;
   financialPeriodId: string;
+  financialPeriodNumber: string;
   attachments: AttachmentModel[];
   financialTransactions: FinancialTransactionModel[];
 }
