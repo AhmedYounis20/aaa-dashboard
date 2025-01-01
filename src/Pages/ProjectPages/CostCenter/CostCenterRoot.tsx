@@ -8,8 +8,8 @@ import CostCenterForm from './CostCenterForm';
 
 const columns = [
     {
-        Header: "Code",
-        accessor: "code",
+        Header: "",
+        accessor: "",
     },
     {
         Header: "Name",

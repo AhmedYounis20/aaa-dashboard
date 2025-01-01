@@ -7,7 +7,7 @@ import { useCreateCostCenterMutation, useDeleteCostCenterMutation, useGetCostCen
 import BaseForm from "../../../Components/Forms/BaseForm";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
-import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
 import { useGetChartOfAccountsQuery } from "../../../Apis/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../Components/Inputs/InputSelect";
@@ -16,6 +16,7 @@ import InputAutoComplete from "../../../Components/Inputs/InputAutoCompelete";
 import { CostCentersSchema } from "../../../interfaces/ProjectInterfaces/CostCenter/validation-costCenter";
 import * as yup from 'yup';
 import { ChartOfAccountModel } from "../../../interfaces/ProjectInterfaces";
+import { Delete } from "@mui/icons-material";
 
 function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string, formType: FormTypes, parentId: string | null, handleCloseForm: () => void }) {
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -119,15 +120,12 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
         }
     }, [model?.chartOfAccounts, data?.result]);
 
-    // const handleDeleteRow = (id: string) => {
-    //     const updatedChartOfAccounts = model.chartOfAccounts.filter((itemId: string) => itemId !== id);
-    //     setModel(prevModel => ({
-    //         ...prevModel,
-    //         chartOfAccounts: updatedChartOfAccounts
-    //     }));
-    //     setSelectedChartOfAccounts(data?.result.filter((item: any) => updatedChartOfAccounts.includes(item.id)));
-    //     resetChartOfAccountsAutoComplete();
-    // };
+    const handleDeleteRow = (id: string) => {
+        setModel(prevModel => ({
+            ...prevModel,
+            chartOfAccounts: prevModel.chartOfAccounts.filter(e=> e != id)
+        }));
+    };
 
         useEffect(() => {
             console.log(errors)
@@ -296,6 +294,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                           <TableRow>
                             <TableCell align="center">الحساب</TableCell>
                             <TableCell align="center">الكود</TableCell>
+                            <TableCell align="center"></TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -303,6 +302,13 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                             <TableRow key={index}>
                               <TableCell align="center">{item?.name}</TableCell>
                               <TableCell align="center">{item?.code}</TableCell>
+                              <TableCell align="center">
+                                <IconButton
+                                  onClick={() => handleDeleteRow(item?.id)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
