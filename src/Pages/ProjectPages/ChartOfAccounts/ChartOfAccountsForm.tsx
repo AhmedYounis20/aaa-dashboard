@@ -11,6 +11,7 @@ import InputAutoComplete from '../../../Components/Inputs/InputAutoCompelete';
 import { useGetAccountGuidesQuery } from '../../../Apis/AccountGuidesApi';
 import { AccountNature } from '../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature';
 import Loader from '../../../Components/Loader';
+import updateModel from '../../../Helper/updateModelHelper';
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
@@ -197,15 +198,9 @@ const ChartOfAccountsForm: React.FC<{
                         }: {
                           target: { value: AccountNature };
                         }) => {
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  accountNature: target.value,
-                                }
-                              : prevModel
-                          );
+                          updateModel(setModel, "accountNature", target.value);
                         }}
+                      
                         name={"AccountNature"}
                         onBlur={null}
                         error={undefined}
@@ -230,17 +225,9 @@ const ChartOfAccountsForm: React.FC<{
                           label={"Account Guide"}
                           value={model?.accountGuidId}
                           disabled={formType === FormTypes.Details}
-                          onChange={(value: string | undefined) => {
-                            setModel((prevModel) =>
-                              prevModel
-                                ? {
-                                    ...prevModel,
-                                    accountGuidId: value || "",
-                                  }
-                                : prevModel
-                            );
-                            console.log(value);
-                          }}
+                          onChange={(value: string | undefined) =>
+                            updateModel(setModel, "accountGuidId", value)
+                          }
                           multiple={false}
                           name={"AccountGuide"}
                           handleBlur={null}
@@ -256,13 +243,10 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isPostedAccount}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      isPostedAccount: target.checked,
-                                    }
-                                  : prevModel
+                              updateModel(
+                                setModel,
+                                "isPostedAccount",
+                                target.checked
                               )
                             }
                           />
@@ -277,13 +261,10 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isActiveAccount}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      isActiveAccount: target.checked,
-                                    }
-                                  : prevModel
+                              updateModel(
+                                setModel,
+                                "isActiveAccount",
+                                target.checked
                               )
                             }
                           />
@@ -300,13 +281,10 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isStopDealing}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      isStopDealing: target.checked,
-                                    }
-                                  : prevModel
+                              updateModel(
+                                setModel,
+                                "isStopDealing",
+                                target.checked
                               )
                             }
                           />
@@ -321,13 +299,10 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isDepreciable}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      isDepreciable: target.checked,
-                                    }
-                                  : prevModel
+                              updateModel(
+                                setModel,
+                                "isDepreciable",
+                                target.checked
                               )
                             }
                           />
