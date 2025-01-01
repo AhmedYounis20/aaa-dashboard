@@ -7,45 +7,79 @@ const InputAutoComplete = ({
   label,
   onChange,
   disabled,
-  multiple = false, // Default to single-select
+  multiple = false,
   name,
-  value, // Can be null, empty array, or valid values
+  value,
   handleBlur,
   error,
   helperText,
   size,
+  defaultSelect = false,
+  defaultSelectCondition = (value)=> value ? true : false
 }) => {
-  const [dropDownOptions, setDropDownOptions] = useState(options || []); // Default empty options
-  const [values, setValues] = useState(multiple ? [] : null); // Initialize as empty
-  const [isLoading, setIsLoading] = useState(true);
+  const [dropDownOptions, setDropDownOptions] = useState(options || []);
+  const [values, setValues] = useState(multiple ? [] : null);
 
   // Map values to objects for rendering
-  const mapValuesToObjects = (val) => {
+  const mapValuesToObjects = (val, opts) => {
     if (multiple) {
       return Array.isArray(val)
-        ? options.filter((option) => val.includes(option.value))
+        ? opts.filter((option) => val.includes(option.value))
         : [];
     } else {
-      return val
-        ? options.find((option) => option.value === val) || null
-        : null;
+      return val ? opts.find((option) => option.value === val) || null : null;
     }
   };
 
-  // Sync values with external value prop
+  // Update options if they change
   useEffect(() => {
-    if (value !== undefined && value !== null) {
-      setValues(mapValuesToObjects(value)); // Map only when value is valid
-    } else {
-      setValues(multiple ? [] : null); // Handle empty initial values
+    if (JSON.stringify(dropDownOptions) !== JSON.stringify(options)) {
+      setDropDownOptions(options || []);
     }
-    setIsLoading(false);
-  }, [value, options]); // Re-run on value or options change
-
-  // Handle options change to update dropDownOptions
-  useEffect(() => {
-    setDropDownOptions(options || []); // Update options only when necessary
   }, [options]);
+
+  // Update values when external value or options change
+  useEffect(() => {
+    const mappedValues = mapValuesToObjects(value, dropDownOptions);
+    if (JSON.stringify(mappedValues) !== JSON.stringify(values)) {
+      setValues(mappedValues);
+    }
+  }, [value, dropDownOptions]);
+
+  // Handle default selection
+  useEffect(() => {
+    if (
+      defaultSelect &&
+      dropDownOptions.length > 0 &&
+      (!values || (value && multiple && values.length === 0))
+    ) {
+      const filteredOptions = dropDownOptions.filter(e=> defaultSelectCondition ? defaultSelectCondition(e): true);
+      const firstOption = filteredOptions[0];
+      if(firstOption){
+
+        if (multiple) {
+          setValues([firstOption]);
+          onChange([firstOption.value]);
+        } 
+        else {
+          setValues(firstOption);
+          onChange(firstOption.value);
+        }
+      }
+    }
+  }, [dropDownOptions, defaultSelect, values, multiple, onChange,defaultSelectCondition]);
+
+  const OnSelect = (event, val) => {
+    if (multiple) {
+      const selectedValues = val.map((e) => e.value);
+      setValues(val);
+      onChange(selectedValues);
+    } else {
+      const selectedValue = val ? val.value : null;
+      setValues(val);
+      onChange(selectedValue);
+    }
+  };
 
   return (
     <FormControl fullWidth variant="outlined">
@@ -56,20 +90,9 @@ const InputAutoComplete = ({
         options={dropDownOptions}
         getOptionLabel={(option) => option.label || ""}
         filterSelectedOptions
-        loading={isLoading}
-        value={values} // Mapped values
+        value={values}
         disabled={disabled}
-        onChange={(event, val) => {
-          if (multiple) {
-            const selectedValues = val.map((e) => e.value); // Extract values
-            setValues(val);
-            onChange(selectedValues); // Emit values only
-          } else {
-            const selectedValue = val ? val.value : null; // Single value or null
-            setValues(val);
-            onChange(selectedValue);
-          }
-        }}
+        onChange={(event, val) => OnSelect(event, val)}
         onBlur={handleBlur}
         selectOnFocus
         clearOnEscape
@@ -81,15 +104,7 @@ const InputAutoComplete = ({
             helperText={helperText}
             error={error}
             name={name}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {isLoading ? <span>Loading...</span> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
+            InputProps={params.InputProps}
           />
         )}
       />
