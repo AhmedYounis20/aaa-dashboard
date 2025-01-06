@@ -5,7 +5,10 @@ This is the frontend part of the **Accounting Management System** developed with
 🔗 **Live Demo**: [ERP Frontend System](https://erp-frontend-system.netlify.app)
 
 🔗 **Backend Repo**: [Accounting Management System](https://github.com/AhmedYounis20/AAA.ERP)
-
+### 🚨 **Development Credentials:**
+For the current development setup, the username and password are:
+- **Username**: `admin`
+- **Password**: `admin`
 
 ## 🛠️ Technologies Used
 
@@ -78,10 +81,3 @@ This will run the React app locally on [http://localhost:3000](http://localhost:
 - **MUI** components for a modern and responsive design
 - **Dynamic Tree View** for managing hierarchical data (Chart of Accounts, Subledgers)
 - **Form Validation** using **yup** 
-
-### **Development Environment Note:**
-- The default user credentials for the application are:
-  - **Username**: `admin`
-  - **Password**: `admin`
-
-  These credentials are provided for testing and development purposes and should be updated before deployment to production to handle multiple users.
