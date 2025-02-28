@@ -31,6 +31,7 @@ const EntriesRoot = () => {
               id={selectedId}
               formType={formType}
               handleCloseForm={handleCloseForm}
+              
             />
           )}
           {data?.result && (

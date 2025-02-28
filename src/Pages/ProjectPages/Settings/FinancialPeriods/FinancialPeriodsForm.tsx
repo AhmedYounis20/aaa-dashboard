@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { financialPeriodOptions, FinancialPeriodType } from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
-import { ApiResponse } from "../../../../interfaces/ApiResponse";
+import { ApiResponse, RTKApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 
 const FinancialPeriodsForm: React.FC<{
@@ -47,7 +47,7 @@ const FinancialPeriodsForm: React.FC<{
 
      const handleUpdate = async () => {
        if (model) {
-         const response: ApiResponse = await update(model);
+         const response: RTKApiResponse = await update(model);
          if (response.data) {
            toastify(response.data.successMessage);
            return true;

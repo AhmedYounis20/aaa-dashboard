@@ -7,7 +7,7 @@ import EntryModel from "../../../interfaces/ProjectInterfaces/Entries/Entry";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
 import yup from "yup";
-import FinancialTransactionModel from "../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
+import ComplexFinancialTransactionModel from "../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
 import { AccountNature } from "../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
 import {
   useCreateEntryMutation,
@@ -37,7 +37,10 @@ import { useGetChartOfAccountsQuery } from "../../../Apis/ChartOfAccountsApi";
 import { ChartOfAccountModel } from "../../../interfaces/ProjectInterfaces";
 import { httpGet } from "../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
-
+import { v4 as uuid } from "uuid";
+import { PaymentType, PaymentTypeOptions } from "../../../interfaces/ProjectInterfaces/Entries/PaymentType";
+import { SubLeadgerType } from "../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
+import InputSelect from "../../../Components/Inputs/InputSelect";
 const EntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -73,30 +76,34 @@ const EntriesForm: React.FC<{
     []
   );
 
-  const createFinancialTransaction: () => FinancialTransactionModel = () => {
-    const transaction: FinancialTransactionModel = {
-      creditAccountId: "",
-      debitAccountId: "",
-      accountNature: AccountNature.Debit,
-      amount: 0,
-      chequeBankId: null,
-      chequeCollectionDate: null,
-      chequeIssueDate: null,
-      chequeNumber: null,
-      collectionDate: null,
-      creditCardLastDigits: null,
-      notes: null,
-      number: null,
-      orderNumber: transactionNumber,
-      promissoryCollectionDate: null,
-      promissoryIdentityCard: null,
-      promissoryName: null,
-      promissoryNumber: null,
-      wireTransferReferenceNumber: null,
+  const createFinancialTransaction: () => ComplexFinancialTransactionModel =
+    () => {
+      const transaction: ComplexFinancialTransactionModel = {
+        id: uuid(),
+        complementId: uuid(),
+        creditAccountId: "",
+        debitAccountId: "",
+        accountNature: AccountNature.Debit,
+        amount: 0,
+        chequeBankId: null,
+        chequeCollectionDate: null,
+        chequeIssueDate: null,
+        chequeNumber: null,
+        collectionDate: null,
+        creditCardLastDigits: null,
+        notes: null,
+        number: null,
+        orderNumber: transactionNumber,
+        promissoryCollectionDate: null,
+        promissoryIdentityCard: null,
+        promissoryName: null,
+        promissoryNumber: null,
+        wireTransferReferenceNumber: null,
+        paymentType: PaymentType.Cash,
+      };
+      if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
+      return transaction;
     };
-    if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
-    return transaction;
-  };
   const [model, setModel] = useState<EntryModel>({
     id: id,
     exchangeRate: 0,
@@ -108,7 +115,8 @@ const EntriesForm: React.FC<{
     financialPeriodId: "",
     notes: "",
     receiverName: "",
-    financialTransactions: [createFinancialTransaction()],
+    financialTransactions:
+      formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
   });
@@ -125,7 +133,6 @@ const EntriesForm: React.FC<{
     chartOfAccountsApiResult,
     chartOfAccountsApiResult.isLoading,
     chartOfAccountsApiResult.isSuccess,
-    chartOfAccounts,
   ]);
 
   useEffect(() => {
@@ -133,7 +140,7 @@ const EntriesForm: React.FC<{
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
         datetime: model.entryDate,
       }).then((e) => {
-        if(!e) return ;
+        if (!e) return;
         const { result } = e;
         setModel((prevModel) =>
           prevModel
@@ -164,13 +171,12 @@ const EntriesForm: React.FC<{
     currenciesApiResult,
     currenciesApiResult.isLoading,
     currenciesApiResult.isSuccess,
-    currencies,
   ]);
   useEffect(() => {
     if (branchesApiResult.isSuccess && !branchesApiResult.isLoading) {
       setBranches(
         branchesApiResult.data.result.filter(
-          (e : BranchModel) => e.nodeType == NodeType.Domain
+          (e: BranchModel) => e.nodeType == NodeType.Domain
         )
       );
     }
@@ -178,7 +184,6 @@ const EntriesForm: React.FC<{
     branchesApiResult,
     branchesApiResult.isLoading,
     branchesApiResult.isSuccess,
-    branches,
   ]);
   //#endregion
 
@@ -192,22 +197,36 @@ const EntriesForm: React.FC<{
     );
   }, [model.currencyId]);
 
-  const removetransaction: (transactionNumber: number) => void = (
-    transactionNumber: number
+const getChartOfAccountsDropDown = (
+  financialAccountNature: AccountNature,
+  paymentType: PaymentType
+): ChartOfAccountModel[] => {
+  if (financialAccountNature === AccountNature.Credit) {
+    return chartOfAccounts;
+  }
+
+  const filteredAccounts = chartOfAccounts.filter((item) =>
+    paymentType === PaymentType.Cash
+      ? item.subLeadgerType === SubLeadgerType.CashInBox
+      : item.subLeadgerType === SubLeadgerType.Bank
+  );
+
+
+  return filteredAccounts;
+};
+
+  const removetransaction: (transactionId: string) => void = (
+    transactionId: string
   ) => {
     const transactions = model.financialTransactions.filter(
-      (e) => e.orderNumber != transactionNumber
-    );
-    const updatedTransactions = transactions.map((e) =>
-      e.orderNumber < transactionNumber
-        ? e
-        : { ...e, orderNumber: e.orderNumber - 1 }
+      (e) => e.id != transactionId
     );
     setModel((prevModel) =>
       prevModel
-        ? { ...prevModel, financialTransactions: updatedTransactions }
+        ? { ...prevModel, financialTransactions: transactions }
         : prevModel
     );
+
     setErrors((errors) =>
       errors
         ? Object.fromEntries(
@@ -233,13 +252,31 @@ const EntriesForm: React.FC<{
     });
   };
   useEffect(() => {
-    if (formType != FormTypes.Add && !isUpdated) {
-      if (!entryResult.isLoading) {
-        setModel(entryResult?.data?.result);
+    if (formType !== FormTypes.Add && !isUpdated) {
+      if (!entryResult.isLoading && entryResult.data?.result) {
+        console.log("entry:", entryResult?.data?.result);
+
+        // Ensure a new object reference is created to trigger re-render
+        setModel({
+          ...entryResult.data.result, // Assign API result
+          financialTransactions:
+            entryResult.data.result.financialTransactions.map(
+              (t: ComplexFinancialTransactionModel) => ({
+                ...t,
+                debitAccountId: t.debitAccountId || "", // Ensure proper values
+                creditAccountId: t.creditAccountId || "",
+              })
+            ),
+        });
+        setTransactionNumber(
+          entryResult.data.result.financialTransactions.findLast(
+            (e: ComplexFinancialTransactionModel) => e.orderNumber ?? 1
+          )
+        );
         setIsLoading(false);
       }
     }
-  }, [entryResult.isLoading, entryResult, formType, isUpdated]);
+  }, [entryResult.isLoading, entryResult.data, formType, isUpdated]);
 
   const validate = async () => {
     try {
@@ -275,26 +312,36 @@ const EntriesForm: React.FC<{
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
 
+    SortFinancialTransactions();
     const response: ApiResponse = await updateEntry(model);
     setIsUpdated(true);
     if (response.data) {
       toastify(response.data.successMessage);
       return true;
     } else if (response.error) {
-      if(response.error.data){
+      if (response.error.data) {
         toastify(response.error.data.errorMessages[0], "error");
       }
       if (response.error.errors) {
-        response.error.errors.map(([,val] : [string,string])=>toastify(val, "error"));
+        response.error.errors.map(([, val]: [string, string]) =>
+          toastify(val, "error")
+        );
       }
       return false;
     }
     return false;
   };
+  const SortFinancialTransactions = () => {
+    const financialTransactions = model.financialTransactions;
+    for (let i = 1; i <= financialTransactions.length; i++) {
+      financialTransactions[i - 1].orderNumber = i;
+    }
+    setModel({ ...model, financialTransactions: financialTransactions });
+  };
 
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-
+    SortFinancialTransactions();
     console.log("send");
     const response: ApiResponse = await createEntry(model);
     console.log(response);
@@ -302,23 +349,21 @@ const EntriesForm: React.FC<{
       toastify(response.data.successMessage);
       return true;
     } else if (response.error) {
-         if (
-           !response.error.data.errors &&
-           response.error.data &&
-           response.error.data.errorMessages && 
-           response.error.data.errorMessages.length
-         ) {
-           toastify(response.error.data.errorMessages[0], "error");
-         } else {
-           // response.error.data.errors.map(e=>console.log("data:",e));
-           Object.entries(response.error.data.errors).forEach(
-             ([, messages]) => {
-               if (Array.isArray(messages) && messages.length > 0) {
-                 toastify(messages[0], "error");
-               }
-             }
-           );
-         }
+      if (
+        !response.error.data.errors &&
+        response.error.data &&
+        response.error.data.errorMessages &&
+        response.error.data.errorMessages.length
+      ) {
+        toastify(response.error.data.errorMessages[0], "error");
+      } else {
+        // response.error.data.errors.map(e=>console.log("data:",e));
+        Object.entries(response.error.data.errors).forEach(([, messages]) => {
+          if (Array.isArray(messages) && messages.length > 0) {
+            toastify(messages[0], "error");
+          }
+        });
+      }
     }
     return false;
   };
@@ -528,6 +573,7 @@ const EntriesForm: React.FC<{
                             helperText={errors.branchId}
                             options={branches?.map(
                               (item: { name: string; id: string }) => ({
+                                ...item,
                                 label: item.name,
                                 value: item.id,
                               })
@@ -535,11 +581,11 @@ const EntriesForm: React.FC<{
                             label={"Branch"}
                             value={model?.branchId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: string | undefined) =>
-                              updateModel(setModel, "branchId", value ?? "")
+                            onChange={(value: any) =>
+                              updateModel(setModel, "branchId", value)
                             }
                             multiple={false}
-                            name={"BranchId"}
+                            name={"Branches"}
                             handleBlur={null}
                             defaultSelect={true}
                           />
@@ -595,7 +641,7 @@ const EntriesForm: React.FC<{
                             value={model.attachments}
                             multiSelect={true}
                             allowedTypes={[]}
-                            disabled={false}
+                            disabled={formType == FormTypes.Details}
                             onFilesChange={(attachments: AttachmentModel[]) => {
                               setModel((prevModel) =>
                                 prevModel
@@ -610,199 +656,655 @@ const EntriesForm: React.FC<{
                     </div>
                   </div>
 
-                  {model.financialTransactions && model.financialTransactions.map(
-                    (e, idx) => (
-                      <div className="card card-body mb-2" key={e.orderNumber}>
-                        <div className="row mb-2">
-                          <div className="col col-md-5">
-                            <InputAutoComplete
-                              size={"small"}
-                              options={chartOfAccounts?.map(
-                                (item: { name: string; id: string }) => ({
-                                  label: item.name,
-                                  value: item.id,
-                                })
-                              )}
-                              label={"Debt Account"}
-                              value={e.debitAccountId}
-                              disabled={formType === FormTypes.Details}
-                              onChange={(value: string | undefined) => {
-                                updateModel(
-                                  setModel,
-                                  "financialTransactions",
-                                  { debitAccountId: value },
-                                  idx
-                                );
-                              }}
-                              defaultSelect={true}
-                              multiple={false}
-                              name={"DebtAccount"}
-                              handleBlur={null}
-                              error={
-                                !!errors[
-                                  `financialTransactions[${idx}].debitAccountId`
-                                ]
-                              }
-                              helperText={
-                                errors[
-                                  `financialTransactions[${idx}].debitAccountId`
-                                ]
-                              }
-                            />
-                          </div>
-                          <div className="col col-md-2">
-                            <div
-                              style={{
-                                justifyContent: "center",
-                                alignItems: "center",
-                                display: "flex",
-                              }}
-                            >
-                              <IconButton>
-                                {" "}
-                                <SyncAltIcon />
-                              </IconButton>
+                  {!isLoading &&
+                    model.financialTransactions &&
+                    model.financialTransactions
+                      .sort((a, b) => a.orderNumber - b.orderNumber)
+                      .map((e, idx) => (
+                        <div className="card card-body mb-2" key={e.id}>
+                          <div className="row mb-2">
+                            <div className="col col-md-5">
+                              <div className="row mb-2">
+                                <div className="col col-md-5">
+                                  <InputAutoComplete
+                                    size={"small"}
+                                    options={getChartOfAccountsDropDown(
+                                      e.accountNature,
+                                      e.paymentType
+                                    ).map(
+                                      (item: { id: string; code: string }) => ({
+                                        label: item.code,
+                                        value: item.id,
+                                      })
+                                    )}
+                                    label={"Debt Account"}
+                                    value={e.debitAccountId}
+                                    disabled={formType === FormTypes.Details}
+                                    onChange={(value: string | undefined) => {
+                                      console.log("value", value);
+                                      updateModel(
+                                        setModel,
+                                        "financialTransactions",
+                                        { debitAccountId: value },
+                                        idx
+                                      );
+                                    }}
+                                    defaultSelect={true}
+                                    multiple={false}
+                                    name={"DebtAccount"}
+                                    handleBlur={null}
+                                    error={
+                                      !!errors[
+                                        `financialTransactions[${idx}].debitAccountId`
+                                      ]
+                                    }
+                                    helperText={
+                                      errors[
+                                        `financialTransactions[${idx}].debitAccountId`
+                                      ]
+                                    }
+                                  />
+                                </div>
+                                <div className="col col-md-7">
+                                  <InputAutoComplete
+                                    size={"small"}
+                                    options={getChartOfAccountsDropDown(
+                                      e.accountNature,
+                                      e.paymentType
+                                    ).map(
+                                      (item: {
+                                        id: string;
+                                        name: string;
+                                        nameSecondLanguage: string;
+                                      }) => ({
+                                        label: `${item.name} || ${item.nameSecondLanguage}`,
+                                        value: item.id,
+                                      })
+                                    )}
+                                    label={"Debt Account"}
+                                    value={e.debitAccountId}
+                                    disabled={formType === FormTypes.Details}
+                                    onChange={(value: string | undefined) => {
+                                      console.log("value", value);
+                                      updateModel(
+                                        setModel,
+                                        "financialTransactions",
+                                        { debitAccountId: value },
+                                        idx
+                                      );
+                                    }}
+                                    defaultSelect={true}
+                                    multiple={false}
+                                    name={"DebtAccount"}
+                                    handleBlur={null}
+                                    error={
+                                      !!errors[
+                                        `financialTransactions[${idx}].debitAccountId`
+                                      ]
+                                    }
+                                    helperText={
+                                      errors[
+                                        `financialTransactions[${idx}].debitAccountId`
+                                      ]
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="col col-md-2">
+                              <div
+                                style={{
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  display: "flex",
+                                }}
+                              >
+                                <IconButton>
+                                  {" "}
+                                  <SyncAltIcon />
+                                </IconButton>
+                              </div>
+                            </div>
+                            <div className="col col-md-5">
+                              <InputAutoComplete
+                                size={"small"}
+                                error={
+                                  !!errors[
+                                    `financialTransactions[${idx}].creditAccountId`
+                                  ]
+                                }
+                                helperText={
+                                  errors[
+                                    `financialTransactions[${idx}].creditAccountId`
+                                  ]
+                                }
+                                options={chartOfAccounts?.map(
+                                  (item: {
+                                    name: string;
+                                    id: string;
+                                    nameSecondLanguage: string;
+                                  }) => ({
+                                    label: `${item.name} || ${item.nameSecondLanguage}`,
+                                    value: item.id,
+                                  })
+                                )}
+                                label={"Credit Account"}
+                                disabled={formType === FormTypes.Details}
+                                onChange={(value: string | undefined) => {
+                                  console.log("value:", value);
+                                  updateModel(
+                                    setModel,
+                                    "financialTransactions",
+                                    { creditAccountId: value },
+                                    idx
+                                  );
+                                }}
+                                defaultSelect={false}
+                                value={e.creditAccountId}
+                                multiple={false}
+                                name={"CreditAccount"}
+                                handleBlur={null}
+                              />
                             </div>
                           </div>
-                          <div className="col col-md-5">
-                            <InputAutoComplete
-                              size={"small"}
-                              error={
-                                !!errors[
-                                  `financialTransactions[${idx}].creditAccountId`
-                                ]
-                              }
-                              helperText={
-                                errors[
-                                  `financialTransactions[${idx}].creditAccountId`
-                                ]
-                              }
-                              options={chartOfAccounts?.map(
-                                (item: { name: string; id: string }) => ({
-                                  label: item.name,
-                                  value: item.id,
-                                })
-                              )}
-                              label={"Credit Account"}
-                              disabled={formType === FormTypes.Details}
-                              onChange={(value: string | undefined) =>
-                                updateModel(
-                                  setModel,
-                                  "financialTransactions",
-                                  { creditAccountId: value },
-                                  idx
-                                )
-                              }
-                              defaultSelect={true}
-                              value={e.creditAccountId}
-                              multiple={false}
-                              name={"DebtAccount"}
-                              handleBlur={null}
-                            />
-                          </div>
-                        </div>
-                        <div className="row">
-                          <div className="col col-md-6">
-                            <div className="row mb-2">
+                          <div className="row">
+                            <div className="col col-md-6">
+                              <div className="row mb-2">
+                                <div className="col col-md-6">
+                                  <InputSelect
+                                    options={PaymentTypeOptions}
+                                    label={"Payment Type"}
+                                    defaultValue={e?.paymentType}
+                                    disabled={formType !== FormTypes.Add}
+                                    multiple={false}
+                                    onChange={({
+                                      target,
+                                    }: {
+                                      target: { value: PaymentType };
+                                    }) => {
+                                      updateModel(
+                                        setModel,
+                                        "financialTransactions",
+                                        { paymentType: target.value },
+                                        idx
+                                      );
+                                    }}
+                                    name={"paymentType"}
+                                    onBlur={undefined}
+                                    error={!!errors.paymentType}
+                                    // helperText={!!errors.costCenterType}
+                                  />
+                                </div>
+                                <div className="col col-md-6">
+                                  <TextField
+                                    type="number"
+                                    className="form-input form-control"
+                                    label="Amount"
+                                    variant="outlined"
+                                    fullWidth
+                                    size="small"
+                                    disabled={formType === FormTypes.Details}
+                                    value={e?.amount}
+                                    onChange={(event: {
+                                      target: { value: string };
+                                    }) =>
+                                      updateModel(
+                                        setModel,
+                                        "financialTransactions",
+                                        { amount: event.target.value },
+                                        idx
+                                      )
+                                    }
+                                    error={
+                                      !!errors[
+                                        `financialTransactions[${idx}].amount`
+                                      ]
+                                    }
+                                    helperText={
+                                      errors[
+                                        `financialTransactions[${idx}].amount`
+                                      ]
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            {e.paymentType == PaymentType.Cheque && (
+                              <div className="col col-md-6">
+                                <div className="row mb-2">
+                                  <div className="col col-md-6">
+                                    <InputAutoComplete
+                                      size={"small"}
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].chequeBankId`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].chequeBankId`
+                                        ]
+                                      }
+                                      options={chartOfAccounts
+                                        ?.filter(
+                                          (e) =>
+                                            e.subLeadgerType ==
+                                            SubLeadgerType.Bank
+                                        )
+                                        .map(
+                                          (item: {
+                                            name: string;
+                                            id: string;
+                                            nameSecondLanguage: string;
+                                          }) => ({
+                                            label: `${item.name} || ${item.nameSecondLanguage}`,
+                                            value: item.id,
+                                          })
+                                        )}
+                                      label={"Bank"}
+                                      disabled={formType === FormTypes.Details}
+                                      onChange={(value: string | undefined) => {
+                                        console.log("value:", value);
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { chequeBankId: value },
+                                          idx
+                                        );
+                                      }}
+                                      defaultSelect={false}
+                                      value={e.chequeBankId}
+                                      multiple={false}
+                                      name={"CreditAccount"}
+                                      handleBlur={null}
+                                    />
+                                  </div>
+                                  <div className="col col-md-6">
+                                    <TextField
+                                      type="text"
+                                      className="form-input form-control"
+                                      label="Cheque Number"
+                                      variant="outlined"
+                                      fullWidth
+                                      size="small"
+                                      disabled={formType === FormTypes.Details}
+                                      value={e.chequeNumber}
+                                      onChange={(event: {
+                                        target: { value: string };
+                                      }) =>
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { chequeNumber: event.target.value },
+                                          idx
+                                        )
+                                      }
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].chequeNumber`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].chequeNumber`
+                                        ]
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {e.paymentType == PaymentType.Promissory && (
+                              <div className="col col-md-6">
+                                <div className="row mb-2">
+                                  <div className="col col-md-6">
+                                    <TextField
+                                      type="text"
+                                      className="form-input form-control"
+                                      label="Name"
+                                      variant="outlined"
+                                      fullWidth
+                                      size="small"
+                                      disabled={formType === FormTypes.Details}
+                                      value={e.promissoryName}
+                                      onChange={(event: {
+                                        target: { value: string };
+                                      }) =>
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          {
+                                            promissoryName: event.target.value,
+                                          },
+                                          idx
+                                        )
+                                      }
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].promissoryName`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].promissoryName`
+                                        ]
+                                      }
+                                    />
+                                  </div>
+                                  <div className="col col-md-6">
+                                    <TextField
+                                      type="text"
+                                      className="form-input form-control"
+                                      label="Number"
+                                      variant="outlined"
+                                      fullWidth
+                                      size="small"
+                                      disabled={formType === FormTypes.Details}
+                                      value={e.promissoryNumber}
+                                      onChange={(event: {
+                                        target: { value: string };
+                                      }) =>
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          {
+                                            promissoryNumber:
+                                              event.target.value,
+                                          },
+                                          idx
+                                        )
+                                      }
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].promissoryNumber`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].promissoryNumber`
+                                        ]
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {(e.paymentType == PaymentType.WireTransfer ||
+                              e.paymentType == PaymentType.Atm) && (
                               <div className="col col-md-6">
                                 <TextField
-                                  type="number"
+                                  type="text"
                                   className="form-input form-control"
-                                  label="Amount"
+                                  label="Reference Number"
                                   variant="outlined"
                                   fullWidth
                                   size="small"
                                   disabled={formType === FormTypes.Details}
-                                  value={e?.amount}
+                                  value={e.wireTransferReferenceNumber}
                                   onChange={(event: {
                                     target: { value: string };
                                   }) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
-                                      { amount: event.target.value },
+                                      {
+                                        wireTransferReferenceNumber:
+                                          event.target.value,
+                                      },
                                       idx
                                     )
                                   }
-                                  error={!!errors.symbol}
-                                  helperText={errors.symbol}
+                                  error={
+                                    !!errors[
+                                      `financialTransactions[${idx}].wireTransferReferenceNumber`
+                                    ]
+                                  }
+                                  helperText={
+                                    errors[
+                                      `financialTransactions[${idx}].wireTransferReferenceNumber`
+                                    ]
+                                  }
                                 />
                               </div>
+                            )}
+                            {e.paymentType == PaymentType.CreditCard && (
                               <div className="col col-md-6">
                                 <TextField
                                   type="text"
                                   className="form-input form-control"
-                                  label="Financial Period Number"
+                                  label="Last 4 digits"
                                   variant="outlined"
                                   fullWidth
                                   size="small"
                                   disabled={formType === FormTypes.Details}
-                                  value={model?.entryNumber}
+                                  value={e.creditCardLastDigits}
                                   onChange={(event: {
                                     target: { value: string };
                                   }) =>
-                                    setModel((prevModel) =>
-                                      prevModel
-                                        ? {
-                                            ...prevModel,
-                                            symbol: event.target.value,
-                                          }
-                                        : prevModel
+                                    updateModel(
+                                      setModel,
+                                      "financialTransactions",
+                                      {
+                                        creditCardLastDigits:
+                                          event.target.value,
+                                      },
+                                      idx
                                     )
                                   }
-                                  error={!!errors.symbol}
-                                  helperText={errors.symbol}
+                                  error={
+                                    !!errors[
+                                      `financialTransactions[${idx}].creditCardLastDigits`
+                                    ]
+                                  }
+                                  helperText={
+                                    errors[
+                                      `financialTransactions[${idx}].creditCardLastDigits`
+                                    ]
+                                  }
                                 />
                               </div>
-                            </div>
+                            )}
                           </div>
-                          <div className="col col-md-6">
-                            <TextareaAutosize
-                              className="form-input form-control"
-                              disabled={formType === FormTypes.Details}
-                              value={e?.notes ?? ""}
-                              aria-label="notes"
-                              placeholder="notes..."
-                              minRows={2}
-                              onChange={(event) => {
-                                console.log(e.orderNumber);
-                                console.log(
-                                  `financialTransactions[${idx}].creditAccountId`
-                                );
-                                setModel((prevModel) =>
-                                  prevModel
-                                    ? {
-                                        ...prevModel,
-                                        financialTransactions:
-                                          prevModel.financialTransactions.map(
-                                            (transaction) =>
-                                              transaction.orderNumber ==
-                                              e.orderNumber
-                                                ? {
-                                                    ...transaction,
-                                                    notes: event.target.value,
-                                                  }
-                                                : transaction
-                                          ),
+                          {e.paymentType == PaymentType.Cheque && (
+                            <div className="row">
+                              <div className="col col-md-6">
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DemoContainer
+                                    components={[
+                                      "DateTimePicker",
+                                      "DateTimePicker",
+                                    ]}
+                                  >
+                                    <DateTimePicker
+                                      label="Cheque Issue Date"
+                                      viewRenderers={{
+                                        hours: renderTimeViewClock,
+                                        minutes: renderTimeViewClock,
+                                        seconds: renderTimeViewClock,
+                                      }}
+                                      value={
+                                        e?.chequeIssueDate
+                                          ? dayjs(e.chequeIssueDate)
+                                          : null
                                       }
-                                    : prevModel
-                                );
-                              }}
-                            />
-                          </div>
+                                      onChange={(value) => {
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          {
+                                            chequeIssueDate: value?.toDate(),
+                                          },
+                                          idx
+                                        );
+                                      }}
+                                      slotProps={{
+                                        textField: {
+                                          error:
+                                            !!errors[
+                                              `financialTransactions[${idx}].chequeIssueDate`
+                                            ],
+                                          helperText:
+                                            errors[
+                                              `financialTransactions[${idx}].chequeIssueDate`
+                                            ],
+                                        },
+                                      }}
+                                    />
+                                  </DemoContainer>
+                                </LocalizationProvider>
+                              </div>
+                              <div className="col col-md-6">
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DemoContainer
+                                    components={[
+                                      "DateTimePicker",
+                                      "DateTimePicker",
+                                    ]}
+                                  >
+                                    <DateTimePicker
+                                      label="Cheque Collection Date"
+                                      viewRenderers={{
+                                        hours: renderTimeViewClock,
+                                        minutes: renderTimeViewClock,
+                                        seconds: renderTimeViewClock,
+                                      }}
+                                      value={
+                                        e?.chequeCollectionDate
+                                          ? dayjs(e.chequeCollectionDate)
+                                          : null
+                                      }
+                                      onChange={(value) => {
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          {
+                                            chequeCollectionDate:
+                                              value?.toDate(),
+                                          },
+                                          idx
+                                        );
+                                      }}
+                                      slotProps={{
+                                        textField: {
+                                          error:
+                                            !!errors[
+                                              `financialTransactions[${idx}].chequeCollectionDate`
+                                            ],
+                                          helperText:
+                                            errors[
+                                              `financialTransactions[${idx}].chequeCollectionDate`
+                                            ],
+                                        },
+                                      }}
+                                    />
+                                  </DemoContainer>
+                                </LocalizationProvider>
+                              </div>
+                            </div>
+                          )}
+                          {e.paymentType == PaymentType.Promissory && (
+                            <div className="row">
+                              <div className="col col-md-6">
+                                <TextField
+                                  type="text"
+                                  className="form-input form-control"
+                                  label="Identification Number"
+                                  variant="outlined"
+                                  fullWidth
+                                  size="small"
+                                  disabled={formType === FormTypes.Details}
+                                  value={e.promissoryIdentityCard}
+                                  onChange={(event: {
+                                    target: { value: string };
+                                  }) =>
+                                    updateModel(
+                                      setModel,
+                                      "financialTransactions",
+                                      {
+                                        promissoryIdentityCard:
+                                          event.target.value,
+                                      },
+                                      idx
+                                    )
+                                  }
+                                  error={
+                                    !!errors[
+                                      `financialTransactions[${idx}].promissoryIdentityCard`
+                                    ]
+                                  }
+                                  helperText={
+                                    errors[
+                                      `financialTransactions[${idx}].promissoryIdentityCard`
+                                    ]
+                                  }
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DemoContainer
+                                    components={[
+                                      "DateTimePicker",
+                                      "DateTimePicker",
+                                    ]}
+                                  >
+                                    <DateTimePicker
+                                      label="Promissory Collection Date"
+                                      viewRenderers={{
+                                        hours: renderTimeViewClock,
+                                        minutes: renderTimeViewClock,
+                                        seconds: renderTimeViewClock,
+                                      }}
+                                      value={
+                                        e?.promissoryCollectionDate
+                                          ? dayjs(e.promissoryCollectionDate)
+                                          : null
+                                      }
+                                      onChange={(value) => {
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          {
+                                            promissoryCollectionDate:
+                                              value?.toDate(),
+                                          },
+                                          idx
+                                        );
+                                      }}
+                                      slotProps={{
+                                        textField: {
+                                          error:
+                                            !!errors[
+                                              `financialTransactions[${idx}].promissoryCollectionDate`
+                                            ],
+                                          helperText:
+                                            errors[
+                                              `financialTransactions[${idx}].promissoryCollectionDate`
+                                            ],
+                                        },
+                                      }}
+                                    />
+                                  </DemoContainer>
+                                </LocalizationProvider>
+                              </div>
+                            </div>
+                          )}
+                          {model.financialTransactions.length > 1 && (
+                            <div>
+                              <IconButton
+                                onClick={() => removetransaction(e.id)}
+                              >
+                                <Delete />
+                              </IconButton>
+                            </div>
+                          )}
                         </div>
-                        {model.financialTransactions.length > 1 && (
-                          <div>
-                            <IconButton
-                              onClick={() => removetransaction(e.orderNumber)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  )}
+                      ))}
 
                   <div>
                     <IconButton onClick={() => onAddFinancialTrancastion()}>

@@ -1,5 +1,5 @@
 import AttachmentModel from "../../BaseModels/AttachmentModel";
-import FinancialTransactionModel from "./FinancialTransaction";
+import ComplexFinancialTransactionModel from "./FinancialTransaction";
 
 interface EntryModel {
   id: string;
@@ -14,7 +14,7 @@ interface EntryModel {
   financialPeriodId: string;
   financialPeriodNumber: string;
   attachments: AttachmentModel[];
-  financialTransactions: FinancialTransactionModel[];
+  financialTransactions: ComplexFinancialTransactionModel[];
 }
 
 export default EntryModel;

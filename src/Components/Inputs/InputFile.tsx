@@ -102,6 +102,7 @@ const InputFile: React.FC<InputFileProps> = ({
           fileName: file.name,
           fileContent: fileContent,
           contentType: file.type,
+          attachmentId:null
         });
       };
       reader.onerror = reject;

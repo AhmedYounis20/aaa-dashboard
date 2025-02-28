@@ -1,14 +1,14 @@
 import * as yup from 'yup'
 
 export const FinancialTransactionSchema = yup.object().shape({
-    debitAccountId: yup
-    .string()
-    .required("Debit Account is Required"),
+  debitAccountId: yup.string().required("Debit Account is Required"),
 
-    creditAccountId: yup
-    .string()
-    .required("Credit Account is Required"),
-
+  creditAccountId: yup.string().required("Credit Account is Required"),
+  amount: yup
+    .number()
+    .test("greater-than-zero", "amount is required", (val) => {
+      return val !== undefined && val > 0;
+    }),
 
   // debitAccountId: string;
   // creditAccountId: string;
@@ -28,12 +28,18 @@ export const FinancialTransactionSchema = yup.object().shape({
   // wireTransferReferenceNumber: string | null;
   // creditCardLastDigits: string | null;
   // orderNumber: number;
-
 });
 
 export const EntrySchema = yup.object().shape({
   financialTransactions: yup.array().of(FinancialTransactionSchema).required(),
-  // debitAccountId: string;
+  currencyId: yup.string().required("currency is Required"),
+  exchangeRate: yup
+    .number()
+    .required("exchage rate Is required"),
+  financialPeriodId: yup.string().required("Financial Period Id Is required"),
+  financialPeriodNumber: yup.string().required("Financial Number Is required"),
+  entryDate: yup.date().required("entry date is required"),
+  branchId: yup.string().required("branch Id is required"),
   // creditAccountId: string;
   // amount: number;
   // notes: string | null;

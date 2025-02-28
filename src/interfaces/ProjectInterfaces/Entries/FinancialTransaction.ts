@@ -1,6 +1,9 @@
 import { AccountNature } from "../ChartOfAccount/AccountNature";
+import { PaymentType } from "./PaymentType";
 
-interface FinancialTransactionModel {
+interface ComplexFinancialTransactionModel {
+  id : string;
+  complementId: string;
   debitAccountId: string;
   creditAccountId: string;
   amount: number;
@@ -19,6 +22,7 @@ interface FinancialTransactionModel {
   wireTransferReferenceNumber: string | null;
   creditCardLastDigits: string | null;
   orderNumber: number;
+  paymentType: PaymentType;
 }
 
-export default FinancialTransactionModel;
+export default ComplexFinancialTransactionModel;

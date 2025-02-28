@@ -1,26 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import { FormControl, TextField } from "@mui/material";
 
 const InputAutoComplete = ({
-  options,
+  options = [],
   label,
   onChange,
-  disabled,
+  disabled = false,
   multiple = false,
   name,
   value,
   handleBlur,
   error,
   helperText,
-  size,
+  size = "medium",
   defaultSelect = false,
-  defaultSelectCondition = (value)=> value ? true : false
+  defaultSelectCondition = (option) => (option ? true : false),
 }) => {
-  const [dropDownOptions, setDropDownOptions] = useState(options || []);
+  const [dropDownOptions, setDropDownOptions] = useState(options);
   const [values, setValues] = useState(multiple ? [] : null);
+  const firstSelectionMade = useRef(false); // Track if an initial selection was made
 
-  // Map values to objects for rendering
+  /** Helper function to find matching objects in options */
   const mapValuesToObjects = (val, opts) => {
     if (multiple) {
       return Array.isArray(val)
@@ -31,44 +32,52 @@ const InputAutoComplete = ({
     }
   };
 
-  // Update options if they change
+  /** Update dropdown options when `options` change */
   useEffect(() => {
     if (JSON.stringify(dropDownOptions) !== JSON.stringify(options)) {
-      setDropDownOptions(options || []);
+      setDropDownOptions(options);
+      firstSelectionMade.current = false; // Reset flag when options change
     }
   }, [options]);
 
-  // Update values when external value or options change
+  /** Update selected values when `value` or `dropDownOptions` change */
   useEffect(() => {
-    const mappedValues = mapValuesToObjects(value, dropDownOptions);
-    if (JSON.stringify(mappedValues) !== JSON.stringify(values)) {
-      setValues(mappedValues);
-    }
-  }, [value, dropDownOptions]);
+    if (dropDownOptions.length > 0) {
+      const mappedValues = mapValuesToObjects(value, dropDownOptions);
 
-  // Handle default selection
-  useEffect(() => {
-    if (
-      defaultSelect &&
-      dropDownOptions.length > 0 &&
-      (!values || (value && multiple && values.length === 0))
-    ) {
-      const filteredOptions = dropDownOptions.filter(e=> defaultSelectCondition ? defaultSelectCondition(e): true);
-      const firstOption = filteredOptions[0];
-      if(firstOption){
+      // Check if the selected values still exist in the options
+      const isSelectedInOptions = multiple
+        ? mappedValues.length > 0
+        : mappedValues !== null;
 
-        if (multiple) {
-          setValues([firstOption]);
-          onChange([firstOption.value]);
-        } 
-        else {
-          setValues(firstOption);
-          onChange(firstOption.value);
+      if (isSelectedInOptions) {
+        setValues(mappedValues);
+      } else {
+        // If defaultSelect is true, pick the first valid option
+        if (defaultSelect) {
+          const firstOption =
+            dropDownOptions.find(defaultSelectCondition) || dropDownOptions[0];
+          if (firstOption) {
+            setValues(multiple ? [firstOption] : firstOption);
+            onChange(multiple ? [firstOption.value] : firstOption.value);
+          }
+        } else {
+          // Otherwise, just clear the selection
+          setValues(multiple ? [] : null);
+          onChange(multiple ? [] : null);
         }
       }
     }
-  }, [dropDownOptions, defaultSelect, values, multiple, onChange,defaultSelectCondition]);
+  }, [
+    value,
+    dropDownOptions,
+    defaultSelect,
+    multiple,
+    onChange,
+    defaultSelectCondition,
+  ]);
 
+  /** Handle user selection */
   const OnSelect = (event, val) => {
     if (multiple) {
       const selectedValues = val.map((e) => e.value);
@@ -78,6 +87,10 @@ const InputAutoComplete = ({
       const selectedValue = val ? val.value : null;
       setValues(val);
       onChange(selectedValue);
+    }
+
+    if (!val || (multiple && val.length === 0)) {
+      firstSelectionMade.current = true; // Prevent re-selection after manual removal
     }
   };
 
@@ -92,7 +105,7 @@ const InputAutoComplete = ({
         filterSelectedOptions
         value={values}
         disabled={disabled}
-        onChange={(event, val) => OnSelect(event, val)}
+        onChange={OnSelect}
         onBlur={handleBlur}
         selectOnFocus
         clearOnEscape

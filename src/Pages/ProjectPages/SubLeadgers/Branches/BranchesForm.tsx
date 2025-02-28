@@ -67,6 +67,7 @@ const BranchesForm: React.FC<{
                       bankResult.data.result.attachment.fileContentType,
                     fileName:
                        bankResult.data.result.attachment.fileName ,
+                    attachmentId : bankResult.data.result.fileName.attachmentId
                   } : null,
                 }
               : prevModel

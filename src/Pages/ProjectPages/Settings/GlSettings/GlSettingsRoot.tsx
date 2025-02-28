@@ -8,7 +8,7 @@ import { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterf
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import DepreciationApplication, { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
 import Loader from '../../../../Components/Loader';
-import { ApiResponse } from '../../../../interfaces/ApiResponse';
+import { ApiResponse, RTKApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import { GLSettingsSchema } from '../../../../interfaces/ProjectInterfaces/GlSettings/validation-GLSettings';
 import * as yup from 'yup';
@@ -49,7 +49,7 @@ const GlSettingsRoot: React.FC = () => {
         if(await validate() === false) return false;
          if (model) {
            setIsUpdated(true);
-           const response: ApiResponse = await update(model);
+           const response: RTKApiResponse = await update(model);
            if (response.data) {
              toastify(response.data.successMessage);
              return true;
