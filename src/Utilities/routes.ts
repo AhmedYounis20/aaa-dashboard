@@ -13,6 +13,7 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import BookIcon from "@mui/icons-material/Book";
 export interface ISidebarItem {
     icon?: ReactElement;
     title: string;
@@ -86,6 +87,11 @@ export const sidebarItemsData: ISidebarItem[] = [
         path: "/accountguides",
       },
       {
+        title: "Collection Books",
+        icon: React.createElement(BookIcon),
+        path: "/collectionBooks",
+      },
+      {
         title: "cost center",
         icon: React.createElement(WebhookIcon),
         path: "/costCenter",
@@ -107,9 +113,29 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(LibraryBooksIcon),
     submenu: [
       {
-        title: "Complex Entries",
+        title: "Compined Entries",
         icon: React.createElement(ChangeCircleIcon),
-        path: "/entries",
+        path: "/compinedentries",
+      },
+      {
+        title: "Payment Vouchers",
+        icon: React.createElement(ChangeCircleIcon),
+        path: "/paymentVouchers",
+      },
+      {
+        title: "Receipt Vouchers",
+        icon: React.createElement(ChangeCircleIcon),
+        path: "/receiptVouchers",
+      },
+      {
+        title: "Journal Entries",
+        icon: React.createElement(ChangeCircleIcon),
+        path: "/journalEntries",
+      },
+      {
+        title: "Opening Entries",
+        icon: React.createElement(ChangeCircleIcon),
+        path: "/openingEntries",
       },
     ],
   },

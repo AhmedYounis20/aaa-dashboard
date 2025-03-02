@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { FormTypes } from '../../../interfaces/Components';
+import { FormTypes } from '../../../../interfaces/Components';
 
-import Loader from '../../../Components/Loader';
-import { AppContent } from '../../../Components';
-import { useGetEntriesQuery } from '../../../Apis/EntriesApi';
-import EntriesForm from './EntriesForm';
+import Loader from '../../../../Components/Loader';
+import { AppContent } from '../../../../Components';
+import { useGetEntriesQuery } from '../../../../Apis/EntriesApi';
+import EntriesForm from './CompinedEntriesForm';
 
-const EntriesRoot = () => {
+const CompinedEntriesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -38,7 +38,7 @@ const EntriesRoot = () => {
             <AppContent
               tableType="table"
               data={data.result}
-              title="Entries"
+              title="Compined Entries"
               btnName="new"
               addBtn
               btn
@@ -65,4 +65,4 @@ const EntriesRoot = () => {
   );
 };
 
-export default EntriesRoot;
+export default CompinedEntriesRoot;

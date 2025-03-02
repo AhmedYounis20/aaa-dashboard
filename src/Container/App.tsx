@@ -24,13 +24,15 @@ import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/Fixed
 import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
 import { RootState } from '../Storage/Redux/store';
 import CostCenterRoot from '../Pages/ProjectPages/CostCenter/CostCenterRoot';
-import EntriesRoot from "../Pages/ProjectPages/Entry/EntriesRoot";
+import CompinedEntriesRoot from "../Pages/ProjectPages/Entries/CompinedEntries/CompinedEntriesRoot";
+import PaymentVouchersRoot from "../Pages/ProjectPages/Entries/PaymentVouchers/PaymentVouchersRoot";
+import ReceiptVouchersRoot from "../Pages/ProjectPages/Entries/ReceiptVouchers/ReceiptVouchersRoot";
+import CollectionBooksRoot from '../Pages/ProjectPages/Settings/CollectionBooks/CollectionBooksRoot';
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);
 
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode])
-
 
   return (
     <>
@@ -45,7 +47,27 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="/currencies" element={<CurrenciesRoot />} />
               <Route path="/glSettings" element={<GlSettingsRoot />} />
-              <Route path="/entries" element={<EntriesRoot />} />
+              <Route
+                path="/compinedentries"
+                element={<CompinedEntriesRoot />}
+              />
+              <Route
+                path="/paymentVouchers"
+                element={<PaymentVouchersRoot />}
+              />
+              <Route
+                path="/receiptVouchers"
+                element={<ReceiptVouchersRoot />}
+              />
+              <Route
+                path="/journalEntries"
+                element={<ReceiptVouchersRoot />}
+              />
+              <Route
+                path="/openingEntries"
+                element={<ReceiptVouchersRoot />}
+              />
+
               <Route
                 path="/financialPeriods"
                 element={<FinancialPeriodsRoot />}
@@ -72,6 +94,10 @@ function App() {
               <Route
                 path="/subleadgers/fixedAssets"
                 element={<FixedAssetsRoot />}
+              />
+              <Route
+                path="/collectionBooks"
+                element={<CollectionBooksRoot />}
               />
               <Route path="/subleadgers/branches" element={<BranchesRoot />} />
               <Route path="/costCenter" element={<CostCenterRoot />} />

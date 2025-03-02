@@ -1,47 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import BaseForm from "../../../Components/Forms/BaseForm";
-import { FormTypes } from "../../../interfaces/Components/FormType";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
-import EntryModel from "../../../interfaces/ProjectInterfaces/Entries/Entry";
-import { ApiResponse } from "../../../interfaces/ApiResponse";
-import { toastify } from "../../../Helper/toastify";
+import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
+import { ApiResponse } from "../../../../interfaces/ApiResponse";
+import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
-import ComplexFinancialTransactionModel from "../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
-import { AccountNature } from "../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
+import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
+import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
 import {
   useCreateEntryMutation,
   useDeleteEntryMutation,
   useGetEntryByIdQuery,
   useUpdateEntryMutation,
-} from "../../../Apis/EntriesApi";
+} from "../../../../Apis/EntriesApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import InputFile from "../../../Components/Inputs/InputFile";
-import AttachmentModel from "../../../interfaces/BaseModels/AttachmentModel";
-import InputAutoComplete from "../../../Components/Inputs/InputAutoCompelete";
-import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import InputFile from "../../../../Components/Inputs/InputFile";
+import AttachmentModel from "../../../../interfaces/BaseModels/AttachmentModel";
+import InputAutoComplete from "../../../../Components/Inputs/InputAutoCompelete";
 import { Add, Delete } from "@mui/icons-material";
-import { EntrySchema } from "../../../interfaces/ProjectInterfaces/Entries/entry-validation";
-import { useGetCurrenciesQuery } from "../../../Apis/CurrenciesApi";
-import CurrencyModel from "../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel";
-import BranchModel from "../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel";
-import { useGetBranchesQuery } from "../../../Apis/BranchesApi";
-import updateModel from "../../../Helper/updateModelHelper";
-import { NodeType } from "../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../Apis/ChartOfAccountsApi";
-import { ChartOfAccountModel } from "../../../interfaces/ProjectInterfaces";
-import { httpGet } from "../../../Apis/Axios/axiosMethods";
-import EntryNumber from "../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
+import { EntrySchema } from "../../../../interfaces/ProjectInterfaces/Entries/entry-validation";
+import { useGetCurrenciesQuery } from "../../../../Apis/CurrenciesApi";
+import CurrencyModel from "../../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Branches/BranchModel";
+import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
+import updateModel from "../../../../Helper/updateModelHelper";
+import { NodeType } from "../../../../interfaces/Components/NodeType";
+import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
+import { ChartOfAccountModel } from "../../../../interfaces/ProjectInterfaces";
+import { httpGet } from "../../../../Apis/Axios/axiosMethods";
+import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
 import { v4 as uuid } from "uuid";
-import { PaymentType, PaymentTypeOptions } from "../../../interfaces/ProjectInterfaces/Entries/PaymentType";
-import { SubLeadgerType } from "../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
-import InputSelect from "../../../Components/Inputs/InputSelect";
-const EntriesForm: React.FC<{
+import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
+import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
+import InputSelect from "../../../../Components/Inputs/InputSelect";
+const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
@@ -100,7 +99,7 @@ const EntriesForm: React.FC<{
         promissoryNumber: null,
         wireTransferReferenceNumber: null,
         paymentType: PaymentType.Cash,
-        isPaymentTransaction: true
+        isPaymentTransaction: false,
       };
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;
@@ -198,18 +197,17 @@ const EntriesForm: React.FC<{
     );
   }, [model.currencyId]);
 
-const getChartOfAccountsDropDown = (
-  paymentType: PaymentType
-): ChartOfAccountModel[] => {
-  const filteredAccounts = chartOfAccounts.filter((item) =>
-    paymentType === PaymentType.Cash
-      ? item.subLeadgerType === SubLeadgerType.CashInBox
-      : item.subLeadgerType === SubLeadgerType.Bank
-  );
+  const getChartOfAccountsDropDown = (
+    paymentType: PaymentType
+  ): ChartOfAccountModel[] => {
+    const filteredAccounts = chartOfAccounts.filter((item) =>
+      paymentType === PaymentType.Cash
+        ? item.subLeadgerType === SubLeadgerType.CashInBox
+        : item.subLeadgerType === SubLeadgerType.Bank
+    );
 
-
-  return filteredAccounts;
-};
+    return filteredAccounts;
+  };
 
   const removetransaction: (transactionId: string) => void = (
     transactionId: string
@@ -659,9 +657,9 @@ const getChartOfAccountsDropDown = (
                       .map((e, idx) => (
                         <div className="card card-body mb-2" key={e.id}>
                           <div className="row mb-2">
-                            <div className="col col-md-5">
+                            <div className="col col-md-6">
                               <div className="row mb-2">
-                                {e.accountNature == AccountNature.Credit && (
+                                {!e.isPaymentTransaction && (
                                   <div className="col col-md-5">
                                     <InputAutoComplete
                                       size={"small"}
@@ -705,7 +703,7 @@ const getChartOfAccountsDropDown = (
                                 )}
                                 <div
                                   className={`col ${
-                                    e.accountNature == AccountNature.Debit
+                                    e.isPaymentTransaction
                                       ? "col-md-12"
                                       : "col-md-7"
                                   }`}
@@ -739,9 +737,7 @@ const getChartOfAccountsDropDown = (
                                         idx
                                       );
                                     }}
-                                    defaultSelect={
-                                      e.isPaymentTransaction
-                                    }
+                                    defaultSelect={e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -759,41 +755,7 @@ const getChartOfAccountsDropDown = (
                                 </div>
                               </div>
                             </div>
-                            <div className="col col-md-2">
-                              <div
-                                style={{
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  display: "flex",
-                                }}
-                              >
-                                <IconButton
-                                  onClick={() => {
-                                    updateModel(
-                                      setModel,
-                                      "financialTransactions",
-                                      {
-                                        isPaymentTransaction:
-                                          e.isPaymentTransaction,
-                                        creditAccountId:
-                                          e.isPaymentTransaction
-                                            ? ""
-                                            : e.debitAccountId,
-                                        debitAccountId:
-                                          !e.isPaymentTransaction
-                                            ? ""
-                                            : e.creditAccountId,
-                                      },
-                                      idx
-                                    );
-                                  }}
-                                >
-                                  {" "}
-                                  <SyncAltIcon />
-                                </IconButton>
-                              </div>
-                            </div>
-                            <div className="col col-md-5">
+                            <div className="col col-md-6">
                               <div className="row mb-2">
                                 {e.isPaymentTransaction && (
                                   <div className="col col-md-5">
@@ -873,9 +835,7 @@ const getChartOfAccountsDropDown = (
                                         idx
                                       );
                                     }}
-                                    defaultSelect={
-                                      !e.isPaymentTransaction
-                                    }
+                                    defaultSelect={!e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -1408,4 +1368,4 @@ const getChartOfAccountsDropDown = (
   );
 };
 
-export default EntriesForm;
+export default ReceiptVouchersForm;
