@@ -23,6 +23,7 @@ interface ComplexFinancialTransactionModel {
   creditCardLastDigits: string | null;
   orderNumber: number;
   paymentType: PaymentType;
+  isPaymentTransaction : boolean;
 }
 
 export default ComplexFinancialTransactionModel;

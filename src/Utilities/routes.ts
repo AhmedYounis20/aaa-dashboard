@@ -11,6 +11,8 @@ import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
+import SettingsIcon from "@mui/icons-material/Settings";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 export interface ISidebarItem {
     icon?: ReactElement;
     title: string;
@@ -23,9 +25,15 @@ export interface ISidebarItem {
 
 export const sidebarItemsData: ISidebarItem[] = [
   {
-    title: "currencies",
-    icon: React.createElement(AttachMoneyIcon),
-    path: "/currencies",
+    title: "General Leadgers",
+    icon: React.createElement(AccountBoxIcon),
+    submenu: [
+      {
+        title: "chart Of Accounts",
+        icon: React.createElement(TableChartIcon),
+        path: "/chartOfAccounts",
+      },
+    ],
   },
   {
     title: "Sub Leadgers",
@@ -64,6 +72,37 @@ export const sidebarItemsData: ISidebarItem[] = [
     ],
   },
   {
+    title: "Settings",
+    icon: React.createElement(SettingsIcon),
+    submenu: [
+      {
+        title: "gl settings",
+        icon: React.createElement(DiamondIcon),
+        path: "/glSettings",
+      },
+      {
+        title: "account guides",
+        icon: React.createElement(WebhookIcon),
+        path: "/accountguides",
+      },
+      {
+        title: "cost center",
+        icon: React.createElement(WebhookIcon),
+        path: "/costCenter",
+      },
+      {
+        title: "financial Periods",
+        icon: React.createElement(CreditScoreIcon),
+        path: "/financialPeriods",
+      },
+      {
+        title: "currencies",
+        icon: React.createElement(AttachMoneyIcon),
+        path: "/currencies",
+      },
+    ],
+  },
+  {
     title: "Entries",
     icon: React.createElement(LibraryBooksIcon),
     submenu: [
@@ -73,31 +112,6 @@ export const sidebarItemsData: ISidebarItem[] = [
         path: "/entries",
       },
     ],
-  },
-  {
-    title: "gl settings",
-    icon: React.createElement(DiamondIcon),
-    path: "/glSettings",
-  },
-  {
-    title: "financial Periods",
-    icon: React.createElement(CreditScoreIcon),
-    path: "/currencfinancialPeriodsies",
-  },
-  {
-    title: "account guides",
-    icon: React.createElement(WebhookIcon),
-    path: "/accountguides",
-  },
-  {
-    title: "chart Of Accounts",
-    icon: React.createElement(TableChartIcon),
-    path: "/chartOfAccounts",
-  },
-  {
-    title: "cost center",
-    icon: React.createElement(WebhookIcon),
-    path: "/costCenter",
   },
 ];
 

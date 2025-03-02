@@ -47,7 +47,7 @@ function App() {
               <Route path="/glSettings" element={<GlSettingsRoot />} />
               <Route path="/entries" element={<EntriesRoot />} />
               <Route
-                path="/currencfinancialPeriodsies"
+                path="/financialPeriods"
                 element={<FinancialPeriodsRoot />}
               />
               <Route path="/accountguides" element={<AccountGuidesRoot />} />

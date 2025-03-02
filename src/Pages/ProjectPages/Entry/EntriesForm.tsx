@@ -100,6 +100,7 @@ const EntriesForm: React.FC<{
         promissoryNumber: null,
         wireTransferReferenceNumber: null,
         paymentType: PaymentType.Cash,
+        isPaymentTransaction: true
       };
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;
@@ -198,13 +199,8 @@ const EntriesForm: React.FC<{
   }, [model.currencyId]);
 
 const getChartOfAccountsDropDown = (
-  financialAccountNature: AccountNature,
   paymentType: PaymentType
 ): ChartOfAccountModel[] => {
-  if (financialAccountNature === AccountNature.Credit) {
-    return chartOfAccounts;
-  }
-
   const filteredAccounts = chartOfAccounts.filter((item) =>
     paymentType === PaymentType.Cash
       ? item.subLeadgerType === SubLeadgerType.CashInBox
@@ -665,52 +661,62 @@ const getChartOfAccountsDropDown = (
                           <div className="row mb-2">
                             <div className="col col-md-5">
                               <div className="row mb-2">
-                                <div className="col col-md-5">
+                                {e.accountNature == AccountNature.Credit && (
+                                  <div className="col col-md-5">
+                                    <InputAutoComplete
+                                      size={"small"}
+                                      options={chartOfAccounts.map(
+                                        (item: {
+                                          id: string;
+                                          code: string;
+                                        }) => ({
+                                          label: item.code,
+                                          value: item.id,
+                                        })
+                                      )}
+                                      label={"Debt Account"}
+                                      value={e.debitAccountId}
+                                      disabled={formType === FormTypes.Details}
+                                      onChange={(value: string | undefined) => {
+                                        console.log("value", value);
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { debitAccountId: value },
+                                          idx
+                                        );
+                                      }}
+                                      defaultSelect={false}
+                                      multiple={false}
+                                      name={"DebtAccount"}
+                                      handleBlur={null}
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].debitAccountId`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].debitAccountId`
+                                        ]
+                                      }
+                                    />
+                                  </div>
+                                )}
+                                <div
+                                  className={`col ${
+                                    e.accountNature == AccountNature.Debit
+                                      ? "col-md-12"
+                                      : "col-md-7"
+                                  }`}
+                                >
                                   <InputAutoComplete
                                     size={"small"}
-                                    options={getChartOfAccountsDropDown(
-                                      e.accountNature,
-                                      e.paymentType
-                                    ).map(
-                                      (item: { id: string; code: string }) => ({
-                                        label: item.code,
-                                        value: item.id,
-                                      })
-                                    )}
-                                    label={"Debt Account"}
-                                    value={e.debitAccountId}
-                                    disabled={formType === FormTypes.Details}
-                                    onChange={(value: string | undefined) => {
-                                      console.log("value", value);
-                                      updateModel(
-                                        setModel,
-                                        "financialTransactions",
-                                        { debitAccountId: value },
-                                        idx
-                                      );
-                                    }}
-                                    defaultSelect={true}
-                                    multiple={false}
-                                    name={"DebtAccount"}
-                                    handleBlur={null}
-                                    error={
-                                      !!errors[
-                                        `financialTransactions[${idx}].debitAccountId`
-                                      ]
-                                    }
-                                    helperText={
-                                      errors[
-                                        `financialTransactions[${idx}].debitAccountId`
-                                      ]
-                                    }
-                                  />
-                                </div>
-                                <div className="col col-md-7">
-                                  <InputAutoComplete
-                                    size={"small"}
-                                    options={getChartOfAccountsDropDown(
-                                      e.accountNature,
-                                      e.paymentType
+                                    options={(!e.isPaymentTransaction
+                                      ? chartOfAccounts
+                                      : getChartOfAccountsDropDown(
+                                          e.paymentType
+                                        )
                                     ).map(
                                       (item: {
                                         id: string;
@@ -733,7 +739,9 @@ const getChartOfAccountsDropDown = (
                                         idx
                                       );
                                     }}
-                                    defaultSelect={true}
+                                    defaultSelect={
+                                      e.isPaymentTransaction
+                                    }
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -759,52 +767,131 @@ const getChartOfAccountsDropDown = (
                                   display: "flex",
                                 }}
                               >
-                                <IconButton>
+                                <IconButton
+                                  onClick={() => {
+                                    updateModel(
+                                      setModel,
+                                      "financialTransactions",
+                                      {
+                                        isPaymentTransaction:
+                                          e.isPaymentTransaction,
+                                        creditAccountId:
+                                          e.isPaymentTransaction
+                                            ? ""
+                                            : e.debitAccountId,
+                                        debitAccountId:
+                                          !e.isPaymentTransaction
+                                            ? ""
+                                            : e.creditAccountId,
+                                      },
+                                      idx
+                                    );
+                                  }}
+                                >
                                   {" "}
                                   <SyncAltIcon />
                                 </IconButton>
                               </div>
                             </div>
                             <div className="col col-md-5">
-                              <InputAutoComplete
-                                size={"small"}
-                                error={
-                                  !!errors[
-                                    `financialTransactions[${idx}].creditAccountId`
-                                  ]
-                                }
-                                helperText={
-                                  errors[
-                                    `financialTransactions[${idx}].creditAccountId`
-                                  ]
-                                }
-                                options={chartOfAccounts?.map(
-                                  (item: {
-                                    name: string;
-                                    id: string;
-                                    nameSecondLanguage: string;
-                                  }) => ({
-                                    label: `${item.name} || ${item.nameSecondLanguage}`,
-                                    value: item.id,
-                                  })
+                              <div className="row mb-2">
+                                {e.isPaymentTransaction && (
+                                  <div className="col col-md-5">
+                                    <InputAutoComplete
+                                      size={"small"}
+                                      options={chartOfAccounts.map(
+                                        (item: {
+                                          id: string;
+                                          code: string;
+                                        }) => ({
+                                          label: item.code,
+                                          value: item.id,
+                                        })
+                                      )}
+                                      label={"Credit Account"}
+                                      value={e.creditAccountId}
+                                      disabled={formType === FormTypes.Details}
+                                      onChange={(value: string | undefined) => {
+                                        console.log("value", value);
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { creditAccountId: value },
+                                          idx
+                                        );
+                                      }}
+                                      defaultSelect={false}
+                                      multiple={false}
+                                      name={"CreditAccount"}
+                                      handleBlur={null}
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].creditAccountId`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].creditAccountId`
+                                        ]
+                                      }
+                                    />
+                                  </div>
                                 )}
-                                label={"Credit Account"}
-                                disabled={formType === FormTypes.Details}
-                                onChange={(value: string | undefined) => {
-                                  console.log("value:", value);
-                                  updateModel(
-                                    setModel,
-                                    "financialTransactions",
-                                    { creditAccountId: value },
-                                    idx
-                                  );
-                                }}
-                                defaultSelect={false}
-                                value={e.creditAccountId}
-                                multiple={false}
-                                name={"CreditAccount"}
-                                handleBlur={null}
-                              />
+                                <div
+                                  className={`col ${
+                                    !e.isPaymentTransaction
+                                      ? "col-md-12"
+                                      : "col-md-7"
+                                  }`}
+                                >
+                                  <InputAutoComplete
+                                    size={"small"}
+                                    options={(e.isPaymentTransaction
+                                      ? chartOfAccounts
+                                      : getChartOfAccountsDropDown(
+                                          e.paymentType
+                                        )
+                                    ).map(
+                                      (item: {
+                                        id: string;
+                                        name: string;
+                                        nameSecondLanguage: string;
+                                      }) => ({
+                                        label: `${item.name} || ${item.nameSecondLanguage}`,
+                                        value: item.id,
+                                      })
+                                    )}
+                                    label={"Credit Account"}
+                                    value={e.creditAccountId}
+                                    disabled={formType === FormTypes.Details}
+                                    onChange={(value: string | undefined) => {
+                                      console.log("value", value);
+                                      updateModel(
+                                        setModel,
+                                        "financialTransactions",
+                                        { creditAccountId: value },
+                                        idx
+                                      );
+                                    }}
+                                    defaultSelect={
+                                      !e.isPaymentTransaction
+                                    }
+                                    multiple={false}
+                                    name={"DebtAccount"}
+                                    handleBlur={null}
+                                    error={
+                                      !!errors[
+                                        `financialTransactions[${idx}].creditAccountId`
+                                      ]
+                                    }
+                                    helperText={
+                                      errors[
+                                        `financialTransactions[${idx}].creditAccountId`
+                                      ]
+                                    }
+                                  />
+                                </div>
+                              </div>
                             </div>
                           </div>
                           <div className="row">
