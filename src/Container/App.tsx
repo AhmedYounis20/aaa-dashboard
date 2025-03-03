@@ -28,6 +28,7 @@ import CompinedEntriesRoot from "../Pages/ProjectPages/Entries/CompinedEntries/C
 import PaymentVouchersRoot from "../Pages/ProjectPages/Entries/PaymentVouchers/PaymentVouchersRoot";
 import ReceiptVouchersRoot from "../Pages/ProjectPages/Entries/ReceiptVouchers/ReceiptVouchersRoot";
 import CollectionBooksRoot from '../Pages/ProjectPages/Settings/CollectionBooks/CollectionBooksRoot';
+import JournalEntriesRoot from '../Pages/ProjectPages/Entries/JournalEntries/JournalEntriesRoot';
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);
@@ -61,7 +62,7 @@ function App() {
               />
               <Route
                 path="/journalEntries"
-                element={<ReceiptVouchersRoot />}
+                element={<JournalEntriesRoot />}
               />
               <Route
                 path="/openingEntries"

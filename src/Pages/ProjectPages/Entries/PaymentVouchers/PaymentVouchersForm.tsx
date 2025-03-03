@@ -3,17 +3,16 @@ import { useEffect, useState } from "react";
 import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
-import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
 import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
-import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
+import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
 import {
-  useCreateEntryMutation,
+  useCreateComplexEntryMutation,
   useDeleteEntryMutation,
   useGetEntryByIdQuery,
-  useUpdateEntryMutation,
+  useUpdateComplexEntryMutation,
 } from "../../../../Apis/EntriesApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -33,13 +32,18 @@ import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
 import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
-import { ChartOfAccountModel } from "../../../../interfaces/ProjectInterfaces";
+import { useGetCollectionBooksQuery } from "../../../../Apis/CollectionBooksApi";
+import {
+  ChartOfAccountModel,
+  CollectionBookModel,
+} from "../../../../interfaces/ProjectInterfaces";
 import { httpGet } from "../../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
 import { v4 as uuid } from "uuid";
 import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
+import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
 const PaymentVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -56,13 +60,15 @@ const PaymentVouchersForm: React.FC<{
   const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
     skip: formType == FormTypes.Delete,
   });
-
+  const collectionBooksApiResult = useGetCollectionBooksQuery({
+      skip: formType == FormTypes.Delete,
+    });
   const branchesApiResult = useGetBranchesQuery({
     skip: formType == FormTypes.Delete,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [updateEntry] = useUpdateEntryMutation();
-  const [createEntry] = useCreateEntryMutation();
+  const [updateEntry] = useUpdateComplexEntryMutation();
+  const [createEntry] = useCreateComplexEntryMutation();
   const [deleteEntry] = useDeleteEntryMutation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
@@ -74,6 +80,9 @@ const PaymentVouchersForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
+    const [collectionBooks, setCollectionBooks] = useState<
+      CollectionBookModel[]
+    >([]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
     () => {
@@ -104,7 +113,7 @@ const PaymentVouchersForm: React.FC<{
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;
     };
-  const [model, setModel] = useState<EntryModel>({
+  const [model, setModel] = useState<ComplexEntryModel>({
     id: id,
     exchangeRate: 0,
     entryNumber: "",
@@ -134,7 +143,18 @@ const PaymentVouchersForm: React.FC<{
     chartOfAccountsApiResult.isLoading,
     chartOfAccountsApiResult.isSuccess,
   ]);
-
+    useEffect(() => {
+      if (
+        collectionBooksApiResult.isSuccess &&
+        !collectionBooksApiResult.isLoading
+      ) {
+        setCollectionBooks(collectionBooksApiResult.data.result);
+      }
+    }, [
+      collectionBooksApiResult,
+      collectionBooksApiResult.isLoading,
+      collectionBooksApiResult.isSuccess,
+    ]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
@@ -738,9 +758,7 @@ const getChartOfAccountsDropDown = (
                                         idx
                                       );
                                     }}
-                                    defaultSelect={
-                                      e.isPaymentTransaction
-                                    }
+                                    defaultSelect={e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -838,9 +856,7 @@ const getChartOfAccountsDropDown = (
                                         idx
                                       );
                                     }}
-                                    defaultSelect={
-                                      !e.isPaymentTransaction
-                                    }
+                                    defaultSelect={!e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -921,6 +937,85 @@ const getChartOfAccountsDropDown = (
                                 </div>
                               </div>
                             </div>
+                              {e.paymentType == PaymentType.Cash && (
+                              <div className="col col-md-6">
+                                <div className="row mb-2">
+                                  <div className="col col-md-6">
+                                    <InputAutoComplete
+                                      size={"small"}
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].collectionBookId`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].collectionBookId`
+                                        ]
+                                      }
+                                      options={collectionBooks?.map(
+                                        (item: {
+                                          name: string;
+                                          id: string;
+                                          nameSecondLanguage: string;
+                                        }) => ({
+                                          label: `${item.name} || ${item.nameSecondLanguage}`,
+                                          value: item.id,
+                                        })
+                                      )}
+                                      label={"Collection Book"}
+                                      disabled={formType === FormTypes.Details}
+                                      onChange={(value: string | undefined) => {
+                                        console.log("value:", value);
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { collectionBookId: value },
+                                          idx
+                                        );
+                                      }}
+                                      defaultSelect={false}
+                                      value={e.collectionBookId}
+                                      multiple={false}
+                                      name={"CollectionBookId"}
+                                      handleBlur={null}
+                                    />
+                                  </div>
+                                  <div className="col col-md-6">
+                                    <TextField
+                                      type="text"
+                                      className="form-input form-control"
+                                      label="Agent Name"
+                                      variant="outlined"
+                                      fullWidth
+                                      size="small"
+                                      disabled={formType === FormTypes.Details}
+                                      value={e.cashAgentName}
+                                      onChange={(event: {
+                                        target: { value: string };
+                                      }) =>
+                                        updateModel(
+                                          setModel,
+                                          "financialTransactions",
+                                          { cashAgentName: event.target.value },
+                                          idx
+                                        )
+                                      }
+                                      error={
+                                        !!errors[
+                                          `financialTransactions[${idx}].cashAgentName`
+                                        ]
+                                      }
+                                      helperText={
+                                        errors[
+                                          `financialTransactions[${idx}].cashAgentName`
+                                        ]
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                             {e.paymentType == PaymentType.Cheque && (
                               <div className="col col-md-6">
                                 <div className="row mb-2">
@@ -1157,6 +1252,44 @@ const getChartOfAccountsDropDown = (
                               </div>
                             )}
                           </div>
+                          {e.paymentType == PaymentType.Cash && (
+                            <div className="row">
+                              <div className="col col-md-3">
+                                <TextField
+                                  type="text"
+                                  className="form-input form-control"
+                                  label="Number"
+                                  variant="outlined"
+                                  fullWidth
+                                  size="small"
+                                  disabled={formType === FormTypes.Details}
+                                  value={e.cashPhoneNumber}
+                                  onChange={(event: {
+                                    target: { value: string };
+                                  }) =>
+                                    updateModel(
+                                      setModel,
+                                      "financialTransactions",
+                                      {
+                                        cashPhoneNumber: event.target.value,
+                                      },
+                                      idx
+                                    )
+                                  }
+                                  error={
+                                    !!errors[
+                                      `financialTransactions[${idx}].cashPhoneNumber`
+                                    ]
+                                  }
+                                  helperText={
+                                    errors[
+                                      `financialTransactions[${idx}].cashPhoneNumber`
+                                    ]
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
                           {e.paymentType == PaymentType.Cheque && (
                             <div className="row">
                               <div className="col col-md-6">

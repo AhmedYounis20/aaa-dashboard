@@ -1,4 +1,5 @@
 export enum PaymentType {
+  None,
   Cash,
   Cheque,
   Promissory,

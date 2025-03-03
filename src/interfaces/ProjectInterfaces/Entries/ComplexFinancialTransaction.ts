@@ -1,9 +1,11 @@
 import { AccountNature } from "../ChartOfAccount/AccountNature";
 import { PaymentType } from "./PaymentType";
 
-interface FinancialTransactionModel {
+interface ComplexFinancialTransactionModel {
   id: string;
-  chartOfAccountId: string;
+  complementId: string;
+  debitAccountId: string;
+  creditAccountId: string;
   amount: number;
   notes: string | null;
   accountNature: AccountNature;
@@ -26,4 +28,4 @@ interface FinancialTransactionModel {
   isPaymentTransaction: boolean;
 }
 
-export default FinancialTransactionModel;
+export default ComplexFinancialTransactionModel;
