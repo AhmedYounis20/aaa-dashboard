@@ -97,10 +97,8 @@ const ReceiptVouchersForm: React.FC<{
         chequeCollectionDate: null,
         chequeIssueDate: null,
         chequeNumber: null,
-        collectionDate: null,
         creditCardLastDigits: null,
         notes: null,
-        number: null,
         orderNumber: transactionNumber,
         promissoryCollectionDate: null,
         promissoryIdentityCard: null,
@@ -109,6 +107,10 @@ const ReceiptVouchersForm: React.FC<{
         wireTransferReferenceNumber: null,
         paymentType: PaymentType.Cash,
         isPaymentTransaction: false,
+        atmTransferReferenceNumber: null,
+        cashAgentName: null,
+        cashPhoneNumber: null,
+        collectionBookId: null,
       };
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;

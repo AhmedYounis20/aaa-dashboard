@@ -24,7 +24,7 @@ import InputFile from "../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../interfaces/BaseModels/AttachmentModel";
 import InputAutoComplete from "../../../../Components/Inputs/InputAutoCompelete";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import { Add, Delete, Payment } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { EntrySchema } from "../../../../interfaces/ProjectInterfaces/Entries/entry-validation";
 import { useGetCurrenciesQuery } from "../../../../Apis/CurrenciesApi";
 import CurrencyModel from "../../../../interfaces/ProjectInterfaces/Currencies/CurrencyModel";
@@ -105,10 +105,8 @@ const CompinedEntriesForm: React.FC<{
         chequeCollectionDate: null,
         chequeIssueDate: null,
         chequeNumber: null,
-        collectionDate: null,
         creditCardLastDigits: null,
         notes: null,
-        number: null,
         orderNumber: transactionNumber,
         promissoryCollectionDate: null,
         promissoryIdentityCard: null,
@@ -116,7 +114,11 @@ const CompinedEntriesForm: React.FC<{
         promissoryNumber: null,
         wireTransferReferenceNumber: null,
         paymentType: PaymentType.Cash,
-        isPaymentTransaction: true
+        isPaymentTransaction: true,
+        atmTransferReferenceNumber: null,
+        cashAgentName: null,
+        cashPhoneNumber: null,
+        collectionBookId: null,
       };
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;

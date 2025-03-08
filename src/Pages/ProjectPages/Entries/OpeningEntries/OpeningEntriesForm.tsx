@@ -38,9 +38,9 @@ import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryN
 import { v4 as uuid } from "uuid";
 import { PaymentType } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
-import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
 import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
-const JournalEntriesForm: React.FC<{
+import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
+const OpeningEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
@@ -97,10 +97,10 @@ const JournalEntriesForm: React.FC<{
       wireTransferReferenceNumber: null,
       paymentType: PaymentType.None,
       isPaymentTransaction: true,
-      atmTransferReferenceNumber :null,
-      cashAgentName : null,
-      cashPhoneNumber:null,
-      collectionBookId : null
+      atmTransferReferenceNumber: null,
+      cashAgentName: null,
+      cashPhoneNumber: null,
+      collectionBookId: null,
     };
     if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
     return transaction;
@@ -915,4 +915,4 @@ const JournalEntriesForm: React.FC<{
   );
 };
 
-export default JournalEntriesForm;
+export default OpeningEntriesForm;
