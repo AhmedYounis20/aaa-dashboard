@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import { FormControl, TextField } from "@mui/material";
 
@@ -18,8 +18,6 @@ const InputAutoComplete = ({
   defaultSelectCondition = (option) => (option ? true : false),
 }) => {
   const [dropDownOptions, setDropDownOptions] = useState(options);
-  const [values, setValues] = useState(multiple ? [] : null);
-  const firstSelectionMade = useRef(false); // Track if an initial selection was made
 
   /** Helper function to find matching objects in options */
   const mapValuesToObjects = (val, opts) => {
@@ -34,65 +32,48 @@ const InputAutoComplete = ({
 
   /** Update dropdown options when `options` change */
   useEffect(() => {
-    if (JSON.stringify(dropDownOptions) !== JSON.stringify(options)) {
-      setDropDownOptions(options);
-      firstSelectionMade.current = false; // Reset flag when options change
-    }
+    setDropDownOptions(options);
   }, [options]);
 
-  /** Update selected values when `value` or `dropDownOptions` change */
-  useEffect(() => {
-    if (dropDownOptions.length > 0) {
-      const mappedValues = mapValuesToObjects(value, dropDownOptions);
-
-      // Check if the selected values still exist in the options
-      const isSelectedInOptions = multiple
-        ? mappedValues.length > 0
-        : mappedValues !== null;
-
-      if (isSelectedInOptions) {
-        setValues(mappedValues);
-      } else {
-        // If defaultSelect is true, pick the first valid option
-        if (defaultSelect) {
-          const firstOption =
-            dropDownOptions.find(defaultSelectCondition) || dropDownOptions[0];
-          if (firstOption) {
-            setValues(multiple ? [firstOption] : firstOption);
-            onChange(multiple ? [firstOption.value] : firstOption.value);
-          }
-        } else {
-          // Otherwise, just clear the selection
-          setValues(multiple ? [] : null);
-          onChange(multiple ? [] : null);
-        }
-      }
-    }
-  }, [
-    value,
-    dropDownOptions,
-    defaultSelect,
-    multiple,
-    onChange,
-    defaultSelectCondition,
-  ]);
+  /** Determine value to display in Autocomplete */
+  const selectedValue = mapValuesToObjects(value, dropDownOptions);
 
   /** Handle user selection */
   const OnSelect = (event, val) => {
     if (multiple) {
       const selectedValues = val.map((e) => e.value);
-      setValues(val);
       onChange(selectedValues);
     } else {
       const selectedValue = val ? val.value : null;
-      setValues(val);
       onChange(selectedValue);
     }
-
-    if (!val || (multiple && val.length === 0)) {
-      firstSelectionMade.current = true; // Prevent re-selection after manual removal
-    }
   };
+
+  /** Auto-select default if value is not present in options */
+  useEffect(() => {
+    if (!dropDownOptions || dropDownOptions.length === 0) return;
+
+    const isValidSelection = multiple
+      ? selectedValue.length > 0
+      : selectedValue !== null;
+
+    if (!isValidSelection && defaultSelect) {
+      const firstOption =
+        dropDownOptions.find(defaultSelectCondition) || dropDownOptions[0];
+
+      if (firstOption) {
+        const newVal = multiple ? [firstOption.value] : firstOption.value;
+        onChange(newVal);
+      }
+    }
+  }, [
+    value,
+    dropDownOptions,
+    multiple,
+    defaultSelect,
+    defaultSelectCondition,
+    onChange,
+  ]);
 
   return (
     <FormControl fullWidth variant="outlined">
@@ -102,8 +83,9 @@ const InputAutoComplete = ({
         id={`autocomplete-${name}`}
         options={dropDownOptions}
         getOptionLabel={(option) => option.label || ""}
+        isOptionEqualToValue={(option, val) => option?.value === val?.value}
         filterSelectedOptions
-        value={values}
+        value={selectedValue}
         disabled={disabled}
         onChange={OnSelect}
         onBlur={handleBlur}
@@ -117,7 +99,6 @@ const InputAutoComplete = ({
             helperText={helperText}
             error={error}
             name={name}
-            InputProps={params.InputProps}
           />
         )}
       />
