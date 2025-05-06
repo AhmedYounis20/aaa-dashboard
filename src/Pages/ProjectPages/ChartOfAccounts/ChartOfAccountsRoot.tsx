@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { useGetChartOfAccountsQuery } from '../../../Apis/ChartOfAccountsApi';
+import { useEffect, useState } from 'react';
+import { getChartOfAccounts } from '../../../Apis/ChartOfAccountsApi';
 import { FormTypes } from '../../../interfaces/Components';
 import ChartOfAccountsForm from './ChartOfAccountsForm';
 import Loader from '../../../Components/Loader';
 import { AppContent } from '../../../Components';
+import { ChartOfAccountModel } from '../../../interfaces/ProjectInterfaces';
 
 const columns = [
   {
@@ -26,13 +27,25 @@ const ChartOfAccountsRoot = () => {
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
   const [parentId, setParentId] = useState<string>("");
-  const { data, isLoading } = useGetChartOfAccountsQuery(null);
-  const handleShowForm = () => {
+  const [data, setData] = useState<ChartOfAccountModel[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+    const handleShowForm = () => {
     setShowForm(true);
   };
   const handleCloseForm = () => {
     setShowForm(false);
   };
+
+  const fetchData = async () => {
+    const result = await getChartOfAccounts();
+    if (result && result.isSuccess) {
+      setData(result.result);
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
@@ -48,13 +61,14 @@ const ChartOfAccountsRoot = () => {
               parentId={parentId}
               handleCloseForm={handleCloseForm}
               formType={formType}
+              afterAction = {()=> fetchData()}
             />
           )}
 
-          {data?.result && (
+          {data && (
             <AppContent
               tableType="tree"
-              data={data.result}
+              data={data}
               title="chart of accounts"
               // actionBtn={() => setIsOpen(prev => !prev)}
               btn

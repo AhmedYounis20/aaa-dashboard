@@ -7,7 +7,7 @@ const FinancialPeriodsApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: baseUrl,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
@@ -32,9 +32,21 @@ const FinancialPeriodsApi = createApi({
       }),
       invalidatesTags: ["financialPeriods"],
     }),
+    createFinancialPeriod: builder.mutation({
+      query: (body: FinancialPeriodModel) => ({
+        url: `financialPeriods`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["financialPeriods"],
+    }),
   }),
 });
 
-export const { useGetFinancialPeriodsQuery, useGetFinancialPeriodsByIdQuery,useUpdateFinancialPeriodMutation } =
-  FinancialPeriodsApi;
+export const {
+  useGetFinancialPeriodsQuery,
+  useGetFinancialPeriodsByIdQuery,
+  useUpdateFinancialPeriodMutation,
+  useCreateFinancialPeriodMutation,
+} = FinancialPeriodsApi;
 export default FinancialPeriodsApi;

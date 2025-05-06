@@ -32,7 +32,6 @@ import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Br
 import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
 import { useGetCollectionBooksQuery } from "../../../../Apis/CollectionBooksApi";
 import {
   ChartOfAccountModel,
@@ -44,6 +43,7 @@ import { v4 as uuid } from "uuid";
 import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
+import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -57,9 +57,6 @@ const ReceiptVouchersForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
 
-  const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
-    skip: formType == FormTypes.Delete,
-  });
   const collectionBooksApiResult = useGetCollectionBooksQuery({
     skip: formType == FormTypes.Delete,
   });
@@ -130,21 +127,22 @@ const ReceiptVouchersForm: React.FC<{
       formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
+    costCenters:[]
   });
 
   //#region listeners
   useEffect(() => {
-    if (
-      chartOfAccountsApiResult.isSuccess &&
-      !chartOfAccountsApiResult.isLoading
-    ) {
-      setChartOfAccounts(chartOfAccountsApiResult.data.result);
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getChartOfAccounts();
+        if (result) {
+          setChartOfAccounts(result.result);
+        }
+      };
+      fetchData();
     }
-  }, [
-    chartOfAccountsApiResult,
-    chartOfAccountsApiResult.isLoading,
-    chartOfAccountsApiResult.isSuccess,
-  ]);
+  }, [formType]);
+
     useEffect(() => {
       if (
         collectionBooksApiResult.isSuccess &&

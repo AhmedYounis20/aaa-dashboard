@@ -24,7 +24,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
     const theme = useTheme();
     
     const handleLogout = () => {
-        localStorage.getItem("token") && localStorage.removeItem("token");
+        localStorage.getItem("accessToken") && localStorage.removeItem("accessToken");
         dispatch(setLoggedInUser(initialuserState));
         navigate("/login");
     };

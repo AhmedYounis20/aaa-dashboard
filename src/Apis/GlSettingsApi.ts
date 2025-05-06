@@ -1,35 +1,15 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../Utilities/SD";
 import GlSettingsModel from "../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel";
+import { httpGet, httpPut } from "./Axios/axiosMethods";
+import { ApiResult } from "../interfaces/ApiResponse";
 
-const GlSettingsApi = createApi({
-  reducerPath: "glSettingsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["glSettings"],
-  endpoints: (builder) => ({
-    getGlSettings: builder.query({
-      query: () => "glSettings",
-      providesTags: ["glSettings"],
-    }),
-    updateGlSettings: builder.mutation({
-      query: (body: GlSettingsModel) => ({
-        url: `glSettings`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags : ['glSettings']
-    }),
-  }),
-});
+const getGlSettings = async (): Promise<ApiResult<GlSettingsModel> | null> => {
+  return await httpGet<GlSettingsModel>("glsettings", {});
+};
 
-export const { useGetGlSettingsQuery,useUpdateGlSettingsMutation } = GlSettingsApi;
-export default GlSettingsApi;
+// POST (Create) a new currency
+const updateGlSettings = async (
+  data: GlSettingsModel
+): Promise<ApiResult<GlSettingsModel> | null> => {
+  return await httpPut<GlSettingsModel>("glsettings", data);
+};
+export { getGlSettings, updateGlSettings }; 

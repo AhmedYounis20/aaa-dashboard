@@ -2,31 +2,31 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
-import { useGetGlSettingsQuery, useUpdateGlSettingsMutation } from '../../../../Apis/GlSettingsApi';
 import GlSettingsModel from '../../../../interfaces/ProjectInterfaces/GlSettings/GlSettingsModel';
 import { DecimalDigitsNumberOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import DepreciationApplication, { DepreciationApplicationOptions } from '../../../../interfaces/ProjectInterfaces/GlSettings/DepreciationApplication';
 import Loader from '../../../../Components/Loader';
-import { ApiResponse } from '../../../../interfaces/ApiResponse';
-import { toastify } from '../../../../Helper/toastify';
 import { GLSettingsSchema } from '../../../../interfaces/ProjectInterfaces/GlSettings/validation-GLSettings';
 import * as yup from 'yup';
+import { getGlSettings, updateGlSettings } from '../../../../Apis/GlSettingsApi';
 
 
 const GlSettingsRoot: React.FC = () => {
-  const accountGuidesResult = useGetGlSettingsQuery(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
-  const [update]=  useUpdateGlSettingsMutation();
-  useEffect(() => {
-    if (!accountGuidesResult.isLoading && !isUpdated) {
-      setModel(accountGuidesResult.data.result);
-      setIsLoading(false);
-    }
-  }, [accountGuidesResult.isLoading,accountGuidesResult,isUpdated]);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const result = await getGlSettings();
+        if (result) {
+          setModel(result.result);
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }, []);
 
   const validate = async () => {
     try {
@@ -48,15 +48,12 @@ const GlSettingsRoot: React.FC = () => {
         if(await validate() === false) return false;
         if(await validate() === false) return false;
          if (model) {
-           setIsUpdated(true);
-           const response: ApiResponse = await update(model);
-           if (response.data) {
-             toastify(response.data.successMessage);
-             return true;
-           } else if (response.error) {
-             toastify(response.error.data.errorMessages[0], "error");
-             return false;
-           }
+            const result = await updateGlSettings(model);
+            if (result && result.isSuccess) {
+              setModel(
+                result.result
+              );
+            }
          }
          return false;
        };

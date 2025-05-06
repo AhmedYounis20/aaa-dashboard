@@ -8,27 +8,117 @@ import { baseUrl } from "../../Utilities/SD";
 import { ApiResult } from "../../interfaces/ApiResponse";
 import { toastify } from "../../Helper/toastify";
 
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  const accessToken = localStorage.getItem("accessToken");
+
+  if (!refreshToken || !accessToken) return;
+
+  try {
+    const res = await axios.post(baseUrl + "auth/refresh", {
+      refreshToken,
+      accessToken,
+    });
+
+    const { accessToken: newAccess, refreshToken: newRefresh } =
+      res.data.result;
+    localStorage.setItem("accessToken", newAccess);
+    localStorage.setItem("refreshToken", newRefresh);
+
+    console.log("Token refreshed automatically");
+  } catch (err) {
+    console.error("Auto-refresh failed:", err);
+    localStorage.clear();
+    // Optionally redirect to login page
+    window.location.href = "/login";
+  }
+};
+
+
+setInterval(refreshAccessToken, 5 * 60 * 1000);
+
 const client = axios.create({
   baseURL: baseUrl,
 });
-    const token = localStorage.getItem("token");
-    const config: AxiosRequestConfig = {
-      headers: {
-        Accept: "application/json",
-        Authorization: token ? `Bearer ${token}` : "",
-      } as RawAxiosRequestHeaders,
-    };
 
-const httpPost = async (url : string,data : object) => {
-  try {
-    const response: AxiosResponse = await client.post(`/${url}`,data, config);
-    console.log(response.status);
-    console.log(response.data.json);
-  } catch (err) {
-    console.log(err);
+// Add token to each request
+client.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
-}
+  return config;
+});
 
+// Refresh token on 401
+client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      try {
+        const res = await axios.post(baseUrl + "auth/refresh", {
+          refreshToken: refreshToken,
+          accessToken: localStorage.getItem("accessToken"),
+        });
+        console.log("refresh: ", res);
+        const { accessToken, refreshToken: newRefresh } = res.data.result;
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", newRefresh);
+
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        return client(originalRequest); // Retry original request
+      } catch (refreshError) {
+        console.error("Refresh failed", refreshError);
+        localStorage.clear();
+        window.location.href = "/login"; // Redirect to login
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+const token = localStorage.getItem("accessToken");
+const config: AxiosRequestConfig = {
+  headers: {
+    Accept: "application/json",
+    Authorization: token ? `Bearer ${token}` : "",
+  } as RawAxiosRequestHeaders,
+};
+
+// HTTP POST method
+const httpPost = async <T>(
+  url: string,
+  data: object
+): Promise<ApiResult<T> | null> => {
+  try {
+    const response: AxiosResponse<ApiResult<T>> = await client.post(url, data);
+    console.log(response.status);
+
+    const apiResponse = response.data;
+    console.log("API Response:", apiResponse);
+
+    if (!apiResponse.isSuccess) {
+      apiResponse.errorMessages?.forEach((errorMessage) =>
+        toastify(errorMessage, "error")
+      );
+      return null;
+    }
+
+    return apiResponse;
+  } catch (error: any) {
+    console.error("Error in httpPost:", error);
+    handleErrorResponse(error);
+    return null;
+  }
+};
+
+// HTTP GET method
 const httpGet = async <T>(
   url: string,
   params: object
@@ -36,40 +126,96 @@ const httpGet = async <T>(
   try {
     config.params = params;
     console.log("Trying axios");
-    console.log(config);
 
-    const response: AxiosResponse<ApiResult<T>> = await client.get<
-      ApiResult<T>
-    >(url, config);
+    const response: AxiosResponse<ApiResult<T>> = await client.get(url, config);
     console.log(response.status);
 
     const apiResponse = response.data;
-    console.log("api:", apiResponse);
+    console.log("API Response:", apiResponse);
 
-    if (apiResponse.isSuccess == false) {
+    if (apiResponse.isSuccess === false) {
       apiResponse.errorMessages?.forEach((errorMessage) =>
         toastify(errorMessage, "error")
       );
-      console.log("eror");
     }
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpGet:", error);
-
-    if (error.response) {
-      error.response.data.errorMessages?.forEach((errorMessage: string) =>
-        toastify(errorMessage, "error")
-      );
-      console.error("Response data:", error.response.data);
-      console.error("Response status:", error.response.status);
-      console.error("Response headers:", error.response.headers);
-    } else if (error.request) {
-      console.error("Request:", error.request);
-    } else {
-      console.error("Error message:", error.message);
-    }
-
+    handleErrorResponse(error);
     return null;
   }
 };
-export {httpPost,httpGet};
+
+// HTTP PUT method
+const httpPut = async <T>(
+  url: string,
+  data: object
+): Promise<ApiResult<T> | null> => {
+  try {
+    const response: AxiosResponse<ApiResult<T>> = await client.put(url, data);
+    console.log(response.status);
+
+    const apiResponse = response.data;
+    console.log("API Response:", apiResponse);
+
+    if (!apiResponse.isSuccess) {
+      apiResponse.errorMessages?.forEach((errorMessage) =>
+        toastify(errorMessage, "error")
+      );
+      return null;
+    }
+
+    return apiResponse;
+  } catch (error: any) {
+    console.error("Error in httpPut:", error);
+    handleErrorResponse(error);
+    return null;
+  }
+};
+
+// HTTP DELETE method
+const httpDelete = async <T>(
+  url: string,
+  data: object
+): Promise<ApiResult<T> | null> => {
+  try {
+    const response: AxiosResponse<ApiResult<T>> = await client.delete(url, {
+      data,
+    });
+    console.log(response.status);
+
+    const apiResponse = response.data;
+    console.log("API Response:", apiResponse);
+
+    if (!apiResponse.isSuccess) {
+      apiResponse.errorMessages?.forEach((errorMessage) =>
+        toastify(errorMessage, "error")
+      );
+      return null;
+    }
+
+    return apiResponse;
+  } catch (error: any) {
+    console.error("Error in httpDelete:", error);
+    handleErrorResponse(error);
+    return null;
+  }
+};
+
+// Helper function to handle error responses
+const handleErrorResponse = (error: any) => {
+  if (error.response) {
+    error.response.data.errorMessages?.forEach((errorMessage: string) =>
+      toastify(errorMessage, "error")
+    );
+    console.error("Response data:", error.response.data);
+    console.error("Response status:", error.response.status);
+    console.error("Response headers:", error.response.headers);
+  } else if (error.request) {
+    console.error("Request:", error.request);
+  } else {
+    console.error("Error message:", error.message);
+  }
+};
+
+export { httpPost, httpGet, httpPut, httpDelete };

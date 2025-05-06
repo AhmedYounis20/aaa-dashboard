@@ -8,7 +8,7 @@ import BaseForm from "../../../Components/Forms/BaseForm";
 import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { toastify } from "../../../Helper/toastify";
 import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
-import { useGetChartOfAccountsQuery } from "../../../Apis/ChartOfAccountsApi";
+import { getChartOfAccounts } from "../../../Apis/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../Components/Inputs/InputSelect";
 import CostCenterType, { CostCenterTypeOptions } from "../../../interfaces/ProjectInterfaces/CostCenter/costCenterType";
@@ -39,8 +39,21 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
     const [createCostCenter] = useCreateCostCenterMutation();
     const [updateCostCenter] = useUpdateCostCenterMutation();
     const [deleteCostCenter] = useDeleteCostCenterMutation();
-    const { data } = useGetChartOfAccountsQuery(null);
-    const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState([]);
+    const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
+    const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState<
+      ChartOfAccountModel[]
+    >([]);
+  useEffect(() => {
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getChartOfAccounts();
+        if (result) {
+          setChartOfAccounts(result.result);
+        }
+      };
+      fetchData();
+    }
+  }, [formType]);
 
     useEffect(() => {
         if(formType != FormTypes.Add){
@@ -84,7 +97,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
     };
     
     const handleUpdate = async () => {
-        console.log(data, "charts of accounts")
+        console.log(chartOfAccounts, "charts of accounts")
         const response: ApiResponse = await updateCostCenter(model);
         if(response.data) {
             toastify(response.data.successMessage);
@@ -112,13 +125,13 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
 
     useEffect(() => {
         if (model.chartOfAccounts.length >= 0) {
-            const filterdData = data?.result.filter((item: ChartOfAccountModel) =>
+            const filterdData = chartOfAccounts.filter((item: ChartOfAccountModel) =>
                 // model.chartOfAccounts.includes(item?.id)
                 (model.chartOfAccounts as string[]).includes(item.id)
             )
             setSelectedChartOfAccounts(filterdData);
         }
-    }, [model?.chartOfAccounts, data?.result]);
+    }, [model?.chartOfAccounts, chartOfAccounts]);
 
     const handleDeleteRow = (id: string) => {
         setModel(prevModel => ({
@@ -254,14 +267,14 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                     CostCenterType.RelatedToAccount && (
                     <InputAutoComplete
                       options={
-                        data?.result?.map(
+                        chartOfAccounts?.map(
                           (item: { name: string; id: string }) => {
                             return {
                               label: item.name,
                               value: item.id,
                             };
                           }
-                        ) || []
+                        )
                       }
                       label={"Chart of Accounts"}
                       value={model.chartOfAccounts}

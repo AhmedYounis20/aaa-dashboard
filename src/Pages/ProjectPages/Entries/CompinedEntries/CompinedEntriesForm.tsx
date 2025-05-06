@@ -32,7 +32,7 @@ import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Br
 import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
+import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import { useGetCollectionBooksQuery } from "../../../../Apis/CollectionBooksApi";
 import { useGetBanksQuery } from "../../../../Apis/BanksApi";
 import { ChartOfAccountModel, CollectionBookModel } from "../../../../interfaces/ProjectInterfaces";
@@ -57,9 +57,6 @@ const CompinedEntriesForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
 
-  const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
-    skip: formType == FormTypes.Delete,
-  });
   const collectionBooksApiResult = useGetCollectionBooksQuery({
       skip: formType == FormTypes.Delete,
     });
@@ -138,21 +135,22 @@ const CompinedEntriesForm: React.FC<{
       formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
+    costCenters:[]
   });
 
   //#region listeners
   useEffect(() => {
-    if (
-      chartOfAccountsApiResult.isSuccess &&
-      !chartOfAccountsApiResult.isLoading
-    ) {
-      setChartOfAccounts(chartOfAccountsApiResult.data.result);
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getChartOfAccounts();
+        if (result) {
+          setChartOfAccounts(result.result);
+        }
+      };
+      fetchData();
     }
-  }, [
-    chartOfAccountsApiResult,
-    chartOfAccountsApiResult.isLoading,
-    chartOfAccountsApiResult.isSuccess,
-  ]);
+  },[formType]);
+
 
     useEffect(() => {
       if (banksApiResult.isSuccess && !banksApiResult.isLoading) {
@@ -198,7 +196,7 @@ const CompinedEntriesForm: React.FC<{
         );
       });
     }
-  }, [model.entryDate]);
+  }, [model.entryDate,formType]);
 
   useEffect(() => {
     if (currenciesApiResult.isSuccess && !currenciesApiResult.isLoading) {
@@ -232,7 +230,7 @@ const CompinedEntriesForm: React.FC<{
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
         : prev
     );
-  }, [model.currencyId]);
+  }, [model.currencyId,currencies]);
 
 const getChartOfAccountsDropDown = (
   paymentType: PaymentType
@@ -900,7 +898,6 @@ const getChartOfAccountsDropDown = (
                                     value={e.creditAccountId}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string | undefined) => {
-                                      console.log("value", value);
                                       updateModel(
                                         setModel,
                                         "financialTransactions",

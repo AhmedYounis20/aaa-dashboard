@@ -1,110 +1,135 @@
 import { useEffect, useState } from 'react';
-import { useCreateChartOfAccountMutation, useDeleteChartOfAcountByIdMutation, useGetChartOfAccountsByIdQuery, useGetDefaultChartOfAccountQuery, useUpdateChartOfAccountMutation } from '../../../Apis/ChartOfAccountsApi';
+import { createChartOfAccount, deleteChartOfAccount, getChartOfAccountById, getDefaultChartOfAccount, updateChartOfAccount} from '../../../Apis/ChartOfAccountsApi';
 import BaseForm from '../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../interfaces/Components/FormType';
-import { ApiResponse } from '../../../interfaces/ApiResponse';
 import { toastify } from '../../../Helper/toastify';
-import { AccountNatureOptions, ChartOfAccountModel } from '../../../interfaces/ProjectInterfaces';
+import { AccountGuideModel, AccountNatureOptions, ChartOfAccountModel } from '../../../interfaces/ProjectInterfaces';
 import { FormControlLabel, Switch, TextField } from '@mui/material';
 import InputSelect from '../../../Components/Inputs/InputSelect';
 import InputAutoComplete from '../../../Components/Inputs/InputAutoCompelete';
-import { useGetAccountGuidesQuery } from '../../../Apis/AccountGuidesApi';
 import { AccountNature } from '../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature';
 import Loader from '../../../Components/Loader';
 import updateModel from '../../../Helper/updateModelHelper';
+import { getAccountGuides } from '../../../Apis/AccountGuidesApi';
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({formType,id,parentId,handleCloseForm}) => {
-  const [deleteChartOfAccount] = useDeleteChartOfAcountByIdMutation();
-  const [updateChartOfAccount] = useUpdateChartOfAccountMutation();
-  const [createChartOfAccount] = useCreateChartOfAccountMutation();
-  const accountGuidesResult = useGetAccountGuidesQuery(null,{
-    skip : formType == FormTypes.Delete
-  });
-  const [model,setModel] = useState<ChartOfAccountModel>({
-    accountGuidId:"",
+  afterAction: () => void;
+}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
+  const [accountguides, setAccountGuides] = useState<AccountGuideModel[]>([]);
+  useEffect(() => {
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getAccountGuides();
+        if (result) {
+          setAccountGuides(result.result);
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+  },);
+
+  const [model, setModel] = useState<ChartOfAccountModel>({
+    accountGuidId: "",
     accountNature: AccountNature.Debit,
-    id:"",
-    code:"",
-    isActiveAccount:false,
-    isDepreciable:false,
-    isStopDealing:false,
-    isPostedAccount:false,
-    name:"",
-    nameSecondLanguage:"",
-    parentId:"",
-    description:""
+    id: "",
+    code: "",
+    isActiveAccount: false,
+    isDepreciable: false,
+    isStopDealing: false,
+    isPostedAccount: false,
+    name: "",
+    nameSecondLanguage: "",
+    parentId: "",
+    description: "",
   });
-  const chartOfAccountResult = useGetChartOfAccountsByIdQuery(id,{
-    skip:formType == FormTypes.Add
-  });
-  const defaultChartOfAccountResult = useGetDefaultChartOfAccountQuery(parentId, {
-      skip: formType != FormTypes.Add,
-    });
-  const [isLoading,setIsLoading] = useState<boolean>(true);
-    const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // useEffect(() => {
+  //   else if (for) {
+  //     if (!chartOfAccountResult.isLoading) {
+  //       setModel(chartOfAccountResult.data.result);
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // }, [
+  //   chartOfAccountResult?.isLoading,
+  //   chartOfAccountResult?.data?.result,
+  //   defaultChartOfAccountResult?.isLoading,
+  //   defaultChartOfAccountResult?.data?.result,
+  //   formType,
+  //   isUpdated,
+  // ]);
 
   useEffect(() => {
-    if(formType == FormTypes.Add){
-
-      if (!defaultChartOfAccountResult.isLoading) {
-        setModel(defaultChartOfAccountResult.data.result);
-        setIsLoading(false);
-      }
-    }
-     else if (!isUpdated){
-          if (!chartOfAccountResult.isLoading) {
-            setModel(chartOfAccountResult.data.result);
-            setIsLoading(false);
-          }
+    if (formType != FormTypes.Add) {
+      const fetchData = async () => {
+        const result = await getChartOfAccountById(id);
+        if (result) {
+          setModel(result.result);
+          setIsLoading(false);
         }
-
-  }, [chartOfAccountResult?.isLoading, chartOfAccountResult?.data?.result,defaultChartOfAccountResult?.isLoading,defaultChartOfAccountResult?.data?.result,formType,isUpdated]);
-
-     const handleAdd = async () => {
-       const response: ApiResponse = await createChartOfAccount(model);
-       if (response.data) {
-         toastify(response.data.successMessage);
-         return true;
-       } else if (response.error) {
-         toastify(response.error.data.errorMessages[0], "error");
-         return false;
-       }
-       return false;
-     };
-        const handleUpdate = async () => {
-          const response: ApiResponse = await updateChartOfAccount(model);
-          setIsUpdated(true);
-          if (response.data) {
-            toastify(response.data.successMessage);
-            return true;
-          } else if (response.error) {
-            toastify(response.error.data.errorMessages[0], "error");
-            return false;
-          }
-          return false;
-        };
-  const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteChartOfAccount(id);
-    if(response.data){
-      
-      return true;
+      };
+      fetchData();
     }
-    else {
-      console.log(response);
+    else{
+      const fetchData = async () => {
+        const result = await getDefaultChartOfAccount(parentId);
+        if (result) {
+          setModel(result.result);
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }
+  },);
 
-      response.error?.data?.errorMessages?.map((error :string) =>{
-      toastify(error, "error");
-    console.log(error);
-      } 
-      );
+  const handleDelete = async (): Promise<boolean> => {
+    const response = await deleteChartOfAccount(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response) {
+      console.log(response);
+      response.errorMessages?.map((error: string) => {
+        toastify(error, "error");
+        console.log(error);
+      });
       return false;
     }
-  }; 
+    return false;
+  };
+  const handleUpdate = async () => {
+    const response = await updateChartOfAccount(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
+    }
+    return false;
+  };
+  const handleAdd = async () => {
+    const response = await createChartOfAccount(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      console.log(response);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
+    }
+    return false;
+  };
 
   return (
     <div className="container h-full">
@@ -200,7 +225,6 @@ const ChartOfAccountsForm: React.FC<{
                         }) => {
                           updateModel(setModel, "accountNature", target.value);
                         }}
-                      
                         name={"AccountNature"}
                         onBlur={null}
                         error={undefined}
@@ -209,19 +233,17 @@ const ChartOfAccountsForm: React.FC<{
                   </div>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      {accountGuidesResult.isLoading ? (
+                      {!accountguides ? (
                         <Loader />
                       ) : (
                         <InputAutoComplete
                           size="medium"
                           error={undefined}
                           helperText={undefined}
-                          options={accountGuidesResult?.data?.result?.map(
-                            (item: { name: string; id: string }) => ({
-                              label: item.name,
-                              value: item.id,
-                            })
-                          )}
+                          options={accountguides.map((item) => ({
+                            label: item.name,
+                            value: item.id,
+                          }))}
                           label={"Account Guide"}
                           value={model?.accountGuidId}
                           disabled={formType === FormTypes.Details}

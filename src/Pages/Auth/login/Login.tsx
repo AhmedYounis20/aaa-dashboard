@@ -35,11 +35,12 @@ const Login: React.FC = () => {
 
     const response: ApiResponse = await loginRequest(userInput);
     if (response.data) {
-      const { token } = response.data.result;
-      const userData: UserModel = jwtDecode(token);
+      const { accessToken,refreshToken } = response.data.result;
+      const userData: UserModel = jwtDecode(accessToken);
       dispatch(setLoggedInUser(userData));
       navigate("/");
-      localStorage.setItem("token", token);
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
     } else if (response.error) {
       response.error.data.errorMessages.map((e: string) =>
         toastify(e, "error")

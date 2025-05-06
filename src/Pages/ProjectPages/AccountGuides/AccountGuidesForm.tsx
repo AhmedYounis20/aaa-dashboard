@@ -3,75 +3,82 @@ import BaseForm from '../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../interfaces/ProjectInterfaces';
 import { TextField } from '@mui/material';
-import { useCreateAccountGuideMutation, useDeleteAccountGuideMutation, useGetAccountGuidesByIdQuery, useUpdateAccountGuideMutation } from '../../../Apis/AccountGuidesApi';
 import { toastify } from '../../../Helper/toastify';
-import { ApiResponse } from '../../../interfaces/ApiResponse';
+import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from '../../../Apis/AccountGuidesApi';
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id , handleCloseForm }) => {
-  const accountGuidesResult = useGetAccountGuidesByIdQuery(id);
+  afterAction: () => void;
+}> = ({ formType, id, handleCloseForm, afterAction }) => {
   const [model, setModel] = useState<AccountGuideModel>({
-    id:"",
-    name:"",
-    nameSecondLanguage:""
+    id: "",
+    name: "",
+    nameSecondLanguage: "",
   });
-    const [isLoading, setIsLoading] = useState<boolean>(
-      formType != FormTypes.Add
-    );
+  const [isLoading, setIsLoading] = useState<boolean>(
+    formType != FormTypes.Add
+  );
 
-  const [updateGuide] = useUpdateAccountGuideMutation();
-  const [createGuide] = useCreateAccountGuideMutation();
-  const [deleteGuide] = useDeleteAccountGuideMutation();
+  // const [updateGuide] = useUpdateAccountGuideMutation();
+  // const [createGuide] = useCreateAccountGuideMutation();
+  // const [deleteGuide] = useDeleteAccountGuideMutation();
 
   useEffect(() => {
-    if(formType != FormTypes.Add){
-      if (!accountGuidesResult.isLoading) {
-        setModel(accountGuidesResult.data.result);
-        setIsLoading(false);
-      }
+    if (formType != FormTypes.Add) {
+      const fetchData = async () => {
+        const result = await getAccountGuideById(id);
+        if (result) {
+          setModel(result.result);
+          setIsLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [accountGuidesResult.isLoading, accountGuidesResult?.data?.result,formType]);
+  }, []);
 
-   const handleDelete = async (): Promise<boolean> => {
-     const response: ApiResponse = await deleteGuide(id);
-     if (response.data) {
-       toastify(response.data.successMessage);
-       return true;
-     } else {
-       console.log(response);
-       response.error?.data?.errorMessages?.map((error: string) => {
-         toastify(error, "error");
-         console.log(error);
-       });
-       return false;
-     }
-   };
-   const handleUpdate = async () => {
-     const response: ApiResponse = await updateGuide(model);
-     if (response.data) {
-       toastify(response.data.successMessage);
-       return true;
-     } else if (response.error) {
-       toastify(response.error.data.errorMessages[0], "error");
-       return false;
-     }
-     return false;
-   };
-   const handleAdd = async () => {
-     const response: ApiResponse = await createGuide(model);
-     if (response.data) {
-       toastify(response.data.successMessage);
-       console.log(response);
-       return true;
-     } else if (response.error) {
-       toastify(response.error.data.errorMessages[0], "error");
-       return false;
-     }
-     return false;
-   };
+  const handleDelete = async (): Promise<boolean> => {
+    const response = await deleteAccountGuide(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response) {
+      console.log(response);
+      response.errorMessages?.map((error: string) => {
+        toastify(error, "error");
+        console.log(error);
+      });
+      return false;
+    }
+    return false;
+  };
+  const handleUpdate = async () => {
+    const response = await updateAccountGuide(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
+    }
+    return false;
+  };
+  const handleAdd = async () => {
+    const response = await createAccountGuide(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      console.log(response);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
+    }
+    return false;
+  };
 
   return (
     <div className="container h-full">

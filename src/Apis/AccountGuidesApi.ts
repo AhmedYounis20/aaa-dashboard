@@ -1,54 +1,41 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../Utilities/SD";
 import { AccountGuideModel } from "../interfaces/ProjectInterfaces";
+import { ApiResult } from "../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "./Axios/axiosMethods";
 
-const AccountGuidesApi = createApi({
-  reducerPath: "accountGuidesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["accountGuides"],
-  endpoints: (builder) => ({
-    getAccountGuides: builder.query({
-      query: () => "accountGuides",
-      providesTags: ["accountGuides"],
-    }),
-    getAccountGuidesById: builder.query({
-      query: (id) => `accountGuides/${id}`,
-      providesTags: ["accountGuides"],
-    }),
-    updateAccountGuide: builder.mutation({
-      query: (currencyBody: AccountGuideModel) => ({
-        url: `accountGuides/${currencyBody.id}`,
-        method: "PUT",
-        body: currencyBody,
-      }),
-      invalidatesTags: ["accountGuides"],
-    }),
-    createAccountGuide: builder.mutation({
-      query: (currencyBody: AccountGuideModel) => ({
-        url: `accountGuides`,
-        method: "POST",
-        body: currencyBody,
-      }),
-      invalidatesTags: ["accountGuides"],
-    }),
-    deleteAccountGuide: builder.mutation({
-      query: (id: string) => ({
-        url: `accountGuides/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["accountGuides"],
-    }),
-  }),
-});
 
-export const {useGetAccountGuidesQuery, useGetAccountGuidesByIdQuery,useCreateAccountGuideMutation,useUpdateAccountGuideMutation,useDeleteAccountGuideMutation}  = AccountGuidesApi;
-export default AccountGuidesApi;
+const apiEndPoint = "AccountGuides";
+// GET all currencies
+const getAccountGuides = async (): Promise<ApiResult<AccountGuideModel[]> | null> => {
+  return await httpGet<AccountGuideModel[]>(apiEndPoint, {});
+};
+
+// GET a single currency by ID
+const getAccountGuideById = async (
+  id: string
+): Promise<ApiResult<AccountGuideModel> | null> => {
+  return await httpGet<AccountGuideModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// POST (Create) a new currency
+const createAccountGuide = async (
+  data: AccountGuideModel
+): Promise<ApiResult<AccountGuideModel> | null> => {
+  return await httpPost<AccountGuideModel>(apiEndPoint, data);
+};
+
+// PUT (Update) a currency
+const updateAccountGuide = async (
+  id: string,
+  data: AccountGuideModel
+): Promise<ApiResult<AccountGuideModel> | null> => {
+  return await httpPut<AccountGuideModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a currency by ID
+const deleteAccountGuide = async (
+  id: string
+): Promise<ApiResult<AccountGuideModel> | null> => {
+  return await httpDelete<AccountGuideModel>(`${apiEndPoint}/${id}`, { id });
+};
+
+export  {getAccountGuides,getAccountGuideById,createAccountGuide,updateAccountGuide,deleteAccountGuide}

@@ -31,7 +31,6 @@ import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Br
 import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
 import { ChartOfAccountModel } from "../../../../interfaces/ProjectInterfaces";
 import { httpGet } from "../../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
@@ -40,6 +39,7 @@ import { PaymentType } from "../../../../interfaces/ProjectInterfaces/Entries/Pa
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
 import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
+import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 const JournalEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -50,10 +50,6 @@ const JournalEntriesForm: React.FC<{
     skip: formType == FormTypes.Add,
   });
   const currenciesApiResult = useGetCurrenciesQuery({
-    skip: formType == FormTypes.Delete,
-  });
-
-  const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
     skip: formType == FormTypes.Delete,
   });
 
@@ -129,17 +125,17 @@ const JournalEntriesForm: React.FC<{
 
   //#region listeners
   useEffect(() => {
-    if (
-      chartOfAccountsApiResult.isSuccess &&
-      !chartOfAccountsApiResult.isLoading
-    ) {
-      setChartOfAccounts(chartOfAccountsApiResult.data.result);
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getChartOfAccounts();
+        if (result) {
+          setChartOfAccounts(result.result);
+        }
+      };
+      fetchData();
     }
-  }, [
-    chartOfAccountsApiResult,
-    chartOfAccountsApiResult.isLoading,
-    chartOfAccountsApiResult.isSuccess,
-  ]);
+  }, [formType]);
+
 
   useEffect(() => {
     if (formType == FormTypes.Add) {

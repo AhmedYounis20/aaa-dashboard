@@ -31,7 +31,6 @@ import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Br
 import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
 import { ChartOfAccountModel } from "../../../../interfaces/ProjectInterfaces";
 import { httpGet } from "../../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
@@ -40,6 +39,7 @@ import { PaymentType } from "../../../../interfaces/ProjectInterfaces/Entries/Pa
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
 import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
+import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 const OpeningEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -53,9 +53,7 @@ const OpeningEntriesForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
 
-  const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
-    skip: formType == FormTypes.Delete,
-  });
+ 
 
   const branchesApiResult = useGetBranchesQuery({
     skip: formType == FormTypes.Delete,
@@ -128,18 +126,18 @@ const OpeningEntriesForm: React.FC<{
   });
 
   //#region listeners
-  useEffect(() => {
-    if (
-      chartOfAccountsApiResult.isSuccess &&
-      !chartOfAccountsApiResult.isLoading
-    ) {
-      setChartOfAccounts(chartOfAccountsApiResult.data.result);
-    }
-  }, [
-    chartOfAccountsApiResult,
-    chartOfAccountsApiResult.isLoading,
-    chartOfAccountsApiResult.isSuccess,
-  ]);
+    useEffect(() => {
+      if (formType != FormTypes.Delete) {
+        const fetchData = async () => {
+          const result = await getChartOfAccounts();
+          if (result) {
+            setChartOfAccounts(result.result);
+          }
+        };
+        fetchData();
+      }
+    }, [formType]);
+
 
   useEffect(() => {
     if (formType == FormTypes.Add) {

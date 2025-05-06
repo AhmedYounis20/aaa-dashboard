@@ -14,6 +14,9 @@ import {
   useGetEntryByIdQuery,
   useUpdateComplexEntryMutation,
 } from "../../../../Apis/EntriesApi";
+import {
+  useGetCostCenterQuery,
+} from "../../../../Apis/CostCenterApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -31,7 +34,6 @@ import BranchModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Br
 import { useGetBranchesQuery } from "../../../../Apis/BranchesApi";
 import updateModel from "../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
-import { useGetChartOfAccountsQuery } from "../../../../Apis/ChartOfAccountsApi";
 import { useGetCollectionBooksQuery } from "../../../../Apis/CollectionBooksApi";
 import {
   ChartOfAccountModel,
@@ -44,6 +46,11 @@ import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectI
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
+import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
+import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
+import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
+import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
+
 const PaymentVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -57,7 +64,7 @@ const PaymentVouchersForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
 
-  const chartOfAccountsApiResult = useGetChartOfAccountsQuery({
+  const costCentersApiResult = useGetCostCenterQuery({
     skip: formType == FormTypes.Delete,
   });
   const collectionBooksApiResult = useGetCollectionBooksQuery({
@@ -80,6 +87,7 @@ const PaymentVouchersForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
+    const [costCenters,] = useState<CostCenterModel[]>([]);
     const [collectionBooks, setCollectionBooks] = useState<
       CollectionBookModel[]
     >([]);
@@ -115,36 +123,60 @@ const PaymentVouchersForm: React.FC<{
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;
     };
-  const [model, setModel] = useState<ComplexEntryModel>({
-    id: id,
-    exchangeRate: 0,
-    entryNumber: "",
-    branchId: "",
-    currencyId: "",
-    entryDate: new Date(),
-    documentNumber: "",
-    financialPeriodId: "",
-    notes: "",
-    receiverName: "",
-    financialTransactions:
-      formType == FormTypes.Add ? [createFinancialTransaction()] : [],
-    attachments: [],
-    financialPeriodNumber: "",
-  });
+
+    const createCostCenter: (
+      accountNature: AccountNature
+    ) => EntryCostCenter = (accountNature: AccountNature) => {
+      const costCenter: EntryCostCenter = {
+        accountNature: accountNature,
+        amount: 0,
+        costCenterId: null,
+      };
+      return costCenter;
+    };
+      const [model, setModel] = useState<ComplexEntryModel>({
+        id: id,
+        exchangeRate: 0,
+        entryNumber: "",
+        branchId: "",
+        currencyId: "",
+        entryDate: new Date(),
+        documentNumber: "",
+        financialPeriodId: "",
+        notes: "",
+        receiverName: "",
+        financialTransactions:
+          formType == FormTypes.Add ? [createFinancialTransaction()] : [],
+        attachments: [],
+        financialPeriodNumber: "",
+        costCenters: [
+          createCostCenter(AccountNature.Debit),
+          createCostCenter(AccountNature.Credit),
+        ],
+      });
 
   //#region listeners
   useEffect(() => {
-    if (
-      chartOfAccountsApiResult.isSuccess &&
-      !chartOfAccountsApiResult.isLoading
-    ) {
-      setChartOfAccounts(chartOfAccountsApiResult.data.result);
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getChartOfAccounts();
+        if (result) {
+          setChartOfAccounts(result.result);
+        }
+      };
+      fetchData();
     }
-  }, [
-    chartOfAccountsApiResult,
-    chartOfAccountsApiResult.isLoading,
-    chartOfAccountsApiResult.isSuccess,
-  ]);
+  }, [formType]);
+
+    useEffect(() => {
+      if (costCentersApiResult.isSuccess && !costCentersApiResult.isLoading) {
+        setChartOfAccounts(costCentersApiResult.data.result);
+      }
+    }, [
+      costCentersApiResult,
+      costCentersApiResult.isLoading,
+      costCentersApiResult.isSuccess,
+    ]);
     useEffect(() => {
       if (
         collectionBooksApiResult.isSuccess &&
@@ -1498,6 +1530,7 @@ const getChartOfAccountsDropDown = (
                       <Add />
                     </IconButton>
                   </div>
+                  <EntryCostCentersComponent costCenters={costCenters} formType={formType} onChange={(entryCostCenters : EntryCostCenter[])=> setModel((prevModel)=> prevModel ? {...prevModel,costCenters:entryCostCenters} : prevModel) } entryCostCenters={model.costCenters} />
                 </>
               )}
             </>
