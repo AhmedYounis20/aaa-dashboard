@@ -31,7 +31,7 @@ const ChartOfAccountsForm: React.FC<{
       };
       fetchData();
     }
-  },);
+  }, [formType]);
 
   const [model, setModel] = useState<ChartOfAccountModel>({
     accountGuidId: "",
@@ -76,8 +76,7 @@ const ChartOfAccountsForm: React.FC<{
         }
       };
       fetchData();
-    }
-    else{
+    } else {
       const fetchData = async () => {
         const result = await getDefaultChartOfAccount(parentId);
         if (result) {
@@ -87,7 +86,7 @@ const ChartOfAccountsForm: React.FC<{
       };
       fetchData();
     }
-  },);
+  }, [formType,id,parentId]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteChartOfAccount(id);
