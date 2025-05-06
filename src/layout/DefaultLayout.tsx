@@ -1,8 +1,8 @@
 import { Box, useMediaQuery } from "@mui/material";
-import { AppHeader } from "../Components/index";
-import { withAuth } from '../Hoc';
+import { AppHeader } from "../Components";
+import { withAuth } from "../Hoc";
 import { createContext, useState } from "react";
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 import AppSidebar from "../Components/Layouts/Sidebar";
 import sidebarItemsData from "../Utilities/routes";
 import { appProps } from "../interfaces/Components/appProps";
@@ -10,12 +10,12 @@ import { appProps } from "../interfaces/Components/appProps";
 export const appContext = createContext<appProps>({
   isMobile: false,
   isSidebarOpen: false,
-  setIsSidebarOpen :undefined
+  setIsSidebarOpen: () => {},
 });
 
 const DefaultLayout = () => {
-  const isMobile = useMediaQuery("(max-width: 1550px)");
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
 
   return (
     <appContext.Provider
@@ -25,25 +25,34 @@ const DefaultLayout = () => {
         setIsSidebarOpen,
       }}
     >
-      <Box display="flex" width="100%" height={"100vh"} overflow={"hidden"}>
-        <AppSidebar
-          items={sidebarItemsData}
-          isMobile={isMobile}
-          // isSidebarOpen={isSidebarOpen}
-          // setIsSidebarOpen={setIsSidebarOpen}
-        />
-        <Box width="100%" height={"10vh"}>
+      <Box display="flex" height="100vh" overflow="hidden">
+        <AppSidebar items={sidebarItemsData} />
+
+        <Box
+          component="main"
+          flexGrow={1}
+          display="flex"
+          flexDirection="column"
+          height="100vh"
+          overflow="hidden"
+        >
           <AppHeader
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
           />
-          <Box p={4} height={"90vh"} overflow={"auto"}>
+          <Box
+            component="section"
+            flexGrow={1}
+            p={3}
+            overflow="auto"
+            bgcolor="#f9f9f9"
+          >
             <Outlet />
           </Box>
         </Box>
       </Box>
     </appContext.Provider>
   );
-}
+};
 
-export default withAuth(DefaultLayout) ?? null
+export default withAuth(DefaultLayout);

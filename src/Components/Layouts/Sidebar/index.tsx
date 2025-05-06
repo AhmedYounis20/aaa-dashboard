@@ -58,7 +58,9 @@ export default function AppSidebar({ items }: ISidebarProps) {
         style={{
           width: isSidebarOpen && isMobile ? "270px" : "80px",
         }}
-        onBackdropClick={() => setIsSidebarOpen && setIsSidebarOpen(!isSidebarOpen)}
+        onBackdropClick={() =>
+          setIsSidebarOpen && setIsSidebarOpen(!isSidebarOpen)
+        }
       >
         <FlexBetween
           flexDirection={"column"}
@@ -79,7 +81,6 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 color: "#29292981",
               },
             }}
-            
           >
             <Box
               role="button"
@@ -147,7 +148,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
               )
             )}
           </Menu>
-
+          {/*
           <Menu
             menuItemStyles={{
               button: {
@@ -161,7 +162,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
               },
             }}
           >
-            <MenuItem>
+             <MenuItem>
               <Box
                 display={"flex"}
                 gap={"10px"}
@@ -186,8 +187,8 @@ export default function AppSidebar({ items }: ISidebarProps) {
                   </Typography>
                 )}
               </Box>
-            </MenuItem>
-          </Menu>
+            </MenuItem> 
+          </Menu>*/}
         </FlexBetween>
       </Sidebar>
     );
