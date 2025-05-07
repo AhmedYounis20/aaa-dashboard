@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authApi} from "../../Apis";
 import { userAuthReducer } from "./userAuthSlice";
 import BanksApi from "../../Apis/BanksApi";
 import CustomersApi from "../../Apis/CustomersApi";
@@ -18,7 +17,6 @@ const store = configureStore({
   reducer: {
     userAuthStore: userAuthReducer,
     global: globalTheme,
-    [authApi.reducerPath]: authApi.reducer,
     [BanksApi.reducerPath]: BanksApi.reducer,
     [CustomersApi.reducerPath]: CustomersApi.reducer,
     [SuppliersApi.reducerPath]: SuppliersApi.reducer,
@@ -33,7 +31,6 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-      .concat(authApi.middleware)
       .concat(BanksApi.middleware)
       .concat(CashInBoxesApi.middleware)
       .concat(CustomersApi.middleware)

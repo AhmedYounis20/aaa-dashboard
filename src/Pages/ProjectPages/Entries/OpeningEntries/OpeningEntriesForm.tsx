@@ -14,12 +14,6 @@ import {
   useGetEntryByIdQuery,
   useUpdateEntryMutation,
 } from "../../../../Apis/EntriesApi";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import dayjs from "dayjs";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import InputFile from "../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../interfaces/BaseModels/AttachmentModel";
 import InputAutoComplete from "../../../../Components/Inputs/InputAutoCompelete";
@@ -40,6 +34,7 @@ import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOf
 import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
 import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
+import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 const OpeningEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -528,38 +523,21 @@ const OpeningEntriesForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer
-                              components={["DateTimePicker", "DateTimePicker"]}
-                            >
-                              <DateTimePicker
-                                label="Entry Date"
-                                viewRenderers={{
-                                  hours: renderTimeViewClock,
-                                  minutes: renderTimeViewClock,
-                                  seconds: renderTimeViewClock,
-                                }}
-                                value={
-                                  model?.entryDate
-                                    ? dayjs(model.entryDate)
-                                    : null
-                                }
-                                onChange={(value) => {
-                                  updateModel(
-                                    setModel,
-                                    "entryDate",
-                                    value?.toDate()
-                                  );
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    error: !!errors.entryDate,
-                                    helperText: errors.entryDate,
-                                  },
-                                }}
-                              />
-                            </DemoContainer>
-                          </LocalizationProvider>
+                          <InputDateTimePicker
+                            label="Entry Date"
+                            type="datetime"
+                            value={model?.entryDate ?? null}
+                            onChange={(value) => {
+                              updateModel(setModel, "entryDate", value);
+                            }}
+                            disabled={false}
+                            slotProps={{
+                              textField: {
+                                error: !!errors.entryDate,
+                                helperText: errors.entryDate,
+                              },
+                            }}
+                          />
                         </div>
                       </div>
                     </div>

@@ -1,17 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../../../Apis/authApi";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
-import { ApiResponse } from "../../../interfaces/ApiResponse";
 import { UserLoginModel } from "../../../interfaces/Auth/UserLoginModel";
 import { UserModel } from "../../../interfaces/Auth/UserModel";
 import { inputHelper } from "../../../Helper";
 import { jwtDecode } from "jwt-decode";
 import { setLoggedInUser } from "../../../Storage/Redux/userAuthSlice";
 import { toastify } from "../../../Helper/toastify";
+import { loginRequest } from "../../../Apis/authApi";
 
 const Login: React.FC = () => {
-  const [loginRequest] = useLoginMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,20 +31,19 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response: ApiResponse = await loginRequest(userInput);
-    if (response.data) {
-      const { accessToken,refreshToken } = response.data.result;
+    const response = await loginRequest(userInput);
+    if (response && response.isSuccess) {
+      const { accessToken, refreshToken } = response.result;
       const userData: UserModel = jwtDecode(accessToken);
       dispatch(setLoggedInUser(userData));
       navigate("/");
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-    } else if (response.error) {
-      response.error.data.errorMessages.map((e: string) =>
+    } else if (response) {
+      response.errorMessages?.map((e: string) =>
         toastify(e, "error")
       );
     }
-
     setLoading(false);
   };
 

@@ -8,16 +8,12 @@ import {
   useCreateFinancialPeriodMutation,
 } from "../../../../Apis/FinancialPeriodsApi";
 import FinancialPeriodModel from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodModel";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { financialPeriodOptions, FinancialPeriodType } from "../../../../interfaces/ProjectInterfaces/FinancialPeriods/FinancialPeriodType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
+import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 
 const FinancialPeriodsForm: React.FC<{
   formType: FormTypes;
@@ -45,7 +41,7 @@ const FinancialPeriodsForm: React.FC<{
         "month"
       );
       setModel((prevModel) =>
-        prevModel ? { ...prevModel, endDate: newEndDate } : undefined
+        prevModel ? { ...prevModel, endDate: newEndDate.toDate() } : undefined
       );
     }
   }, [model?.periodTypeByMonth, model?.startDate]);
@@ -153,54 +149,29 @@ const FinancialPeriodsForm: React.FC<{
                   <div className="row mb-3">
                     {formType != FormTypes.Details && (
                       <div className="col col-md-6">
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DemoContainer
-                            components={["DateTimePicker", "DateTimePicker"]}
-                          >
-                            <DateTimePicker
-                              label="Start Date"
-                              viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                              }}
-                              value={
-                                model?.startDate ? dayjs(model.startDate) : null
-                              }
-                              onChange={(value) => {
-                                if (value) {
-                                  setModel((prevModel) =>
-                                    prevModel
-                                      ? {
-                                          ...prevModel,
-                                          startDate: value.toDate(), // Ensure startDate is a Date
-                                        }
-                                      : prevModel
-                                  );
-                                }
-                              }}
-                            />
-                          </DemoContainer>
-                        </LocalizationProvider>
+                        <InputDateTimePicker
+                          type="datetime"
+                          label="Start Date"
+                          value={model?.startDate ?? null}
+                          onChange={(value) => {
+                            if (value) {
+                              setModel((prevModel) =>
+                                prevModel
+                                  ? { ...prevModel, startDate: value }
+                                  : prevModel
+                              );
+                            }
+                          }}
+                        />
                       </div>
                     )}
                     <div className="col col-md-6">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer
-                          components={["DateTimePicker", "DateTimePicker"]}
-                        >
-                          <DateTimePicker
-                            label="End Date"
-                            viewRenderers={{
-                              hours: renderTimeViewClock,
-                              minutes: renderTimeViewClock,
-                              seconds: renderTimeViewClock,
-                            }}
-                            value={model?.endDate ? dayjs(model.endDate) : null}
-                            disabled
-                          />
-                        </DemoContainer>
-                      </LocalizationProvider>
+                      <InputDateTimePicker
+                        label="End Date"
+                        type="datetime"
+                        value={model?.endDate ?? null}
+                        disabled
+                      />
                     </div>
                   </div>
                 </>

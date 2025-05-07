@@ -50,6 +50,7 @@ import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCe
 import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
 import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
+import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 
 const PaymentVouchersForm: React.FC<{
   formType: FormTypes;
@@ -578,38 +579,21 @@ const getChartOfAccountsDropDown = (
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer
-                              components={["DateTimePicker", "DateTimePicker"]}
-                            >
-                              <DateTimePicker
-                                label="Entry Date"
-                                viewRenderers={{
-                                  hours: renderTimeViewClock,
-                                  minutes: renderTimeViewClock,
-                                  seconds: renderTimeViewClock,
-                                }}
-                                value={
-                                  model?.entryDate
-                                    ? dayjs(model.entryDate)
-                                    : null
-                                }
-                                onChange={(value) => {
-                                  updateModel(
-                                    setModel,
-                                    "entryDate",
-                                    value?.toDate()
-                                  );
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    error: !!errors.entryDate,
-                                    helperText: errors.entryDate,
-                                  },
-                                }}
-                              />
-                            </DemoContainer>
-                          </LocalizationProvider>
+                          <InputDateTimePicker
+                            label="Entry Date"
+                            type="datetime"
+                            value={model?.entryDate ?? null}
+                            onChange={(value) => {
+                              updateModel(setModel, "entryDate", value);
+                            }}
+                            disabled={false}
+                            slotProps={{
+                              textField: {
+                                error: !!errors.entryDate,
+                                helperText: errors.entryDate,
+                              },
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -971,7 +955,7 @@ const getChartOfAccountsDropDown = (
                                 </div>
                               </div>
                             </div>
-                              {e.paymentType == PaymentType.Cash && (
+                            {e.paymentType == PaymentType.Cash && (
                               <div className="col col-md-6">
                                 <div className="row mb-2">
                                   <div className="col col-md-6">
@@ -1530,7 +1514,18 @@ const getChartOfAccountsDropDown = (
                       <Add />
                     </IconButton>
                   </div>
-                  <EntryCostCentersComponent costCenters={costCenters} formType={formType} onChange={(entryCostCenters : EntryCostCenter[])=> setModel((prevModel)=> prevModel ? {...prevModel,costCenters:entryCostCenters} : prevModel) } entryCostCenters={model.costCenters} />
+                  <EntryCostCentersComponent
+                    costCenters={costCenters}
+                    formType={formType}
+                    onChange={(entryCostCenters: EntryCostCenter[]) =>
+                      setModel((prevModel) =>
+                        prevModel
+                          ? { ...prevModel, costCenters: entryCostCenters }
+                          : prevModel
+                      )
+                    }
+                    entryCostCenters={model.costCenters}
+                  />
                 </>
               )}
             </>

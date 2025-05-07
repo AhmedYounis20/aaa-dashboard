@@ -1,11 +1,9 @@
-import { Dayjs } from "dayjs";
-
 interface FinancialPeriodModel {
-  id:string;
+  id: string;
   yearNumber: string;
   periodTypeByMonth: number;
   startDate: Date | null;
-  endDate : Dayjs;
+  endDate: Date | null;
 }
 
 export default FinancialPeriodModel;

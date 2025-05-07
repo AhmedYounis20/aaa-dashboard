@@ -44,6 +44,7 @@ import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectI
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
+import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -543,38 +544,21 @@ const ReceiptVouchersForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer
-                              components={["DateTimePicker", "DateTimePicker"]}
-                            >
-                              <DateTimePicker
-                                label="Entry Date"
-                                viewRenderers={{
-                                  hours: renderTimeViewClock,
-                                  minutes: renderTimeViewClock,
-                                  seconds: renderTimeViewClock,
-                                }}
-                                value={
-                                  model?.entryDate
-                                    ? dayjs(model.entryDate)
-                                    : null
-                                }
-                                onChange={(value) => {
-                                  updateModel(
-                                    setModel,
-                                    "entryDate",
-                                    value?.toDate()
-                                  );
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    error: !!errors.entryDate,
-                                    helperText: errors.entryDate,
-                                  },
-                                }}
-                              />
-                            </DemoContainer>
-                          </LocalizationProvider>
+                          <InputDateTimePicker
+                            label="Entry Date"
+                            type="datetime"
+                            value={model?.entryDate ?? null}
+                            onChange={(value) => {
+                              updateModel(setModel, "entryDate", value);
+                            }}
+                            disabled={false}
+                            slotProps={{
+                              textField: {
+                                error: !!errors.entryDate,
+                                helperText: errors.entryDate,
+                              },
+                            }}
+                          />
                         </div>
                       </div>
                     </div>

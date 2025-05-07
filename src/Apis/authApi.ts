@@ -1,36 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { UserRegisterModel } from "../interfaces/Auth/UserRegisterModel";
 import { UserLoginModel } from "../interfaces/Auth/UserLoginModel";
-import { baseUrl } from "../Utilities/SD";
+import { ApiResult } from "../interfaces/ApiResponse";
+import { AccessTokenResponse } from "../interfaces/Auth/AccessTokenResponse";
+import { httpPost } from "./Axios/axiosMethods";
 
-const authApi = createApi({
-  reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-  }),
-  endpoints: (builder) => ({
-    login: builder.mutation({
-      query: (userLoginData: UserLoginModel) => ({
-        url: "auth/login",
-        method: "POST",
-        body: userLoginData,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    }),
-    register: builder.mutation({
-      query: (userRegisterData: UserRegisterModel) => ({
-        url: "auth/register",
-        method: "POST",
-        body: userRegisterData,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    }),
-  }),
-});
+const loginRequest = async (
+  data: UserLoginModel
+): Promise<ApiResult<AccessTokenResponse> | null> => {
+  return await httpPost<AccessTokenResponse>("auth/login", data);
+};
 
-export const { useRegisterMutation, useLoginMutation } = authApi;
-export default authApi;
+export { loginRequest };

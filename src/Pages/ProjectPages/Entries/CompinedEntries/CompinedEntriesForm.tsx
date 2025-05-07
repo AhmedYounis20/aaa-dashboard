@@ -44,6 +44,7 @@ import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOf
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
 import BankModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel";
+import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -562,38 +563,21 @@ const getChartOfAccountsDropDown = (
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer
-                              components={["DateTimePicker", "DateTimePicker"]}
-                            >
-                              <DateTimePicker
-                                label="Entry Date"
-                                viewRenderers={{
-                                  hours: renderTimeViewClock,
-                                  minutes: renderTimeViewClock,
-                                  seconds: renderTimeViewClock,
-                                }}
-                                value={
-                                  model?.entryDate
-                                    ? dayjs(model.entryDate)
-                                    : null
-                                }
-                                onChange={(value) => {
-                                  updateModel(
-                                    setModel,
-                                    "entryDate",
-                                    value?.toDate()
-                                  );
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    error: !!errors.entryDate,
-                                    helperText: errors.entryDate,
-                                  },
-                                }}
-                              />
-                            </DemoContainer>
-                          </LocalizationProvider>
+                          <InputDateTimePicker
+                            label="Entry Date"
+                            type="datetime"
+                            value={model?.entryDate ?? null}
+                            onChange={(value) => {
+                              updateModel(setModel, "entryDate", value);
+                            }}
+                            disabled={false}
+                            slotProps={{
+                              textField: {
+                                error: !!errors.entryDate,
+                                helperText: errors.entryDate,
+                              },
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1083,9 +1067,7 @@ const getChartOfAccountsDropDown = (
                                       }
                                       options={banks
                                         ?.filter(
-                                          (e) =>
-                                            e.nodeType ==
-                                            NodeType.Domain
+                                          (e) => e.nodeType == NodeType.Domain
                                         )
                                         .map(
                                           (item: {
