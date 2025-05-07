@@ -35,7 +35,8 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
                 position: "static",
                 background: "none",
                 boxShadow: "none",
-                borderBottom: '1px solid rgba(0, 0, 0, 0.125)'
+                borderBottom: '1px solid rgba(0, 0, 0, 0.125)',
+                zIndex :0
             }}
         >
             <Toolbar sx={{ justifyContent: "space-between" }}>
