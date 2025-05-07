@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormTypes } from '../../../../interfaces/Components';
 
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
-import { useGetEntriesQuery } from '../../../../Apis/EntriesApi';
 import EntriesForm from './OpeningEntriesForm';
+import EntryModel from '../../../../interfaces/ProjectInterfaces/Entries/Entry';
+import { getOpeningEntries } from '../../../../Apis/OpeningEntriesApi';
 
 const OpeningEntriesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
-  const { data, isLoading } = useGetEntriesQuery(null);
+  const [data, setData] = useState<EntryModel[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchData = async () => {
+    const result = await getOpeningEntries();
+    if (result && result.isSuccess) {
+      setData(result.result);
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -31,12 +44,13 @@ const OpeningEntriesRoot = () => {
               id={selectedId}
               formType={formType}
               handleCloseForm={handleCloseForm}
+              afterAction = {()=>fetchData()}
             />
           )}
-          {data?.result && (
+          {data && (
             <AppContent
               tableType="table"
-              data={data.result}
+              data={data}
               title="Opening Entries"
               btnName="new"
               addBtn
