@@ -57,9 +57,12 @@ export default function AppSidebar({ items }: ISidebarProps) {
         toggled={isSidebarOpen ? true : false}
         style={{
           width: isSidebarOpen && isMobile ? "270px" : "80px",
+          zIndex:2000
         }}
-        onBackdropClick={() =>
-          setIsSidebarOpen && setIsSidebarOpen(!isSidebarOpen)
+        onBackdropClick={() =>{
+          console.log("pressed");
+          if(setIsSidebarOpen)  setIsSidebarOpen(!isSidebarOpen);
+        }
         }
       >
         <FlexBetween
@@ -82,32 +85,25 @@ export default function AppSidebar({ items }: ISidebarProps) {
               },
             }}
           >
-            <Box
-              role="button"
-              onClick={() =>
-                setIsSidebarOpen && setIsSidebarOpen(!isSidebarOpen)
+            <MenuItem
+              icon={
+                <DashboardIcon
+                  color="info"
+                  sx={{
+                    width: "32px",
+                    height: "32px",
+                  }}
+                />
               }
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-start"
-              gap={"16px"}
-              p={"16px"}
-              paddingLeft={"24px"}
-              marginBottom={"8px"}
+              component={<Link to="/" />}
+              style={{
+                color: "#fff",
+              }}
             >
-              <DashboardIcon
-                color="info"
-                sx={{
-                  width: "32px",
-                  height: "32px",
-                }}
-              />
-              {isSidebarOpen && (
-                <Typography variant="h6" textTransform={"uppercase"}>
-                  erp system
-                </Typography>
-              )}
-            </Box>
+              <Typography variant="body1">erp system</Typography>
+            </MenuItem>
+
+        
             {items?.map((item, index) =>
               item?.submenu ? (
                 <SubMenu
