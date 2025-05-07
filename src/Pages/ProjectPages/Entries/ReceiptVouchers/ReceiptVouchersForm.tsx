@@ -45,6 +45,7 @@ import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOf
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
+import InputText from "../../../../Components/Inputs/InputText";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -416,31 +417,31 @@ const ReceiptVouchersForm: React.FC<{
                         <div className="col col-md-12">
                           <div className="row">
                             <div className="col col-md-6">
-                              <TextField
-                                type="text"
-                                className="form-input form-control"
+                              <InputText
                                 label="Financial Period Number"
-                                variant="outlined"
-                                fullWidth
-                                size="small"
+                                onChange={(value) =>
+                                  updateModel(
+                                    setModel,
+                                    "financialPeriodNumber",
+                                    value
+                                  )
+                                }
                                 disabled={true}
-                                value={model?.financialPeriodNumber}
+                                value={model?.financialPeriodNumber ?? ""}
                                 error={!!errors.financialPeriodNumber}
                                 helperText={errors.financialPeriodNumber}
                               />
                             </div>
                             <div className="col col-md-6">
-                              <TextField
-                                type="text"
-                                size="small"
-                                className="form-input form-control"
+                              <InputText
                                 label="Entry Number"
-                                variant="outlined"
-                                fullWidth
-                                disabled={true}
-                                value={model?.entryNumber}
+                                onChange={(value) =>
+                                  updateModel(setModel, "entryNumber", value)
+                                }
+                                value={model?.entryNumber ?? ""}
                                 error={!!errors.entryNumber}
                                 helperText={errors.entryNumber}
+                                disabled={true}
                               />
                             </div>
                           </div>
@@ -448,22 +449,13 @@ const ReceiptVouchersForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
+                          <InputText
                             label="Document Number"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.documentNumber}
-                            onChange={(event: { target: { value: string } }) =>
-                              updateModel(
-                                setModel,
-                                "documentNumber",
-                                event.target.value
-                              )
+                            value={model?.documentNumber ?? ""}
+                            onChange={(value) =>
+                              updateModel(setModel, "documentNumber", value)
                             }
+                            disabled={formType === FormTypes.Details}
                             error={!!errors.documentNumber}
                             helperText={errors.documentNumber}
                           />
@@ -521,22 +513,13 @@ const ReceiptVouchersForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
+                          <InputText
                             label="Receiver Name"
-                            variant="outlined"
-                            fullWidth
-                            size="small"
-                            disabled={formType === FormTypes.Details}
-                            value={model?.receiverName}
-                            onChange={(event: { target: { value: string } }) =>
-                              updateModel(
-                                setModel,
-                                "receiverName",
-                                event.target.value
-                              )
+                            value={model?.receiverName ?? ""}
+                            onChange={(value) =>
+                              updateModel(setModel, "receiverName", value)
                             }
+                            disabled={formType === FormTypes.Details}
                             error={!!errors.receiverName}
                             helperText={errors.receiverName}
                           />
@@ -965,7 +948,7 @@ const ReceiptVouchersForm: React.FC<{
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Agent Name"
@@ -974,13 +957,12 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.cashAgentName}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={ (value: string 
+                                      ) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
-                                          { cashAgentName: event.target.value },
+                                          { cashAgentName: value },
                                           idx
                                         )
                                       }
@@ -1050,7 +1032,7 @@ const ReceiptVouchersForm: React.FC<{
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Cheque Number"
@@ -1059,13 +1041,11 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.chequeNumber}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value: string) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
-                                          { chequeNumber: event.target.value },
+                                          { chequeNumber: value },
                                           idx
                                         )
                                       }
@@ -1088,7 +1068,7 @@ const ReceiptVouchersForm: React.FC<{
                               <div className="col col-md-6">
                                 <div className="row mb-2">
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Name"
@@ -1097,14 +1077,12 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryName}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value: string ) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
                                           {
-                                            promissoryName: event.target.value,
+                                            promissoryName: value,
                                           },
                                           idx
                                         )
@@ -1122,7 +1100,7 @@ const ReceiptVouchersForm: React.FC<{
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Number"
@@ -1131,15 +1109,14 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryNumber}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value: string 
+                                      ) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
                                           {
                                             promissoryNumber:
-                                              event.target.value,
+                                              value,
                                           },
                                           idx
                                         )
@@ -1162,7 +1139,7 @@ const ReceiptVouchersForm: React.FC<{
                             {(e.paymentType == PaymentType.WireTransfer ||
                               e.paymentType == PaymentType.Atm) && (
                               <div className="col col-md-6">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Reference Number"
@@ -1171,15 +1148,13 @@ const ReceiptVouchersForm: React.FC<{
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.wireTransferReferenceNumber}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value: string) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
                                         wireTransferReferenceNumber:
-                                          event.target.value,
+                                          value,
                                       },
                                       idx
                                     )
@@ -1199,7 +1174,7 @@ const ReceiptVouchersForm: React.FC<{
                             )}
                             {e.paymentType == PaymentType.CreditCard && (
                               <div className="col col-md-6">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Last 4 digits"
@@ -1208,15 +1183,13 @@ const ReceiptVouchersForm: React.FC<{
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.creditCardLastDigits}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value: string) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
                                         creditCardLastDigits:
-                                          event.target.value,
+                                          value,
                                       },
                                       idx
                                     )

@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../interfaces/ProjectInterfaces';
-import { TextField } from '@mui/material';
 import { toastify } from '../../../Helper/toastify';
 import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from '../../../Apis/AccountGuidesApi';
+import InputText from '../../../Components/Inputs/InputText';
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
@@ -106,7 +106,7 @@ const AccountGuidesForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Name"
@@ -114,17 +114,17 @@ const AccountGuidesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
-                              ? { ...prevModel, name: event.target.value }
+                              ? { ...prevModel, name: value }
                               : prevModel
                           )
                         }
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="NameSecondLanguage"
@@ -132,12 +132,12 @@ const AccountGuidesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )

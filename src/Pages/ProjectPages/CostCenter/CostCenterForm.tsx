@@ -17,6 +17,7 @@ import { CostCentersSchema } from "../../../interfaces/ProjectInterfaces/CostCen
 import * as yup from 'yup';
 import { ChartOfAccountModel } from "../../../interfaces/ProjectInterfaces";
 import { Delete } from "@mui/icons-material";
+import InputText from "../../../Components/Inputs/InputText";
 
 function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string, formType: FormTypes, parentId: string | null, handleCloseForm: () => void }) {
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -168,21 +169,20 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
           ) : (
             <Box display={"flex"} flexDirection={"column"} gap={2}>
               <Box display={"flex"} gap={1}>
-                <TextField
+                <InputText
                   type="text"
                   label="Name (required)"
                   variant="outlined"
                   fullWidth
                   disabled={formType === FormTypes.Details}
                   value={model?.name}
-                  name="name"
                   onChange={(e) => {
-                    setModel({ ...model, name: e.target.value });
+                    setModel({ ...model, name: e });
                   }}
                   error={!!errors.name}
                   helperText={errors.name}
                 />
-                <TextField
+                <InputText
                   type="text"
                   label="Second language name (required)"
                   variant="outlined"
@@ -190,9 +190,8 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                   disabled={formType === FormTypes.Details}
                   value={model?.nameSecondLanguage}
                   onChange={(e) => {
-                    setModel({ ...model, nameSecondLanguage: e.target.value });
+                    setModel({ ...model, nameSecondLanguage: e });
                   }}
-                  name="nameSecondLanguage"
                   error={!!errors.nameSecondLanguage}
                   helperText={errors.nameSecondLanguage}
                 />

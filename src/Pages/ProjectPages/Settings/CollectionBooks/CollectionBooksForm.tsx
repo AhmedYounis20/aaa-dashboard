@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { CollectionBookModel } from '../../../../interfaces/ProjectInterfaces';
-import { TextField } from '@mui/material';
 import { useCreateCollectionBookMutation, useDeleteCollectionBookMutation, useGetCollectionBooksByIdQuery, useUpdateCollectionBookMutation } from '../../../../Apis/CollectionBooksApi';
 import { toastify } from '../../../../Helper/toastify';
 import { ApiResponse } from '../../../../interfaces/ApiResponse';
+import InputText from '../../../../Components/Inputs/InputText';
 
 const CollectionBooksForm: React.FC<{
   formType: FormTypes;
@@ -103,7 +103,7 @@ const CollectionBooksForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Name"
@@ -111,17 +111,17 @@ const CollectionBooksForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
-                              ? { ...prevModel, name: event.target.value }
+                              ? { ...prevModel, name: value }
                               : prevModel
                           )
                         }
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="NameSecondLanguage"
@@ -129,12 +129,12 @@ const CollectionBooksForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )

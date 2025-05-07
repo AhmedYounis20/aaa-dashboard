@@ -8,6 +8,7 @@ import { ApiResponse } from '../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../Helper/toastify';
 import { CurrencySchema } from '../../../../interfaces/ProjectInterfaces/Currencies/currency-validation';
 import yup from 'yup';
+import InputText from '../../../../Components/Inputs/InputText';
 
 
 const CurrenciesForm: React.FC<{
@@ -139,7 +140,7 @@ const CurrenciesForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Name (required)"
@@ -147,15 +148,15 @@ const CurrenciesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
-                          setModel({ ...model, name: event.target.value })
+                        onChange={(value) =>
+                          setModel({ ...model, name: value })
                         }
                         error={!!errors.name}
                         helperText={errors.name}
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Name Second Language (required)"
@@ -163,10 +164,10 @@ const CurrenciesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel({
                             ...model,
-                            nameSecondLanguage: event.target.value,
+                            nameSecondLanguage: value,
                           })
                         }
                         error={!!errors.nameSecondLanguage}
@@ -176,7 +177,7 @@ const CurrenciesForm: React.FC<{
                   </div>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Symbol (required)"
@@ -184,10 +185,10 @@ const CurrenciesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.symbol}
-                        onChange={(event: { target: { value: string } }) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
-                              ? { ...prevModel, symbol: event.target.value }
+                              ? { ...prevModel, symbol: value }
                               : prevModel
                           )
                         }

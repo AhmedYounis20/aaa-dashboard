@@ -45,6 +45,7 @@ import InputSelect from "../../../../Components/Inputs/InputSelect";
 import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
 import BankModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
+import InputText from "../../../../Components/Inputs/InputText";
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -435,7 +436,7 @@ const getChartOfAccountsDropDown = (
                         <div className="col col-md-12">
                           <div className="row">
                             <div className="col col-md-6">
-                              <TextField
+                              <InputText
                                 type="text"
                                 className="form-input form-control"
                                 label="Financial Period Number"
@@ -449,7 +450,7 @@ const getChartOfAccountsDropDown = (
                               />
                             </div>
                             <div className="col col-md-6">
-                              <TextField
+                              <InputText
                                 type="text"
                                 size="small"
                                 className="form-input form-control"
@@ -467,7 +468,7 @@ const getChartOfAccountsDropDown = (
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Document Number"
@@ -476,12 +477,8 @@ const getChartOfAccountsDropDown = (
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.documentNumber}
-                            onChange={(event: { target: { value: string } }) =>
-                              updateModel(
-                                setModel,
-                                "documentNumber",
-                                event.target.value
-                              )
+                            onChange={(value) =>
+                              updateModel(setModel, "documentNumber", value)
                             }
                             error={!!errors.documentNumber}
                             helperText={errors.documentNumber}
@@ -540,7 +537,7 @@ const getChartOfAccountsDropDown = (
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Receiver Name"
@@ -549,12 +546,8 @@ const getChartOfAccountsDropDown = (
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={model?.receiverName}
-                            onChange={(event: { target: { value: string } }) =>
-                              updateModel(
-                                setModel,
-                                "receiverName",
-                                event.target.value
-                              )
+                            onChange={(value) =>
+                              updateModel(setModel, "receiverName", value)
                             }
                             error={!!errors.receiverName}
                             helperText={errors.receiverName}
@@ -610,7 +603,7 @@ const getChartOfAccountsDropDown = (
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Financial Collector"
@@ -619,12 +612,12 @@ const getChartOfAccountsDropDown = (
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={""}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      symbol: event.target.value,
+                                      symbol: value,
                                     }
                                   : prevModel
                               )
@@ -1015,7 +1008,7 @@ const getChartOfAccountsDropDown = (
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Agent Name"
@@ -1024,13 +1017,11 @@ const getChartOfAccountsDropDown = (
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.cashAgentName}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
-                                          { cashAgentName: event.target.value },
+                                          { cashAgentName: value },
                                           idx
                                         )
                                       }
@@ -1098,7 +1089,7 @@ const getChartOfAccountsDropDown = (
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Cheque Number"
@@ -1107,13 +1098,11 @@ const getChartOfAccountsDropDown = (
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.chequeNumber}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
-                                          { chequeNumber: event.target.value },
+                                          { chequeNumber: value },
                                           idx
                                         )
                                       }
@@ -1136,7 +1125,7 @@ const getChartOfAccountsDropDown = (
                               <div className="col col-md-6">
                                 <div className="row mb-2">
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Name"
@@ -1145,14 +1134,12 @@ const getChartOfAccountsDropDown = (
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryName}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
                                           {
-                                            promissoryName: event.target.value,
+                                            promissoryName: value,
                                           },
                                           idx
                                         )
@@ -1170,7 +1157,7 @@ const getChartOfAccountsDropDown = (
                                     />
                                   </div>
                                   <div className="col col-md-6">
-                                    <TextField
+                                    <InputText
                                       type="text"
                                       className="form-input form-control"
                                       label="Number"
@@ -1179,15 +1166,12 @@ const getChartOfAccountsDropDown = (
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryNumber}
-                                      onChange={(event: {
-                                        target: { value: string };
-                                      }) =>
+                                      onChange={(value) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
                                           {
-                                            promissoryNumber:
-                                              event.target.value,
+                                            promissoryNumber: value,
                                           },
                                           idx
                                         )
@@ -1210,7 +1194,7 @@ const getChartOfAccountsDropDown = (
                             {(e.paymentType == PaymentType.WireTransfer ||
                               e.paymentType == PaymentType.Atm) && (
                               <div className="col col-md-6">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Reference Number"
@@ -1219,15 +1203,12 @@ const getChartOfAccountsDropDown = (
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.wireTransferReferenceNumber}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        wireTransferReferenceNumber:
-                                          event.target.value,
+                                        wireTransferReferenceNumber: value,
                                       },
                                       idx
                                     )
@@ -1247,7 +1228,7 @@ const getChartOfAccountsDropDown = (
                             )}
                             {e.paymentType == PaymentType.CreditCard && (
                               <div className="col col-md-6">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Last 4 digits"
@@ -1256,15 +1237,12 @@ const getChartOfAccountsDropDown = (
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.creditCardLastDigits}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        creditCardLastDigits:
-                                          event.target.value,
+                                        creditCardLastDigits: value,
                                       },
                                       idx
                                     )
@@ -1286,7 +1264,7 @@ const getChartOfAccountsDropDown = (
                           {e.paymentType == PaymentType.Cash && (
                             <div className="row">
                               <div className="col col-md-3">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Number"
@@ -1295,14 +1273,12 @@ const getChartOfAccountsDropDown = (
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.cashPhoneNumber}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        cashPhoneNumber: event.target.value,
+                                        cashPhoneNumber: value,
                                       },
                                       idx
                                     )

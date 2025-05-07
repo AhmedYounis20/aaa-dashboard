@@ -45,7 +45,6 @@ const DefaultLayout = () => {
             flexGrow={1}
             p={3}
             overflow="auto"
-            bgcolor="#f9f9f9"
           >
             <Outlet />
           </Box>

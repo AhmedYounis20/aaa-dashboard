@@ -116,24 +116,26 @@ const DataTable = ({
   return (
     <Grid
       container
-      style={{ 
-          padding: 10, 
-          borderRadius: 10,
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'start',
-        }}
+      style={{
+        paddingTop: 10,
+        paddingBottom: 10,
+
+        borderRadius: 10,
+        width: "100%",
+        display: "flex",
+        justifyContent: "start",
+      }}
       className="border"
     >
-      <Grid 
-      item 
-      xs={8}
-      style={{ 
-        marginBottom: 10,
-      }}
+      <Grid
+        item
+        xs={8}
+        style={{
+          marginBottom: 10,
+        }}
       >
-        <FormControl size="medium" fullWidth>
-          <InputLabel id="demo-simple-select-label"  variant="outlined">
+        <FormControl size="medium" fullWidth style={{margin:10}}>
+          <InputLabel id="demo-simple-select-label" variant="outlined">
             {"columns Visiblity"}
           </InputLabel>
           <Select
@@ -156,24 +158,23 @@ const DataTable = ({
           </Select>
         </FormControl>
       </Grid>
-      <Grid 
-        item 
-        style={{ 
+      <Grid
+        item
+        style={{
           height: "60vh",
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'start',
-          padding: '18px'
+          width: "100%",
+          display: "flex",
+          justifyContent: "start",
         }}
       >
         <DataGrid
           rows={data}
           columns={visibleColumns}
           pageSize={5}
-          slots={{ toolbar: GridToolbar}}
+          slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           disableColumnSelector
-          style={{ border: 0, width: '100%' }}
+          style={{ border: 0, width: "100%" }}
           scrollbarSize={5}
           sx={{
             ".MuiDataGrid-cell:focus": {
@@ -192,7 +193,7 @@ const DataTable = ({
               backgroundColor: "rgba(0, 0, 0, 0.1)",
             },
             border: 0,
-            maxWidth: isSidebarOpen && !isMobile ? '1500px' : 'auto',
+            maxWidth: isSidebarOpen && !isMobile ? "1500px" : "auto",
           }}
         />
       </Grid>
