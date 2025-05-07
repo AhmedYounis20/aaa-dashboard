@@ -11,6 +11,7 @@ import { AccountNature } from '../../../interfaces/ProjectInterfaces/ChartOfAcco
 import Loader from '../../../Components/Loader';
 import updateModel from '../../../Helper/updateModelHelper';
 import { getAccountGuides } from '../../../Apis/AccountGuidesApi';
+import InputText from '../../../Components/Inputs/InputText';
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
@@ -156,7 +157,7 @@ const ChartOfAccountsForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Name"
@@ -164,12 +165,12 @@ const ChartOfAccountsForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  name: event.target.value,
+                                  name: value,
                                 }
                               : prevModel
                           )
@@ -177,7 +178,7 @@ const ChartOfAccountsForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="NameSecondLanguage"
@@ -185,12 +186,12 @@ const ChartOfAccountsForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )
@@ -200,7 +201,7 @@ const ChartOfAccountsForm: React.FC<{
                   </div>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Code"

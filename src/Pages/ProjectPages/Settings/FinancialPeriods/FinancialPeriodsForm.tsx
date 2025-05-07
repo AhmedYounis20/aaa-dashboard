@@ -14,6 +14,7 @@ import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
+import InputText from "../../../../Components/Inputs/InputText";
 
 const FinancialPeriodsForm: React.FC<{
   formType: FormTypes;
@@ -99,7 +100,7 @@ const FinancialPeriodsForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
                         label="Year Number"
@@ -107,12 +108,12 @@ const FinancialPeriodsForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.yearNumber || ""}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  yearNumber: event.target.value,
+                                  yearNumber: value,
                                 }
                               : undefined
                           )

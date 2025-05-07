@@ -35,6 +35,7 @@ import EntryModel from "../../../../interfaces/ProjectInterfaces/Entries/Entry";
 import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/FinancialTransaction";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
+import InputText from "../../../../Components/Inputs/InputText";
 const JournalEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -393,7 +394,7 @@ const JournalEntriesForm: React.FC<{
                         <div className="col col-md-12">
                           <div className="row">
                             <div className="col col-md-6">
-                              <TextField
+                              <InputText
                                 type="text"
                                 className="form-input form-control"
                                 label="Financial Period Number"
@@ -407,7 +408,7 @@ const JournalEntriesForm: React.FC<{
                               />
                             </div>
                             <div className="col col-md-6">
-                              <TextField
+                              <InputText
                                 type="text"
                                 size="small"
                                 className="form-input form-control"
@@ -425,7 +426,7 @@ const JournalEntriesForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Document Number"
@@ -434,11 +435,11 @@ const JournalEntriesForm: React.FC<{
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.documentNumber}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={(value) =>
                               updateModel(
                                 setModel,
                                 "documentNumber",
-                                event.target.value
+                                value
                               )
                             }
                             error={!!errors.documentNumber}
@@ -498,7 +499,7 @@ const JournalEntriesForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Receiver Name"
@@ -507,11 +508,11 @@ const JournalEntriesForm: React.FC<{
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={model?.receiverName}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={(value) =>
                               updateModel(
                                 setModel,
                                 "receiverName",
-                                event.target.value
+                                value
                               )
                             }
                             error={!!errors.receiverName}
@@ -568,7 +569,7 @@ const JournalEntriesForm: React.FC<{
                       </div>
                       <div className="row mb-2">
                         <div className="col col-md-12">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
                             label="Financial Collector"
@@ -577,12 +578,12 @@ const JournalEntriesForm: React.FC<{
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={""}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={( value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      symbol: event.target.value,
+                                      symbol: value,
                                     }
                                   : prevModel
                               )

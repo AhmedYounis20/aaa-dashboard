@@ -54,7 +54,6 @@ export default function AppSidebar({ items }: ISidebarProps) {
         toggled={isSidebarOpen ? true : false}
         style={{
           width: isSidebarOpen && isMobile ? "270px" : "80px",
-          zIndex:2000
         }}
         onBackdropClick={() =>{
           console.log("pressed");

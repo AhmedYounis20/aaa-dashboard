@@ -1401,7 +1401,7 @@ const getChartOfAccountsDropDown = (
                           {e.paymentType == PaymentType.Promissory && (
                             <div className="row">
                               <div className="col col-md-6">
-                                <TextField
+                                <InputText
                                   type="text"
                                   className="form-input form-control"
                                   label="Identification Number"
@@ -1410,15 +1410,13 @@ const getChartOfAccountsDropDown = (
                                   size="small"
                                   disabled={formType === FormTypes.Details}
                                   value={e.promissoryIdentityCard}
-                                  onChange={(event: {
-                                    target: { value: string };
-                                  }) =>
+                                  onChange={(value) =>
                                     updateModel(
                                       setModel,
                                       "financialTransactions",
                                       {
                                         promissoryIdentityCard:
-                                          event.target.value,
+                                          value,
                                       },
                                       idx
                                     )

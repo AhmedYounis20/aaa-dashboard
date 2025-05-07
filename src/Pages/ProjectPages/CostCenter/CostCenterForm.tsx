@@ -303,7 +303,7 @@ function CostCenterForm({ formType, parentId, handleCloseForm, id }: {id: string
                     <TableContainer>
                       <Table>
                         <TableHead>
-                          <TableRow>
+                          <TableRow>  
                             <TableCell align="center">الحساب</TableCell>
                             <TableCell align="center">الكود</TableCell>
                             <TableCell align="center"></TableCell>
