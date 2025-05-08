@@ -4,17 +4,10 @@ import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
 import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
-import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
-import {
-  useCreateComplexEntryMutation,
-  useDeleteEntryMutation,
-  useGetEntryByIdQuery,
-  useUpdateComplexEntryMutation,
-} from "../../../../Apis/EntriesApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -46,15 +39,14 @@ import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../Components/Inputs/InputText";
+import { createReceiptEntry, deleteReceiptEntry, getReceiptEntryById, updateReceiptEntry } from "../../../../Apis/ReceiptEntriesApi";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+  actionAfter : ()=> void;
+}> = ({ formType, id, handleCloseForm,actionAfter }) => {
   const url = "entries";
-  const entryResult = useGetEntryByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
   });
@@ -66,13 +58,9 @@ const ReceiptVouchersForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [updateEntry] = useUpdateComplexEntryMutation();
-  const [createEntry] = useCreateComplexEntryMutation();
-  const [deleteEntry] = useDeleteEntryMutation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
@@ -268,32 +256,34 @@ const ReceiptVouchersForm: React.FC<{
     });
   };
   useEffect(() => {
-    if (formType !== FormTypes.Add && !isUpdated) {
-      if (!entryResult.isLoading && entryResult.data?.result) {
-        console.log("entry:", entryResult?.data?.result);
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        const result = await getReceiptEntryById(id);
 
-        // Ensure a new object reference is created to trigger re-render
-        setModel({
-          ...entryResult.data.result, // Assign API result
-          financialTransactions:
-            entryResult.data.result.financialTransactions.map(
+        if (result && result.isSuccess) {
+          console.log("entry:", result);
+          // Ensure a new object reference is created to trigger re-render
+          setModel({
+            ...result.result, // Assign API result
+            financialTransactions: result.result.financialTransactions.map(
               (t: ComplexFinancialTransactionModel) => ({
                 ...t,
                 debitAccountId: t.debitAccountId || "", // Ensure proper values
                 creditAccountId: t.creditAccountId || "",
               })
             ),
-        });
-        setTransactionNumber(
-          entryResult.data.result.financialTransactions.findLast(
-            (e: ComplexFinancialTransactionModel) => e.orderNumber ?? 1
-          )
-        );
-        setIsLoading(false);
-      }
+          });
+          setTransactionNumber(
+            result.result.financialTransactions.findLast(
+              (e: ComplexFinancialTransactionModel) => e.orderNumber != null
+            )?.orderNumber ?? 1
+          );
+          setIsLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [entryResult.isLoading, entryResult.data, formType, isUpdated]);
-
+  }, [formType, id]);
   const validate = async () => {
     try {
       await EntrySchema.validate(model, { abortEarly: false });
@@ -311,42 +301,43 @@ const ReceiptVouchersForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteEntry(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteReceiptEntry(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else {
-      console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
+      } else {
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
+      }
       return false;
     }
+    return false;
   };
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
 
     SortFinancialTransactions();
-    const response: ApiResponse = await updateEntry(model);
-    setIsUpdated(true);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await updateReceiptEntry(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else if (response.error) {
-      if (response.error.data) {
-        toastify(response.error.data.errorMessages[0], "error");
-      }
-      if (response.error.errors) {
-        response.error.errors.map(([, val]: [string, string]) =>
-          toastify(val, "error")
-        );
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
+      } else {
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
       return false;
     }
     return false;
   };
+
+
   const SortFinancialTransactions = () => {
     const financialTransactions = model.financialTransactions;
     for (let i = 1; i <= financialTransactions.length; i++) {
@@ -358,28 +349,19 @@ const ReceiptVouchersForm: React.FC<{
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     SortFinancialTransactions();
-    console.log("send");
-    const response: ApiResponse = await createEntry(model);
+    const response = await createReceiptEntry(model);
     console.log(response);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else if (response.error) {
-      if (
-        !response.error.data.errors &&
-        response.error.data &&
-        response.error.data.errorMessages &&
-        response.error.data.errorMessages.length
-      ) {
-        toastify(response.error.data.errorMessages[0], "error");
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
       } else {
-        // response.error.data.errors.map(e=>console.log("data:",e));
-        Object.entries(response.error.data.errors).forEach(([, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            toastify(messages[0], "error");
-          }
-        });
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
+      return false;
     }
     return false;
   };
