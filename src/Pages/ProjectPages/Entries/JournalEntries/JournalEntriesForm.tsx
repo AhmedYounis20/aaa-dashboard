@@ -3,17 +3,9 @@ import { useEffect, useState } from "react";
 import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
-import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
-import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
-import {
-  useCreateEntryMutation,
-  useDeleteEntryMutation,
-  useGetEntryByIdQuery,
-  useUpdateEntryMutation,
-} from "../../../../Apis/EntriesApi";
 import InputFile from "../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../interfaces/BaseModels/AttachmentModel";
 import InputAutoComplete from "../../../../Components/Inputs/InputAutoCompelete";
@@ -36,15 +28,14 @@ import FinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../Components/Inputs/InputText";
+import { createJournalEntry, deleteJournalEntry, getJournalEntryById, updateJournalEntry } from "../../../../Apis/JournalEntriesApi";
 const JournalEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+  actionAfter: () => void;
+}> = ({ formType, id, handleCloseForm, actionAfter }) => {
   const url = "entries";
-  const entryResult = useGetEntryByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
   });
@@ -53,13 +44,9 @@ const JournalEntriesForm: React.FC<{
     skip: formType == FormTypes.Delete,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [updateEntry] = useUpdateEntryMutation();
-  const [createEntry] = useCreateEntryMutation();
-  const [deleteEntry] = useDeleteEntryMutation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
@@ -89,10 +76,10 @@ const JournalEntriesForm: React.FC<{
       wireTransferReferenceNumber: null,
       paymentType: PaymentType.None,
       isPaymentTransaction: true,
-      atmTransferReferenceNumber :null,
-      cashAgentName : null,
-      cashPhoneNumber:null,
-      collectionBookId : null
+      atmTransferReferenceNumber: null,
+      cashAgentName: null,
+      cashPhoneNumber: null,
+      collectionBookId: null,
     };
     if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
     return transaction;
@@ -131,7 +118,6 @@ const JournalEntriesForm: React.FC<{
       fetchData();
     }
   }, [formType]);
-
 
   useEffect(() => {
     if (formType == FormTypes.Add) {
@@ -230,7 +216,7 @@ const JournalEntriesForm: React.FC<{
     );
   };
 
-  const onAddFinancialTrancastion = (accountNature : AccountNature) => {
+  const onAddFinancialTrancastion = (accountNature: AccountNature) => {
     setModel((prevModel) => ({
       ...prevModel,
       financialTransactions: [
@@ -243,32 +229,38 @@ const JournalEntriesForm: React.FC<{
       return prev + 1;
     });
   };
-  useEffect(() => {
-    if (formType !== FormTypes.Add && !isUpdated) {
-      if (!entryResult.isLoading && entryResult.data?.result) {
-        console.log("entry:", entryResult?.data?.result);
 
-        // Ensure a new object reference is created to trigger re-render
-        setModel({
-          ...entryResult.data.result, // Assign API result
-          financialTransactions:
-            entryResult.data.result.financialTransactions.map(
-              (t: ComplexFinancialTransactionModel) => ({
-                ...t,
-                debitAccountId: t.debitAccountId || "", // Ensure proper values
-                creditAccountId: t.creditAccountId || "",
-              })
-            ),
-        });
-        setTransactionNumber(
-          entryResult.data.result.financialTransactions.findLast(
-            (e: ComplexFinancialTransactionModel) => e.orderNumber ?? 1
-          )
-        );
-        setIsLoading(false);
+    useEffect(() => {
+      if (formType !== FormTypes.Add) {
+        const fetchData = async () => {
+          const result = await getJournalEntryById(id);
+          if (result && result.isSuccess) {
+                   console.log("entry:", result.result);
+
+                   // Ensure a new object reference is created to trigger re-render
+                   setModel({
+                     ...result.result, // Assign API result
+                     financialTransactions:
+                       result.result.financialTransactions.map(
+                         (t: FinancialTransactionModel) => ({
+                           ...t,
+                           chartOfAccountId: t.chartOfAccountId || "", // Ensure proper values
+                         })
+                       ),
+                   });
+                    setTransactionNumber(
+                      result.result.financialTransactions.findLast(
+                        (e: FinancialTransactionModel) => e.orderNumber != null
+                      )?.orderNumber ?? 1
+                    );
+
+                   setIsLoading(false);
+          }
+        };
+        fetchData();
       }
-    }
-  }, [entryResult.isLoading, entryResult.data, formType, isUpdated]);
+    }, [formType, id]);
+
 
   const validate = async () => {
     try {
@@ -287,37 +279,36 @@ const JournalEntriesForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteEntry(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteJournalEntry(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else {
-      console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
+      } else {
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
+      }
       return false;
     }
+    return false;
   };
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
 
     SortFinancialTransactions();
-    const response: ApiResponse = await updateEntry(model);
-    setIsUpdated(true);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await updateJournalEntry(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else if (response.error) {
-      if (response.error.data) {
-        toastify(response.error.data.errorMessages[0], "error");
-      }
-      if (response.error.errors) {
-        response.error.errors.map(([, val]: [string, string]) =>
-          toastify(val, "error")
-        );
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
+      } else {
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
       return false;
     }
@@ -332,34 +323,26 @@ const JournalEntriesForm: React.FC<{
   };
 
   const handleAdd = async () => {
-    if ((await validate()) === false) return false;
+    // if ((await validate()) === false) return false;
     SortFinancialTransactions();
     console.log("send");
-    const response: ApiResponse = await createEntry(model);
+    const response = await createJournalEntry(model);
     console.log(response);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      actionAfter();
       return true;
-    } else if (response.error) {
-      if (
-        !response.error.data.errors &&
-        response.error.data &&
-        response.error.data.errorMessages &&
-        response.error.data.errorMessages.length
-      ) {
-        toastify(response.error.data.errorMessages[0], "error");
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
       } else {
-        // response.error.data.errors.map(e=>console.log("data:",e));
-        Object.entries(response.error.data.errors).forEach(([, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            toastify(messages[0], "error");
-          }
-        });
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
+      return false;
     }
     return false;
   };
-  const getTransactionIndexById : (id :string)=> number = (id: string) =>
+  const getTransactionIndexById: (id: string) => number = (id: string) =>
     model.financialTransactions.findIndex((item) => item.id == id);
   return (
     <div className="h-full">
@@ -436,11 +419,7 @@ const JournalEntriesForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.documentNumber}
                             onChange={(value) =>
-                              updateModel(
-                                setModel,
-                                "documentNumber",
-                                value
-                              )
+                              updateModel(setModel, "documentNumber", value)
                             }
                             error={!!errors.documentNumber}
                             helperText={errors.documentNumber}
@@ -509,11 +488,7 @@ const JournalEntriesForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.receiverName}
                             onChange={(value) =>
-                              updateModel(
-                                setModel,
-                                "receiverName",
-                                value
-                              )
+                              updateModel(setModel, "receiverName", value)
                             }
                             error={!!errors.receiverName}
                             helperText={errors.receiverName}
@@ -578,7 +553,7 @@ const JournalEntriesForm: React.FC<{
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={""}
-                            onChange={( value) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {

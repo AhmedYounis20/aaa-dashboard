@@ -1,19 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormTypes } from '../../../../interfaces/Components';
 
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
-import { useGetEntriesQuery } from '../../../../Apis/EntriesApi';
 import EntriesForm from './JournalEntriesForm';
+import EntryModel from '../../../../interfaces/ProjectInterfaces/Entries/Entry';
+import { getJournalEntries } from '../../../../Apis/JournalEntriesApi';
 
 const JournalEntriesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
-  const { data, isLoading } = useGetEntriesQuery(null);
+  const [data, setData] = useState<EntryModel[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchData = async () => {
+    const result = await getJournalEntries();
+    if (result && result.isSuccess) {
+      setData(result.result);
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleShowForm = () => {
     setShowForm(true);
-  };
+  };  
+
   const handleCloseForm = () => {
     setShowForm(false);
   };
@@ -31,12 +46,13 @@ const JournalEntriesRoot = () => {
               id={selectedId}
               formType={formType}
               handleCloseForm={handleCloseForm}
+              actionAfter={() => fetchData()}
             />
           )}
-          {data?.result && (
+          {data && (
             <AppContent
               tableType="table"
-              data={data.result}
+              data={data}
               title="Journal Entries"
               btnName="new"
               addBtn
