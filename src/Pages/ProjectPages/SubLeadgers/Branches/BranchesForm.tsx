@@ -301,28 +301,6 @@ const BranchesForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Phone"
-                            variant="outlined"
-                            fullWidth
-                            disabled={formType === FormTypes.Details}
-                            value={model?.phone}
-                            onChange={(event) =>
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? {
-                                      ...prevModel,
-                                      phone: event.target.value,
-                                    }
-                                  : prevModel
-                              )
-                            }
-                          />
-                        </div>
-
-                        <div className="col col-md-6">
-                          <TextField
-                            type="text"
-                            className="form-input form-control"
                             label="Address"
                             variant="outlined"
                             fullWidth
@@ -340,16 +318,14 @@ const BranchesForm: React.FC<{
                             }
                           />
                         </div>
-                      </div>
 
-                      <div className="row mb-3">
-                        <div className="col col-md-12">
-                          <label className="form-label"> notes</label>
+                        <div className="col col-md-6">
                           <TextareaAutosize
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
                             aria-label="notes"
+                            placeholder="notes..."
                             onChange={(event) =>
                               setModel((prevModel) =>
                                 prevModel

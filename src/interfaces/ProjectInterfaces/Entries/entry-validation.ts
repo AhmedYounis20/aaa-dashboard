@@ -30,8 +30,40 @@ export const FinancialTransactionSchema = yup.object().shape({
   // orderNumber: number;
 });
 
+export const EntryCostCenterSchema = yup.object().shape({
+
+  costCenterId: yup.string().nullable(),
+  amount: yup
+    .number()
+    .min(0, 'Must be 0 or more') // base rule
+    .when('costCenterId', {
+      is: (val: string | null) => val != null && val.trim() !== '',
+      then: (schema) => schema.moreThan(0, 'Must be greater than 0'),
+    }),
+
+  // debitAccountId: string;
+  // creditAccountId: string;
+  // amount: number;
+  // notes: string | null;
+  // accountNature: AccountNature;
+  // chequeBankId: string | null; // UUID format
+  // chequeNumber: string | null;
+  // chequeIssueDate: string | null; // ISO date string
+  // chequeCollectionDate: Date | null; // ISO date string
+  // collectionDate: Date | null; // ISO date string
+  // number: string | null;
+  // promissoryName: string | null;
+  // promissoryNumber: string | null;
+  // promissoryIdentityCard: string | null;
+  // promissoryCollectionDate: Date | null; // ISO date string
+  // wireTransferReferenceNumber: string | null;
+  // creditCardLastDigits: string | null;
+  // orderNumber: number;
+});
+
 export const EntrySchema = yup.object().shape({
   financialTransactions: yup.array().of(FinancialTransactionSchema).required(),
+  costCenters : yup.array().of(EntryCostCenterSchema).required(),
   currencyId: yup.string().required("currency is Required"),
   exchangeRate: yup
     .number()

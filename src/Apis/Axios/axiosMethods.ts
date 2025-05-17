@@ -95,7 +95,7 @@ const config: AxiosRequestConfig = {
 const httpPost = async <T>(
   url: string,
   data: object
-): Promise<ApiResult<T> | null> => {
+): Promise<ApiResult<T>> => {
   try {
     const response: AxiosResponse<ApiResult<T>> = await client.post(url, data);
     console.log(response.status);
@@ -107,22 +107,28 @@ const httpPost = async <T>(
       apiResponse.errorMessages?.forEach((errorMessage) =>
         toastify(errorMessage, "error")
       );
-      return null;
+      return apiResponse;
     }
 
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpPost:", error);
     handleErrorResponse(error);
-    return null;
-  }
+    const res: ApiResult<T> = {
+      isSuccess: false,
+      errorMessages: [error],
+      result: {} as T,
+      statusCode: 500,
+      successMessage: "",
+    };
+    return res;  }
 };
 
 // HTTP GET method
 const httpGet = async <T>(
   url: string,
   params: object
-): Promise<ApiResult<T> | null> => {
+): Promise<ApiResult<T>> => {
   try {
     config.params = params;
     console.log("Trying axios");
@@ -142,7 +148,14 @@ const httpGet = async <T>(
   } catch (error: any) {
     console.error("Error in httpGet:", error);
     handleErrorResponse(error);
-    return null;
+    const res : ApiResult<T> = {
+      isSuccess : false,
+      errorMessages : [error],
+      result : {} as T,
+      statusCode : 500,
+      successMessage : ""
+    }
+    return res;
   }
 };
 
@@ -150,7 +163,7 @@ const httpGet = async <T>(
 const httpPut = async <T>(
   url: string,
   data: object
-): Promise<ApiResult<T> | null> => {
+): Promise<ApiResult<T>> => {
   try {
     const response: AxiosResponse<ApiResult<T>> = await client.put(url, data);
     console.log(response.status);
@@ -162,22 +175,28 @@ const httpPut = async <T>(
       apiResponse.errorMessages?.forEach((errorMessage) =>
         toastify(errorMessage, "error")
       );
-      return null;
+      return apiResponse;
     }
 
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpPut:", error);
     handleErrorResponse(error);
-    return null;
-  }
+    const res: ApiResult<T> = {
+      isSuccess: false,
+      errorMessages: [error],
+      result: {} as T,
+      statusCode: 500,
+      successMessage: "",
+    };
+    return res;  }
 };
 
 // HTTP DELETE method
 const httpDelete = async <T>(
   url: string,
   data: object
-): Promise<ApiResult<T> | null> => {
+): Promise<ApiResult<T>> => {
   try {
     const response: AxiosResponse<ApiResult<T>> = await client.delete(url, {
       data,
@@ -191,14 +210,21 @@ const httpDelete = async <T>(
       apiResponse.errorMessages?.forEach((errorMessage) =>
         toastify(errorMessage, "error")
       );
-      return null;
+      return apiResponse;
     }
 
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpDelete:", error);
     handleErrorResponse(error);
-    return null;
+    const res: ApiResult<T> = {
+      isSuccess: false,
+      errorMessages: [error],
+      result: {} as T,
+      statusCode: 500,
+      successMessage: "",
+    };
+    return res;
   }
 };
 

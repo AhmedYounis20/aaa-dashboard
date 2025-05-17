@@ -46,6 +46,11 @@ import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/
 import BankModel from "../../../../interfaces/ProjectInterfaces/Subleadgers/Banks/BankModel";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../Components/Inputs/InputText";
+import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
+import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
+import { getCostCenters } from "../../../../Apis/CostCenterApi";
+import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
+
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -58,12 +63,12 @@ const CompinedEntriesForm: React.FC<{
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
   });
-
+  
   const collectionBooksApiResult = useGetCollectionBooksQuery({
       skip: formType == FormTypes.Delete,
     });
 
-  const branchesApiResult = useGetBranchesQuery({
+    const branchesApiResult = useGetBranchesQuery({
     skip: formType == FormTypes.Delete,
   });
     const banksApiResult = useGetBanksQuery({
@@ -83,6 +88,7 @@ const CompinedEntriesForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
+  const [costCenters, setCostCenters] = useState<CostCenterModel[]>([]);
 
     const [collectionBooks, setCollectionBooks] = useState<
       CollectionBookModel[]
@@ -148,6 +154,10 @@ const CompinedEntriesForm: React.FC<{
         if (result) {
           setChartOfAccounts(result.result);
         }
+        const costcenterResult = await getCostCenters();
+        if (costcenterResult.isSuccess) {
+          setCostCenters(costcenterResult.result);
+        } 
       };
       fetchData();
     }
@@ -224,15 +234,16 @@ const CompinedEntriesForm: React.FC<{
   ]);
   //#endregion
 
-  useEffect(() => {
-    const currency = currencies.find((e) => e.id == model.currencyId);
+  const changeExchangeRate = (currencyId: string) => {
+    const currency = currencies.find((e) => e.id == currencyId);
     console.log(currency);
     setModel((prev) =>
       prev
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
         : prev
     );
-  }, [model.currencyId,currencies]);
+  };
+
 
 const getChartOfAccountsDropDown = (
   paymentType: PaymentType
@@ -501,9 +512,10 @@ const getChartOfAccountsDropDown = (
                             label={"Currency"}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "currencyId", value)
-                            }
+                            onChange={(value: any) => {
+                              updateModel(setModel, "currencyId", value);
+                              changeExchangeRate(value);
+                            }}
                             multiple={false}
                             name={"Currencies"}
                             handleBlur={null}
@@ -563,7 +575,7 @@ const getChartOfAccountsDropDown = (
                             onChange={(value) => {
                               updateModel(setModel, "entryDate", value);
                             }}
-                            disabled={false}
+                            disabled={formType === FormTypes.Details}
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
@@ -780,6 +792,7 @@ const getChartOfAccountsDropDown = (
                                 }}
                               >
                                 <IconButton
+                                  disabled={formType === FormTypes.Details}
                                   onClick={() => {
                                     updateModel(
                                       setModel,
@@ -1415,8 +1428,7 @@ const getChartOfAccountsDropDown = (
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        promissoryIdentityCard:
-                                          value,
+                                        promissoryIdentityCard: value,
                                       },
                                       idx
                                     )
@@ -1484,7 +1496,7 @@ const getChartOfAccountsDropDown = (
                               </div>
                             </div>
                           )}
-                          {model.financialTransactions.length > 1 && (
+                          {model.financialTransactions.length > 1 && formType !== FormTypes.Details && (
                             <div>
                               <IconButton
                                 onClick={() => removetransaction(e.id)}
@@ -1495,12 +1507,26 @@ const getChartOfAccountsDropDown = (
                           )}
                         </div>
                       ))}
-
-                  <div>
+                  { formType !== FormTypes.Details && (
+                    <div>
                     <IconButton onClick={() => onAddFinancialTrancastion()}>
                       <Add />
                     </IconButton>
                   </div>
+                  ) }
+                  <EntryCostCentersComponent
+                    costCenters={costCenters}
+                    formType={formType}
+                    onChange={(entryCostCenters: EntryCostCenter[]) =>
+                      setModel((prevModel) =>
+                        prevModel
+                          ? { ...prevModel, costCenters: entryCostCenters }
+                          : prevModel
+                      )
+                    }
+                    entryCostCenters={model.costCenters}
+                    errors={errors}
+                  />
                 </>
               )}
             </>

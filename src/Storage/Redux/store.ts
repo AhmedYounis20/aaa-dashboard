@@ -9,7 +9,6 @@ import FinancialPeriodsApi from "../../Apis/FinancialPeriodsApi";
 import globalTheme from './global'
 import FixedAssetsApi from "../../Apis/FixedAssetsApi";
 import BranchesApi from "../../Apis/BranchesApi";
-import CostCenterApi from "../../Apis/CostCenterApi";
 import EntriesApi from "../../Apis/EntriesApi";
 import CollectionBooksApi from "../../Apis/CollectionBooksApi";
 
@@ -25,7 +24,6 @@ const store = configureStore({
     [CurrenciesApi.reducerPath]: CurrenciesApi.reducer,
     [FinancialPeriodsApi.reducerPath]: FinancialPeriodsApi.reducer,
     [BranchesApi.reducerPath]: BranchesApi.reducer,
-    [CostCenterApi.reducerPath]: CostCenterApi.reducer,
     [EntriesApi.reducerPath]: EntriesApi.reducer,
     [CollectionBooksApi.reducerPath]: CollectionBooksApi.reducer,
   },
@@ -39,7 +37,6 @@ const store = configureStore({
       .concat(CurrenciesApi.middleware)
       .concat(FixedAssetsApi.middleware)
       .concat(BranchesApi.middleware)
-      .concat(CostCenterApi.middleware)
       .concat(EntriesApi.middleware)
       .concat(CollectionBooksApi.middleware),
 });

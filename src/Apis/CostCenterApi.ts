@@ -1,68 +1,73 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../Utilities/SD";
 import { CostCenterModel } from "../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
+import { ApiResult } from "../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "./Axios/axiosMethods";
 
-const CostCenterApi = createApi({
-    reducerPath: "costCenterApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: baseUrl,
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem("accessToken");
-            if(token){
-                headers.set("authorization", `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
-    tagTypes: ["costCenters"],
-    endpoints: (builder) => ({
-        getCostCenter: builder.query({
-            query: () => "costCenters",
-            providesTags: ["costCenters"],
-        }),
+// const CostCenterApi = createApi({
+//     reducerPath: "costCenterApi",
+//     baseQuery: fetchBaseQuery({
+//         baseUrl: baseUrl,
+//         prepareHeaders: (headers) => {
+//             const token = localStorage.getItem("accessToken");
+//             if(token){
+//                 headers.set("authorization", `Bearer ${token}`);
+//             }
+//             return headers;
+//         },
+//     }),
+//     tagTypes: ["costCenters"],
+//     endpoints: (builder) => ({
 
-        getCostCenterById: builder.query({
-            query: (id) => `CostCenters/${id}`,
-            providesTags: ["costCenters"],
-        }),
+//         getChildrenCostCenter: builder.query({
+//             query: (parentId) => `CostCenters/GetChildren/${parentId}`,
+//             providesTags: ["costCenters"],
+//         }),
 
-        getChildrenCostCenter: builder.query({
-            query: (parentId) => `CostCenters/GetChildren/${parentId}`,
-            providesTags: ["costCenters"],
-        }),
 
-        createCostCenter: builder.mutation({
-            query: (body: CostCenterModel) => ({
-                url: 'CostCenters',
-                method: "POST",
-                body: body
-            }),
-            invalidatesTags: ["costCenters"]
-        }),
-        updateCostCenter: builder.mutation({
-            query: (costCenterBody: CostCenterModel) => ({
-            url: `CostCenters/${costCenterBody.id}`,
-            method: "PUT",
-            body: costCenterBody,
-            }),
-            invalidatesTags: ["costCenters"],
-        }),
-        deleteCostCenter: builder.mutation({
-            query: (id: string) => ({
-                url: `CostCenters/${id}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: ["costCenters"]
-        }),
-    }),
-});
 
-export const {
-    useGetChildrenCostCenterQuery,
-    useCreateCostCenterMutation,
-    useGetCostCenterByIdQuery,
-    useGetCostCenterQuery,
-    useUpdateCostCenterMutation,
-    useDeleteCostCenterMutation
-} = CostCenterApi;
-export default CostCenterApi;
+//     }),
+// });
+
+const apiEndPoint = "costCenters";
+// GET all currencies
+const getCostCenters = async (): Promise<ApiResult<
+  CostCenterModel[]
+>> => {
+  return await httpGet<CostCenterModel[]>(apiEndPoint, {});
+};
+
+// GET a single currency by ID
+const getCostCenterById = async (
+  id: string
+): Promise<ApiResult<object>> => {
+  return await httpGet<object>(`${apiEndPoint}/${id}`, {});
+};
+
+
+// POST (Create) a new currency
+const createCostCenter = async (
+  data: CostCenterModel
+): Promise<ApiResult<CostCenterModel>> => {
+  return await httpPost<CostCenterModel>(apiEndPoint, data);
+};
+
+// PUT (Update) a currency
+const updateCostCenter = async (
+  id: string,
+  data: CostCenterModel
+): Promise<ApiResult<CostCenterModel>> => {
+  return await httpPut<CostCenterModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a currency by ID
+const deleteCostCenter = async (
+  id: string
+): Promise<ApiResult<CostCenterModel>> => {
+  return await httpDelete<CostCenterModel>(`${apiEndPoint}/${id}`, { id });
+};
+export {
+  getCostCenters,
+  getCostCenterById,
+  createCostCenter,
+  updateCostCenter,
+  deleteCostCenter,
+}; 

@@ -40,6 +40,11 @@ import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../Components/Inputs/InputText";
 import { createReceiptEntry, deleteReceiptEntry, getReceiptEntryById, updateReceiptEntry } from "../../../../Apis/ReceiptEntriesApi";
+import { getCostCenters } from "../../../../Apis/CostCenterApi";
+import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
+import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
+import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
+import { receivableNotesId } from "../../../../Utilities/SD";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -67,9 +72,8 @@ const ReceiptVouchersForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
-    const [collectionBooks, setCollectionBooks] = useState<
-      CollectionBookModel[]
-    >([]);
+  const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenterModel[]>([]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
     () => {
@@ -102,6 +106,19 @@ const ReceiptVouchersForm: React.FC<{
       if (transactionNumber == 1) setTransactionNumber((prev) => prev + 1);
       return transaction;
     };
+
+
+      const createCostCenter: (
+        accountNature: AccountNature
+      ) => EntryCostCenter = (accountNature: AccountNature) => {
+        const costCenter: EntryCostCenter = {
+          accountNature: accountNature,
+          amount: 0,
+          costCenterId: null,
+          id: uuid(),
+        };
+        return costCenter;
+      };
   const [model, setModel] = useState<ComplexEntryModel>({
     id: id,
     exchangeRate: 0,
@@ -117,7 +134,7 @@ const ReceiptVouchersForm: React.FC<{
       formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
-    costCenters:[]
+    costCenters: [createCostCenter(AccountNature.Credit),createCostCenter(AccountNature.Debit)],
   });
 
   //#region listeners
@@ -128,6 +145,10 @@ const ReceiptVouchersForm: React.FC<{
         if (result) {
           setChartOfAccounts(result.result);
         }
+        const costcenterResult = await getCostCenters();
+        if (costcenterResult.isSuccess) {
+          setCostCenters(costcenterResult.result);
+        } 
       };
       fetchData();
     }
@@ -197,23 +218,28 @@ const ReceiptVouchersForm: React.FC<{
   ]);
   //#endregion
 
-  useEffect(() => {
-    const currency = currencies.find((e) => e.id == model.currencyId);
+  const changeExchangeRate = (currencyId: string) => {
+    const currency = currencies.find((e) => e.id == currencyId);
     console.log(currency);
     setModel((prev) =>
       prev
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
         : prev
     );
-  }, [model.currencyId]);
+  };
+
 
   const getChartOfAccountsDropDown = (
     paymentType: PaymentType
   ): ChartOfAccountModel[] => {
-    const filteredAccounts = chartOfAccounts.filter((item) =>
-      paymentType === PaymentType.Cash
-        ? item.subLeadgerType === SubLeadgerType.CashInBox
-        : item.subLeadgerType === SubLeadgerType.Bank
+    const filteredAccounts = chartOfAccounts.filter((item) =>{
+      if(paymentType === PaymentType.Cash){
+          return item.subLeadgerType == SubLeadgerType.CashInBox;
+      }
+      else if (paymentType === PaymentType.Cheque) {
+        return item.id === receivableNotesId;
+      } else return item.subLeadgerType === SubLeadgerType.Bank;
+    }
     );
 
     return filteredAccounts;
@@ -459,9 +485,10 @@ const ReceiptVouchersForm: React.FC<{
                             label={"Currency"}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "currencyId", value)
-                            }
+                            onChange={(value: any) => {
+                              changeExchangeRate(value);
+                              updateModel(setModel, "currencyId", value);
+                            }}
                             multiple={false}
                             name={"Currencies"}
                             handleBlur={null}
@@ -516,7 +543,7 @@ const ReceiptVouchersForm: React.FC<{
                             onChange={(value) => {
                               updateModel(setModel, "entryDate", value);
                             }}
-                            disabled={false}
+                            disabled={formType === FormTypes.Details}
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
@@ -628,7 +655,7 @@ const ReceiptVouchersForm: React.FC<{
                           <div className="row mb-2">
                             <div className="col col-md-6">
                               <div className="row mb-2">
-                                {!e.isPaymentTransaction && (
+                                {e.isPaymentTransaction && (
                                   <div className="col col-md-5">
                                     <InputAutoComplete
                                       size={"small"}
@@ -672,14 +699,14 @@ const ReceiptVouchersForm: React.FC<{
                                 )}
                                 <div
                                   className={`col ${
-                                    e.isPaymentTransaction
+                                    !e.isPaymentTransaction
                                       ? "col-md-12"
                                       : "col-md-7"
                                   }`}
                                 >
                                   <InputAutoComplete
                                     size={"small"}
-                                    options={(!e.isPaymentTransaction
+                                    options={(e.isPaymentTransaction
                                       ? chartOfAccounts
                                       : getChartOfAccountsDropDown(
                                           e.paymentType
@@ -706,7 +733,7 @@ const ReceiptVouchersForm: React.FC<{
                                         idx
                                       );
                                     }}
-                                    defaultSelect={e.isPaymentTransaction}
+                                    defaultSelect={!e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -726,7 +753,7 @@ const ReceiptVouchersForm: React.FC<{
                             </div>
                             <div className="col col-md-6">
                               <div className="row mb-2">
-                                {e.isPaymentTransaction && (
+                                {!e.isPaymentTransaction && (
                                   <div className="col col-md-5">
                                     <InputAutoComplete
                                       size={"small"}
@@ -770,14 +797,14 @@ const ReceiptVouchersForm: React.FC<{
                                 )}
                                 <div
                                   className={`col ${
-                                    !e.isPaymentTransaction
+                                    e.isPaymentTransaction
                                       ? "col-md-12"
                                       : "col-md-7"
                                   }`}
                                 >
                                   <InputAutoComplete
                                     size={"small"}
-                                    options={(e.isPaymentTransaction
+                                    options={(!e.isPaymentTransaction
                                       ? chartOfAccounts
                                       : getChartOfAccountsDropDown(
                                           e.paymentType
@@ -804,7 +831,7 @@ const ReceiptVouchersForm: React.FC<{
                                         idx
                                       );
                                     }}
-                                    defaultSelect={!e.isPaymentTransaction}
+                                    defaultSelect={e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -939,8 +966,7 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.cashAgentName}
-                                      onChange={ (value: string 
-                                      ) =>
+                                      onChange={(value: string) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
@@ -1059,7 +1085,7 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryName}
-                                      onChange={(value: string ) =>
+                                      onChange={(value: string) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
@@ -1091,14 +1117,12 @@ const ReceiptVouchersForm: React.FC<{
                                       size="small"
                                       disabled={formType === FormTypes.Details}
                                       value={e.promissoryNumber}
-                                      onChange={(value: string 
-                                      ) =>
+                                      onChange={(value: string) =>
                                         updateModel(
                                           setModel,
                                           "financialTransactions",
                                           {
-                                            promissoryNumber:
-                                              value,
+                                            promissoryNumber: value,
                                           },
                                           idx
                                         )
@@ -1135,8 +1159,7 @@ const ReceiptVouchersForm: React.FC<{
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        wireTransferReferenceNumber:
-                                          value,
+                                        wireTransferReferenceNumber: value,
                                       },
                                       idx
                                     )
@@ -1170,8 +1193,7 @@ const ReceiptVouchersForm: React.FC<{
                                       setModel,
                                       "financialTransactions",
                                       {
-                                        creditCardLastDigits:
-                                          value,
+                                        creditCardLastDigits: value,
                                       },
                                       idx
                                     )
@@ -1417,7 +1439,7 @@ const ReceiptVouchersForm: React.FC<{
                               </div>
                             </div>
                           )}
-                          {model.financialTransactions.length > 1 && (
+                          {model.financialTransactions.length > 1 && formType !== FormTypes.Details && (
                             <div>
                               <IconButton
                                 onClick={() => removetransaction(e.id)}
@@ -1428,12 +1450,27 @@ const ReceiptVouchersForm: React.FC<{
                           )}
                         </div>
                       ))}
+                  { formType !== FormTypes.Details &&(
 
-                  <div>
+                    <div>
                     <IconButton onClick={() => onAddFinancialTrancastion()}>
                       <Add />
                     </IconButton>
                   </div>
+                  )}
+                  <EntryCostCentersComponent
+                    costCenters={costCenters}
+                    formType={formType}
+                    onChange={(entryCostCenters: EntryCostCenter[]) =>
+                      setModel((prevModel) =>
+                        prevModel
+                          ? { ...prevModel, costCenters: entryCostCenters }
+                          : prevModel
+                      )
+                    }
+                    entryCostCenters={model.costCenters}
+                    errors={errors}
+                  />
                 </>
               )}
             </>

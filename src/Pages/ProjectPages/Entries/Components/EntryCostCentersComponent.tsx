@@ -5,39 +5,43 @@ import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfA
 import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
 import { Add } from "@mui/icons-material";
-
+import {v4 as uuid } from "uuid";
 const EntryCostCentersComponent: React.FC<{
   formType: FormTypes;
   entryCostCenters: EntryCostCenter[];
   costCenters: CostCenterModel[];
+  errors: Record<string, string>;
   onChange: (entryCostCenters: EntryCostCenter[]) => void;
-}> = ({ formType, entryCostCenters, onChange, costCenters }) => {
-
+}> = ({ formType, entryCostCenters, onChange, costCenters, errors={} }) => {
   // Function to create a new cost center entry
   const createCostCenter = (accountNature: AccountNature): EntryCostCenter => ({
     accountNature,
     amount: 0,
     costCenterId: null,
+    id: uuid(),
   });
 
   // Handle change for cost center selection
-  const handleCostCenterChange = (id: number, value: string | null) => {
-    const updatedCenters = entryCostCenters.map((center, idx) =>
-      idx === id ? { ...center, costCenterId: value } : center
+  const handleCostCenterChange = (id: string, value: string | null) => {
+    const updatedCenters = entryCostCenters.map((center) =>
+      center.id === id ? { ...center, costCenterId: value } : center
     );
     onChange(updatedCenters);
   };
 
   // Handle change for amount input
-  const handleAmountChange = (id: number, value: number) => {
-    const updatedCenters = entryCostCenters.map((center, idx) =>
-      idx === id ? { ...center, amount: value } : center
+  const handleAmountChange = (id: string, value: number) => {
+    const updatedCenters = entryCostCenters.map((center) =>
+      center.id === id ? { ...center, amount: value } : center
     );
     onChange(updatedCenters);
   };
 
   // Render a single entry for cost center
-  const renderCostCenterEntry = (e: EntryCostCenter, idx: number) => (
+  const renderCostCenterEntry = (
+    e: EntryCostCenter,
+    idx: string,
+  ) => (
     <div className="card card-body mb-3" key={`cost-center-${idx}`}>
       <div className="row mb-2">
         <div className="col col-md-8">
@@ -48,7 +52,9 @@ const EntryCostCentersComponent: React.FC<{
               label: item.name,
               value: item.id,
             }))}
-            label="Cost Center"
+            label={`${
+              e.accountNature == AccountNature.Debit ? "Debit" : "Credit"
+            } Cost Center`}
             value={e?.costCenterId}
             disabled={formType === FormTypes.Details}
             onChange={(value: string | null) =>
@@ -57,7 +63,6 @@ const EntryCostCentersComponent: React.FC<{
             multiple={false}
             name="Branches"
             handleBlur={null}
-            defaultSelect={true}
             error={null}
             helperText={null}
           />
@@ -75,6 +80,20 @@ const EntryCostCentersComponent: React.FC<{
             onChange={(event) =>
               handleAmountChange(idx, parseFloat(event.target.value) || 0)
             }
+            error={
+              !!errors[
+                `costCenters[${entryCostCenters.findIndex(
+                  (e) => e.id == idx
+                )}].amount`
+              ]
+            }
+            helperText={
+              errors[
+                `costCenters[${entryCostCenters.findIndex(
+                  (e) => e.id == idx
+                )}].amount`
+              ]
+            }
           />
         </div>
       </div>
@@ -82,21 +101,36 @@ const EntryCostCentersComponent: React.FC<{
   );
 
   return (
-    <div className="row">
-      {([AccountNature.Debit, AccountNature.Credit] as AccountNature[]).map((nature) => (
-        <div className="col col-md-6" key={nature}>
-          {entryCostCenters
-            .filter((e) => e.accountNature === nature)
-            .map(renderCostCenterEntry)}
-          <IconButton
-            onClick={() =>
-              onChange([...entryCostCenters, createCostCenter(nature)])
-            }
-          >
-            <Add />
-          </IconButton>
+    <div className="card card-body">
+      <div className="row mb-2">
+        <div className="col col-md-6">
+          Debit Cost Centers
         </div>
-      ))}
+        <div className="col col-md-6">
+          Credit Cost Centers
+        </div>
+      </div>
+      <div className="row">
+        {([AccountNature.Debit, AccountNature.Credit] as AccountNature[]).map(
+          (nature) => (
+            <div className="col col-md-6" key={nature}>
+              {entryCostCenters
+                .filter((e) => e.accountNature === nature)
+                .map((item) => renderCostCenterEntry(item, item.id))}
+                {formType !== FormTypes.Details && (
+
+                  <IconButton
+                  onClick={() =>
+                    onChange([...entryCostCenters, createCostCenter(nature)])
+                  }
+                  >
+                <Add />
+              </IconButton>
+              )}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 };

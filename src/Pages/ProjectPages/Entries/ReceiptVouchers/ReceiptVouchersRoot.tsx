@@ -23,7 +23,8 @@ const ReceiptVouchersRoot = () => {
   };
   useEffect(() => {
     fetchData();
-  }, []);  const handleShowForm = () => {
+  }, []);  
+  const handleShowForm = () => {
     setShowForm(true);
   };
   const handleCloseForm = () => {

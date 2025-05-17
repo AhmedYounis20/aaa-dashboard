@@ -15,54 +15,54 @@ const EntriesApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["entries"],
+  tagTypes: ["compinedEntries"],
   endpoints: (builder) => ({
     getEntries: builder.query({
-      query: () => "entries",
-      providesTags: ["entries"],
+      query: () => "compinedEntries",
+      providesTags: ["compinedEntries"],
     }),
     getEntryById: builder.query({
-      query: (id) => `entries/${id}`,
-      providesTags: ["entries"],
+      query: (id) => `compinedEntries/${id}`,
+      providesTags: ["compinedEntries"],
     }),
     updateComplexEntry: builder.mutation({
       query: (body: ComplexEntryModel) => ({
-        url: `entries/${body.id}`,
+        url: `compinedEntries/${body.id}`,
         method: "PUT",
         body: body,
       }),
-      invalidatesTags: ["entries"],
+      invalidatesTags: ["compinedEntries"],
     }),
     updateEntry: builder.mutation({
       query: (body: EntryModel) => ({
-        url: `entries/${body.id}`,
+        url: `compinedEntries/${body.id}`,
         method: "PUT",
         body: body,
       }),
-      invalidatesTags: ["entries"],
+      invalidatesTags: ["compinedEntries"],
     }),
     deleteEntry: builder.mutation({
       query: (id) => ({
-        url: `entries/${id}`,
+        url: `compinedEntries/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["entries"],
+      invalidatesTags: ["compinedEntries"],
     }),
     createComplexEntry: builder.mutation({
       query: (body: ComplexEntryModel) => ({
-        url: `entries`,
+        url: `compinedEntries`,
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["entries"],
+      invalidatesTags: ["compinedEntries"],
     }),
     createEntry: builder.mutation({
       query: (body: EntryModel) => ({
-        url: `entries`,
+        url: `compinedEntries`,
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["entries"],
+      invalidatesTags: ["compinedEntries"],
     }),
   }),
 });

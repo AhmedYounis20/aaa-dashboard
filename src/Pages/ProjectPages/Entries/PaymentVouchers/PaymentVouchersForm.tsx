@@ -7,9 +7,6 @@ import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
-import {
-  useGetCostCenterQuery,
-} from "../../../../Apis/CostCenterApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -45,7 +42,8 @@ import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/En
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import { createPaymentEntry, deletePaymentEntry, getPaymentEntryById, updatePaymentEntry } from "../../../../Apis/PaymentEntriesApi";
-
+import { getCostCenters } from "../../../../Apis/CostCenterApi";
+import { payableNotesId } from "../../../../Utilities/SD";
 const PaymentVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -54,10 +52,6 @@ const PaymentVouchersForm: React.FC<{
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
   const url = "entries";
   const currenciesApiResult = useGetCurrenciesQuery({
-    skip: formType == FormTypes.Delete,
-  });
-
-  const costCentersApiResult = useGetCostCenterQuery({
     skip: formType == FormTypes.Delete,
   });
   const collectionBooksApiResult = useGetCollectionBooksQuery({
@@ -76,7 +70,7 @@ const PaymentVouchersForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
-  const [costCenters] = useState<CostCenterModel[]>([]);
+  const [costCenters,setCostCenters] = useState<CostCenterModel[]>([]);
   const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>(
     []
   );
@@ -120,6 +114,7 @@ const PaymentVouchersForm: React.FC<{
       accountNature: accountNature,
       amount: 0,
       costCenterId: null,
+      id : uuid()
     };
     return costCenter;
   };
@@ -152,20 +147,15 @@ const PaymentVouchersForm: React.FC<{
         if (result) {
           setChartOfAccounts(result.result);
         }
+        const costcenterResult = await getCostCenters();
+        if (costcenterResult.isSuccess) {
+          setCostCenters(costcenterResult.result);
+        } 
       };
       fetchData();
     }
   }, [formType]);
 
-  useEffect(() => {
-    if (costCentersApiResult.isSuccess && !costCentersApiResult.isLoading) {
-      setChartOfAccounts(costCentersApiResult.data.result);
-    }
-  }, [
-    costCentersApiResult,
-    costCentersApiResult.isLoading,
-    costCentersApiResult.isSuccess,
-  ]);
   useEffect(() => {
     if (
       collectionBooksApiResult.isSuccess &&
@@ -230,25 +220,27 @@ const PaymentVouchersForm: React.FC<{
   ]);
   //#endregion
 
-  useEffect(() => {
-    const currency = currencies.find((e) => e.id == model.currencyId);
+  const changeExchangeRate = (currencyId :  string) => {
+    const currency = currencies.find((e) => e.id == currencyId);
     console.log(currency);
     setModel((prev) =>
       prev
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
         : prev
     );
-  }, [model.currencyId]);
+  };
 
   const getChartOfAccountsDropDown = (
     paymentType: PaymentType
   ): ChartOfAccountModel[] => {
-    const filteredAccounts = chartOfAccounts.filter((item) =>
-      paymentType === PaymentType.Cash
-        ? item.subLeadgerType === SubLeadgerType.CashInBox
-        : item.subLeadgerType === SubLeadgerType.Bank
+    const filteredAccounts = chartOfAccounts.filter((item) =>{
+      if (paymentType === PaymentType.Cash) {
+        return item.subLeadgerType == SubLeadgerType.CashInBox;
+      } else if (paymentType === PaymentType.Cheque) {
+        return item.id === payableNotesId;
+      } else return item.subLeadgerType === SubLeadgerType.Bank;
+    }
     );
-
     return filteredAccounts;
   };
 
@@ -318,6 +310,7 @@ const PaymentVouchersForm: React.FC<{
           };
         fetchData();
 
+
       }
     }
   , [formType,id]);
@@ -386,7 +379,9 @@ const PaymentVouchersForm: React.FC<{
     if ((await validate()) === false) return false;
     SortFinancialTransactions();
     console.log("send");
-    const response = await createPaymentEntry(model);
+    const modelToCreate : ComplexEntryModel = {...model,costCenters : model.costCenters.filter(e=>e.costCenterId != null && e.costCenterId.trim() !=='')};
+    const response = await createPaymentEntry(modelToCreate);
+
     console.log(response);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
@@ -505,9 +500,10 @@ const PaymentVouchersForm: React.FC<{
                             label={"Currency"}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "currencyId", value)
-                            }
+                            onChange={(value: any) => {
+                              updateModel(setModel, "currencyId", value);
+                              changeExchangeRate(value);
+                            }}
                             multiple={false}
                             name={"Currencies"}
                             handleBlur={null}
@@ -571,7 +567,7 @@ const PaymentVouchersForm: React.FC<{
                             onChange={(value) => {
                               updateModel(setModel, "entryDate", value);
                             }}
-                            disabled={false}
+                            disabled={formType === FormTypes.Details}
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
@@ -683,7 +679,7 @@ const PaymentVouchersForm: React.FC<{
                           <div className="row mb-2">
                             <div className="col col-md-6">
                               <div className="row mb-2">
-                                {!e.isPaymentTransaction && (
+                                {e.isPaymentTransaction && (
                                   <div className="col col-md-5">
                                     <InputAutoComplete
                                       size={"small"}
@@ -727,14 +723,14 @@ const PaymentVouchersForm: React.FC<{
                                 )}
                                 <div
                                   className={`col ${
-                                    e.isPaymentTransaction
+                                    !e.isPaymentTransaction
                                       ? "col-md-12"
                                       : "col-md-7"
                                   }`}
                                 >
                                   <InputAutoComplete
                                     size={"small"}
-                                    options={(!e.isPaymentTransaction
+                                    options={(e.isPaymentTransaction
                                       ? chartOfAccounts
                                       : getChartOfAccountsDropDown(
                                           e.paymentType
@@ -761,7 +757,7 @@ const PaymentVouchersForm: React.FC<{
                                         idx
                                       );
                                     }}
-                                    defaultSelect={e.isPaymentTransaction}
+                                    defaultSelect={!e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -781,7 +777,7 @@ const PaymentVouchersForm: React.FC<{
                             </div>
                             <div className="col col-md-6">
                               <div className="row mb-2">
-                                {e.isPaymentTransaction && (
+                                {!e.isPaymentTransaction && (
                                   <div className="col col-md-5">
                                     <InputAutoComplete
                                       size={"small"}
@@ -825,14 +821,14 @@ const PaymentVouchersForm: React.FC<{
                                 )}
                                 <div
                                   className={`col ${
-                                    !e.isPaymentTransaction
+                                    e.isPaymentTransaction
                                       ? "col-md-12"
                                       : "col-md-7"
                                   }`}
                                 >
                                   <InputAutoComplete
                                     size={"small"}
-                                    options={(e.isPaymentTransaction
+                                    options={(!e.isPaymentTransaction
                                       ? chartOfAccounts
                                       : getChartOfAccountsDropDown(
                                           e.paymentType
@@ -859,7 +855,7 @@ const PaymentVouchersForm: React.FC<{
                                         idx
                                       );
                                     }}
-                                    defaultSelect={!e.isPaymentTransaction}
+                                    defaultSelect={e.isPaymentTransaction}
                                     multiple={false}
                                     name={"DebtAccount"}
                                     handleBlur={null}
@@ -1482,23 +1478,25 @@ const PaymentVouchersForm: React.FC<{
                               </div>
                             </div>
                           )}
-                          {model.financialTransactions.length > 1 && (
-                            <div>
-                              <IconButton
-                                onClick={() => removetransaction(e.id)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </div>
-                          )}
+                          {model.financialTransactions.length > 1 &&
+                            formType !== FormTypes.Details && (
+                              <div>
+                                <IconButton
+                                  onClick={() => removetransaction(e.id)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            )}
                         </div>
                       ))}
-
-                  <div>
-                    <IconButton onClick={() => onAddFinancialTrancastion()}>
-                      <Add />
-                    </IconButton>
-                  </div>
+                  {formType !== FormTypes.Details && (
+                    <div>
+                      <IconButton onClick={() => onAddFinancialTrancastion()}>
+                        <Add />
+                      </IconButton>
+                    </div>
+                  )}
                   <EntryCostCentersComponent
                     costCenters={costCenters}
                     formType={formType}
@@ -1509,6 +1507,7 @@ const PaymentVouchersForm: React.FC<{
                           : prevModel
                       )
                     }
+                    errors={errors}
                     entryCostCenters={model.costCenters}
                   />
                 </>

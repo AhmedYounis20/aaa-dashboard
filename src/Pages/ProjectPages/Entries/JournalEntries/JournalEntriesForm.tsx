@@ -171,15 +171,16 @@ const JournalEntriesForm: React.FC<{
   ]);
   //#endregion
 
-  useEffect(() => {
-    const currency = currencies.find((e) => e.id == model.currencyId);
+  const changeExchangeRate = (currencyId: string) => {
+    const currency = currencies.find((e) => e.id == currencyId);
     console.log(currency);
     setModel((prev) =>
       prev
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
         : prev
     );
-  }, [model.currencyId]);
+  };
+
 
   const getChartOfAccountsDropDown = (
     paymentType: PaymentType
@@ -442,9 +443,10 @@ const JournalEntriesForm: React.FC<{
                             label={"Currency"}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "currencyId", value)
-                            }
+                            onChange={(value: any) => {
+                              updateModel(setModel, "currencyId", value);
+                              changeExchangeRate(value);
+                            }}
                             multiple={false}
                             name={"Currencies"}
                             handleBlur={null}
@@ -504,7 +506,7 @@ const JournalEntriesForm: React.FC<{
                             onChange={(value) => {
                               updateModel(setModel, "entryDate", value);
                             }}
-                            disabled={false}
+                            disabled={formType === FormTypes.Details}
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
@@ -707,27 +709,32 @@ const JournalEntriesForm: React.FC<{
                                   {model.financialTransactions.filter(
                                     (e) =>
                                       e.accountNature == AccountNature.Debit
-                                  ).length > 1 && (
-                                    <div>
-                                      <IconButton
-                                        onClick={() => removetransaction(e.id)}
-                                      >
-                                        <Delete />
-                                      </IconButton>
-                                    </div>
-                                  )}
+                                  ).length > 1 &&
+                                    formType !== FormTypes.Details && (
+                                      <div>
+                                        <IconButton
+                                          onClick={() =>
+                                            removetransaction(e.id)
+                                          }
+                                        >
+                                          <Delete />
+                                        </IconButton>
+                                      </div>
+                                    )}
                                 </div>
                               </div>
                             </div>
                           ))}
                       <div>
-                        <IconButton
-                          onClick={() =>
-                            onAddFinancialTrancastion(AccountNature.Debit)
-                          }
-                        >
-                          <Add />
-                        </IconButton>
+                        {formType !== FormTypes.Details && (
+                          <IconButton
+                            onClick={() =>
+                              onAddFinancialTrancastion(AccountNature.Debit)
+                            }
+                          >
+                            <Add />
+                          </IconButton>
+                        )}
                       </div>
                     </div>
                     <div className="col col-md-6">
@@ -831,27 +838,32 @@ const JournalEntriesForm: React.FC<{
                                   {model.financialTransactions.filter(
                                     (e) =>
                                       e.accountNature == AccountNature.Credit
-                                  ).length > 1 && (
-                                    <div>
-                                      <IconButton
-                                        onClick={() => removetransaction(e.id)}
-                                      >
-                                        <Delete />
-                                      </IconButton>
-                                    </div>
-                                  )}
+                                  ).length > 1 &&
+                                    formType !== FormTypes.Details && (
+                                      <div>
+                                        <IconButton
+                                          onClick={() =>
+                                            removetransaction(e.id)
+                                          }
+                                        >
+                                          <Delete />
+                                        </IconButton>
+                                      </div>
+                                    )}
                                 </div>
                               </div>
                             </div>
                           ))}
                       <div>
-                        <IconButton
-                          onClick={() =>
-                            onAddFinancialTrancastion(AccountNature.Credit)
-                          }
-                        >
-                          <Add />
-                        </IconButton>
+                        {formType !== FormTypes.Details && (
+                          <IconButton
+                            onClick={() =>
+                              onAddFinancialTrancastion(AccountNature.Credit)
+                            }
+                          >
+                            <Add />
+                          </IconButton>
+                        )}
                       </div>
                     </div>
                   </div>
