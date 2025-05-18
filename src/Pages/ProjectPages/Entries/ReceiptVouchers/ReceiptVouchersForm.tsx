@@ -33,13 +33,21 @@ import {
 import { httpGet } from "../../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
 import { v4 as uuid } from "uuid";
-import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
+import {
+  PaymentType,
+  PaymentTypeOptions,
+} from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import InputDateTimePicker from "../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../Components/Inputs/InputText";
-import { createReceiptEntry, deleteReceiptEntry, getReceiptEntryById, updateReceiptEntry } from "../../../../Apis/ReceiptEntriesApi";
+import {
+  createReceiptEntry,
+  deleteReceiptEntry,
+  getReceiptEntryById,
+  updateReceiptEntry,
+} from "../../../../Apis/ReceiptEntriesApi";
 import { getCostCenters } from "../../../../Apis/CostCenterApi";
 import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
@@ -49,8 +57,8 @@ const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-  actionAfter : ()=> void;
-}> = ({ formType, id, handleCloseForm,actionAfter }) => {
+  actionAfter: () => void;
+}> = ({ formType, id, handleCloseForm, actionAfter }) => {
   const url = "entries";
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
@@ -72,7 +80,9 @@ const ReceiptVouchersForm: React.FC<{
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
-  const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>([]);
+  const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>(
+    []
+  );
   const [costCenters, setCostCenters] = useState<CostCenterModel[]>([]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
@@ -107,18 +117,17 @@ const ReceiptVouchersForm: React.FC<{
       return transaction;
     };
 
-
-      const createCostCenter: (
-        accountNature: AccountNature
-      ) => EntryCostCenter = (accountNature: AccountNature) => {
-        const costCenter: EntryCostCenter = {
-          accountNature: accountNature,
-          amount: 0,
-          costCenterId: null,
-          id: uuid(),
-        };
-        return costCenter;
-      };
+  const createCostCenter: (accountNature: AccountNature) => EntryCostCenter = (
+    accountNature: AccountNature
+  ) => {
+    const costCenter: EntryCostCenter = {
+      accountNature: accountNature,
+      amount: 0,
+      costCenterId: null,
+      id: uuid(),
+    };
+    return costCenter;
+  };
   const [model, setModel] = useState<ComplexEntryModel>({
     id: id,
     exchangeRate: 0,
@@ -134,7 +143,10 @@ const ReceiptVouchersForm: React.FC<{
       formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
-    costCenters: [createCostCenter(AccountNature.Credit),createCostCenter(AccountNature.Debit)],
+    costCenters: [
+      createCostCenter(AccountNature.Credit),
+      createCostCenter(AccountNature.Debit),
+    ],
   });
 
   //#region listeners
@@ -148,24 +160,24 @@ const ReceiptVouchersForm: React.FC<{
         const costcenterResult = await getCostCenters();
         if (costcenterResult.isSuccess) {
           setCostCenters(costcenterResult.result);
-        } 
+        }
       };
       fetchData();
     }
   }, [formType]);
 
-    useEffect(() => {
-      if (
-        collectionBooksApiResult.isSuccess &&
-        !collectionBooksApiResult.isLoading
-      ) {
-        setCollectionBooks(collectionBooksApiResult.data.result);
-      }
-    }, [
-      collectionBooksApiResult,
-      collectionBooksApiResult.isLoading,
-      collectionBooksApiResult.isSuccess,
-    ]);
+  useEffect(() => {
+    if (
+      collectionBooksApiResult.isSuccess &&
+      !collectionBooksApiResult.isLoading
+    ) {
+      setCollectionBooks(collectionBooksApiResult.data.result);
+    }
+  }, [
+    collectionBooksApiResult,
+    collectionBooksApiResult.isLoading,
+    collectionBooksApiResult.isSuccess,
+  ]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
@@ -228,19 +240,16 @@ const ReceiptVouchersForm: React.FC<{
     );
   };
 
-
   const getChartOfAccountsDropDown = (
     paymentType: PaymentType
   ): ChartOfAccountModel[] => {
-    const filteredAccounts = chartOfAccounts.filter((item) =>{
-      if(paymentType === PaymentType.Cash){
-          return item.subLeadgerType == SubLeadgerType.CashInBox;
-      }
-      else if (paymentType === PaymentType.Cheque) {
+    const filteredAccounts = chartOfAccounts.filter((item) => {
+      if (paymentType === PaymentType.Cash) {
+        return item.subLeadgerType == SubLeadgerType.CashInBox;
+      } else if (paymentType === PaymentType.Cheque) {
         return item.id === receivableNotesId;
       } else return item.subLeadgerType === SubLeadgerType.Bank;
-    }
-    );
+    });
 
     return filteredAccounts;
   };
@@ -347,7 +356,13 @@ const ReceiptVouchersForm: React.FC<{
     if ((await validate()) === false) return false;
 
     SortFinancialTransactions();
-    const response = await updateReceiptEntry(model.id, model);
+    const modelToCreate: ComplexEntryModel = {
+      ...model,
+      costCenters: model.costCenters.filter(
+        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
+      ),
+    };
+    const response = await updateReceiptEntry(model.id, modelToCreate);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       actionAfter();
@@ -363,7 +378,6 @@ const ReceiptVouchersForm: React.FC<{
     return false;
   };
 
-
   const SortFinancialTransactions = () => {
     const financialTransactions = model.financialTransactions;
     for (let i = 1; i <= financialTransactions.length; i++) {
@@ -375,7 +389,13 @@ const ReceiptVouchersForm: React.FC<{
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     SortFinancialTransactions();
-    const response = await createReceiptEntry(model);
+    const modelToCreate: ComplexEntryModel = {
+      ...model,
+      costCenters: model.costCenters.filter(
+        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
+      ),
+    };
+    const response = await createReceiptEntry(modelToCreate);
     console.log(response);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
@@ -1439,24 +1459,24 @@ const ReceiptVouchersForm: React.FC<{
                               </div>
                             </div>
                           )}
-                          {model.financialTransactions.length > 1 && formType !== FormTypes.Details && (
-                            <div>
-                              <IconButton
-                                onClick={() => removetransaction(e.id)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </div>
-                          )}
+                          {model.financialTransactions.length > 1 &&
+                            formType !== FormTypes.Details && (
+                              <div>
+                                <IconButton
+                                  onClick={() => removetransaction(e.id)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            )}
                         </div>
                       ))}
-                  { formType !== FormTypes.Details &&(
-
+                  {formType !== FormTypes.Details && (
                     <div>
-                    <IconButton onClick={() => onAddFinancialTrancastion()}>
-                      <Add />
-                    </IconButton>
-                  </div>
+                      <IconButton onClick={() => onAddFinancialTrancastion()}>
+                        <Add />
+                      </IconButton>
+                    </div>
                   )}
                   <EntryCostCentersComponent
                     costCenters={costCenters}

@@ -4,7 +4,7 @@ import { FormTypes } from "../../../../interfaces/Components";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
 import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
-import { Add } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import {v4 as uuid } from "uuid";
 const EntryCostCentersComponent: React.FC<{
   formType: FormTypes;
@@ -29,6 +29,10 @@ const EntryCostCentersComponent: React.FC<{
     onChange(updatedCenters);
   };
 
+  const handleDeleteCostCenter = (id:string)=>{
+    const updatedCenters = entryCostCenters.filter((center) =>center.id !== id );
+    onChange(updatedCenters);
+  }
   // Handle change for amount input
   const handleAmountChange = (id: string, value: number) => {
     const updatedCenters = entryCostCenters.map((center) =>
@@ -38,13 +42,10 @@ const EntryCostCentersComponent: React.FC<{
   };
 
   // Render a single entry for cost center
-  const renderCostCenterEntry = (
-    e: EntryCostCenter,
-    idx: string,
-  ) => (
+  const renderCostCenterEntry = (e: EntryCostCenter, idx: string) => (
     <div className="card card-body mb-3" key={`cost-center-${idx}`}>
       <div className="row mb-2">
-        <div className="col col-md-8">
+        <div className="col col-md-6">
           <InputAutoComplete
             size="small"
             options={costCenters?.map((item) => ({
@@ -95,6 +96,17 @@ const EntryCostCentersComponent: React.FC<{
               ]
             }
           />
+        </div>
+        <div className="col col-md-2">
+          {formType !== FormTypes.Details && (
+            <IconButton
+              onClick={() =>
+                handleDeleteCostCenter(idx)
+              }
+            >
+              <Delete />
+            </IconButton>
+          )}
         </div>
       </div>
     </div>

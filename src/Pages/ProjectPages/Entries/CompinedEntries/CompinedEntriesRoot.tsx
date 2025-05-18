@@ -1,16 +1,29 @@
-import { useState } from 'react';
-import { FormTypes } from '../../../../interfaces/Components';
+import { useEffect, useState } from "react";
+import { FormTypes } from "../../../../interfaces/Components";
 
-import Loader from '../../../../Components/Loader';
-import { AppContent } from '../../../../Components';
-import { useGetEntriesQuery } from '../../../../Apis/EntriesApi';
-import EntriesForm from './CompinedEntriesForm';
+import Loader from "../../../../Components/Loader";
+import { AppContent } from "../../../../Components";
+import EntriesForm from "./CompinedEntriesForm";
+import { getCompinedEntries } from "../../../../Apis/CompinedEntriesApi";
+import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
 
 const CompinedEntriesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
-  const { data, isLoading } = useGetEntriesQuery(null);
+  const [data, setData] = useState<ComplexEntryModel[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchData = async () => {
+    const result = await getCompinedEntries();
+    if (result && result.isSuccess) {
+      setData(result.result);
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -31,13 +44,13 @@ const CompinedEntriesRoot = () => {
               id={selectedId}
               formType={formType}
               handleCloseForm={handleCloseForm}
-              
+              afterAction={() => fetchData()}
             />
           )}
-          {data?.result && (
+          {data && (
             <AppContent
               tableType="table"
-              data={data.result}
+              data={data}
               title="Compined Entries"
               btnName="new"
               addBtn

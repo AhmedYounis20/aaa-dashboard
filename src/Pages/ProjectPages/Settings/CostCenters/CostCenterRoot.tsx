@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { FormTypes } from "../../../interfaces/Components";
+import { FormTypes } from "../../../../interfaces/Components";
 
-import Loader from "../../../Components/Loader";
-import { AppContent } from "../../../Components";
-import {
-  getCostCenters,
-} from "../../../Apis/CostCenterApi";
+import Loader from "../../../../Components/Loader";
+import { AppContent } from "../../../../Components";
+import { getCostCenters } from "../../../../Apis/CostCenterApi";
 import CostCenterForm from "./CostCenterForm";
-import { CostCenterModel } from "../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
+import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 
 const columns = [
   {

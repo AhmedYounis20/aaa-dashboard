@@ -352,7 +352,14 @@ const PaymentVouchersForm: React.FC<{
     if ((await validate()) === false) return false;
 
     SortFinancialTransactions();
-    const response = await updatePaymentEntry(model.id, model);
+        const modelToCreate: ComplexEntryModel = {
+          ...model,
+          costCenters: model.costCenters.filter(
+            (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
+          ),
+        };
+
+    const response = await updatePaymentEntry(model.id, modelToCreate);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();

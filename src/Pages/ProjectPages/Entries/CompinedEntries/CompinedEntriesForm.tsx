@@ -3,17 +3,10 @@ import { useEffect, useState } from "react";
 import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
-import { ApiResponse } from "../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../Helper/toastify";
 import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/AccountNature";
-import {
-  useCreateComplexEntryMutation,
-  useDeleteEntryMutation,
-  useGetEntryByIdQuery,
-  useUpdateComplexEntryMutation,
-} from "../../../../Apis/EntriesApi";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -35,11 +28,17 @@ import { NodeType } from "../../../../interfaces/Components/NodeType";
 import { getChartOfAccounts } from "../../../../Apis/ChartOfAccountsApi";
 import { useGetCollectionBooksQuery } from "../../../../Apis/CollectionBooksApi";
 import { useGetBanksQuery } from "../../../../Apis/BanksApi";
-import { ChartOfAccountModel, CollectionBookModel } from "../../../../interfaces/ProjectInterfaces";
+import {
+  ChartOfAccountModel,
+  CollectionBookModel,
+} from "../../../../interfaces/ProjectInterfaces";
 import { httpGet } from "../../../../Apis/Axios/axiosMethods";
 import EntryNumber from "../../../../interfaces/ProjectInterfaces/Entries/EntryNumber";
 import { v4 as uuid } from "uuid";
-import { PaymentType, PaymentTypeOptions } from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
+import {
+  PaymentType,
+  PaymentTypeOptions,
+} from "../../../../interfaces/ProjectInterfaces/Entries/PaymentType";
 import { SubLeadgerType } from "../../../../interfaces/ProjectInterfaces/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../Components/Inputs/InputSelect";
 import ComplexEntryModel from "../../../../interfaces/ProjectInterfaces/Entries/ComplexEntry";
@@ -50,38 +49,39 @@ import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
 import { CostCenterModel } from "../../../../interfaces/ProjectInterfaces/CostCenter/costCenterModel";
 import { getCostCenters } from "../../../../Apis/CostCenterApi";
 import EntryCostCenter from "../../../../interfaces/ProjectInterfaces/Entries/EntryCostCenter";
+import {
+  createCompinedEntry,
+  deleteCompinedEntry,
+  getCompinedEntryById,
+  updateCompinedEntry,
+} from "../../../../Apis/CompinedEntriesApi";
 
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+  afterAction: () => void;
+}> = ({ formType, id, handleCloseForm, afterAction }) => {
   const url = "entries";
-  const entryResult = useGetEntryByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
   });
-  
-  const collectionBooksApiResult = useGetCollectionBooksQuery({
-      skip: formType == FormTypes.Delete,
-    });
 
-    const branchesApiResult = useGetBranchesQuery({
+  const collectionBooksApiResult = useGetCollectionBooksQuery({
     skip: formType == FormTypes.Delete,
   });
-    const banksApiResult = useGetBanksQuery({
-      skip: formType == FormTypes.Delete,
-    });
+
+  const branchesApiResult = useGetBranchesQuery({
+    skip: formType == FormTypes.Delete,
+  });
+  const banksApiResult = useGetBanksQuery({
+    skip: formType == FormTypes.Delete,
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [updateEntry] = useUpdateComplexEntryMutation();
-  const [createEntry] = useCreateComplexEntryMutation();
-  const [deleteEntry] = useDeleteEntryMutation();
+
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
@@ -90,12 +90,10 @@ const CompinedEntriesForm: React.FC<{
   );
   const [costCenters, setCostCenters] = useState<CostCenterModel[]>([]);
 
-    const [collectionBooks, setCollectionBooks] = useState<
-      CollectionBookModel[]
-    >([]);
-        const [banks, setBanks] = useState<
-          BankModel[]
-        >([]);
+  const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>(
+    []
+  );
+  const [banks, setBanks] = useState<BankModel[]>([]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
     () => {
@@ -143,7 +141,7 @@ const CompinedEntriesForm: React.FC<{
       formType == FormTypes.Add ? [createFinancialTransaction()] : [],
     attachments: [],
     financialPeriodNumber: "",
-    costCenters:[]
+    costCenters: [],
   });
 
   //#region listeners
@@ -157,30 +155,29 @@ const CompinedEntriesForm: React.FC<{
         const costcenterResult = await getCostCenters();
         if (costcenterResult.isSuccess) {
           setCostCenters(costcenterResult.result);
-        } 
+        }
       };
       fetchData();
     }
-  },[formType]);
+  }, [formType]);
 
-
-    useEffect(() => {
-      if (banksApiResult.isSuccess && !banksApiResult.isLoading) {
-        setBanks(banksApiResult.data.result);
-      }
-    }, [banksApiResult, banksApiResult.isLoading, banksApiResult.isSuccess]);
-    useEffect(() => {
-      if (
-        collectionBooksApiResult.isSuccess &&
-        !collectionBooksApiResult.isLoading
-      ) {
-        setCollectionBooks(collectionBooksApiResult.data.result);
-      }
-    }, [
-      collectionBooksApiResult,
-      collectionBooksApiResult.isLoading,
-      collectionBooksApiResult.isSuccess,
-    ]);
+  useEffect(() => {
+    if (banksApiResult.isSuccess && !banksApiResult.isLoading) {
+      setBanks(banksApiResult.data.result);
+    }
+  }, [banksApiResult, banksApiResult.isLoading, banksApiResult.isSuccess]);
+  useEffect(() => {
+    if (
+      collectionBooksApiResult.isSuccess &&
+      !collectionBooksApiResult.isLoading
+    ) {
+      setCollectionBooks(collectionBooksApiResult.data.result);
+    }
+  }, [
+    collectionBooksApiResult,
+    collectionBooksApiResult.isLoading,
+    collectionBooksApiResult.isSuccess,
+  ]);
 
   useEffect(() => {
     if (formType == FormTypes.Add) {
@@ -208,7 +205,7 @@ const CompinedEntriesForm: React.FC<{
         );
       });
     }
-  }, [model.entryDate,formType]);
+  }, [model.entryDate, formType]);
 
   useEffect(() => {
     if (currenciesApiResult.isSuccess && !currenciesApiResult.isLoading) {
@@ -244,22 +241,18 @@ const CompinedEntriesForm: React.FC<{
     );
   };
 
+  const getChartOfAccountsDropDown = (
+    paymentType: PaymentType
+  ): ChartOfAccountModel[] => {
+    if (paymentType == PaymentType.None) return chartOfAccounts;
+    const filteredAccounts = chartOfAccounts.filter((item) =>
+      paymentType === PaymentType.Cash
+        ? item.subLeadgerType === SubLeadgerType.CashInBox
+        : item.subLeadgerType === SubLeadgerType.Bank
+    );
 
-const getChartOfAccountsDropDown = (
-  paymentType: PaymentType
-): ChartOfAccountModel[] => {
-
-  if(paymentType == PaymentType.None)
-      return chartOfAccounts;
-  const filteredAccounts = chartOfAccounts.filter((item) =>
-    paymentType === PaymentType.Cash
-      ? item.subLeadgerType === SubLeadgerType.CashInBox
-      : item.subLeadgerType === SubLeadgerType.Bank
-  );
-
-
-  return filteredAccounts;
-};
+    return filteredAccounts;
+  };
 
   const removetransaction: (transactionId: string) => void = (
     transactionId: string
@@ -297,32 +290,29 @@ const getChartOfAccountsDropDown = (
       return prev + 1;
     });
   };
-  useEffect(() => {
-    if (formType !== FormTypes.Add && !isUpdated) {
-      if (!entryResult.isLoading && entryResult.data?.result) {
-        console.log("entry:", entryResult?.data?.result);
 
-        // Ensure a new object reference is created to trigger re-render
-        setModel({
-          ...entryResult.data.result, // Assign API result
-          financialTransactions:
-            entryResult.data.result.financialTransactions.map(
-              (t: ComplexFinancialTransactionModel) => ({
-                ...t,
-                debitAccountId: t.debitAccountId || "", // Ensure proper values
-                creditAccountId: t.creditAccountId || "",
-              })
-            ),
-        });
-        setTransactionNumber(
-          entryResult.data.result.financialTransactions.findLast(
-            (e: ComplexFinancialTransactionModel) => e.orderNumber ?? 1
-          )
-        );
-        setIsLoading(false);
-      }
+  useEffect(() => {
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        const result = await getCompinedEntryById(id);
+
+        if (result && result.isSuccess) {
+          console.log("entry:", result);
+          // Ensure a new object reference is created to trigger re-render
+          setModel({
+            ...result.result, // Assign API result
+          });
+          setTransactionNumber(
+            result.result.financialTransactions.findLast(
+              (e: ComplexFinancialTransactionModel) => e.orderNumber != null
+            )?.orderNumber ?? 1
+          );
+          setIsLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [entryResult.isLoading, entryResult.data, formType, isUpdated]);
+  }, [formType, id]);
 
   const validate = async () => {
     try {
@@ -341,13 +331,14 @@ const getChartOfAccountsDropDown = (
   };
 
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteEntry(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteCompinedEntry(id);
+    if (response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
       return true;
     } else {
       console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
+      response.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -357,21 +348,23 @@ const getChartOfAccountsDropDown = (
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-
     SortFinancialTransactions();
-    const response: ApiResponse = await updateEntry(model);
-    setIsUpdated(true);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const modelToCreate: ComplexEntryModel = {
+      ...model,
+      costCenters: model.costCenters.filter(
+        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
+      ),
+    };
+    const response = await updateCompinedEntry(id, modelToCreate);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
       return true;
-    } else if (response.error) {
-      if (response.error.data) {
-        toastify(response.error.data.errorMessages[0], "error");
-      }
-      if (response.error.errors) {
-        response.error.errors.map(([, val]: [string, string]) =>
-          toastify(val, "error")
-        );
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
+      } else {
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
       return false;
     }
@@ -388,28 +381,25 @@ const getChartOfAccountsDropDown = (
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     SortFinancialTransactions();
+    const modelToCreate: ComplexEntryModel = {
+      ...model,
+      costCenters: model.costCenters.filter(
+        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
+      ),
+    };
     console.log("send");
-    const response: ApiResponse = await createEntry(model);
-    console.log(response);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await createCompinedEntry(modelToCreate);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
       return true;
-    } else if (response.error) {
-      if (
-        !response.error.data.errors &&
-        response.error.data &&
-        response.error.data.errorMessages &&
-        response.error.data.errorMessages.length
-      ) {
-        toastify(response.error.data.errorMessages[0], "error");
+    } else if (response) {
+      if (response.errorMessages?.length == 0) {
+        toastify(response.successMessage, "error");
       } else {
-        // response.error.data.errors.map(e=>console.log("data:",e));
-        Object.entries(response.error.data.errors).forEach(([, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            toastify(messages[0], "error");
-          }
-        });
+        response.errorMessages?.map((val: string) => toastify(val, "error"));
       }
+      return false;
     }
     return false;
   };
@@ -1496,24 +1486,25 @@ const getChartOfAccountsDropDown = (
                               </div>
                             </div>
                           )}
-                          {model.financialTransactions.length > 1 && formType !== FormTypes.Details && (
-                            <div>
-                              <IconButton
-                                onClick={() => removetransaction(e.id)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </div>
-                          )}
+                          {model.financialTransactions.length > 1 &&
+                            formType !== FormTypes.Details && (
+                              <div>
+                                <IconButton
+                                  onClick={() => removetransaction(e.id)}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            )}
                         </div>
                       ))}
-                  { formType !== FormTypes.Details && (
+                  {formType !== FormTypes.Details && (
                     <div>
-                    <IconButton onClick={() => onAddFinancialTrancastion()}>
-                      <Add />
-                    </IconButton>
-                  </div>
-                  ) }
+                      <IconButton onClick={() => onAddFinancialTrancastion()}>
+                        <Add />
+                      </IconButton>
+                    </div>
+                  )}
                   <EntryCostCentersComponent
                     costCenters={costCenters}
                     formType={formType}

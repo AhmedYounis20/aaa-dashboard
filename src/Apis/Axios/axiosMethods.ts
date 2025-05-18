@@ -230,13 +230,17 @@ const httpDelete = async <T>(
 
 // Helper function to handle error responses
 const handleErrorResponse = (error: any) => {
-  if (error.response) {
-    error.response.data.errorMessages?.forEach((errorMessage: string) =>
-      toastify(errorMessage, "error")
+  if (error.response && error.response.data && error.response.data.errorMessages){
+
+      error.response.data.errorMessages?.forEach((errorMessage: string) =>
+        toastify(errorMessage, "error")
     );
     console.error("Response data:", error.response.data);
     console.error("Response status:", error.response.status);
     console.error("Response headers:", error.response.headers);
+  }
+  else if (error.response && error.response.data && error.response.data.title) {
+    toastify(error.response.data.title, "error");
   } else if (error.request) {
     console.error("Request:", error.request);
   } else {

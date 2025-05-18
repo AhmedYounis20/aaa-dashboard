@@ -2,31 +2,6 @@ import { CostCenterModel } from "../interfaces/ProjectInterfaces/CostCenter/cost
 import { ApiResult } from "../interfaces/ApiResponse";
 import { httpDelete, httpGet, httpPost, httpPut } from "./Axios/axiosMethods";
 
-// const CostCenterApi = createApi({
-//     reducerPath: "costCenterApi",
-//     baseQuery: fetchBaseQuery({
-//         baseUrl: baseUrl,
-//         prepareHeaders: (headers) => {
-//             const token = localStorage.getItem("accessToken");
-//             if(token){
-//                 headers.set("authorization", `Bearer ${token}`);
-//             }
-//             return headers;
-//         },
-//     }),
-//     tagTypes: ["costCenters"],
-//     endpoints: (builder) => ({
-
-//         getChildrenCostCenter: builder.query({
-//             query: (parentId) => `CostCenters/GetChildren/${parentId}`,
-//             providesTags: ["costCenters"],
-//         }),
-
-
-
-//     }),
-// });
-
 const apiEndPoint = "costCenters";
 // GET all currencies
 const getCostCenters = async (): Promise<ApiResult<

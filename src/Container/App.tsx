@@ -23,7 +23,7 @@ import { CssBaseline } from '@mui/material';
 import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/FixedAssetsRoot';
 import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
 import { RootState } from '../Storage/Redux/store';
-import CostCenterRoot from '../Pages/ProjectPages/CostCenter/CostCenterRoot';
+import CostCenterRoot from '../Pages/ProjectPages/Settings/CostCenters/CostCenterRoot';
 import CompinedEntriesRoot from "../Pages/ProjectPages/Entries/CompinedEntries/CompinedEntriesRoot";
 import PaymentVouchersRoot from "../Pages/ProjectPages/Entries/PaymentVouchers/PaymentVouchersRoot";
 import ReceiptVouchersRoot from "../Pages/ProjectPages/Entries/ReceiptVouchers/ReceiptVouchersRoot";
