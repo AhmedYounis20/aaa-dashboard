@@ -1,4 +1,4 @@
-import { Construction, DashboardCustomize, Store } from "@mui/icons-material";
+import { Construction, CurrencyBitcoin, DashboardCustomize, Factory, Store } from "@mui/icons-material";
 import React, { ReactElement } from "react";
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -103,8 +103,23 @@ export const sidebarItemsData: ISidebarItem[] = [
       },
       {
         title: "currencies",
-        icon: React.createElement(AttachMoneyIcon),
+        icon: React.createElement(CurrencyBitcoin),
         path: "/currencies",
+      },
+      {
+        title: "selling Prices",
+        icon: React.createElement(AttachMoneyIcon),
+        path: "/sellingPrices",
+      },
+      {
+        title: "packing Units",
+        icon: React.createElement(AccountBoxIcon),
+        path: "/packingUnits",
+      },
+      {
+        title: "Manufacturer Companies",
+        icon: React.createElement(Factory),
+        path: "/manufacturerCompanies",
       },
     ],
   },

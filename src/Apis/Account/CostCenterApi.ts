@@ -17,7 +17,6 @@ const getCostCenterById = async (
   return await httpGet<object>(`${apiEndPoint}/${id}`, {});
 };
 
-
 // POST (Create) a new currency
 const createCostCenter = async (
   data: CostCenterModel

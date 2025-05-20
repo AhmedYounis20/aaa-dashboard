@@ -30,6 +30,9 @@ import ReceiptVouchersRoot from "../Pages/ProjectPages/Account/Entries/ReceiptVo
 import CollectionBooksRoot from '../Pages/ProjectPages/Account/Settings/CollectionBooks/CollectionBooksRoot';
 import JournalEntriesRoot from '../Pages/ProjectPages/Account/Entries/JournalEntries/JournalEntriesRoot';
 import OpeningEntriesRoot from '../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot';
+import PackingUnitsRoot from '../Pages/ProjectPages/Inventory/PackingUnits/PackingUnitsRoot';
+import SellingPricesRoot from '../Pages/ProjectPages/Inventory/SellingPrices/SellingPricesRoot';
+import ManufacturerCompaniesRoot from '../Pages/ProjectPages/Inventory/ManufacturerCompanies/ManufacturerCompaniesRoot';
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);
@@ -49,6 +52,12 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="/currencies" element={<CurrenciesRoot />} />
               <Route path="/glSettings" element={<GlSettingsRoot />} />
+              <Route path="/packingUnits" element={<PackingUnitsRoot />} />
+              <Route path="/sellingPrices" element={<SellingPricesRoot />} />
+              <Route
+                path="/manufacturerCompanies"
+                element={<ManufacturerCompaniesRoot />}
+              />
               <Route
                 path="/compinedentries"
                 element={<CompinedEntriesRoot />}
@@ -61,14 +70,8 @@ function App() {
                 path="/receiptVouchers"
                 element={<ReceiptVouchersRoot />}
               />
-              <Route
-                path="/journalEntries"
-                element={<JournalEntriesRoot />}
-              />
-              <Route
-                path="/openingEntries"
-                element={<OpeningEntriesRoot />}
-              />
+              <Route path="/journalEntries" element={<JournalEntriesRoot />} />
+              <Route path="/openingEntries" element={<OpeningEntriesRoot />} />
 
               <Route
                 path="/financialPeriods"
