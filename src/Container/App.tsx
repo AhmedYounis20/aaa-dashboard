@@ -6,30 +6,30 @@ import './App.css'
 import { useSelector } from 'react-redux'
 import { useMemo } from 'react';
 import { BrowserRouter, Routes,Route } from "react-router-dom";
-import AccountGuidesRoot from '../Pages/ProjectPages/AccountGuides/AccountGuidesRoot';
-import ChartOfAccountsRoot from '../Pages/ProjectPages/ChartOfAccounts/ChartOfAccountsRoot';
-import BanksRoot from '../Pages/ProjectPages/SubLeadgers/Banks/BanksRoot';
-import CashInBoxesRoot from '../Pages/ProjectPages/SubLeadgers/CashInBoxes/CashInBoxesRoot';
-import CustomersRoot from '../Pages/ProjectPages/SubLeadgers/Customers/CustomersRoot';
-import SuppliersRoot from '../Pages/ProjectPages/SubLeadgers/Suppliers/SuppliersRoot';
-import CurrenciesRoot from '../Pages/ProjectPages/Settings/Currencies/CurrenciesRoot';
-import FinancialPeriodsRoot from '../Pages/ProjectPages/Settings/FinancialPeriods/FinancialPeriodsRoot';
-import GlSettingsRoot from '../Pages/ProjectPages/Settings/GlSettings/GlSettingsRoot';
+import AccountGuidesRoot from '../Pages/ProjectPages/Account/AccountGuides/AccountGuidesRoot';
+import ChartOfAccountsRoot from '../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot';
+import BanksRoot from '../Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot';
+import CashInBoxesRoot from '../Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot';
+import CustomersRoot from '../Pages/ProjectPages/Account/SubLeadgers/Customers/CustomersRoot';
+import SuppliersRoot from '../Pages/ProjectPages/Account/SubLeadgers/Suppliers/SuppliersRoot';
+import CurrenciesRoot from '../Pages/ProjectPages/Account/Settings/Currencies/CurrenciesRoot';
+import FinancialPeriodsRoot from '../Pages/ProjectPages/Account/Settings/FinancialPeriods/FinancialPeriodsRoot';
+import GlSettingsRoot from '../Pages/ProjectPages/Account/Settings/GlSettings/GlSettingsRoot';
 import { createTheme } from '@mui/material/styles';
 import {ThemeProvider} from '@mui/material'
 import { themeSettings } from '../Utilities/theme';
 import Dashboard from '../Pages/Dashboard';
 import { CssBaseline } from '@mui/material';
-import FixedAssetsRoot from '../Pages/ProjectPages/SubLeadgers/FixedAssets/FixedAssetsRoot';
-import BranchesRoot from '../Pages/ProjectPages/SubLeadgers/Branches';
+import FixedAssetsRoot from '../Pages/ProjectPages/Account/SubLeadgers/FixedAssets/FixedAssetsRoot';
+import BranchesRoot from '../Pages/ProjectPages/Account/SubLeadgers/Branches';
 import { RootState } from '../Storage/Redux/store';
-import CostCenterRoot from '../Pages/ProjectPages/Settings/CostCenters/CostCenterRoot';
-import CompinedEntriesRoot from "../Pages/ProjectPages/Entries/CompinedEntries/CompinedEntriesRoot";
-import PaymentVouchersRoot from "../Pages/ProjectPages/Entries/PaymentVouchers/PaymentVouchersRoot";
-import ReceiptVouchersRoot from "../Pages/ProjectPages/Entries/ReceiptVouchers/ReceiptVouchersRoot";
-import CollectionBooksRoot from '../Pages/ProjectPages/Settings/CollectionBooks/CollectionBooksRoot';
-import JournalEntriesRoot from '../Pages/ProjectPages/Entries/JournalEntries/JournalEntriesRoot';
-import OpeningEntriesRoot from '../Pages/ProjectPages/Entries/OpeningEntries/OpeningEntriesRoot';
+import CostCenterRoot from '../Pages/ProjectPages/Account/Settings/CostCenters/CostCenterRoot';
+import CompinedEntriesRoot from "../Pages/ProjectPages/Account/Entries/CompinedEntries/CompinedEntriesRoot";
+import PaymentVouchersRoot from "../Pages/ProjectPages/Account/Entries/PaymentVouchers/PaymentVouchersRoot";
+import ReceiptVouchersRoot from "../Pages/ProjectPages/Account/Entries/ReceiptVouchers/ReceiptVouchersRoot";
+import CollectionBooksRoot from '../Pages/ProjectPages/Account/Settings/CollectionBooks/CollectionBooksRoot';
+import JournalEntriesRoot from '../Pages/ProjectPages/Account/Entries/JournalEntries/JournalEntriesRoot';
+import OpeningEntriesRoot from '../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot';
 
 function App() {
   const mode = useSelector((state : RootState) => state.global.mode);

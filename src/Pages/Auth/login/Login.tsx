@@ -7,7 +7,7 @@ import { inputHelper } from "../../../Helper";
 import { jwtDecode } from "jwt-decode";
 import { setLoggedInUser } from "../../../Storage/Redux/userAuthSlice";
 import { toastify } from "../../../Helper/toastify";
-import { loginRequest } from "../../../Apis/authApi";
+import { loginRequest } from "../../../Apis/Identity/authApi";
 
 const Login: React.FC = () => {
   const dispatch = useDispatch();

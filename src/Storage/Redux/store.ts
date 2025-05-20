@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { userAuthReducer } from "./userAuthSlice";
-import BanksApi from "../../Apis/BanksApi";
-import CustomersApi from "../../Apis/CustomersApi";
-import SuppliersApi from "../../Apis/SuppliersApi";
-import CashInBoxesApi from "../../Apis/CashInBoxesApi";
-import CurrenciesApi from "../../Apis/CurrenciesApi";
-import FinancialPeriodsApi from "../../Apis/FinancialPeriodsApi";
+import BanksApi from "../../Apis/Account/BanksApi";
+import CustomersApi from "../../Apis/Account/CustomersApi";
+import SuppliersApi from "../../Apis/Account/SuppliersApi";
+import CashInBoxesApi from "../../Apis/Account/CashInBoxesApi";
+import CurrenciesApi from "../../Apis/Account/CurrenciesApi";
+import FinancialPeriodsApi from "../../Apis/Account/FinancialPeriodsApi";
 import globalTheme from './global'
-import FixedAssetsApi from "../../Apis/FixedAssetsApi";
-import BranchesApi from "../../Apis/BranchesApi";
-import CollectionBooksApi from "../../Apis/CollectionBooksApi";
+import FixedAssetsApi from "../../Apis/Account/FixedAssetsApi";
+import BranchesApi from "../../Apis/Account/BranchesApi";
+import CollectionBooksApi from "../../Apis/Account/CollectionBooksApi";
 
 const store = configureStore({
   reducer: {
