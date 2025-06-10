@@ -17,7 +17,7 @@ import {
 } from "../../../../../Apis/Account/CostCenterApi";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { toastify } from "../../../../../Helper/toastify";
-import { Box, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
+import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
@@ -30,6 +30,7 @@ import * as yup from 'yup';
 import { ChartOfAccountModel } from "../../../../../interfaces/ProjectInterfaces";
 import { Delete } from "@mui/icons-material";
 import InputText from "../../../../../Components/Inputs/InputText";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
 
 function CostCenterForm({
   formType,
@@ -206,6 +207,7 @@ function CostCenterForm({
         handleUpdate={handleUpdate}
         handleDelete={handleDelete}
         handleCloseForm={handleCloseForm}
+        size="medium"
       >
         {isLoading ? (
           <div
@@ -294,15 +296,13 @@ function CostCenterForm({
                     error={!!errors.costCenterType}
                     // helperText={!!errors.costCenterType}
                   />
-                  <TextField
-                    type="number"
-                    name="percent"
+                  <InputNumber
                     label="percent %"
                     value={model?.percent}
-                    onChange={(e) => {
+                    onChange={(value) => {
                       setModel({
                         ...model,
-                        percent: parseFloat(e.target.value),
+                        percent:value,
                       });
                     }}
                     error={!!errors.percent}
@@ -335,7 +335,6 @@ function CostCenterForm({
                           : prevModel;
                       });
                     }}
-                    size={"medium"}
                     multiple= {true}
                     name={"chartofAccounts"}
                     handleBlur={null}

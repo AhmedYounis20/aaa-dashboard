@@ -26,10 +26,10 @@ const InputSelect = ({
         onChange={onChange}
         onBlur={onBlur}
         multiple={multiple}
-        autoComplete
         disabled={disabled}
         name={name}
         error={error}
+        size="small"
       >
         {options &&
           options.map((item) => {

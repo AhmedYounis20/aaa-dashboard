@@ -53,6 +53,7 @@ import { CostCenterModel } from "../../../../../interfaces/ProjectInterfaces/Acc
 import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
 import EntryCostCenter from "../../../../../interfaces/ProjectInterfaces/Account/Entries/EntryCostCenter";
 import { receivableNotesId } from "../../../../../Utilities/SD";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
 const ReceiptVouchersForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -519,21 +520,20 @@ const ReceiptVouchersForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-4">
-                          <TextField
-                            type="number"
+                          <InputNumber
                             className="form-input form-control"
-                            label="Exchange Rate (required)"
+                            label="Exchange Rate"
+                            isRquired
                             variant="outlined"
                             fullWidth
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={model?.exchangeRate}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={(value) =>
                               updateModel(
                                 setModel,
                                 "exchangeRate",
-                                Number.parseFloat(event.target.value || "0")
-                              )
+                                value)
                             }
                             error={!!errors.exchangeRate}
                             helperText={errors.exchangeRate}
@@ -899,8 +899,7 @@ const ReceiptVouchersForm: React.FC<{
                                   />
                                 </div>
                                 <div className="col col-md-6">
-                                  <TextField
-                                    type="number"
+                                  <InputNumber
                                     className="form-input form-control"
                                     label="Amount"
                                     variant="outlined"
@@ -908,13 +907,11 @@ const ReceiptVouchersForm: React.FC<{
                                     size="small"
                                     disabled={formType === FormTypes.Details}
                                     value={e?.amount}
-                                    onChange={(event: {
-                                      target: { value: string };
-                                    }) =>
+                                    onChange={(value) =>
                                       updateModel(
                                         setModel,
                                         "financialTransactions",
-                                        { amount: event.target.value },
+                                        { amount: value },
                                         idx
                                       )
                                     }

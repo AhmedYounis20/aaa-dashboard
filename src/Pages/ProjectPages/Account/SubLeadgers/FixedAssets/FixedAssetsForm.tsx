@@ -15,6 +15,7 @@ import {
 } from "../../../../../Apis/Account/FixedAssetsApi";
 import FixedAssetModel from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetModel';
 import  FixedAssetType, { FixedAssetTypeOptions } from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetType';
+import InputNumber from '../../../../../Components/Inputs/InputNumber';
 
 const FixedAssetsForm: React.FC<{
   formType: FormTypes;
@@ -402,28 +403,24 @@ const FixedAssetsForm: React.FC<{
                       {model.isDepreciable && (
                         <div className="row mb-3">
                           <div className="col col-md-6">
-                            <TextField
-                              type="number"
+                            <InputNumber
                               className="form-input form-control"
                               label="Asset Life Span By Years"
                               variant="outlined"
                               fullWidth
                               disabled={formType === FormTypes.Details}
                               value={model?.assetLifeSpanByYears}
-                              onChange={(event) => {
-                                const value =
-                                  event.target.value === ""
-                                    ? 0
-                                    : Number.parseInt(event.target.value, 10);
+                              onChange={(value) => {
+                                const val = Number.parseInt(value.toString(), 10);
                                 setModel((prevModel) =>
                                   prevModel
                                     ? {
                                         ...prevModel,
-                                        assetLifeSpanByYears: value,
+                                        assetLifeSpanByYears: val,
                                         depreciationRate:
-                                          value == 0
+                                          val == 0
                                             ? prevModel.depreciationRate
-                                            : 100 / value,
+                                            : 100 / val,
                                       }
                                     : prevModel
                                 );
@@ -431,8 +428,7 @@ const FixedAssetsForm: React.FC<{
                             />
                           </div>
                           <div className="col col-md-6">
-                            <TextField
-                              type="number"
+                            <InputNumber
                               className="form-input form-control"
                               label="Depreciation Rate"
                               variant="outlined"
@@ -440,21 +436,17 @@ const FixedAssetsForm: React.FC<{
                               disabled={formType === FormTypes.Details}
                               value={model?.depreciationRate}
                               
-                              onChange={(event) => {
-                                const value =
-                                  event.target.value === ""
-                                    ? 0
-                                    : Number.parseFloat(event.target.value);
+                              onChange={(val) => {
                                 setModel((prevModel) =>
                                   prevModel == null
                                     ? prevModel
                                     : {
                                         ...prevModel,
-                                        depreciationRate: value,
+                                        depreciationRate: val,
                                         assetLifeSpanByYears:
-                                          value == 0
+                                          val == 0
                                             ? prevModel.assetLifeSpanByYears
-                                            : 100 / value,
+                                            : 100 / val,
                                       }
                                 );
                               }}

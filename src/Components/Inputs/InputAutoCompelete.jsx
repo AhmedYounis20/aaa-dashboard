@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import { FormControl, TextField } from "@mui/material";
 
-const InputAutoComplete = ({
-  options = [],
-  label,
-  onChange,
-  disabled = false,
-  multiple = false,
-  name,
-  value,
-  handleBlur,
-  error,
-  helperText,
-  size = "medium",
-  defaultSelect = false,
-  defaultSelectCondition = (option) => (option ? true : false),
-}) => {
+const InputAutoComplete = (props) => {
+  const {
+    options = [],
+    label,
+    onChange,
+    disabled = false,
+    multiple = false,
+    name = "",
+    value = multiple ? [] : null,
+    handleBlur = () => {},
+    error = false,
+    helperText = "",
+    size = "small",
+    defaultSelect = false,
+    defaultSelectCondition = (option) => !!option,
+  } = props;
+
   const [dropDownOptions, setDropDownOptions] = useState(options);
 
-  /** Helper function to find matching objects in options */
   const mapValuesToObjects = (val, opts) => {
     if (multiple) {
       return Array.isArray(val)
@@ -30,15 +31,12 @@ const InputAutoComplete = ({
     }
   };
 
-  /** Update dropdown options when `options` change */
   useEffect(() => {
     setDropDownOptions(options);
   }, [options]);
 
-  /** Determine value to display in Autocomplete */
   const selectedValue = mapValuesToObjects(value, dropDownOptions);
 
-  /** Handle user selection */
   const OnSelect = (event, val) => {
     if (multiple) {
       const selectedValues = val.map((e) => e.value);
@@ -49,12 +47,11 @@ const InputAutoComplete = ({
     }
   };
 
-  /** Auto-select default if value is not present in options */
   useEffect(() => {
     if (!dropDownOptions || dropDownOptions.length === 0) return;
 
     const isValidSelection = multiple
-      ? selectedValue.length > 0
+      ? Array.isArray(selectedValue) && selectedValue.length > 0
       : selectedValue !== null;
 
     if (!isValidSelection && defaultSelect) {

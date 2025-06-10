@@ -1,4 +1,4 @@
-import { IconButton, TextField } from "@mui/material";
+import { IconButton } from "@mui/material";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import { FormTypes } from "../../../../../interfaces/Components";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
@@ -6,6 +6,7 @@ import { CostCenterModel } from "../../../../../interfaces/ProjectInterfaces/Acc
 import EntryCostCenter from "../../../../../interfaces/ProjectInterfaces/Account/Entries/EntryCostCenter";
 import { Add, Delete } from "@mui/icons-material";
 import {v4 as uuid } from "uuid";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
 const EntryCostCentersComponent: React.FC<{
   formType: FormTypes;
   entryCostCenters: EntryCostCenter[];
@@ -69,8 +70,7 @@ const EntryCostCentersComponent: React.FC<{
           />
         </div>
         <div className="col col-md-4">
-          <TextField
-            type="number"
+          <InputNumber
             className="form-input form-control"
             label="Amount"
             variant="outlined"
@@ -78,8 +78,8 @@ const EntryCostCentersComponent: React.FC<{
             size="small"
             disabled={formType === FormTypes.Details}
             value={e?.amount}
-            onChange={(event) =>
-              handleAmountChange(idx, parseFloat(event.target.value) || 0)
+            onChange={(value) =>
+              handleAmountChange(idx, value)
             }
             error={
               !!errors[

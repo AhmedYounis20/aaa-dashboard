@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
+import { FormControlLabel, Stack, Switch, Typography } from '@mui/material';
 import GlSettingsModel from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/GlSettingsModel';
 import { DecimalDigitsNumberOptions } from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/DecimalDigitsNumber';
 import InputSelect from '../../../../../Components/Inputs/InputSelect';
@@ -13,6 +13,7 @@ import {
   getGlSettings,
   updateGlSettings,
 } from "../../../../../Apis/Account/GlSettingsApi";
+import InputNumber from '../../../../../Components/Inputs/InputNumber';
 
 
 const GlSettingsRoot: React.FC = () => {
@@ -142,20 +143,19 @@ const GlSettingsRoot: React.FC = () => {
                   {model?.depreciationApplication ==
                     DepreciationApplication.Monthly && (
                     <div>
-                      <TextField
-                        type="number"
+                      <InputNumber
                         className="form-input form-control"
                         label="month Days"
                         variant="outlined"
                         fullWidth
                         value={model?.monthDays}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
                                   monthDays: Number.parseInt(
-                                    event.target.value || '0'
+                                    value.toString()
                                   ),
                                 }
                               : prevModel

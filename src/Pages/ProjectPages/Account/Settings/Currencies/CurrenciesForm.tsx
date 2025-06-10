@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { FormControl, FormControlLabel, FormHelperText, Switch, TextField } from '@mui/material';
+import { FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import {
   useCreateCurrencyMutation,
   useDeleteCurrencyMutation,
@@ -14,6 +14,7 @@ import { toastify } from '../../../../../Helper/toastify';
 import { CurrencySchema } from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/currency-validation';
 import yup from 'yup';
 import InputText from '../../../../../Components/Inputs/InputText';
+import InputNumber from '../../../../../Components/Inputs/InputNumber';
 
 
 const CurrenciesForm: React.FC<{
@@ -202,18 +203,18 @@ const CurrenciesForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
-                        type="number"
+                      <InputNumber
                         className="form-input form-control"
-                        label="Exchange Rate (required)"
+                        label="Exchange Rate"
+                        isRquired
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.exchangeRate}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel({
                             ...model,
-                            exchangeRate: Number.parseFloat(event.target.value || '0'),
+                            exchangeRate: value,
                           })
                         }
                         error={!!errors.exchangeRate}

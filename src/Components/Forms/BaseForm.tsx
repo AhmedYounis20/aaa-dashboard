@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormTypes } from '../../interfaces/Components/FormType'
 import Loader from '../Loader';
 
@@ -10,6 +10,7 @@ const BaseForm: React.FC<{
   handleAdd: (() => Promise<boolean>) | undefined;
   children: JSX.Element;
   isModal: boolean;
+  size?: "small" | "medium" | "large" | "xlarge"
 }> = ({
   formType,
   handleCloseForm = undefined,
@@ -18,7 +19,20 @@ const BaseForm: React.FC<{
   handleAdd = undefined,
   children,
   isModal = true,
+  size = "xlarge"
 }) => {
+  const [modalSizeClass, setModalSizeClass] = useState<string>("modal-xl");
+  useEffect(()=>{
+    if(size == "small")
+      setModalSizeClass("modal-sm");
+    else if (size == "medium")
+      setModalSizeClass("")
+    else if (size =="large")
+      setModalSizeClass("modal-lg");
+    else 
+      setModalSizeClass("modal-xl");
+  },[size])
+
   const [waitingResponse,setWaitingResponse]= useState<boolean>(false);
 
 
@@ -33,7 +47,9 @@ const BaseForm: React.FC<{
     setWaitingResponse(false);
   };
   return (
-    <div className={`${isModal && "modal "} fade show d-block modal-xl `}>
+    <div
+      className={`${isModal && "modal "} fade show d-block ${modalSizeClass} `}
+    >
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           {isModal && (
@@ -54,17 +70,16 @@ const BaseForm: React.FC<{
           )}
           <div className="modal-body">{children}</div>
           <div className="modal-footer">
-            {isModal && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCloseForm}
-                disabled={waitingResponse}
-                style={{ height: 40 }}
-              >
-                Close
-              </button>
-            )}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleCloseForm}
+              disabled={waitingResponse}
+              style={{ height: 40, marginLeft: 10, marginRight: 10 }}
+            >
+              Close
+            </button>
+
             {formType !== FormTypes.Details && (
               <button
                 type="button"

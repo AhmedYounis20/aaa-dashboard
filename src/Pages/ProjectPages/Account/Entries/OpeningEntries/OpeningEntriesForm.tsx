@@ -33,6 +33,7 @@ import {
   getOpeningEntryById,
   updateOpeningEntry,
 } from "../../../../../Apis/Account/OpeningEntriesApi";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
 const OpeningEntriesForm: React.FC<{
   formType: FormTypes;
   id: string;
@@ -453,8 +454,7 @@ const OpeningEntriesForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-4">
-                          <TextField
-                            type="number"
+                          <InputNumber
                             className="form-input form-control"
                             label="Exchange Rate (required)"
                             variant="outlined"
@@ -462,11 +462,11 @@ const OpeningEntriesForm: React.FC<{
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={model?.exchangeRate}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={( value: number) =>
                               updateModel(
                                 setModel,
                                 "exchangeRate",
-                                Number.parseFloat(event.target.value || "0")
+                                value
                               )
                             }
                             error={!!errors.exchangeRate}
@@ -670,8 +670,7 @@ const OpeningEntriesForm: React.FC<{
                                   />
                                 </div>
                                 <div className="col col-md-4">
-                                  <TextField
-                                    type="number"
+                                  <InputNumber
                                     className="form-input form-control"
                                     label="Amount"
                                     variant="outlined"
@@ -679,13 +678,11 @@ const OpeningEntriesForm: React.FC<{
                                     size="small"
                                     disabled={formType === FormTypes.Details}
                                     value={e?.amount}
-                                    onChange={(event: {
-                                      target: { value: string };
-                                    }) =>
+                                    onChange={(value: number) =>
                                       updateModel(
                                         setModel,
                                         "financialTransactions",
-                                        { amount: event.target.value },
+                                        { amount: value },
                                         getTransactionIndexById(e.id)
                                       )
                                     }
@@ -799,8 +796,7 @@ const OpeningEntriesForm: React.FC<{
                                   />
                                 </div>
                                 <div className="col col-md-4">
-                                  <TextField
-                                    type="number"
+                                  <InputNumber
                                     className="form-input form-control"
                                     label="Amount"
                                     variant="outlined"
@@ -808,13 +804,11 @@ const OpeningEntriesForm: React.FC<{
                                     size="small"
                                     disabled={formType === FormTypes.Details}
                                     value={e?.amount}
-                                    onChange={(event: {
-                                      target: { value: string };
-                                    }) =>
+                                    onChange={(value: number) =>
                                       updateModel(
                                         setModel,
                                         "financialTransactions",
-                                        { amount: event.target.value },
+                                        { amount: value },
                                         getTransactionIndexById(e.id)
                                       )
                                     }

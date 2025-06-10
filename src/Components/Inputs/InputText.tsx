@@ -13,6 +13,7 @@ interface InputTextProps {
   type?: string;
   className?: string;
   variant?: "outlined" | "filled" | "standard";
+  isRquired? : boolean;
 }
 
 const InputText: React.FC<InputTextProps> = ({
@@ -27,11 +28,13 @@ const InputText: React.FC<InputTextProps> = ({
   type = "text",
   className = "",
   variant = "outlined",
+  isRquired = false
+
 }) => {
   return (
     <TextField
       type={type}
-      label={label}
+      label={`${label}${isRquired ? (" (Required)"):""}`}
       value={value}
       onChange={(e) => onChange && onChange(e.target.value)}
       disabled={disabled}

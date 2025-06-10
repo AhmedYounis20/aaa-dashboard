@@ -1,6 +1,8 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { baseUrl } from "../../Utilities/SD";
 import SupplierModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
+import { ApiResult } from "../../interfaces/ApiResponse";
 
 const SuppliersApi = createApi({
   reducerPath: "SuppliersApi",
@@ -57,6 +59,55 @@ const SuppliersApi = createApi({
   }),
 });
 
+const apiEndPoint = "Suppliers";
+// GET all currencies
+const getSuppliers = async (): Promise<ApiResult<
+  SupplierModel[]
+>> => {
+  return await httpGet<SupplierModel[]>(apiEndPoint, {});
+};
+
+// GET a single currency by ID
+const getSupplierById = async (
+  id: string
+): Promise<ApiResult<SupplierModel> | null> => {
+  return await httpGet<SupplierModel>(`${apiEndPoint}/${id}`, {});
+};
+
+const getDefaultSupplier = async (
+  parentId: string | null
+): Promise<ApiResult<SupplierModel> | null> => {
+  return await httpGet<SupplierModel>(
+    `${apiEndPoint}/NextAccountDefaultData${
+      parentId == null ? "" : `?parentId=${parentId}`
+    }`,
+    {}
+  );
+};
+
+// POST (Create) a new currency
+const createSupplier = async (
+  data: SupplierModel
+): Promise<ApiResult<SupplierModel> | null> => {
+  return await httpPost<SupplierModel>(apiEndPoint, data);
+};
+
+// PUT (Update) a currency
+const updateSupplier = async (
+  id: string,
+  data: SupplierModel
+): Promise<ApiResult<SupplierModel> | null> => {
+  return await httpPut<SupplierModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a currency by ID
+const deleteSupplier = async (
+  id: string
+): Promise<ApiResult<SupplierModel> | null> => {
+  return await httpDelete<SupplierModel>(`${apiEndPoint}/${id}`, { id });
+};
+
+
 export const {
   useGetSuppliersQuery,
   useGetSuppliersByIdQuery,
@@ -65,4 +116,13 @@ export const {
   useGetDefaultModelDataQuery,
   useCreateSupplierMutation,
 } = SuppliersApi;
+
+export  {
+  getSupplierById,
+  getSuppliers,
+  createSupplier,
+  updateSupplier,
+  deleteSupplier,
+  getDefaultSupplier
+}
 export default SuppliersApi;

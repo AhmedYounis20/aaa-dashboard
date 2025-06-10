@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { IconButton, TextareaAutosize, TextField } from "@mui/material";
+import { IconButton, TextareaAutosize } from "@mui/material";
 import { toastify } from "../../../../../Helper/toastify";
 import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexFinancialTransaction";
@@ -55,6 +55,7 @@ import {
   getCompinedEntryById,
   updateCompinedEntry,
 } from "../../../../../Apis/Account/CompinedEntriesApi";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
 
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
@@ -516,8 +517,7 @@ const CompinedEntriesForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-4">
-                          <TextField
-                            type="number"
+                          <InputNumber
                             className="form-input form-control"
                             label="Exchange Rate (required)"
                             variant="outlined"
@@ -525,12 +525,11 @@ const CompinedEntriesForm: React.FC<{
                             size="small"
                             disabled={formType === FormTypes.Details}
                             value={model?.exchangeRate}
-                            onChange={(event: { target: { value: string } }) =>
+                            onChange={(value : number) =>
                               updateModel(
                                 setModel,
                                 "exchangeRate",
-                                Number.parseFloat(event.target.value || "0")
-                              )
+                                value)
                             }
                             error={!!errors.exchangeRate}
                             helperText={errors.exchangeRate}
@@ -746,7 +745,7 @@ const CompinedEntriesForm: React.FC<{
                                     label={"Debt Account"}
                                     value={e.debitAccountId}
                                     disabled={formType === FormTypes.Details}
-                                    onChange={(value: string | undefined) => {
+                                    onChange={(value: string | null) => {
                                       console.log("value", value);
                                       updateModel(
                                         setModel,
@@ -824,7 +823,7 @@ const CompinedEntriesForm: React.FC<{
                                       label={"Credit Account"}
                                       value={e.creditAccountId}
                                       disabled={formType === FormTypes.Details}
-                                      onChange={(value: string | undefined) => {
+                                      onChange={(value: string | null) => {
                                         console.log("value", value);
                                         updateModel(
                                           setModel,
@@ -933,8 +932,7 @@ const CompinedEntriesForm: React.FC<{
                                   />
                                 </div>
                                 <div className="col col-md-6">
-                                  <TextField
-                                    type="number"
+                                  <InputNumber
                                     className="form-input form-control"
                                     label="Amount"
                                     variant="outlined"
@@ -942,13 +940,11 @@ const CompinedEntriesForm: React.FC<{
                                     size="small"
                                     disabled={formType === FormTypes.Details}
                                     value={e?.amount}
-                                    onChange={(event: {
-                                      target: { value: string };
-                                    }) =>
+                                    onChange={(value: number) =>
                                       updateModel(
                                         setModel,
                                         "financialTransactions",
-                                        { amount: event.target.value },
+                                        { amount: value },
                                         idx
                                       )
                                     }
