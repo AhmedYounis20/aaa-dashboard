@@ -50,11 +50,11 @@ export interface ISidebarItem {
 
 export const sidebarItemsData: ISidebarItem[] = [
   {
-    title: "General Leadgers",
+    title: "GeneralLeadgers",
     icon: React.createElement(AccountBoxIcon),
     submenu: [
       {
-        title: "chart Of Accounts",
+        title: "ChartOfAccounts",
         icon: React.createElement(TableChartIcon),
         path: "/chartOfAccounts",
         page: ChartOfAccountsRoot,
@@ -62,35 +62,35 @@ export const sidebarItemsData: ISidebarItem[] = [
     ],
   },
   {
-    title: "Sub Leadgers",
+    title: "SubLeadgers",
     icon: React.createElement(LeaderboardIcon),
     submenu: [
       {
-        title: "banks",
+        title: "Banks",
         icon: React.createElement(AccountBalanceIcon),
         path: "/subleadgers/banks",
         page: BanksRoot,
       },
       {
-        title: "cash in boxes",
+        title: "CashInBoxes",
         icon: React.createElement(MonetizationOnIcon),
         path: "/subleadgers/cashInBoxes",
         page: CashInBoxesRoot,
       },
       {
-        title: "customers",
+        title: "Customers",
         icon: React.createElement(FaceRetouchingNaturalIcon),
         path: "/subleadgers/customers",
         page: CustomersRoot
       },
       {
-        title: "suppliers",
+        title: "Suppliers",
         icon: React.createElement(DashboardCustomize),
         path: "/subleadgers/suppliers",
         page: SuppliersRoot
       },
       {
-        title: "Fixed Assets",
+        title: "FixedAssets",
         icon: React.createElement(Construction),
         path: "/subleadgers/fixedAssets",
         page: FixedAssetsRoot
@@ -108,55 +108,55 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(SettingsIcon),
     submenu: [
       {
-        title: "gl settings",
+        title: "Glsettings",
         icon: React.createElement(DiamondIcon),
         path: "/glSettings",
         page: GlSettingsRoot
       },
       {
-        title: "account guides",
+        title: "AccountGuides",
         icon: React.createElement(WebhookIcon),
         path: "/accountguides",
         page: AccountGuidesRoot
       },
       {
-        title: "Collection Books",
+        title: "CollectionBooks",
         icon: React.createElement(BookIcon),
         path: "/collectionBooks",
         page: CollectionBooksRoot
       },
       {
-        title: "cost center",
+        title: "CostCenter",
         icon: React.createElement(WebhookIcon),
         path: "/costCenter",
         page: CostCenterRoot
       },
       {
-        title: "financial Periods",
+        title: "FinancialPeriods",
         icon: React.createElement(CreditScoreIcon),
         path: "/financialPeriods",
         page: FinancialPeriodsRoot
       },
       {
-        title: "currencies",
+        title: "Currencies",
         icon: React.createElement(CurrencyBitcoin),
         path: "/currencies",
         page: CurrenciesRoot
       },
       {
-        title: "selling Prices",
+        title: "SellingPrices",
         icon: React.createElement(AttachMoneyIcon),
         path: "/sellingPrices",
         page: SellingPricesRoot
       },
       {
-        title: "packing Units",
+        title: "PackingUnits",
         icon: React.createElement(AccountBoxIcon),
         path: "/packingUnits",
         page: PackingUnitsRoot
       },
       {
-        title: "Manufacturer Companies",
+        title: "ManufacturerCompanies",
         icon: React.createElement(Factory),
         path: "/manufacturerCompanies",
         page: ManufacturerCompaniesRoot
@@ -168,31 +168,31 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(LibraryBooksIcon),
     submenu: [
       {
-        title: "Compined Entries",
+        title: "CompinedEntries",
         icon: React.createElement(ChangeCircleIcon),
         path: "/compinedentries",
         page: CompinedEntriesRoot
       },
       {
-        title: "Payment Vouchers",
+        title: "PaymentVouchers",
         icon: React.createElement(ChangeCircleIcon),
         path: "/paymentVouchers",
         page: PaymentVouchersRoot
       },
       {
-        title: "Receipt Vouchers",
+        title: "ReceiptVouchers",
         icon: React.createElement(ChangeCircleIcon),
         path: "/receiptVouchers",
         page: ReceiptVouchersRoot
       },
       {
-        title: "Journal Entries",
+        title: "JournalEntries",
         icon: React.createElement(ChangeCircleIcon),
         path: "/journalEntries",
         page: JournalEntriesRoot
       },
       {
-        title: "Opening Entries",
+        title: "OpeningEntries",
         icon: React.createElement(ChangeCircleIcon),
         path: "/openingEntries",
         page: OpeningEntriesRoot

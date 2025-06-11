@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import { FormTypes } from "../../interfaces/Components/FormType";
 import ImagePreview from "../Images/ImagePreview";
+import { useTranslation } from "react-i18next";
 
 const DataTreeTable = ({
   columns,
@@ -36,7 +37,7 @@ const DataTreeTable = ({
 }) => {
   const [openRows, setOpenRows] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
-
+  const {t} = useTranslation();
   const handleToggle = (id) => {
     setOpenRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -191,9 +192,9 @@ const DataTreeTable = ({
             <TableCell />
             <TableCell style={{ width: 5, paddingLeft: 0 }} />
             {columns.map((column, index) => (
-              <TableCell key={index}>{column.Header}</TableCell>
+              <TableCell key={index}>{t(column.Header)}</TableCell>
             ))}
-            <TableCell>Operations</TableCell>
+            <TableCell>{t("Operations")}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -206,7 +207,7 @@ const DataTreeTable = ({
                   colSpan={columns.length + 3}
                   style={{ textAlign: "center" }}
                 >
-                  No Data
+                  {t("NoData")}
                 </TableCell>
               </TableRow>
             </React.Fragment>

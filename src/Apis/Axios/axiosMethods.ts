@@ -41,11 +41,13 @@ const client = axios.create({
   baseURL: baseUrl,
 });
 
+const language = localStorage.getItem("i18nextLng");
 // Add token to each request
 client.interceptors.request.use((config) => {
   const accessToken = localStorage.getItem("accessToken");
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
+    config.headers["Accept-Language"] = language =="en" ? "en-US": "ar-EG";
   }
   return config;
 });
@@ -82,7 +84,6 @@ client.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 const token = localStorage.getItem("accessToken");
 const config: AxiosRequestConfig = {
   headers: {

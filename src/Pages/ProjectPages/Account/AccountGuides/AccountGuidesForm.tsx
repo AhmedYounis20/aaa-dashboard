@@ -11,7 +11,8 @@ const AccountGuidesForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
   afterAction: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
+  handleTranslate: (key: string) => string;
+}> = ({ formType, id, handleCloseForm, afterAction, handleTranslate }) => {
   const [model, setModel] = useState<AccountGuideModel>({
     id: "",
     name: "",
@@ -109,7 +110,7 @@ const AccountGuidesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name"
+                        label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -127,7 +128,7 @@ const AccountGuidesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage"
+                        label={handleTranslate("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}

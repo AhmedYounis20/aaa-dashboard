@@ -5,6 +5,7 @@ import ChartOfAccountsForm from './ChartOfAccountsForm';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
 import { ChartOfAccountModel } from '../../../../interfaces/ProjectInterfaces';
+import { useTranslation } from 'react-i18next';
 
 const columns = [
   {
@@ -16,7 +17,7 @@ const columns = [
     accessor: "name",
   },
   {
-    Header: "Name (Second Language)",
+    Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
 ];
@@ -29,6 +30,7 @@ const ChartOfAccountsRoot = () => {
   const [parentId, setParentId] = useState<string>("");
   const [data, setData] = useState<ChartOfAccountModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {t} = useTranslation();
     const handleShowForm = () => {
     setShowForm(true);
   };
@@ -69,7 +71,7 @@ const ChartOfAccountsRoot = () => {
             <AppContent
               tableType="tree"
               data={data}
-              title="chart of accounts"
+              title={t("ChartOfAccounts")}
               // actionBtn={() => setIsOpen(prev => !prev)}
               btn
               addBtn

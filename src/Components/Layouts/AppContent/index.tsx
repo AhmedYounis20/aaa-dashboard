@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import DataTreeTable from "../../Tables/DataTreeTable";
 import DataTable from "../../Tables/DataTable";
 import AddIcon from '@mui/icons-material/Add';
-
+import { useTranslation } from "react-i18next";
 type AppContentProps = {
   tableType: "tree" | "table";
   data: any;
@@ -31,25 +31,27 @@ export default function AppContent({
   tableType,
   columns,
   data,
-  addBtn,
   handleSelectId,
   handleSelectParentId,
   handleShowForm,
   changeFormType,
   title,
   actionBtn,
-  btnName,
   btnColor,
-  endIcon,
-  startIcon,
   defaultHiddenCols,
   showdelete,
   showedit,
   showadd,
   btn = false,
 }: AppContentProps) {
+  const {t} = useTranslation();
   return (
-    <Box width={"100%"} display={"flex"} flexDirection={"column"} paddingBottom={0}>
+    <Box
+      width={"100%"}
+      display={"flex"}
+      flexDirection={"column"}
+      paddingBottom={0}
+    >
       <Stack
         direction={"row"}
         justifyContent={"space-between"}
@@ -63,16 +65,15 @@ export default function AppContent({
           <Button
             variant="contained"
             onClick={actionBtn}
-            size="medium"
             color={btnColor || "info"}
-            endIcon={endIcon && addBtn ? <AddIcon /> : endIcon}
-            startIcon={startIcon && addBtn ? <AddIcon /> : startIcon}
+            endIcon={<AddIcon />}
             sx={{
               my: 2,
+              gap:1
             }}
           >
             <Typography variant="h6" textTransform={"capitalize"}>
-              {btnName}
+              {t("Add")}
             </Typography>
           </Button>
         )}

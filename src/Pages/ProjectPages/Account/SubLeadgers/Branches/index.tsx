@@ -32,7 +32,7 @@ const columns = [
     accessor: "name",
   },
   {
-    Header: "Name (Second Language)",
+    Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
 

@@ -13,6 +13,7 @@ import {
 import { FormTypes } from "../../interfaces/Components";
 import { Delete, EditNote, Info } from "@mui/icons-material";
 import { appContext } from "../../layout/DefaultLayout";
+import { useTranslation } from "react-i18next";
 
 const DataTable = ({
   data = [],
@@ -26,7 +27,7 @@ const DataTable = ({
   const [columns, setColumns] = useState([]);
   const [visibleColumns, setVisibleColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
-
+  const {t} = useTranslation()
   const { isSidebarOpen, isMobile} = useContext(appContext)
 
 
@@ -34,7 +35,7 @@ const DataTable = ({
     if (data.length > 0) {
       const initialColumns = Object.keys(data[0]).map((field) => ({
         field: field,
-        headerName: field.charAt(0).toUpperCase() + field.slice(1),
+        headerName: t(field.charAt(0).toUpperCase() + field.slice(1)),
         hide: defaultHiddenColumns.includes(field),
         flex:1,
         groupable:true
@@ -42,7 +43,7 @@ const DataTable = ({
 
       const operationsColumn = {
         field: "operations",
-        headerName: "Operations",
+        headerName: t("Operations"),
         width: 150,
         renderCell: (params) => (
           <div tabIndex={-1}>
@@ -56,7 +57,7 @@ const DataTable = ({
                   handleShowForm();
                 }}
               >
-                <EditNote titleAccess="edit" />
+                <EditNote titleAccess={ t("Update")} />
               </IconButton>
             )}
             {showdelete && (
@@ -69,7 +70,7 @@ const DataTable = ({
                   handleShowForm();
                 }}
               >
-                <Delete titleAccess="delete" />
+                <Delete titleAccess={t("Delete")} />
               </IconButton>
             )}
             <IconButton
@@ -81,7 +82,7 @@ const DataTable = ({
                 handleShowForm();
               }}
             >
-              <Info titleAccess="Details" />
+              <Info titleAccess={t("Details")} />
             </IconButton>
           </div>
         ),
@@ -134,7 +135,7 @@ const DataTable = ({
           marginBottom: 10,
         }}
       >
-        <FormControl size="medium" fullWidth style={{margin:10}}>
+        <FormControl size="medium" fullWidth style={{ margin: 10 }}>
           <InputLabel id="demo-simple-select-label" variant="outlined">
             {"columns Visiblity"}
           </InputLabel>
@@ -145,14 +146,24 @@ const DataTable = ({
             multiple
             value={selectedColumns}
             onChange={handleChange}
-            renderValue={(selected) => selected.join(", ")}
+            renderValue={(selected) => selected.map(e=> t(e.charAt(0).toUpperCase()+e.slice(1))).join(", ")}
           >
             {columns
               .filter((e) => e.field !== "operations")
               .map((column) => (
-                <MenuItem key={column.field} value={column.field}>
+                <MenuItem
+                  key={t(
+                    column.field.charAt(0).toUpperCase() + column.field.slice(1)
+                  )}
+                  value={column.field}
+                >
                   <Checkbox checked={!column.hide} />
-                  <ListItemText primary={column.headerName} />
+                  <ListItemText
+                    primary={
+                      column.headerName.charAt(0).toUpperCase() +
+                      column.headerName.slice(1)
+                    }
+                  />
                 </MenuItem>
               ))}
           </Select>

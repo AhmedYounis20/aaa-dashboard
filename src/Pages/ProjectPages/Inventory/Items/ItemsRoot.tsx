@@ -5,6 +5,7 @@ import ItemsForm from './ItemsForm';
 import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
 import ItemModel  from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
+import { useTranslation } from 'react-i18next';
 
 const columns = [
   {
@@ -16,7 +17,7 @@ const columns = [
     accessor: "name",
   },
   {
-    Header: "Name (Second Language)",
+    Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
 ];
@@ -29,6 +30,7 @@ const ItemsRoot = () => {
   const [parentId, setParentId] = useState<string | null>(null);
   const [data, setData] = useState<ItemModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {t} = useTranslation();
     const handleShowForm = () => {
     setShowForm(true);
   };
@@ -69,7 +71,7 @@ const ItemsRoot = () => {
                 <AppContent
                   tableType="tree"
                   data={data}
-                  title="Items"
+                  title={t("Items")}
                   // actionBtn={() => setIsOpen(prev => !prev)}
                   btn
                   addBtn
@@ -78,7 +80,6 @@ const ItemsRoot = () => {
                     setFormType(FormTypes.Add);
                     handleShowForm();
                   }}
-                  btnName="add new"
                   startIcon
                   columns={columns}
                   showdelete={false}

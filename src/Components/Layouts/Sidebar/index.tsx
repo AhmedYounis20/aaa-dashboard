@@ -7,6 +7,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useContext } from 'react';
 import { appContext } from '../../../layout/DefaultLayout';
 import { appProps } from '../../../interfaces/Components/appProps';
+import { useTranslation } from "react-i18next";
 
 
 interface ISidebarProps {
@@ -20,6 +21,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
     const { isMobile, isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
     // const userData = useSelector((state: RootState) => state.userAuthStore);
     const location = useLocation();
+    const { t } = useTranslation();
 
     const isActivePath = (path: string | undefined) => {
         if (path != undefined) {
@@ -104,7 +106,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
               item?.submenu ? (
                 <SubMenu
                   key={index}
-                  label={item.title}
+                  label={t(item.title)}
                   icon={item.icon && item.icon}
                 >
                   {item?.submenu.map((subItem, subIndex) => (
@@ -119,7 +121,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                         color: isActivePath(subItem?.path) ? "#fff" : "",
                       }}
                     >
-                      <Typography variant="body1">{subItem?.title}</Typography>
+                      <Typography variant="body1">{t(subItem?.title)}</Typography>
                     </MenuItem>
                   ))}
                 </SubMenu>
