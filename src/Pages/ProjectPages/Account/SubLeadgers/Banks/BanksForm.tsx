@@ -8,7 +8,7 @@ import {
   NodeType,
   NodeTypeOptions,
 } from "../../../../../interfaces/Components/NodeType";
-import { TextField, TextareaAutosize } from "@mui/material";
+import {  TextareaAutosize } from "@mui/material";
 import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
 import {
   useCreateBankMutation,
@@ -17,6 +17,8 @@ import {
   useGetDefaultModelDataQuery,
   useUpdateBankMutation,
 } from "../../../../../Apis/Account/BanksApi";
+import { useTranslation } from "react-i18next";
+import InputText from "../../../../../Components/Inputs/InputText";
 
 const BanksForm: React.FC<{
   formType: FormTypes;
@@ -41,7 +43,7 @@ const BanksForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-      const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
   const bankResult = useGetBanksByIdQuery(id, {
     skip: formType == FormTypes.Add,
@@ -51,6 +53,7 @@ const BanksForm: React.FC<{
   });
   const [update] = useUpdateBankMutation();
   const [create] = useCreateBankMutation();
+  const {t} = useTranslation();
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
@@ -68,7 +71,7 @@ const BanksForm: React.FC<{
         setIsLoading(false);
       }
     }
-  }, [bankResult.isLoading, bankResult, formType,isUpdated]);
+  }, [bankResult.isLoading, bankResult, formType, isUpdated]);
   useEffect(() => {
     if (formType == FormTypes.Add) {
       if (!modelDefaultDataResult.isLoading) {
@@ -153,20 +156,21 @@ const BanksForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  name: event.target.value,
+                                  name: value,
                                 }
                               : prevModel
                           )
@@ -174,20 +178,21 @@ const BanksForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )
@@ -199,8 +204,8 @@ const BanksForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        options={NodeTypeOptions.map(e=> ({...e,label:t(e.label)}))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -225,23 +230,23 @@ const BanksForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
                             value={model?.code}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      name: event.target.value,
+                                      name: value,
                                     }
                                   : prevModel
                               )
@@ -249,20 +254,20 @@ const BanksForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Phone"
+                            label={t("Phone")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      phone: event.target.value,
+                                      phone: value,
                                     }
                                   : prevModel
                               )
@@ -272,20 +277,20 @@ const BanksForm: React.FC<{
                       </div>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Bank Account"
+                            label={t("BankAccount")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.bankAccount}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      bankAccount: event.target.value,
+                                      bankAccount: value,
                                     }
                                   : prevModel
                               )
@@ -293,20 +298,20 @@ const BanksForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Email"
+                            label={t("Email")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.email}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      email: event.target.value,
+                                      email: value,
                                     }
                                   : prevModel
                               )
@@ -316,20 +321,20 @@ const BanksForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Bank Address"
+                            label={t("BankAddress")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.bankAddress}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      bankAddress: event.target.value,
+                                      bankAddress: value,
                                     }
                                   : prevModel
                               )
@@ -343,7 +348,7 @@ const BanksForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-12">
-                          <label className="form-label"> notes</label>
+                          <label className="form-label"> {t("Notes")}</label>
                           <TextareaAutosize
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}

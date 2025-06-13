@@ -13,8 +13,9 @@ import {
 import SupplierModel from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../../interfaces/Components/NodeType';
-import {  TextField, TextareaAutosize } from '@mui/material';
+import {   TextareaAutosize } from '@mui/material';
 import InputText from '../../../../../Components/Inputs/InputText';
+import { useTranslation } from 'react-i18next';
 
 const SuppliersForm: React.FC<{
   formType: FormTypes;
@@ -51,7 +52,7 @@ const SuppliersForm: React.FC<{
     });
   const [update] = useUpdateSupplierMutation();
   const [create] = useCreateSupplierMutation();
-
+  const {t}=  useTranslation();
   useEffect(() => {
     if(formType != FormTypes.Add && !isUpdated){
 
@@ -159,7 +160,7 @@ const SuppliersForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -180,7 +181,7 @@ const SuppliersForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage (required)"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -202,8 +203,11 @@ const SuppliersForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        options={NodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -228,13 +232,13 @@ const SuppliersForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}"</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
@@ -255,7 +259,7 @@ const SuppliersForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Company Name"
+                            label={t("CompanyName")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
@@ -278,7 +282,7 @@ const SuppliersForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Phone"
+                            label={t("Phone")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
@@ -299,7 +303,7 @@ const SuppliersForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Mobile"
+                            label={t("Mobile")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
@@ -319,20 +323,20 @@ const SuppliersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Email"
+                            label={t("Email")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.email}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      email: event.target.value,
+                                      email: value,
                                     }
                                   : prevModel
                               )
@@ -343,7 +347,7 @@ const SuppliersForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Tax Number"
+                            label={t("TaxNumber")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
@@ -363,20 +367,20 @@ const SuppliersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Address"
+                            label={t("Address")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      address: event.target.value,
+                                      address: val,
                                     }
                                   : prevModel
                               )
@@ -386,7 +390,7 @@ const SuppliersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-12">
-                          <label className="form-label"> notes</label>
+                          <label className="form-label">{t("Notes")}</label>
                           <TextareaAutosize
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}

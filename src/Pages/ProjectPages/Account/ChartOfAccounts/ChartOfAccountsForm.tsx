@@ -19,7 +19,15 @@ const ChartOfAccountsForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
   afterAction: () => void;
-}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
+  handleTranslate: (key: string) => string;
+}> = ({
+  formType,
+  id,
+  parentId,
+  handleCloseForm,
+  afterAction,
+  handleTranslate,
+}) => {
   const [accountguides, setAccountGuides] = useState<AccountGuideModel[]>([]);
   useEffect(() => {
     if (formType != FormTypes.Delete) {
@@ -87,7 +95,7 @@ const ChartOfAccountsForm: React.FC<{
       };
       fetchData();
     }
-  }, [formType,id,parentId]);
+  }, [formType, id, parentId]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteChartOfAccount(id);
@@ -160,7 +168,7 @@ const ChartOfAccountsForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name"
+                        label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -181,7 +189,7 @@ const ChartOfAccountsForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage"
+                        label={handleTranslate("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -204,7 +212,7 @@ const ChartOfAccountsForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Code"
+                        label={handleTranslate("Code")}
                         variant="outlined"
                         fullWidth
                         disabled
@@ -213,8 +221,11 @@ const ChartOfAccountsForm: React.FC<{
                     </div>
                     <div className="col col-md-6">
                       <InputSelect
-                        options={AccountNatureOptions}
-                        label={"AccountNature"}
+                        options={AccountNatureOptions.map((e) => ({
+                          ...e,
+                          label: handleTranslate(e.label),
+                        }))}
+                        label={handleTranslate("AccountNature")}
                         defaultValue={model?.accountNature}
                         disabled={formType === FormTypes.Details}
                         multiple={false}
@@ -241,10 +252,10 @@ const ChartOfAccountsForm: React.FC<{
                           error={undefined}
                           helperText={undefined}
                           options={accountguides.map((item) => ({
-                            label: item.name,
+                            label: item.name + " | " + item.nameSecondLanguage,
                             value: item.id,
                           }))}
-                          label={"Account Guide"}
+                          label={handleTranslate("AccountGuide")}
                           value={model?.accountGuidId}
                           disabled={formType === FormTypes.Details}
                           onChange={(value: string | undefined) =>
@@ -253,6 +264,7 @@ const ChartOfAccountsForm: React.FC<{
                           multiple={false}
                           name={"AccountGuide"}
                           handleBlur={null}
+                          defaultSelect
                         />
                       )}
                     </div>
@@ -273,7 +285,7 @@ const ChartOfAccountsForm: React.FC<{
                             }
                           />
                         }
-                        label="isPostedAccount"
+                        label={handleTranslate("IsPostedAccount")}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -291,7 +303,7 @@ const ChartOfAccountsForm: React.FC<{
                             }
                           />
                         }
-                        label="isActiveAccount"
+                        label={handleTranslate("IsActiveAccount")}
                       />
                     </div>
                   </div>
@@ -311,7 +323,7 @@ const ChartOfAccountsForm: React.FC<{
                             }
                           />
                         }
-                        label="IsStopDealing"
+                        label={handleTranslate("IsStopDealing")}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -329,7 +341,7 @@ const ChartOfAccountsForm: React.FC<{
                             }
                           />
                         }
-                        label="isDepreciable"
+                        label={handleTranslate("IsDepreciable")}
                       />
                     </div>
                   </div>

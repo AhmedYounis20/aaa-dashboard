@@ -83,7 +83,6 @@ const BranchesRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="add new"
               columns={columns}
               data={data && data?.result}
               handleShowForm={handleShowForm}

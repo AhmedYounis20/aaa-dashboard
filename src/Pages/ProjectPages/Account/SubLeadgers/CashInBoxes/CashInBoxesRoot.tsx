@@ -58,7 +58,7 @@ const CashInBoxesRoot = () => {
                 changeFormType={setFormType}
                 handleSelectId={handleSelectId}
                 handleSelectParentId={setParentId}
-                title="cash in box"
+                title="CashInBoxes"
                 btn
                 addBtn
                 actionBtn={() => {

@@ -11,6 +11,7 @@ import {
 import { toastify } from '../../../../../Helper/toastify';
 import { ApiResponse } from '../../../../../interfaces/ApiResponse';
 import InputText from '../../../../../Components/Inputs/InputText';
+import { useTranslation } from 'react-i18next';
 
 const CollectionBooksForm: React.FC<{
   formType: FormTypes;
@@ -30,7 +31,7 @@ const CollectionBooksForm: React.FC<{
   const [updateBook] = useUpdateCollectionBookMutation();
   const [createBook] = useCreateCollectionBookMutation();
   const [deleteBook] = useDeleteCollectionBookMutation();
-
+  const {t} = useTranslation();
   useEffect(() => {
     if (formType != FormTypes.Add) {
       if (!accountGuidesResult.isLoading) {
@@ -111,7 +112,7 @@ const CollectionBooksForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -129,7 +130,7 @@ const CollectionBooksForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}

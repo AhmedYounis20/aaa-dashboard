@@ -8,7 +8,7 @@ import {
   NodeType,
   NodeTypeOptions,
 } from "../../../../../interfaces/Components/NodeType";
-import { TextField, TextareaAutosize } from "@mui/material";
+import {  TextareaAutosize } from "@mui/material";
 import {
   useCreateBranchMutation,
   useDeleteBranchByIdMutation,
@@ -19,6 +19,8 @@ import {
 import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
 import InputFile from "../../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../../interfaces/BaseModels/AttachmentModel";
+import InputText from "../../../../../Components/Inputs/InputText";
+import { useTranslation } from "react-i18next";
 
 const BranchesForm: React.FC<{
   formType: FormTypes;
@@ -50,6 +52,7 @@ const BranchesForm: React.FC<{
   });
   const [update] = useUpdateBranchMutation();
   const [create] = useCreateBranchMutation();
+  const {t} = useTranslation();
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
@@ -179,20 +182,20 @@ const BranchesForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  name: event.target.value,
+                                  name: value,
                                 }
                               : prevModel
                           )
@@ -200,20 +203,20 @@ const BranchesForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage (required)"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )
@@ -225,8 +228,11 @@ const BranchesForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        options={NodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -251,23 +257,23 @@ const BranchesForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
                             value={model?.code}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      name: event.target.value,
+                                      name: value,
                                     }
                                   : prevModel
                               )
@@ -275,20 +281,20 @@ const BranchesForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Phone"
+                            label={t("Phone")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      phone: event.target.value,
+                                      phone: val,
                                     }
                                   : prevModel
                               )
@@ -298,20 +304,20 @@ const BranchesForm: React.FC<{
                       </div>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Address"
+                            label={t("Address")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      address: event.target.value,
+                                      address: val,
                                     }
                                   : prevModel
                               )
@@ -325,7 +331,7 @@ const BranchesForm: React.FC<{
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
                             aria-label="notes"
-                            placeholder="notes..."
+                            placeholder={t("Notes")+"..."}
                             onChange={(event) =>
                               setModel((prevModel) =>
                                 prevModel
@@ -342,7 +348,7 @@ const BranchesForm: React.FC<{
 
                       <div className="row mb-3">
                         <div className="col col-md-8">
-                          <label className="form-label"> Logo</label>
+                          <label className="form-label"> {t("Logo")}</label>
                           <InputFile
                             value={model.logo ? [model.logo] : []}
                             onFilesChange={handleLogoSelect}

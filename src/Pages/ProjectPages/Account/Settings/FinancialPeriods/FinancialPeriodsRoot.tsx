@@ -34,7 +34,7 @@ const FinancialPeriodsRoot = () => {
             <AppContent
               tableType="table"
               data={data.result}
-              title="Financial Periods"
+              title="FinancialPeriods"
               btnName="new"
               addBtn
               btn

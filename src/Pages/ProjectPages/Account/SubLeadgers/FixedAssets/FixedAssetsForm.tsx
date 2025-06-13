@@ -16,6 +16,8 @@ import {
 import FixedAssetModel from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetModel';
 import  FixedAssetType, { FixedAssetTypeOptions } from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetType';
 import InputNumber from '../../../../../Components/Inputs/InputNumber';
+import { useTranslation } from 'react-i18next';
+import InputText from '../../../../../Components/Inputs/InputText';
 
 const FixedAssetsForm: React.FC<{
   formType: FormTypes;
@@ -50,6 +52,7 @@ const FixedAssetsForm: React.FC<{
   });
   const [update] = useUpdateFixedAssetMutation();
   const [create] = useCreateFixedAssetMutation();
+  const {t} = useTranslation();
     const modelDefaultDataResult = useGetDefaultModelDataQuery({parentId : parentId, fixedAssetType : model.fixedAssetType}, {
       skip: formType != FormTypes.Add,
     });
@@ -172,20 +175,21 @@ const FixedAssetsForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("Name")}
+                        isRquired
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  name: event.target.value,
+                                  name: value,
                                 }
                               : prevModel
                           )
@@ -193,20 +197,20 @@ const FixedAssetsForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage (required)"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )
@@ -218,8 +222,11 @@ const FixedAssetsForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        options={NodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -244,13 +251,16 @@ const FixedAssetsForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
                           <InputSelect
                             error={undefined}
-                            options={FixedAssetTypeOptions}
-                            label={"Fixed Asset Type"}
+                            options={FixedAssetTypeOptions.map((e) => ({
+                              ...e,
+                              label: t(e.label),
+                            }))}
+                            label={t("FixedAssetType")}
                             defaultValue={model?.fixedAssetType}
                             multiple={false}
                             disabled={formType != FormTypes.Add}
@@ -273,10 +283,10 @@ const FixedAssetsForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
@@ -286,10 +296,10 @@ const FixedAssetsForm: React.FC<{
                       </div>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Accumelated Code"
+                            label={t("AccumelatedCode")}
                             variant="outlined"
                             fullWidth
                             disabled
@@ -297,10 +307,10 @@ const FixedAssetsForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Expenses Code"
+                            label={t("ExpensesCode")}
                             variant="outlined"
                             fullWidth
                             disabled
@@ -314,42 +324,42 @@ const FixedAssetsForm: React.FC<{
                       </div>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Serial"
+                            label={t("Serial")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.serial}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel == null
                                   ? prevModel
                                   : {
                                       ...prevModel,
-                                      serial: event.target.value,
+                                      serial: value,
                                     }
                               )
                             }
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Version"
+                            label={t("Version")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.version}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel == null
                                   ? prevModel
                                   : {
                                       ...prevModel,
-                                      version: event.target.value,
+                                      version: value,
                                     }
                               )
                             }
@@ -361,7 +371,7 @@ const FixedAssetsForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Manufacture Company"
+                            label={t("ManufacturerCompany")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
@@ -396,7 +406,7 @@ const FixedAssetsForm: React.FC<{
                                 }
                               />
                             }
-                            label="isDepreciable"
+                            label={t("IsDepreciable")}
                           />
                         </div>
                       </div>
@@ -405,13 +415,16 @@ const FixedAssetsForm: React.FC<{
                           <div className="col col-md-6">
                             <InputNumber
                               className="form-input form-control"
-                              label="Asset Life Span By Years"
+                              label={t("AssetLifeSpanByYears")}
                               variant="outlined"
                               fullWidth
                               disabled={formType === FormTypes.Details}
                               value={model?.assetLifeSpanByYears}
                               onChange={(value) => {
-                                const val = Number.parseInt(value.toString(), 10);
+                                const val = Number.parseInt(
+                                  value.toString(),
+                                  10
+                                );
                                 setModel((prevModel) =>
                                   prevModel
                                     ? {
@@ -430,12 +443,11 @@ const FixedAssetsForm: React.FC<{
                           <div className="col col-md-6">
                             <InputNumber
                               className="form-input form-control"
-                              label="Depreciation Rate"
+                              label={t("DepreciationRate")}
                               variant="outlined"
                               fullWidth
                               disabled={formType === FormTypes.Details}
                               value={model?.depreciationRate}
-                              
                               onChange={(val) => {
                                 setModel((prevModel) =>
                                   prevModel == null

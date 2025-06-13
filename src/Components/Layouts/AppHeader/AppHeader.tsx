@@ -70,10 +70,10 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
           <FlexBetween>
             <IconButton
               onClick={() =>
-                changeLanguage(i18n.language == "en" ? "ar" : "en")
+                changeLanguage(i18n.language == "ar" ? "en" : "ar")
               }
             >
-              {i18n.language == "en" ? "en" : "ar"}
+              {i18n.language == "ar" ? "ar" : "en"}
             </IconButton>
             <IconButton onClick={() => dispatch(setMode())}>
               {theme.palette.mode === "dark" ? (

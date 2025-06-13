@@ -88,7 +88,7 @@ const DataTreeTable = ({
                   {openRows[row.id] ? (
                     <KeyboardArrowDown />
                   ) : (
-                      <KeyboardArrowRight />
+                    <KeyboardArrowRight />
                   )}
                 </IconButton>
               )}
@@ -115,7 +115,7 @@ const DataTreeTable = ({
                   handleShowForm();
                 }}
               >
-                <Add titleAccess="add" />
+                <Add titleAccess={t("Add")} />
               </IconButton>
             )}
             {showedit && (
@@ -128,7 +128,7 @@ const DataTreeTable = ({
                   handleShowForm();
                 }}
               >
-                <EditNote titleAccess="edit" />
+                <EditNote titleAccess={t("Update")} />
               </IconButton>
             )}
             {showdelete && (
@@ -141,7 +141,7 @@ const DataTreeTable = ({
                   handleShowForm();
                 }}
               >
-                <Delete titleAccess="delete" />
+                <Delete titleAccess={t("Delete")} />
               </IconButton>
             )}
             <IconButton
@@ -153,8 +153,8 @@ const DataTreeTable = ({
                 handleShowForm();
               }}
             >
-              <Info titleAccess="Details" />
-            </IconButton>{" "}
+              <Info titleAccess={t("Details")} />
+            </IconButton>
           </TableCell>
         </TableRow>
         {data.filter((e) => e.parentId == row.id) && (

@@ -64,6 +64,7 @@ const ChartOfAccountsRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               afterAction = {()=> fetchData()}
+              handleTranslate = {(key)=> t(key)}
             />
           )}
 

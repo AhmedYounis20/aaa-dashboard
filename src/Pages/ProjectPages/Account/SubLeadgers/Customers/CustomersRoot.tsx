@@ -51,7 +51,7 @@ const CustomersRoot = () => {
           {data?.result && (
             <AppContent
               tableType="tree"
-              title="customer"
+              title="Customers"
               btn
               addBtn
               actionBtn={() => {
@@ -60,7 +60,6 @@ const CustomersRoot = () => {
                 handleShowForm();
               }}
               startIcon
-              btnName="add new"
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}

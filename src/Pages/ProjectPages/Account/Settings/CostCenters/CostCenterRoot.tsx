@@ -69,8 +69,7 @@ const CostCenterRoot = () => {
             <AppContent
               tableType="tree"
               data={data}
-              title="cost center"
-              // actionBtn={() => setIsOpen(prev => !prev)}
+              title="CostCenters"
               btn
               addBtn
               actionBtn={() => {
@@ -78,7 +77,6 @@ const CostCenterRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="add new"
               startIcon
               columns={columns}
               showdelete={false}

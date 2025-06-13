@@ -5,7 +5,6 @@ import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { toastify } from '../../../../Helper/toastify';
 import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
-// import { AccountNature } from '../../../../interfaces/ProjectInterfaces/Inventory/Item/AccountNature';
 import updateModel from '../../../../Helper/updateModelHelper';
 import InputText from '../../../../Components/Inputs/InputText';
 import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
@@ -33,24 +32,19 @@ const ItemsForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
   afterAction: () => void;
-}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
-  // const [accountguides, setAccountGuides] = useState<AccountGuideModel[]>([]);
-  // useEffect(() => {
-  //   if (formType != FormTypes.Delete) {
-  //     // const fetchData = async () => {
-  //       // const result = await getAccountGuides();
-  //     //   if (result) {
-  //     //     setAccountGuides(result.result);
-  //     //     setIsLoading(false);
-  //     //   }
-  //     // };
-  //     // fetchData();
-  //   }
-  // }, [formType]);
+  handleTranslate: (key: string) => string;
+}> = ({
+  formType,
+  id,
+  parentId,
+  handleCloseForm,
+  afterAction,
+  handleTranslate,
+}) => {
   const createItemPackingUnit: (
     isDefault?: boolean,
-    orderNumber?: number,
-  ) => ItemPackingUnitModel = (isDefault=false,orderNumber =0) => {
+    orderNumber?: number
+  ) => ItemPackingUnitModel = (isDefault = false, orderNumber = 0) => {
     const packingUnit: ItemPackingUnitModel = {
       packingUnitId: "",
       averageCostPrice: 0,
@@ -60,7 +54,7 @@ const ItemsForm: React.FC<{
       lastCostPrice: 0,
       orderNumber,
       partsCount: 0,
-      sellingPrices:[]
+      sellingPrices: [],
     };
 
     return packingUnit;
@@ -74,45 +68,45 @@ const ItemsForm: React.FC<{
     parentId: parentId,
     nodeType: NodeType.Category,
     defaultDiscountType: DiscountType.Percent,
-    barCodes : [],
-    suppliersIds:[],
-    manufacturerCompaniesIds:[],
-    sellingPriceDiscounts:[],
-    conditionalDiscount : 0,
-    countryOfOrigin:"",
-    defaultDiscount:0,
-    egsCode:"",
-    gs1Code:"",
-    isDiscountBasedOnSellingPrice:false,
-    itemType:ItemType.Stock,
-    maxDiscount:100,
+    barCodes: [],
+    suppliersIds: [],
+    manufacturerCompaniesIds: [],
+    sellingPriceDiscounts: [],
+    conditionalDiscount: 0,
+    countryOfOrigin: "",
+    defaultDiscount: 0,
+    egsCode: "",
+    gs1Code: "",
+    isDiscountBasedOnSellingPrice: false,
+    itemType: ItemType.Stock,
+    maxDiscount: 100,
     model: "",
-    version:"",
-    packingUnits:[createItemPackingUnit(true,0)]
+    version: "",
+    packingUnits: [createItemPackingUnit(true, 0)],
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [suppliers, setSuppliers] = useState<SupplierModel[]>(
-    []
-  );
+  const [suppliers, setSuppliers] = useState<SupplierModel[]>([]);
 
-    const [companies, setCompanies] = useState<ManufacturerCompanyModel[]>([]);
+  const [companies, setCompanies] = useState<ManufacturerCompanyModel[]>([]);
 
-    useEffect(() => {
-      if (formType != FormTypes.Delete) {
-        const fetchData = async () => {
-          const result = await getSuppliers();
-          if (result) {
-            setSuppliers(result.result.filter(e=>e.nodeType == NodeType.Domain));
-          }
-             const companiesResult = await getManufacturerCompanies();
-             if (companiesResult) {
-               setCompanies(companiesResult.result);
-             }
-        };
-        fetchData();
-      }
-    }, [formType]);
+  useEffect(() => {
+    if (formType != FormTypes.Delete) {
+      const fetchData = async () => {
+        const result = await getSuppliers();
+        if (result) {
+          setSuppliers(
+            result.result.filter((e) => e.nodeType == NodeType.Domain)
+          );
+        }
+        const companiesResult = await getManufacturerCompanies();
+        if (companiesResult) {
+          setCompanies(companiesResult.result);
+        }
+      };
+      fetchData();
+    }
+  }, [formType]);
 
   const validate = async () => {
     try {
@@ -129,22 +123,6 @@ const ItemsForm: React.FC<{
       return false;
     }
   };
-
-  // useEffect(() => {
-  //   else if (for) {
-  //     if (!ItemResult.isLoading) {
-  //       setModel(ItemResult.data.result);
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // }, [
-  //   ItemResult?.isLoading,
-  //   ItemResult?.data?.result,
-  //   defaultItemResult?.isLoading,
-  //   defaultItemResult?.data?.result,
-  //   formType,
-  //   isUpdated,
-  // ]);
 
   useEffect(() => {
     if (formType != FormTypes.Add) {
@@ -165,14 +143,16 @@ const ItemsForm: React.FC<{
     } else {
       const fetchData = async () => {
         const result = await getItemNextCode(parentId);
-        if (result.isSuccess&& result.result) {
-          setModel((prevModel)=> prevModel ? {...prevModel,code: result.result}: prevModel);
+        if (result.isSuccess && result.result) {
+          setModel((prevModel) =>
+            prevModel ? { ...prevModel, code: result.result } : prevModel
+          );
           setIsLoading(false);
         }
       };
       fetchData();
     }
-  }, [formType,id,parentId]);
+  }, [formType, id, parentId]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteItem(id);
@@ -246,7 +226,7 @@ const ItemsForm: React.FC<{
                   <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                     <div className="d-flex align-items-center justify-content-between mb-3">
                       <h5 className="mb-0 fw-semibold text-dark-emphasis">
-                        📝 Item Basic Info
+                        📝 {handleTranslate("ItemBasicInfo")}
                       </h5>
                     </div>
 
@@ -255,7 +235,7 @@ const ItemsForm: React.FC<{
                         <InputText
                           type="text"
                           className="form-input form-control"
-                          label="Name"
+                          label={handleTranslate("Name")}
                           variant="outlined"
                           fullWidth
                           isRquired
@@ -267,7 +247,7 @@ const ItemsForm: React.FC<{
                             )
                           }
                           error={!!errors.name}
-                          helperText={errors.name}
+                          helperText={handleTranslate(errors.name)}
                         />
                       </div>
 
@@ -275,7 +255,7 @@ const ItemsForm: React.FC<{
                         <InputText
                           type="text"
                           className="form-input form-control"
-                          label="Name (Second Language)"
+                          label={handleTranslate("NameSecondLanguage")}
                           variant="outlined"
                           fullWidth
                           isRquired
@@ -289,7 +269,9 @@ const ItemsForm: React.FC<{
                             )
                           }
                           error={!!errors.nameSecondLanguage}
-                          helperText={errors.nameSecondLanguage}
+                          helperText={handleTranslate(
+                            errors.nameSecondLanguage
+                          )}
                         />
                       </div>
                     </div>
@@ -299,7 +281,7 @@ const ItemsForm: React.FC<{
                         <InputText
                           type="text"
                           className="form-input form-control"
-                          label="Code"
+                          label={handleTranslate("Code")}
                           isRquired
                           variant="outlined"
                           fullWidth
@@ -311,14 +293,17 @@ const ItemsForm: React.FC<{
                             )
                           }
                           error={!!errors.code}
-                          helperText={errors.code}
+                          helperText={handleTranslate(errors.code)}
                         />
                       </div>
 
                       <div className="col-md-6">
                         <InputSelect
-                          options={NodeTypeOptions}
-                          label="Node Type"
+                          options={NodeTypeOptions.map((e) => ({
+                            ...e,
+                            label: handleTranslate(e.label),
+                          }))}
+                          label={handleTranslate("NodeType")}
                           defaultValue={model?.nodeType}
                           disabled={formType !== FormTypes.Add}
                           multiple={false}
@@ -340,15 +325,18 @@ const ItemsForm: React.FC<{
                       <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                         <div className="d-flex align-items-center justify-content-between mb-3">
                           <h5 className="mb-0 fw-semibold text-dark-emphasis">
-                            🧾 Item Codes & Type
+                            🧾 {handleTranslate("ItemCodesAndType")}
                           </h5>
                         </div>
 
                         <div className="row g-3">
                           <div className="col-md-3">
                             <InputSelect
-                              options={ItemTypeOptions}
-                              label="ItemType"
+                              options={ItemTypeOptions.map((e) => ({
+                                ...e,
+                                label: handleTranslate(e.label),
+                              }))}
+                              label={handleTranslate("ItemType")}
                               defaultValue={model?.itemType}
                               disabled={formType === FormTypes.Details}
                               multiple={false}
@@ -369,7 +357,7 @@ const ItemsForm: React.FC<{
                             <InputText
                               type="text"
                               className="form-input form-control"
-                              label="GS1 Code"
+                              label={handleTranslate("GS1Code")}
                               variant="outlined"
                               fullWidth
                               disabled={
@@ -392,7 +380,7 @@ const ItemsForm: React.FC<{
                             <InputText
                               type="text"
                               className="form-input form-control"
-                              label="EGS Code"
+                              label={handleTranslate("EGSCode")}
                               variant="outlined"
                               fullWidth
                               disabled={
@@ -415,6 +403,7 @@ const ItemsForm: React.FC<{
                             <BarCodesInput
                               barCodes={model.barCodes}
                               formType={formType}
+                              handleTranslate={(key) => handleTranslate(key)}
                               handleUpdate={(barCodes: string[]) =>
                                 setModel((prev) =>
                                   prev ? { ...prev, barCodes } : prev
@@ -429,13 +418,13 @@ const ItemsForm: React.FC<{
                         <div className="row">
                           <div className="col col-md-6">
                             <div className="card card-body">
-                              <h5 className="mb-4">Item Details</h5>
+                              <h5 className="mb-4">{handleTranslate("ItemDetails")}</h5>
                               <div className="row mb-3">
                                 <div className="col col-md-6">
                                   <InputText
                                     type="text"
                                     className="form-input form-control"
-                                    label="Model"
+                                    label={handleTranslate("Model")}
                                     variant="outlined"
                                     fullWidth
                                     disabled={formType === FormTypes.Details}
@@ -456,7 +445,7 @@ const ItemsForm: React.FC<{
                                   <InputText
                                     type="text"
                                     className="form-input form-control"
-                                    label="version"
+                                    label={handleTranslate("Version")}
                                     variant="outlined"
                                     fullWidth
                                     disabled={formType === FormTypes.Details}
@@ -479,7 +468,7 @@ const ItemsForm: React.FC<{
                                   <InputText
                                     type="text"
                                     className="form-input form-control"
-                                    label="CountryOfOrigin"
+                                    label={handleTranslate("CountryOfOrigin")}
                                     variant="outlined"
                                     fullWidth
                                     disabled={formType === FormTypes.Details}
@@ -506,7 +495,7 @@ const ItemsForm: React.FC<{
                                         };
                                       }
                                     )}
-                                    label={"Suppliers"}
+                                    label={handleTranslate("Suppliers")}
                                     value={model.suppliersIds}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string[] | null) => {
@@ -539,7 +528,9 @@ const ItemsForm: React.FC<{
                                         };
                                       }
                                     )}
-                                    label={"ManufacturerCompanies"}
+                                    label={handleTranslate(
+                                      "ManufacturerCompanies"
+                                    )}
                                     value={model.manufacturerCompaniesIds}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string[] | null) => {
@@ -565,12 +556,12 @@ const ItemsForm: React.FC<{
                           </div>
                           <div className="col col-md-6">
                             <div className="card card-body">
-                              <h5 className="mb-4">Discount Details</h5>
+                              <h5 className="mb-4">{handleTranslate("DiscountDetails")}</h5>
                               <div className="row mb-3">
                                 <div className="col col-md-6">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="MaxDiscount"
+                                    label={handleTranslate("MaxDiscount")}
                                     variant="outlined"
                                     fullWidth
                                     disabled={formType === FormTypes.Details}
@@ -592,7 +583,9 @@ const ItemsForm: React.FC<{
                                 <div className="col col-md-6">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="Conditional Discount"
+                                    label={handleTranslate(
+                                      "ConditionalDiscount"
+                                    )}
                                     variant="outlined"
                                     fullWidth
                                     disabled={formType === FormTypes.Details}
@@ -617,7 +610,7 @@ const ItemsForm: React.FC<{
                                 <div className="col col-md-6">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="Default Discount"
+                                    label={handleTranslate("DefaultDiscount")}
                                     variant="outlined"
                                     fullWidth
                                     disabled={
@@ -645,8 +638,11 @@ const ItemsForm: React.FC<{
                                 </div>
                                 <div className="col col-md-6">
                                   <InputSelect
-                                    options={DiscountTypeOptions}
-                                    label={"DiscountType"}
+                                    options={DiscountTypeOptions.map((e) => ({
+                                      ...e,
+                                      label: handleTranslate(e.label),
+                                    }))}
+                                    label={handleTranslate("DiscountType")}
                                     defaultValue={model?.defaultDiscountType}
                                     disabled={formType === FormTypes.Details}
                                     multiple={false}
@@ -696,7 +692,9 @@ const ItemsForm: React.FC<{
                                         }
                                       />
                                     }
-                                    label="isDiscountBasedOnSellingPrice"
+                                    label={handleTranslate(
+                                      "IsDiscountBasedOnSellingPrice"
+                                    )}
                                   />
                                 </div>
                                 <div className="col col-md-6">
@@ -714,6 +712,7 @@ const ItemsForm: React.FC<{
                                           sellingPriceDiscounts: items,
                                         }));
                                       }}
+                                      handleTranslate={(key)=>handleTranslate(key)}
                                     />
                                   )}
                                 </div>
@@ -725,6 +724,7 @@ const ItemsForm: React.FC<{
                       <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                         <ItemPackingUnitsInput
                           itemPackingUnits={model.packingUnits}
+                          handleTranslate={(key)=>handleTranslate(key)}
                           formType={formType}
                           handleUpdate={(items) =>
                             setModel((prev) =>

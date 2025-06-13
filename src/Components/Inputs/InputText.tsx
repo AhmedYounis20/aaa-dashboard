@@ -1,5 +1,6 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
+import { useTranslation } from "react-i18next";
 
 interface InputTextProps {
   label: string;
@@ -31,10 +32,11 @@ const InputText: React.FC<InputTextProps> = ({
   isRquired = false
 
 }) => {
+  const {t} = useTranslation();
   return (
     <TextField
       type={type}
-      label={`${label}${isRquired ? (" (Required)"):""}`}
+      label={`${label}${isRquired ? ` (${t("Required")})`:""}`}
       value={value}
       onChange={(e) => onChange && onChange(e.target.value)}
       disabled={disabled}

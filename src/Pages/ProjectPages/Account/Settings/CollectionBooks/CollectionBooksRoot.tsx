@@ -36,8 +36,7 @@ const CollectionBooksRoot = () => {
             <AppContent
               tableType="table"
               data={data.result}
-              title="Collection Books"
-              btnName="add new"
+              title="CollectionBooks"
               addBtn
               btn
               startIcon

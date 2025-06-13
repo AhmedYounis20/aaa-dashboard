@@ -8,7 +8,7 @@ import {
   NodeType,
   NodeTypeOptions,
 } from "../../../../../interfaces/Components/NodeType";
-import { TextField, TextareaAutosize } from "@mui/material";
+import {  TextareaAutosize } from "@mui/material";
 import CustomerType, {
   CustomerTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerType";
@@ -20,6 +20,8 @@ import {
   useUpdateCustomerMutation,
 } from "../../../../../Apis/Account/CustomersApi";
 import CustomerModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerModel";
+import { useTranslation } from "react-i18next";
+import InputText from "../../../../../Components/Inputs/InputText";
 
 const CustomersForm: React.FC<{
   formType: FormTypes;
@@ -53,6 +55,7 @@ const CustomersForm: React.FC<{
   });
   const [update] = useUpdateCustomerMutation();
   const [create] = useCreateCustomerMutation();
+  const {t} = useTranslation();
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!customerResult.isLoading) {
@@ -155,20 +158,21 @@ const CustomersForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  name: event.target.value,
+                                  name: value,
                                 }
                               : prevModel
                           )
@@ -176,20 +180,21 @@ const CustomersForm: React.FC<{
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage (required)"
+                        label={t("NameSecondLanguage")}
+                        isRquired
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
+                        onChange={(value) =>
                           setModel((prevModel) =>
                             prevModel
                               ? {
                                   ...prevModel,
-                                  nameSecondLanguage: event.target.value,
+                                  nameSecondLanguage: value,
                                 }
                               : prevModel
                           )
@@ -200,9 +205,12 @@ const CustomersForm: React.FC<{
                   <div className="row">
                     <div className="col col-md-6">
                       <InputSelect
-                      error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        error={undefined}
+                        options={NodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -227,23 +235,23 @@ const CustomersForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
                             value={model?.code}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      name: event.target.value,
+                                      name: value,
                                     }
                                   : prevModel
                               )
@@ -253,8 +261,11 @@ const CustomersForm: React.FC<{
                         <div className="col col-md-6">
                           <InputSelect
                             error={undefined}
-                            options={CustomerTypeOptions}
-                            label={"Customer Type"}
+                            options={CustomerTypeOptions.map((e) => ({
+                              ...e,
+                              label: t(e.label),
+                            }))}
+                            label={t("CustomerType")}
                             defaultValue={model?.customerType}
                             disabled={formType !== FormTypes.Add}
                             multiple={false}
@@ -279,20 +290,20 @@ const CustomersForm: React.FC<{
                       </div>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Phone"
+                            label={t("Phone")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.phone}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      phone: event.target.value,
+                                      phone: val,
                                     }
                                   : prevModel
                               )
@@ -300,20 +311,20 @@ const CustomersForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Mobile"
+                            label={t("Mobile")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.mobile}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      mobile: event.target.value,
+                                      mobile: val,
                                     }
                                   : prevModel
                               )
@@ -323,20 +334,20 @@ const CustomersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Tax Number"
+                            label={t("TaxNumber")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.taxNumber}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      taxNumber: event.target.value,
+                                      taxNumber: val,
                                     }
                                   : prevModel
                               )
@@ -344,20 +355,20 @@ const CustomersForm: React.FC<{
                           />
                         </div>
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Address"
+                            label={t("Address")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.address}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      address: event.target.value,
+                                      address: val,
                                     }
                                   : prevModel
                               )
@@ -367,20 +378,20 @@ const CustomersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Email"
+                            label={t("Email")}
                             variant="outlined"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.email}
-                            onChange={(event) =>
+                            onChange={(val) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      email: event.target.value,
+                                      email: val,
                                     }
                                   : prevModel
                               )
@@ -390,7 +401,7 @@ const CustomersForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-12">
-                          <label className="form-label"> notes</label>
+                          <label className="form-label"> {t("Notes")}</label>
                           <TextareaAutosize
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}

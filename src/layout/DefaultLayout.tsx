@@ -4,8 +4,8 @@ import { withAuth } from "../Hoc";
 import { createContext, useState } from "react";
 import { Outlet } from "react-router-dom";
 import AppSidebar from "../Components/Layouts/Sidebar";
-import sidebarItemsData from "../Utilities/routes";
 import { appProps } from "../interfaces/Components/appProps";
+import sidebarItemsData from "../Utilities/routes";
 
 export const appContext = createContext<appProps>({
   isMobile: false,

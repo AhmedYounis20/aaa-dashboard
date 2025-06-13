@@ -9,8 +9,9 @@ import { QrCodeScanner } from "@mui/icons-material";
 const BarCodesInput: React.FC<{
   formType: FormTypes;
   barCodes: string[];
+  handleTranslate: (key: string) => string;
   handleUpdate: (barCodes: string[]) => void;
-}> = ({ formType, barCodes, handleUpdate }) => {
+}> = ({ formType, barCodes, handleUpdate, handleTranslate }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [bindedBarCode, setBindedBarCode] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -58,15 +59,15 @@ const BarCodesInput: React.FC<{
         onClick={handleOpen}
       >
         <QrCodeScanner fontSize="small" />
-        <span className="fw-semibold">Manage Barcodes</span>
+        <span className="fw-semibold">{handleTranslate("BarCodes")}</span>
       </button>
       {isOpen && (
         <div className="modal fade show d-block bg-black bg-opacity-50">
           <div className="modal-dialog modal-xs" role="document">
             <div className="modal-content rounded-xl shadow-lg">
-              <div className="modal-header px-4 py-3 border-b border-gray-200">
+              <div className="modal-header px-4 py-3 border-b border-gray-200 flex-row justify-between">
                 <h5 className="modal-title text-xl font-semibold">
-                  Manage Barcodes
+                  {handleTranslate("BarCodes")}
                 </h5>
                 <button
                   type="button"
@@ -83,7 +84,7 @@ const BarCodesInput: React.FC<{
                       type="text"
                       className="form-control"
                       value={bindedBarCode}
-                      placeholder="Enter new barcode"
+                      placeholder={handleTranslate("NewBarcode")}
                       onChange={(e) => setBindedBarCode(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleAddBarCode()}
                     />
@@ -91,7 +92,7 @@ const BarCodesInput: React.FC<{
                       className="btn btn-success"
                       onClick={handleAddBarCode}
                     >
-                      Add
+                      {handleTranslate("Add")}
                     </button>
                   </div>
                 )}
@@ -153,7 +154,7 @@ const BarCodesInput: React.FC<{
               </div>
               <div className="modal-footer p-3 border-t border-gray-200">
                 <button className="btn btn-secondary" onClick={handleOpen}>
-                  Close
+                  {handleTranslate("Close")}
                 </button>
               </div>
             </div>

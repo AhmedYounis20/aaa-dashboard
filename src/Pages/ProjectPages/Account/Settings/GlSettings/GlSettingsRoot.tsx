@@ -14,13 +14,14 @@ import {
   updateGlSettings,
 } from "../../../../../Apis/Account/GlSettingsApi";
 import InputNumber from '../../../../../Components/Inputs/InputNumber';
+import { useTranslation } from 'react-i18next';
 
 
 const GlSettingsRoot: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const {t}=  useTranslation();
     useEffect(() => {
       const fetchData = async () => {
         const result = await getGlSettings();
@@ -47,26 +48,19 @@ const GlSettingsRoot: React.FC = () => {
     }
   };
 
-
-       const handleUpdate = async () => {
-        if(await validate() === false) return false;
-        if(await validate() === false) return false;
-         if (model) {
-            const result = await updateGlSettings(model);
-            if (result && result.isSuccess) {
-              setModel(
-                result.result
-              );
-            }
-         }
-         return false;
-       };
-
-
-
-
-
-
+  const handleUpdate = async () => {
+  if(await validate() === false) return false;
+  if(await validate() === false) return false;
+    if (model) {
+      const result = await updateGlSettings(model);
+      if (result && result.isSuccess) {
+        setModel(
+          result.result
+        );
+      }
+    }
+    return false;
+  };
 
   return (
     <div className="h-full">
@@ -81,7 +75,7 @@ const GlSettingsRoot: React.FC = () => {
         <div>
           <Typography variant="h2" mb={3}>
             {" "}
-            GL Settings
+            {t("Glsettings")}
           </Typography>
           <div>
             {isLoading ? (
@@ -154,9 +148,7 @@ const GlSettingsRoot: React.FC = () => {
                             prevModel
                               ? {
                                   ...prevModel,
-                                  monthDays: Number.parseInt(
-                                    value.toString()
-                                  ),
+                                  monthDays: Number.parseInt(value.toString()),
                                 }
                               : prevModel
                           )

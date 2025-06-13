@@ -5,7 +5,7 @@ import { ApiResponse } from '../../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../../Helper/toastify';
 import InputSelect from '../../../../../Components/Inputs/InputSelect';
 import { NodeType, NodeTypeOptions } from '../../../../../interfaces/Components/NodeType';
-import {  TextareaAutosize, TextField } from '@mui/material';
+import {  TextareaAutosize } from '@mui/material';
 import CashInBoxModel from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/CashInBoxes/CashInBoxModel';
 import {
   useCreateCashInBoxMutation,
@@ -14,6 +14,8 @@ import {
   useGetDefaultModelDataQuery,
   useUpdateCashInBoxMutation,
 } from "../../../../../Apis/Account/CashInBoxesApi";
+import { useTranslation } from 'react-i18next';
+import InputText from '../../../../../Components/Inputs/InputText';
 
 const CashInBoxesForm: React.FC<{
   formType: FormTypes;
@@ -41,6 +43,7 @@ const CashInBoxesForm: React.FC<{
     });
   const [update] = useUpdateCashInBoxMutation();
   const [create] = useCreateCashInBoxMutation();
+  const {t} = useTranslation();
   useEffect(() => {
     if(formType !== FormTypes.Add && !isUpdated){
       if (!cashInBoxResult.isLoading) {
@@ -143,45 +146,41 @@ const CashInBoxesForm: React.FC<{
                 <>
                   <div className="row mb-4">
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(event) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  name: event.target.value,
-                                }
-                              : prevModel
+                        onChange={(value) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, name: value } : prev
                           )
                         }
+                        // error={!!errors.name}
+                        // helperText={t(errors.name)}
                       />
                     </div>
                     <div className="col col-md-6">
-                      <TextField
+                      <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage (required)"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(event) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  nameSecondLanguage: event.target.value,
-                                }
-                              : prevModel
+                        onChange={(value) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, nameSecondLanguage: value } : prev
                           )
                         }
+                        // error={!!errors.name}
+                        // helperText={t(errors.name)}
                       />
                     </div>
                   </div>
@@ -189,8 +188,11 @@ const CashInBoxesForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={NodeTypeOptions}
-                        label={"Node Type"}
+                        options={NodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("NodeType")}
                         defaultValue={model?.nodeType}
                         disabled={formType !== FormTypes.Add}
                         multiple={false}
@@ -215,23 +217,41 @@ const CashInBoxesForm: React.FC<{
                   </div>
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
-                      <p>Basic Information</p>
+                      <p>{t("BasicInfo")}</p>
                       <div className="row mb-4">
                         <div className="col col-md-6">
-                          <TextField
+                          <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Code"
+                            label={t("Name")}
+                            variant="outlined"
+                            fullWidth
+                            isRquired
+                            disabled={formType === FormTypes.Details}
+                            value={model?.name}
+                            onChange={(value) =>
+                              setModel((prev) =>
+                                prev ? { ...prev, name: value } : prev
+                              )
+                            }
+                            // error={!!errors.name}
+                            // helperText={t(errors.name)}
+                          />
+
+                          <InputText
+                            type="text"
+                            className="form-input form-control"
+                            label={t("Code")}
                             variant="outlined"
                             fullWidth
                             disabled
                             value={model?.code}
-                            onChange={(event) =>
+                            onChange={(value) =>
                               setModel((prevModel) =>
                                 prevModel
                                   ? {
                                       ...prevModel,
-                                      name: event.target.value,
+                                      name: value,
                                     }
                                   : prevModel
                               )
@@ -241,7 +261,7 @@ const CashInBoxesForm: React.FC<{
                       </div>
                       <div className="row mb-3">
                         <div className="col col-md-12">
-                          <label className="form-label"> notes</label>
+                          <label className="form-label"> {t("Notes")}</label>
                           <TextareaAutosize
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}

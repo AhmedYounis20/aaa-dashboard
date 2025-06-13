@@ -67,78 +67,83 @@ function reverseTokens(tokensDark: ColorTokens): ColorTokens {
 export const tokensLight = reverseTokens(tokensDark);
 
 // mui theme settings
-export const themeSettings = (mode: PaletteMode): ThemeOptions => {
-    return {
-        palette: {
-            mode: mode,
-            ...(mode === "dark"
-                ? {
-                    // palette values for dark mode
-                    primary: {
-                        ...tokensDark.primary,
-                        main: tokensDark.primary[400],
-                        light: tokensDark.primary[400],
-                    },
-                    secondary: {
-                        ...tokensDark.secondary,
-                        main: tokensDark.secondary[300],
-                    },
-                    neutral: {
-                        ...tokensDark.grey,
-                        main: tokensDark.grey[500],
-                    },
-                    background: {
-                        default: tokensDark.primary[600],
-                    },
-                }
-                : {
-                    // palette values for light mode
-                    primary: {
-                        ...tokensLight.primary,
-                        main: tokensDark.grey[500],
-                        light: tokensDark.grey[100],
-                    },
-                    secondary: {
-                        ...tokensLight.secondary,
-                        main: tokensDark.secondary[600],
-                        light: tokensDark.secondary[700],
-                    },
-                    neutral: {
-                        ...tokensLight.grey,
-                        main: tokensDark.grey[500],
-                    },
-                    background: {
-                        default: tokensDark.grey[0],
-                    },
-                }),
-        },
-        typography: {
-            fontFamily: ["Inter", "sans-serif"].join(","),
-            fontSize: 12,
-            h1: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 40,
+export const themeSettings = (
+  mode: PaletteMode,
+  direction: "ltr" | "rtl"
+): ThemeOptions => {
+  return {
+    direction,
+    palette: {
+      mode: mode,
+      ...(mode === "dark"
+        ? {
+            // palette values for dark mode
+            primary: {
+              ...tokensDark.primary,
+              main: tokensDark.primary[400],
+              light: tokensDark.primary[400],
             },
-            h2: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 32,
+            secondary: {
+              ...tokensDark.secondary,
+              main: tokensDark.secondary[300],
             },
-            h3: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 24,
+            neutral: {
+              ...tokensDark.grey,
+              main: tokensDark.grey[500],
             },
-            h4: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 20,
+            background: {
+              default: tokensDark.primary[600],
             },
-            h5: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 16,
+          }
+        : {
+            // palette values for light mode
+            primary: {
+              ...tokensLight.primary,
+              main: tokensDark.grey[500],
+              light: tokensDark.grey[100],
             },
-            h6: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
-                fontSize: 14,
+            secondary: {
+              ...tokensLight.secondary,
+              main: tokensDark.secondary[600],
+              light: tokensDark.secondary[700],
             },
-        },
-    };
+            neutral: {
+              ...tokensLight.grey,
+              main: tokensDark.grey[500],
+            },
+            background: {
+              default: tokensDark.grey[0],
+            },
+          }),
+    },
+    typography: {
+      fontFamily: ["Inter", "sans-serif"].join(","),
+      fontSize: 12,
+      h1: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 40,
+      },
+      h2: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 32,
+      },
+      h3: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 24,
+      },
+      h4: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 20,
+      },
+      h5: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 16,
+      },
+      h6: {
+        fontFamily: ["Inter", "sans-serif"].join(","),
+        fontSize: 14,
+      },
+    },
+  };
 };
+

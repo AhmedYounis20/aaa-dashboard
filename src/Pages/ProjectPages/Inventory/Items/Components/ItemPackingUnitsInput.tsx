@@ -15,8 +15,9 @@ const ItemPackingUnitsInput: React.FC<{
   formType: FormTypes;
   itemPackingUnits: ItemPackingUnitModel[];
   handleUpdate: (itemPackingUnits: ItemPackingUnitModel[]) => void;
+  handleTranslate : (key:string)=>string;
   errors : Record<string,string>
-}> = ({ formType, itemPackingUnits, handleUpdate,errors={} }) => {
+}> = ({ formType, itemPackingUnits, handleUpdate,errors={},handleTranslate}) => {
   const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [sellingPrices, setSellingPrices] = useState<SellingPriceModel[]>([]);
 
@@ -134,17 +135,32 @@ const handleDeleteRow = (index: number) => {
         <table className="table table-bordered table-striped align-middle text-center mb-2">
           <thead className="table-light">
             <tr>
-              <th style={{ minWidth: "150px" }}>Name</th>
-              <th style={{ minWidth: "150px" }}>Parts</th>
-              <th style={{ minWidth: "150px" }}>IsDefaultSales</th>
-              <th style={{ minWidth: "150px" }}>IsDefaultPurchases</th>
-              <th style={{ minWidth: "150px" }}>LastCostPrice</th>
-              <th style={{ minWidth: "150px" }}>AverageCostPrice</th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("PackingUnits")}
+              </th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("PartsCount")}
+              </th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("IsDefaultSales")}
+              </th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("IsDefaultPurchases")}
+              </th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("LastCostPrice")}
+              </th>
+              <th style={{ minWidth: "150px" }}>
+                {handleTranslate("AverageCostPrice")}
+              </th>
               {sellingPrices
                 .sort((a, b) => a.id.localeCompare(b.id))
                 .map((sp) => (
                   <th key={sp.id} style={{ minWidth: "150px" }}>
-                    {sp.name}
+                    <div className="fw-semibold text-primary">{sp.name}</div>
+                    <div className="text-muted small">
+                      {sp.nameSecondLanguage}
+                    </div>
                   </th>
                 ))}
               <th>
@@ -169,7 +185,7 @@ const handleDeleteRow = (index: number) => {
                         label: pu.name,
                         value: pu.id,
                       }))}
-                    label="Packing Units"
+                    label={handleTranslate("PackingUnits")}
                     value={unit.packingUnitId}
                     disabled={formType === FormTypes.Details}
                     onChange={(value: string) => {
@@ -178,16 +194,10 @@ const handleDeleteRow = (index: number) => {
                       handleUpdate(updated);
                     }}
                     handleBlur={null}
-                    error={
-                      !!errors[
-                        `packingUnits[${rowIndex}].packingUnitId`
-                      ]
-                    }
-                    helperText={
-                      errors[
-                        `packingUnits[${rowIndex}].packingUnitId`
-                      ]
-                    }
+                    error={!!errors[`packingUnits[${rowIndex}].packingUnitId`]}
+                    helperText={handleTranslate(
+                      errors[`packingUnits[${rowIndex}].packingUnitId`]
+                    )}
                   />
                 </td>
                 <td>
@@ -198,16 +208,10 @@ const handleDeleteRow = (index: number) => {
                     disabled={formType === FormTypes.Details}
                     value={unit.partsCount ?? 0}
                     onChange={(value) => handleDiscountChange(rowIndex, value)}
-                    error={
-                      !!errors[
-                        `packingUnits[${rowIndex}].partsCount`
-                      ]
-                    }
-                    helperText={
-                      errors[
-                        `packingUnits[${rowIndex}].partsCount`
-                      ]
-                    }
+                    error={!!errors[`packingUnits[${rowIndex}].partsCount`]}
+                    helperText={handleTranslate(
+                      errors[`packingUnits[${rowIndex}].partsCount`]
+                    )}
                   />
                 </td>
                 <td>
@@ -251,15 +255,11 @@ const handleDeleteRow = (index: number) => {
                       updated[rowIndex].lastCostPrice = value ?? 0;
                       handleUpdate(updated);
                     }}
-                    error={
-                      !!errors[
-                        `packingUnits[${rowIndex}].lastCostPrice`
-                      ]
-                    }
+                    error={!!errors[`packingUnits[${rowIndex}].lastCostPrice`]}
                     helperText={
-                      errors[
+                      handleTranslate(errors[
                         `packingUnits[${rowIndex}].lastCostPrice`
-                      ]
+                      ])
                     }
                   />
                 </td>
@@ -276,14 +276,10 @@ const handleDeleteRow = (index: number) => {
                       handleUpdate(updated);
                     }}
                     error={
-                      !!errors[
-                        `packingUnits[${rowIndex}].averageCostPrice`
-                      ]
+                      !!errors[`packingUnits[${rowIndex}].averageCostPrice`]
                     }
                     helperText={
-                      errors[
-                        `packingUnits[${rowIndex}].averageCostPrice`
-                      ]
+                     handleTranslate( errors[`packingUnits[${rowIndex}].averageCostPrice`])
                     }
                   />
                 </td>
@@ -308,9 +304,9 @@ const handleDeleteRow = (index: number) => {
                         ]
                       }
                       helperText={
-                        errors[
+                       handleTranslate(errors[
                           `packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`
-                        ]
+                        ])
                       }
                     />
                   </td>

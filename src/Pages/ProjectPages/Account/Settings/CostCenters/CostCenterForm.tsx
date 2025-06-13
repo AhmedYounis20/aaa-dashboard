@@ -31,6 +31,7 @@ import { ChartOfAccountModel } from "../../../../../interfaces/ProjectInterfaces
 import { Delete } from "@mui/icons-material";
 import InputText from "../../../../../Components/Inputs/InputText";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import { useTranslation } from "react-i18next";
 
 function CostCenterForm({
   formType,
@@ -60,8 +61,7 @@ function CostCenterForm({
     formType != FormTypes.Add
   );
 
-  // const costCenterResult = useGetCostCenterByIdQuery(id);
-
+  const {t} = useTranslation();
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
@@ -80,21 +80,6 @@ function CostCenterForm({
     }
   }, [formType]);
 
-  // useEffect(() => {
-  //   if (formType != FormTypes.Add) {
-  //     if (!costCenterResult.isLoading) {
-  //       console.log(
-  //         "result Object ",
-  //         costCenterResult.data.result.chartOfAccounts.map(
-  //           (e: any) => e.chartOfAccountId
-  //         )
-  //       );
-  //       setModel(costCenterMapper(costCenterResult.data.result));
-
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // }, [costCenterResult.isLoading, costCenterResult?.data?.result, formType]);
  useEffect(() => {
     if (formType !== FormTypes.Add ) {
           const fetchData = async () => {
@@ -221,7 +206,8 @@ function CostCenterForm({
             <Box display={"flex"} gap={1}>
               <InputText
                 type="text"
-                label="Name (required)"
+                label={t("Name")}
+                isRquired
                 variant="outlined"
                 fullWidth
                 disabled={formType === FormTypes.Details}
@@ -234,7 +220,8 @@ function CostCenterForm({
               />
               <InputText
                 type="text"
-                label="Second language name (required)"
+                label={t("NameSecondLanguage")}
+                isRquired
                 variant="outlined"
                 fullWidth
                 disabled={formType === FormTypes.Details}
@@ -247,8 +234,11 @@ function CostCenterForm({
               />
             </Box>
             <InputSelect
-              options={NodeTypeOptions}
-              label={"Node Type"}
+              options={NodeTypeOptions.map((e) => ({
+                ...e,
+                label: t(e.label),
+              }))}
+              label={t("NodeType")}
               defaultValue={model?.nodeType}
               disabled={formType !== FormTypes.Add}
               multiple={false}
@@ -272,8 +262,11 @@ function CostCenterForm({
               <>
                 <Box display={"flex"} gap={1}>
                   <InputSelect
-                    options={CostCenterTypeOptions}
-                    label={"Cost Center Type"}
+                    options={CostCenterTypeOptions.map((e) => ({
+                      ...e,
+                      label: t(e.label),
+                    }))}
+                    label={t("CostCenterType")}
                     defaultValue={model?.costCenterType}
                     disabled={formType !== FormTypes.Add}
                     multiple={false}
@@ -297,14 +290,15 @@ function CostCenterForm({
                     // helperText={!!errors.costCenterType}
                   />
                   <InputNumber
-                    label="percent %"
+                    label={t("Percent")}
                     value={model?.percent}
                     onChange={(value) => {
                       setModel({
                         ...model,
-                        percent:value,
+                        percent: value,
                       });
                     }}
+                    inputType="percent"
                     error={!!errors.percent}
                     helperText={errors.percent}
                     disabled={formType === FormTypes.Details}
@@ -320,7 +314,7 @@ function CostCenterForm({
                         };
                       }
                     )}
-                    label={"Chart of Accounts"}
+                    label={t("ChartOfAccounts")}
                     value={model.chartOfAccounts}
                     disabled={formType === FormTypes.Details}
                     onChange={(value: string[] | undefined) => {
@@ -335,11 +329,11 @@ function CostCenterForm({
                           : prevModel;
                       });
                     }}
-                    multiple= {true}
+                    multiple={true}
                     name={"chartofAccounts"}
                     handleBlur={null}
                     error={!!errors.chartOfAccounts}
-                    helperText={errors.chartOfAccounts}
+                    helperText={t(errors.chartOfAccounts)}
                   />
                 )}
                 {model?.costCenterType === CostCenterType.RelatedToAccount && (
@@ -347,8 +341,8 @@ function CostCenterForm({
                     <Table>
                       <TableHead>
                         <TableRow>
-                          <TableCell align="center">الحساب</TableCell>
-                          <TableCell align="center">الكود</TableCell>
+                          <TableCell align="center">{t("Account")}</TableCell>
+                          <TableCell align="center">{t("Code")}</TableCell>
                           <TableCell align="center"></TableCell>
                         </TableRow>
                       </TableHead>

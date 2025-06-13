@@ -14,7 +14,7 @@ const columns = [
     accessor: "name",
   },
   {
-    Header: "NameSecondLanguage)",
+    Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
 
@@ -61,7 +61,6 @@ const BanksRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="add new"
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}

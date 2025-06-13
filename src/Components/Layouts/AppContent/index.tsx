@@ -58,7 +58,7 @@ export default function AppContent({
         alignItems={"center"}
       >
         <Typography variant="h2" mb={2} textTransform={"capitalize"}>
-          {title}
+          {t(title)}
         </Typography>
 
         {btn && (
