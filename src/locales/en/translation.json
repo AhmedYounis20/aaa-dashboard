@@ -122,5 +122,6 @@
   "Account":"Account",
   "CostCenterType":"Cost Center Type",
   "NotRelated":"Not Related",
-  "RelatedToAccount":"Related To Account"
+  "RelatedToAccount":"Related To Account",
+  "Dashboard": "Dashboard"
 }
