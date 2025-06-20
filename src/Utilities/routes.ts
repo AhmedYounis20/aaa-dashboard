@@ -14,6 +14,7 @@ import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import BookIcon from "@mui/icons-material/Book";
+import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import ChartOfAccountsRoot from "../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot";
 import BanksRoot from "../Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot";
 import CashInBoxesRoot from "../Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot";
@@ -37,6 +38,7 @@ import JournalEntriesRoot from "../Pages/ProjectPages/Account/Entries/JournalEnt
 import OpeningEntriesRoot from "../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot";
 import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
 
+
 export interface ISidebarItem {
     icon?: ReactElement;
     title: string;
@@ -49,6 +51,11 @@ export interface ISidebarItem {
 
 
 export const sidebarItemsData: ISidebarItem[] = [
+  {
+    title: "Dashboard",
+    icon: React.createElement(GridViewOutlinedIcon),
+    path: "/",
+  },
   {
     title: "GeneralLeadgers",
     icon: React.createElement(AccountBoxIcon),
