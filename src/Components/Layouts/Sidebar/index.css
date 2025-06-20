@@ -1,1 +1,32 @@
 /* No transitions needed - sidebar closes immediately */
+.ps-submenu-content {
+  background-color: transparent !important;
+}
+
+.ps-toggled .ps-submenu-expand-icon span {
+  width: 10px !important;
+  height: 10px !important;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.ps-sidebar-backdrop,
+.ps-sidebar-root.ps-broken {
+  top: 64px !important;
+}
+
+@media (max-width: 600px) {
+  .ps-sidebar-backdrop,
+  .ps-sidebar-root.ps-broken {
+    top: 48px !important;
+  }
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

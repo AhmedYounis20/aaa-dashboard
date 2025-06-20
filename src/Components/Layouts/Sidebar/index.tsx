@@ -1,10 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
 import { Link, useLocation } from 'react-router-dom'
 import { ISidebarItem } from '../../../Utilities/routes';
 import FlexBetween from '../../FlexBetween';
-import { Typography, Box, useTheme, Avatar, IconButton, Divider, Popover, Button } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import { Typography, Box, useTheme, Avatar, IconButton, Divider, Popover, Button, styled } from '@mui/material';
 import { appContext } from '../../../layout/DefaultLayout';
 import { appProps } from '../../../interfaces/Components/appProps';
 import { useTranslation } from "react-i18next";
@@ -22,26 +21,54 @@ import {
 import './index.css';
 
 interface ISidebarProps {
-    items: ISidebarItem[];
-    isSidebarOpen?: boolean;
-    setIsSidebarOpen?: (open: boolean) => void;
-    isMobile?: boolean;
+  items: ISidebarItem[];
+  isSidebarOpen?: boolean;
+  setIsSidebarOpen?: (open: boolean) => void;
+  isMobile?: boolean;
 }
+
+const ThemedMenuItem = styled(MenuItem)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
+  borderRadius: theme.spacing(1),
+  transition: theme.transitions.create(["color", "background-color"], {
+    duration: theme.transitions.duration.standard,
+    easing: theme.transitions.easing.easeInOut,
+  }),
+  "&:hover": {
+    borderRadius: theme.spacing(1),
+    //backgroundColor: theme.palette.primary.light,
+  },
+}));
 
 export default function AppSidebar({ items }: ISidebarProps) {
     const { isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
+    // const [openMenu, setOpenMenu] = useState<string | null>(null);
+    // const userData = useSelector((state: RootState) => state.userAuthStore);
+    const theme = useTheme();
     const location = useLocation();
     const { t } = useTranslation();
-    const theme = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [profileAnchor, setProfileAnchor] = useState<null | HTMLElement>(null);
 
-    const isActivePath = (path: string | undefined) => {
-        if (path != undefined) {
-            return location.pathname.includes(path);
-        }
+  const isActivePath = (path: string | undefined) => {
+    if (!path) return false;
+    if (path === "/") {
+      return location.pathname === "/";
     }
+    return location.pathname.startsWith(path);
+  };
+
+  // useEffect(() => {
+  //   const activeMenu = items.find((item) =>
+  //     item.submenu?.some((sub) => isActivePath(sub.path))
+  //   );
+
+  //   if (activeMenu) {
+  //     setOpenMenu(activeMenu.title);
+  //   }
+  // }, [location.pathname, items]);
 
     const handleLogout = () => {
         localStorage.getItem("accessToken") && localStorage.removeItem("accessToken");
@@ -58,11 +85,12 @@ export default function AppSidebar({ items }: ISidebarProps) {
       <Sidebar
         backgroundColor={theme.palette.background.paper}
         collapsed={!isSidebarOpen}
-        breakPoint={"xxl"}
+        breakPoint={"lg"}
         toggled={isSidebarOpen ? true : false}
         transitionDuration={300}
         style={{
           width: isSidebarOpen ? "280px" : "80px",
+          border: 0,
           borderRight: `1px solid ${theme.palette.divider}`,
           boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
           background: `linear-gradient(180deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
@@ -75,77 +103,14 @@ export default function AppSidebar({ items }: ISidebarProps) {
         <FlexBetween
           flexDirection={"column"}
           alignItems={"stretch"}
-          height={"100%"}
-          width={"100%"}
-          sx={{ gap: 0 }}
+          padding={"10px"}
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            overflow: "auto",
+            height: "100%",
+          }}
         >
-          {/* Header */}
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: `1px solid ${theme.palette.divider}`,
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              color: theme.palette.primary.contrastText,
-              textAlign: 'center',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-              '&:hover': {
-                background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              },
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                transition: 'left 0.5s',
-              },
-              '&:hover::before': {
-                left: '100%',
-              },
-            }}
-            component={Link}
-            to="/"
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 1,
-                minHeight: '40px',
-              }}
-            >
-              <DashboardIcon
-                sx={{
-                  width: "28px",
-                  height: "28px",
-                  color: theme.palette.primary.contrastText,
-                  minWidth: "28px",
-                }}
-              />
-              {isSidebarOpen && (
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  ERP System
-                </Typography>
-              )}
-            </Box>
-          </Box>
-
+          
           {/* Menu Items */}
           <Menu
             key={isSidebarOpen ? 'open' : 'closed'}
@@ -155,10 +120,10 @@ export default function AppSidebar({ items }: ISidebarProps) {
               button: {
                 margin: "4px 8px",
                 borderRadius: "8px",
-                padding: "12px 16px",
+                padding: "5px 10px 5px 5px",
                 borderBottom: `1px solid ${theme.palette.divider}`,
                 ":hover": {
-                  backgroundColor: theme.palette.primary.light,
+                  backgroundColor: "transparent",
                   color: theme.palette.primary.contrastText,
                   transition: "all 0.2s ease-in-out",
                   transform: "translateX(4px)",
@@ -213,16 +178,22 @@ export default function AppSidebar({ items }: ISidebarProps) {
                     }
                   })}
                   style={{
-                    backgroundColor: 'transparent',
-                    color: theme.palette.text.primary,
-                    borderRadius: "12px",
-                    margin: "4px 8px",
-                    transition: "all 0.15s ease-out",
-                    borderBottom: `2px solid ${theme.palette.primary.light}`,
+                    // backgroundColor: 'transparent',
+                    // color: theme.palette.text.primary,
+                    // borderRadius: "12px",
+                    // margin: "4px 8px",
+                    // transition: "all 0.15s ease-out",
+                    // borderBottom: `2px solid ${theme.palette.primary.light}`,
+                    //backgroundColor:
+                    // openMenu === item.title
+                    //  ? theme.palette.primary.light
+                    //  : theme.palette.background.paper,
+                    borderRadius: theme.spacing(1),
+                    marginBlock: theme.spacing(0.625),
                   }}
                 >
                   {item?.submenu.map((subItem, subIndex) => (
-                    <MenuItem
+                    <ThemedMenuItem
                       key={subIndex}
                       icon={subItem.icon && React.cloneElement(subItem.icon, {
                         sx: {
@@ -248,9 +219,8 @@ export default function AppSidebar({ items }: ISidebarProps) {
                         transition: isSidebarOpen ? "all 0.15s ease-out" :"none",
                         position: "relative",
                         overflow: "hidden",
-                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        paddingLeft: theme.spacing(1.25),
                       }}
-
                     >
                       <Typography 
                         variant="body2" 
@@ -263,11 +233,11 @@ export default function AppSidebar({ items }: ISidebarProps) {
                       >
                         {t(subItem?.title)}
                       </Typography>
-                    </MenuItem>
+                    </ThemedMenuItem>
                   ))}
                 </SubMenu>
-              ) : (
-                <MenuItem
+            ) : (
+                <ThemedMenuItem
                   key={index}
                   icon={item.icon && React.cloneElement(item.icon, {
                     sx: {
@@ -279,6 +249,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                   })}
                   component={item?.path && <Link to={item?.path} />}
                   style={{
+                    borderRadius: theme.spacing(1),
                     backgroundColor: isActivePath(item.path)
                       ? theme.palette.primary.main
                       : "transparent",
@@ -286,10 +257,8 @@ export default function AppSidebar({ items }: ISidebarProps) {
                       ? theme.palette.primary.contrastText 
                       : theme.palette.text.primary,
                     margin: "4px 8px",
-                    borderRadius: "8px",
                     fontWeight: isActivePath(item?.path) ? 600 : 500,
                   }}
-
                 >
                   <Typography 
                     variant="body2" 
@@ -302,7 +271,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                   >
                     {t(item?.title)}
                   </Typography>
-                </MenuItem>
+                </ThemedMenuItem>
               )
             )}
           </Menu>

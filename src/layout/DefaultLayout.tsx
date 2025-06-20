@@ -1,4 +1,4 @@
-import { Box, useMediaQuery } from "@mui/material";
+import { Box, useMediaQuery, useTheme} from "@mui/material";
 import { AppHeader } from "../Components";
 import { withAuth } from "../Hoc";
 import { createContext, useState } from "react";
@@ -14,43 +14,45 @@ export const appContext = createContext<appProps>({
 });
 
 const DefaultLayout = () => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 991px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  const theme = useTheme();
 
   return (
     <appContext.Provider
-      value={{
-        isMobile,
-        isSidebarOpen,
-        setIsSidebarOpen,
-      }}
-    >
-      <Box display="flex" height="100vh" overflow="hidden">
-        <AppSidebar items={sidebarItemsData} />
+    value={{
+      isMobile,
+      isSidebarOpen,
+      setIsSidebarOpen,
+    }}
+  >
+    <Box display="flex" height="100vh" overflow="hidden">
+      <AppHeader
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
 
+      <Box
+        component="main"
+        flexGrow={1}
+        display="flex"
+        sx={{ marginTop: "64px" }}
+      >
+        <AppSidebar items={sidebarItemsData} />
         <Box
-          component="main"
+          component="section"
           flexGrow={1}
-          display="flex"
-          flexDirection="column"
-          height="100vh"
-          overflow="hidden"
+          p={3}
+          overflow="auto"
+           sx={{
+            backgroundColor: theme.palette.background.default,
+          }}
         >
-          <AppHeader
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-          />
-          <Box
-            component="section"
-            flexGrow={1}
-            p={3}
-            overflow="auto"
-          >
-            <Outlet />
-          </Box>
+          <Outlet />
         </Box>
       </Box>
-    </appContext.Provider>
+    </Box>
+  </appContext.Provider>
   );
 };
 
