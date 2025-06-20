@@ -1,0 +1,36 @@
+.header-logo {
+  p {
+    font-size: 20px !important;
+    font-weight: bold !important;
+  }
+
+  &:hover {
+    background-color: unset !important;
+  }
+}
+
+.menu-button,
+.user-icon {
+  background-color: rgb(132 132 132 / 10%) !important;
+  border-radius: 50% !important;
+  padding: 8px !important;
+  transition: background-color 0.3s ease !important;
+
+  &:hover {
+    background-color: rgb(131 131 131 / 20%) !important;
+  }
+}
+
+.MuiPopover-paper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 10px; /* adjust horizontal position to align with icon */
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white; /* or the background color of popover */
+  transform: translateY(-100%);
+  z-index: 0;
+}

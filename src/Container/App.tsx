@@ -55,23 +55,23 @@ function App() {
   );
 }
 
-function renderRouter() {
-  return (
-    <BrowserRouter>
-      <Routes>
+  function renderRouter() {
+    return (
+      <BrowserRouter>
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<Dashboard />} />
-          {sidebarItemsData?.map((item, idx) =>
-            item?.submenu ? AddRoute(item, idx) : null
-          )}
-        </Route>
+            <Route index element={<Dashboard />} />
+            {sidebarItemsData?.map((item, idx) =>
+              item?.submenu ? AddRoute(item, idx) : null
+            )}
+          </Route>
         <Route path="*" element={<Page404 />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+        </Routes>
+      </BrowserRouter>
+    );
+  }
 
 function AddRoute(item: ISidebarItem, idx: number) {
   return (
