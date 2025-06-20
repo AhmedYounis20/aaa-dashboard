@@ -1,10 +1,10 @@
+import "./index.css";
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
 import { Link, useLocation } from 'react-router-dom'
 import { ISidebarItem } from '../../../Utilities/routes';
 import FlexBetween from '../../FlexBetween';
-import { Typography } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import { useContext } from 'react';
+import { styled, Typography, useTheme } from '@mui/material';
+import { useContext, useState } from 'react';
 import { appContext } from '../../../layout/DefaultLayout';
 import { appProps } from '../../../interfaces/Components/appProps';
 import { useTranslation } from "react-i18next";
@@ -17,17 +17,35 @@ interface ISidebarProps {
     isMobile?: boolean;
 }
 
+const ThemedMenuItem = styled(MenuItem)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
+  borderRadius: theme.spacing(1),
+  transition: theme.transitions.create(["color", "background-color"], {
+    duration: theme.transitions.duration.standard,
+    easing: theme.transitions.easing.easeInOut,
+  }),
+  "&:hover": {
+    borderRadius: theme.spacing(1),
+    backgroundColor: theme.palette.primary.light,
+  },
+}));
+
 export default function AppSidebar({ items }: ISidebarProps) {
-    const { isMobile, isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
+    const { isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
     // const userData = useSelector((state: RootState) => state.userAuthStore);
+    const theme = useTheme();
     const location = useLocation();
     const { t } = useTranslation();
 
     const isActivePath = (path: string | undefined) => {
-        if (path != undefined) {
-            return location.pathname.includes(path);
-        }
-    }
+      if (!path) return false;
+      if (path === "/") {
+        return location.pathname === "/";
+      }
+      return location.pathname.startsWith(path);
+    };
 
     // const [width, setWidth] = useState<number | undefined>();
     // const getSize = () => setWidth(window.innerWidth);
@@ -52,13 +70,12 @@ export default function AppSidebar({ items }: ISidebarProps) {
       <Sidebar
         backgroundColor="#fff"
         collapsed={!isSidebarOpen}
-        breakPoint={"xxl"}
+        breakPoint={"lg"}
         toggled={isSidebarOpen ? true : false}
         style={{
-          width: isSidebarOpen && isMobile ? "270px" : "80px",
+          border: 0,
         }}
         onBackdropClick={() =>{
-          console.log("pressed");
           if(setIsSidebarOpen)  setIsSidebarOpen(!isSidebarOpen);
         }
         }
@@ -66,79 +83,90 @@ export default function AppSidebar({ items }: ISidebarProps) {
         <FlexBetween
           flexDirection={"column"}
           alignItems={"stretch"}
-          height={"100%"}
-          width={"100%"}
+          padding={"10px"}
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            overflow: "auto",
+            height: "100%",
+          }}
         >
           <Menu
             menuItemStyles={{
               button: {
-                ":hover": {
-                  backgroundColor: "#c5e4ff",
-                  transition: "0.2s ease-in-out",
-                },
-                color: "#0098e5",
+                padding: "5px 10px 5px 5px",
               },
               label: {
-                color: "#29292981",
+                color: theme.palette.text.primary,
               },
             }}
           >
-            <MenuItem
-              icon={
-                <DashboardIcon
-                  color="info"
-                  sx={{
-                    width: "32px",
-                    height: "32px",
-                  }}
-                />
-              }
-              component={<Link to="/" />}
-              style={{
-                color: "#fff",
-              }}
-            >
-              <Typography variant="body1">erp system</Typography>
-            </MenuItem>
-
-        
             {items?.map((item, index) =>
               item?.submenu ? (
                 <SubMenu
                   key={index}
                   label={t(item.title)}
                   icon={item.icon && item.icon}
+                  open={openMenu === item.title}
+                  onOpenChange={(isOpen: boolean) =>
+                    setOpenMenu(isOpen ? item.title : null)
+                  }
+                  style={{
+                    backgroundColor:
+                      openMenu === item.title
+                        ? theme.palette.primary.light
+                        : theme.palette.background.paper,
+                    borderRadius: theme.spacing(1),
+                    marginBlock: theme.spacing(0.625),
+                  }}
                 >
                   {item?.submenu.map((subItem, subIndex) => (
-                    <MenuItem
+                    <ThemedMenuItem
                       key={subIndex}
                       icon={subItem.icon && subItem?.icon}
                       component={subItem?.path && <Link to={subItem?.path} />}
                       style={{
+                        borderRadius: theme.spacing(1),
                         backgroundColor: isActivePath(subItem?.path)
-                          ? "#00a8ff"
+                          ? theme.palette.primary.main
                           : "transparent",
                         color: isActivePath(subItem?.path) ? "#fff" : "",
+                        paddingLeft: theme.spacing(1.25),
                       }}
                     >
-                      <Typography variant="body1">{t(subItem?.title)}</Typography>
-                    </MenuItem>
+                      <Typography
+                        variant='body1'
+                        style={{
+                          color: isActivePath(subItem?.path) ? "#fff" : "",
+                        }}
+                      >
+                        {t(subItem?.title)}
+                      </Typography>
+                    </ThemedMenuItem>
                   ))}
                 </SubMenu>
               ) : (
-                <MenuItem
+                <ThemedMenuItem
                   key={index}
                   icon={item.icon && item?.icon}
                   component={item?.path && <Link to={item?.path} />}
                   style={{
+                    borderRadius: theme.spacing(1),
                     backgroundColor: isActivePath(item.path)
-                      ? "#00a8ff"
-                      : "transparent",
+                      ? theme.palette.primary.main
+                      : theme.palette.background.paper,
                     color: isActivePath(item?.path) ? "#fff" : "",
                   }}
+                  onClick={() => setOpenMenu(null)}
                 >
-                  <Typography variant="body1">{item?.title}</Typography>
-                </MenuItem>
+                  <Typography
+                    variant='body1'
+                    style={{
+                      color: isActivePath(item?.path) ? "#fff" : "",
+                    }}
+                  >
+                    {t(item?.title)}
+                  </Typography>
+                </ThemedMenuItem>
               )
             )}
           </Menu>
