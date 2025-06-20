@@ -1,4 +1,4 @@
-import { Box, useMediaQuery } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { AppHeader } from "../Components";
 import { withAuth } from "../Hoc";
 import { createContext, useState } from "react";
@@ -14,7 +14,8 @@ export const appContext = createContext<appProps>({
 });
 
 const DefaultLayout = () => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width: 991px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
 
   return (
@@ -26,25 +27,26 @@ const DefaultLayout = () => {
       }}
     >
       <Box display="flex" height="100vh" overflow="hidden">
-        <AppSidebar items={sidebarItemsData} />
+        <AppHeader
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
 
         <Box
           component="main"
           flexGrow={1}
           display="flex"
-          flexDirection="column"
-          height="100vh"
-          overflow="hidden"
+          sx={{ marginTop: "64px" }}
         >
-          <AppHeader
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-          />
+          <AppSidebar items={sidebarItemsData} />
           <Box
             component="section"
             flexGrow={1}
             p={3}
             overflow="auto"
+             sx={{
+              backgroundColor: theme.palette.background.default,
+            }}
           >
             <Outlet />
           </Box>
