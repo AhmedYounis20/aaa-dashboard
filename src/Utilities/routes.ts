@@ -1,20 +1,5 @@
-import { Construction, CurrencyBitcoin, DashboardCustomize, Factory, InventoryRounded, Store } from "@mui/icons-material";
 import React, { ReactElement } from "react";
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import DiamondIcon from '@mui/icons-material/Diamond';
-import WebhookIcon from '@mui/icons-material/Webhook';
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import TableChartIcon from '@mui/icons-material/TableChart';
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
-import SettingsIcon from "@mui/icons-material/Settings";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import BookIcon from "@mui/icons-material/Book";
-import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
+
 import ChartOfAccountsRoot from "../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot";
 import BanksRoot from "../Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot";
 import CashInBoxesRoot from "../Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot";
@@ -38,6 +23,31 @@ import JournalEntriesRoot from "../Pages/ProjectPages/Account/Entries/JournalEnt
 import OpeningEntriesRoot from "../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot";
 import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
 
+import {
+  AccountBalanceOutlined,
+  AccountTreeOutlined,
+  AssessmentOutlined,
+  AttachMoneyOutlined,
+  BookOutlined,
+  BookmarkBorderOutlined,
+  CategoryOutlined,
+  CurrencyExchangeOutlined,
+  DashboardOutlined,
+  FactoryOutlined,
+  InventoryOutlined,
+  LibraryBooksOutlined,
+  LocalAtmOutlined,
+  LocalShippingOutlined,
+  MonetizationOnOutlined,
+  MoneyOutlined,
+  PeopleOutlined,
+  ReceiptOutlined,
+  SettingsOutlined,
+  StoreOutlined,
+  TableChartOutlined,
+  WarehouseOutlined,
+  CalendarTodayOutlined
+} from "@mui/icons-material";
 
 export interface ISidebarItem {
     icon?: ReactElement;
@@ -49,62 +59,61 @@ export interface ISidebarItem {
 
 // TODO: make the icon value is string
 
-
 export const sidebarItemsData: ISidebarItem[] = [
   {
     title: "Dashboard",
-    icon: React.createElement(GridViewOutlinedIcon),
+    icon: React.createElement(DashboardOutlined),
     path: "/",
   },
   {
-    title: "GeneralLeadgers",
-    icon: React.createElement(AccountBoxIcon),
+    title: "GeneralLedgers",
+    icon: React.createElement(AccountTreeOutlined),
     submenu: [
       {
         title: "ChartOfAccounts",
-        icon: React.createElement(TableChartIcon),
+        icon: React.createElement(TableChartOutlined),
         path: "/chartOfAccounts",
         page: ChartOfAccountsRoot,
       },
     ],
   },
   {
-    title: "SubLeadgers",
-    icon: React.createElement(LeaderboardIcon),
+    title: "SubLedgers",
+    icon: React.createElement(AssessmentOutlined),
     submenu: [
       {
         title: "Banks",
-        icon: React.createElement(AccountBalanceIcon),
+        icon: React.createElement(AccountBalanceOutlined),
         path: "/subleadgers/banks",
         page: BanksRoot,
       },
       {
         title: "CashInBoxes",
-        icon: React.createElement(MonetizationOnIcon),
+        icon: React.createElement(LocalAtmOutlined),
         path: "/subleadgers/cashInBoxes",
         page: CashInBoxesRoot,
       },
       {
         title: "Customers",
-        icon: React.createElement(FaceRetouchingNaturalIcon),
+        icon: React.createElement(PeopleOutlined),
         path: "/subleadgers/customers",
         page: CustomersRoot
       },
       {
         title: "Suppliers",
-        icon: React.createElement(DashboardCustomize),
+        icon: React.createElement(LocalShippingOutlined),
         path: "/subleadgers/suppliers",
         page: SuppliersRoot
       },
       {
         title: "FixedAssets",
-        icon: React.createElement(Construction),
+        icon: React.createElement(WarehouseOutlined),
         path: "/subleadgers/fixedAssets",
         page: FixedAssetsRoot
       },
       {
         title: "Branches",
-        icon: React.createElement(Store),
+        icon: React.createElement(StoreOutlined),
         path: "/subleadgers/Branches",
         page: BranchesRoot
       },
@@ -112,59 +121,59 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Settings",
-    icon: React.createElement(SettingsIcon),
+    icon: React.createElement(SettingsOutlined),
     submenu: [
       {
-        title: "Glsettings",
-        icon: React.createElement(DiamondIcon),
+        title: "GlSettings",
+        icon: React.createElement(BookmarkBorderOutlined),
         path: "/glSettings",
         page: GlSettingsRoot
       },
       {
         title: "AccountGuides",
-        icon: React.createElement(WebhookIcon),
+        icon: React.createElement(BookOutlined),
         path: "/accountguides",
         page: AccountGuidesRoot
       },
       {
         title: "CollectionBooks",
-        icon: React.createElement(BookIcon),
+        icon: React.createElement(LibraryBooksOutlined),
         path: "/collectionBooks",
         page: CollectionBooksRoot
       },
       {
         title: "CostCenter",
-        icon: React.createElement(WebhookIcon),
+        icon: React.createElement(CategoryOutlined),
         path: "/costCenter",
         page: CostCenterRoot
       },
       {
         title: "FinancialPeriods",
-        icon: React.createElement(CreditScoreIcon),
+        icon: React.createElement(CalendarTodayOutlined),
         path: "/financialPeriods",
         page: FinancialPeriodsRoot
       },
       {
         title: "Currencies",
-        icon: React.createElement(CurrencyBitcoin),
+        icon: React.createElement(CurrencyExchangeOutlined),
         path: "/currencies",
         page: CurrenciesRoot
       },
       {
         title: "SellingPrices",
-        icon: React.createElement(AttachMoneyIcon),
+        icon: React.createElement(AttachMoneyOutlined),
         path: "/sellingPrices",
         page: SellingPricesRoot
       },
       {
         title: "PackingUnits",
-        icon: React.createElement(AccountBoxIcon),
+        icon: React.createElement(InventoryOutlined),
         path: "/packingUnits",
         page: PackingUnitsRoot
       },
       {
         title: "ManufacturerCompanies",
-        icon: React.createElement(Factory),
+        icon: React.createElement(FactoryOutlined),
         path: "/manufacturerCompanies",
         page: ManufacturerCompaniesRoot
       },
@@ -172,35 +181,35 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Entries",
-    icon: React.createElement(LibraryBooksIcon),
+    icon: React.createElement(ReceiptOutlined),
     submenu: [
       {
-        title: "CompinedEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        title: "CombinedEntries",
+        icon: React.createElement(ReceiptOutlined),
         path: "/compinedentries",
         page: CompinedEntriesRoot
       },
       {
         title: "PaymentVouchers",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(MoneyOutlined),
         path: "/paymentVouchers",
         page: PaymentVouchersRoot
       },
       {
         title: "ReceiptVouchers",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(MonetizationOnOutlined),
         path: "/receiptVouchers",
         page: ReceiptVouchersRoot
       },
       {
         title: "JournalEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(BookOutlined),
         path: "/journalEntries",
         page: JournalEntriesRoot
       },
       {
         title: "OpeningEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(AccountBalanceOutlined),
         path: "/openingEntries",
         page: OpeningEntriesRoot
       },
@@ -208,11 +217,11 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Inventory",
-    icon: React.createElement(InventoryRounded),
+    icon: React.createElement(InventoryOutlined),
     submenu: [
       {
         title: "Items",
-        icon: React.createElement(InventoryRounded),
+        icon: React.createElement(CategoryOutlined),
         path: "/items",
         page: ItemsRoot
       },
