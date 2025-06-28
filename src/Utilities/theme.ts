@@ -134,30 +134,30 @@ export const themeSettings = (
                 }),
         },
         typography: {
-            fontFamily: ["Inter", "sans-serif"].join(","),
+            fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
             fontSize: 12,
             h1: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 40,
             },
             h2: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 32,
             },
             h3: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 24,
             },
             h4: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 20,
             },
             h5: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 16,
             },
             h6: {
-                fontFamily: ["Inter", "sans-serif"].join(","),
+                fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
                 fontSize: 14,
             },
         },

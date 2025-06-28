@@ -9,6 +9,7 @@ import { appContext } from "../../../layout/DefaultLayout";
 import { appProps } from "../../../interfaces/Components/appProps";
 import { useTranslation } from "react-i18next";
 import ThemedTooltip from "../../UI/ThemedTooltip";
+import i18n from "../../../Utilities/localization";
 
 interface ISidebarProps {
   items: ISidebarItem[];
@@ -76,6 +77,8 @@ export default function AppSidebar({ items }: ISidebarProps) {
 
   return (
     <Sidebar
+      rtl={i18n.language === "ar"}
+      key={i18n.language}
       backgroundColor='#fff'
       collapsed={!isSidebarOpen}
       breakPoint={"lg"}

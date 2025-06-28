@@ -1,6 +1,6 @@
 import { CacheProvider } from "@emotion/react";
 import { rtlCache } from "../Utilities/rtlCache"; // 👈
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import { themeSettings } from "../Utilities/theme";
@@ -18,8 +18,7 @@ import sidebarItemsData, { ISidebarItem } from "../Utilities/routes";
 function App() {
   const mode = useSelector((state: RootState) => state.global.mode);
   const { i18n } = useTranslation();
-  const currentDir = i18n.language === "ar" ? "rtl" : "ltr";
-  const [dir,] = useState<"rtl" | "ltr">(currentDir);
+  const dir: "rtl" | "ltr" = i18n.language === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
     document.documentElement.dir = dir;
@@ -33,41 +32,41 @@ function App() {
   console.log(theme);
   console.log(cache);
 
-return (
-  <>
-    {dir === "rtl" ? (
-      <CacheProvider value={rtlCache}>
+  return (
+    <>
+      {dir === "rtl" ? (
+        <CacheProvider value={rtlCache}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {renderRouter()}
+          </ThemeProvider>
+        </CacheProvider>
+      ) : (
         <ThemeProvider theme={theme}>
           <CssBaseline />
           {renderRouter()}
         </ThemeProvider>
-      </CacheProvider>
-    ) : (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {renderRouter()}
-      </ThemeProvider>
-    )}
-  </>
-);
+      )}
+    </>
+  );
 
-function renderRouter() {
-  return (
-    <BrowserRouter>
-      <Routes>
+  function renderRouter() {
+    return (
+      <BrowserRouter>
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<Dashboard />} />
-          {sidebarItemsData?.map((item, idx) =>
-            item?.submenu ? AddRoute(item, idx) : null
-          )}
-        </Route>
+            <Route index element={<Dashboard />} />
+            {sidebarItemsData?.map((item, idx) =>
+              item?.submenu ? AddRoute(item, idx) : null
+            )}
+          </Route>
         <Route path="*" element={<Page404 />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+        </Routes>
+      </BrowserRouter>
+    );
+  }
 
   function AddRoute(item: ISidebarItem, idx: number) {
     return (
