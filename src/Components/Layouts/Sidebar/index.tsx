@@ -1,20 +1,20 @@
 import "./index.css";
-import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
-import { Link, useLocation } from 'react-router-dom'
-import { ISidebarItem } from '../../../Utilities/routes';
-import FlexBetween from '../../FlexBetween';
-import { styled, Typography, useTheme } from '@mui/material';
-import { useContext, useState } from 'react';
-import { appContext } from '../../../layout/DefaultLayout';
-import { appProps } from '../../../interfaces/Components/appProps';
+import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
+import { Link, useLocation } from "react-router-dom";
+import { ISidebarItem } from "../../../Utilities/routes";
+import FlexBetween from "../../FlexBetween";
+import { styled, Typography, useTheme } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { appContext } from "../../../layout/DefaultLayout";
+import { appProps } from "../../../interfaces/Components/appProps";
 import { useTranslation } from "react-i18next";
-
+import ThemedTooltip from "../../UI/ThemedTooltip";
 
 interface ISidebarProps {
-    items: ISidebarItem[];
-    isSidebarOpen?: boolean;
-    setIsSidebarOpen?: (open: boolean) => void;
-    isMobile?: boolean;
+  items: ISidebarItem[];
+  isSidebarOpen?: boolean;
+  setIsSidebarOpen?: (open: boolean) => void;
+  isMobile?: boolean;
 }
 
 const ThemedMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -32,96 +32,103 @@ const ThemedMenuItem = styled(MenuItem)(({ theme }) => ({
 }));
 
 export default function AppSidebar({ items }: ISidebarProps) {
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
-    const { isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
-    // const userData = useSelector((state: RootState) => state.userAuthStore);
-    const theme = useTheme();
-    const location = useLocation();
-    const { t } = useTranslation();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const { isSidebarOpen, setIsSidebarOpen } = useContext<appProps>(appContext);
+  // const userData = useSelector((state: RootState) => state.userAuthStore);
+  const theme = useTheme();
+  const location = useLocation();
+  const { t } = useTranslation();
 
-    const isActivePath = (path: string | undefined) => {
-      if (!path) return false;
-      if (path === "/") {
-        return location.pathname === "/";
-      }
-      return location.pathname.startsWith(path);
-    };
+  const isActivePath = (path: string | undefined) => {
+    if (!path) return false;
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
 
-    // const [width, setWidth] = useState<number | undefined>();
-    // const getSize = () => setWidth(window.innerWidth);
+  useEffect(() => {
+    const activeMenu = items.find((item) =>
+      item.submenu?.some((sub) => isActivePath(sub.path))
+    );
 
-    // useEffect(() => {
-    //     window.addEventListener('resize', getSize);
+    if (activeMenu) {
+      setOpenMenu(activeMenu.title);
+    }
+  }, [location.pathname, items]);
 
-    //     if (isMobile) {
-    //         setIsSidebarOpen(false)
-    //     } else {
-    //         setIsSidebarOpen(true)
-    //     }
+  // const [width, setWidth] = useState<number | undefined>();
+  // const getSize = () => setWidth(window.innerWidth);
 
-    //     return () => {
-    //         window.removeEventListener('resize', getSize)
-    //     }
-    // }, [isMobile])
+  // useEffect(() => {
+  //     window.addEventListener('resize', getSize);
 
+  //     if (isMobile) {
+  //         setIsSidebarOpen(false)
+  //     } else {
+  //         setIsSidebarOpen(true)
+  //     }
 
+  //     return () => {
+  //         window.removeEventListener('resize', getSize)
+  //     }
+  // }, [isMobile])
 
-    return (
-      <Sidebar
-        backgroundColor="#fff"
-        collapsed={!isSidebarOpen}
-        breakPoint={"lg"}
-        toggled={isSidebarOpen ? true : false}
-        style={{
-          border: 0,
+  return (
+    <Sidebar
+      backgroundColor='#fff'
+      collapsed={!isSidebarOpen}
+      breakPoint={"lg"}
+      toggled={isSidebarOpen ? true : false}
+      style={{
+        border: 0,
+      }}
+      onBackdropClick={() => {
+        if (setIsSidebarOpen) setIsSidebarOpen(!isSidebarOpen);
+      }}
+    >
+      <FlexBetween
+        flexDirection={"column"}
+        alignItems={"stretch"}
+        padding={"10px"}
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          overflow: "auto",
+          height: "100%",
         }}
-        onBackdropClick={() =>{
-          if(setIsSidebarOpen)  setIsSidebarOpen(!isSidebarOpen);
-        }
-        }
       >
-        <FlexBetween
-          flexDirection={"column"}
-          alignItems={"stretch"}
-          padding={"10px"}
-          sx={{
-            backgroundColor: theme.palette.background.paper,
-            overflow: "auto",
-            height: "100%",
+        <Menu
+          menuItemStyles={{
+            button: {
+              padding: "5px 10px 5px 5px",
+            },
+            label: {
+              color: theme.palette.text.primary,
+            },
           }}
         >
-          <Menu
-            menuItemStyles={{
-              button: {
-                padding: "5px 10px 5px 5px",
-              },
-              label: {
-                color: theme.palette.text.primary,
-              },
-            }}
-          >
-            {items?.map((item, index) =>
-              item?.submenu ? (
-                <SubMenu
-                  key={index}
-                  label={t(item.title)}
-                  icon={item.icon && item.icon}
-                  open={openMenu === item.title}
-                  onOpenChange={(isOpen: boolean) =>
-                    setOpenMenu(isOpen ? item.title : null)
-                  }
-                  style={{
-                    backgroundColor:
-                      openMenu === item.title
-                        ? theme.palette.primary.light
-                        : theme.palette.background.paper,
-                    borderRadius: theme.spacing(1),
-                    marginBlock: theme.spacing(0.625),
-                  }}
-                >
-                  {item?.submenu.map((subItem, subIndex) => (
+          {items?.map((item, index) =>
+            item?.submenu ? (
+              <SubMenu
+                key={index}
+                label={t(item.title)}
+                icon={item.icon && item.icon}
+                open={openMenu === item.title}
+                onOpenChange={(isOpen: boolean) =>
+                  setOpenMenu(isOpen ? item.title : null)
+                }
+                style={{
+                  backgroundColor:
+                    openMenu === item.title
+                      ? theme.palette.primary.light
+                      : theme.palette.background.paper,
+                  borderRadius: theme.spacing(1),
+                  marginBlock: theme.spacing(0.625),
+                }}
+              >
+                {item?.submenu.map((subItem, subIndex) => (
+                  <ThemedTooltip key={subIndex} titleKey={subItem?.title}>
                     <ThemedMenuItem
-                      key={subIndex}
                       icon={subItem.icon && subItem?.icon}
                       component={subItem?.path && <Link to={subItem?.path} />}
                       style={{
@@ -142,11 +149,12 @@ export default function AppSidebar({ items }: ISidebarProps) {
                         {t(subItem?.title)}
                       </Typography>
                     </ThemedMenuItem>
-                  ))}
-                </SubMenu>
-              ) : (
+                  </ThemedTooltip>
+                ))}
+              </SubMenu>
+            ) : (
+              <ThemedTooltip key={index} titleKey={item?.title}>
                 <ThemedMenuItem
-                  key={index}
                   icon={item.icon && item?.icon}
                   component={item?.path && <Link to={item?.path} />}
                   style={{
@@ -167,10 +175,11 @@ export default function AppSidebar({ items }: ISidebarProps) {
                     {t(item?.title)}
                   </Typography>
                 </ThemedMenuItem>
-              )
-            )}
-          </Menu>
-          {/*
+              </ThemedTooltip>
+            )
+          )}
+        </Menu>
+        {/*
           <Menu
             menuItemStyles={{
               button: {
@@ -211,7 +220,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
               </Box>
             </MenuItem> 
           </Menu>*/}
-        </FlexBetween>
-      </Sidebar>
-    );
+      </FlexBetween>
+    </Sidebar>
+  );
 }
