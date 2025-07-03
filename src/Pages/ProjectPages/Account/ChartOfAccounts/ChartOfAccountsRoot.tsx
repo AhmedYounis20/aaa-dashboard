@@ -81,7 +81,7 @@ const ChartOfAccountsRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="add new"
+              btnName={t("AddNew")}
               startIcon
               columns={columns}
               showdelete={false}

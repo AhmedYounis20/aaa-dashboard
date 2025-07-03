@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useGetCustomersQuery } from "../../../../../Apis/Account/CustomersApi";
 import { FormTypes } from '../../../../../interfaces/Components';
@@ -20,6 +21,7 @@ const columns = [
 ];
 
 const CustomersRoot = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetCustomersQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
@@ -51,7 +53,7 @@ const CustomersRoot = () => {
           {data?.result && (
             <AppContent
               tableType="tree"
-              title="Customers"
+              title={t("Customers")}
               btn
               addBtn
               actionBtn={() => {

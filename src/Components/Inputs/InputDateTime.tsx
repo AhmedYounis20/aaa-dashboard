@@ -7,6 +7,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 type PickerType = "date" | "time" | "datetime";
 
@@ -20,15 +21,18 @@ interface AppDateTimePickerProps {
 }
 
 const InputDateTimePicker: React.FC<AppDateTimePickerProps> = ({
-  label = "Select Date",
+  label,
   value,
   onChange,
   disabled = false,
   type = "datetime",
   slotProps,
 }) => {
+  const { t } = useTranslation();
+  const defaultLabel = t("SelectDate");
+
   const commonProps = {
-    label,
+    label: label || defaultLabel,
     value: value ? dayjs(value) : null,
     onChange: (newValue: any) => {
       onChange?.(newValue ? newValue.toDate() : null);

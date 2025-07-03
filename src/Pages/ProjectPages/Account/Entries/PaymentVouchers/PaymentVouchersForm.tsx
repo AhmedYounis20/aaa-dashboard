@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
@@ -56,6 +57,7 @@ const PaymentVouchersForm: React.FC<{
   handleCloseForm: () => void;
   afterAction: () => void;
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
+const { t } = useTranslation();
   const url = "entries";
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
@@ -433,7 +435,7 @@ const PaymentVouchersForm: React.FC<{
             <>
               {formType === FormTypes.Delete ? (
                 <p>
-                  are you sure, you want delete entry with entry number{" "}
+                  {t("AreYouSureDelete")} entry with entry number{" "}
                   {model?.entryNumber}
                 </p>
               ) : (
@@ -447,7 +449,7 @@ const PaymentVouchersForm: React.FC<{
                               <TextField
                                 type="text"
                                 className="form-input form-control"
-                                label="Financial Period Number"
+                                label={t("FinancialPeriodNumber")}
                                 variant="outlined"
                                 fullWidth
                                 size="small"
@@ -462,7 +464,7 @@ const PaymentVouchersForm: React.FC<{
                                 type="text"
                                 size="small"
                                 className="form-input form-control"
-                                label="Entry Number"
+                                label={t("EntryNumber")}
                                 variant="outlined"
                                 fullWidth
                                 disabled={true}
@@ -479,7 +481,7 @@ const PaymentVouchersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Document Number"
+                            label={t("DocumentNumber")}
                             variant="outlined"
                             size="small"
                             fullWidth
@@ -510,7 +512,7 @@ const PaymentVouchersForm: React.FC<{
                                 value: item.id,
                               })
                             )}
-                            label={"Currency"}
+                            label={t("Currency")}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: any) => {
@@ -529,7 +531,7 @@ const PaymentVouchersForm: React.FC<{
                         <div className="col col-md-4">
                           <InputNumber
                             className="form-input form-control"
-                            label="Exchange Rate"
+                            label={t("ExchangeRate")}
                             isRquired
                             variant="outlined"
                             fullWidth
@@ -552,7 +554,7 @@ const PaymentVouchersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Receiver Name"
+                            label={t("ReceiverName")}
                             variant="outlined"
                             fullWidth
                             size="small"
@@ -573,7 +575,7 @@ const PaymentVouchersForm: React.FC<{
                       <div className="row mb-2">
                         <div className="col col-md-12">
                           <InputDateTimePicker
-                            label="Entry Date"
+                            label={t("EntryDate")}
                             type="datetime"
                             value={model?.entryDate ?? null}
                             onChange={(value) => {
@@ -604,7 +606,7 @@ const PaymentVouchersForm: React.FC<{
                                 value: item.id,
                               })
                             )}
-                            label={"Branch"}
+                            label={t("Branch")}
                             value={model?.branchId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: any) =>
@@ -622,7 +624,7 @@ const PaymentVouchersForm: React.FC<{
                           <TextField
                             type="text"
                             className="form-input form-control"
-                            label="Financial Collector"
+                            label={t("FinancialCollector")}
                             variant="outlined"
                             fullWidth
                             size="small"
@@ -649,8 +651,8 @@ const PaymentVouchersForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
-                            placeholder="notes..."
+                            aria-label={t("Notes")}
+                            placeholder={t("Notes")}
                             onChange={(event: { target: { value: string } }) =>
                               updateModel(
                                 setModel,
@@ -704,7 +706,7 @@ const PaymentVouchersForm: React.FC<{
                                           value: item.id,
                                         })
                                       )}
-                                      label={"Debt Account"}
+                                      label={t("DebtAccount")}
                                       value={e.debitAccountId}
                                       disabled={formType === FormTypes.Details}
                                       onChange={(value: string | undefined) => {
@@ -757,7 +759,7 @@ const PaymentVouchersForm: React.FC<{
                                         value: item.id,
                                       })
                                     )}
-                                    label={"Debt Account"}
+                                    label={t("DebtAccount")}
                                     value={e.debitAccountId}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string | undefined) => {
@@ -802,7 +804,7 @@ const PaymentVouchersForm: React.FC<{
                                           value: item.id,
                                         })
                                       )}
-                                      label={"Credit Account"}
+                                      label={t("CreditAccount")}
                                       value={e.creditAccountId}
                                       disabled={formType === FormTypes.Details}
                                       onChange={(value: string | undefined) => {
@@ -855,7 +857,7 @@ const PaymentVouchersForm: React.FC<{
                                         value: item.id,
                                       })
                                     )}
-                                    label={"Credit Account"}
+                                    label={t("CreditAccount")}
                                     value={e.creditAccountId}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string | undefined) => {
@@ -891,8 +893,11 @@ const PaymentVouchersForm: React.FC<{
                               <div className="row mb-2">
                                 <div className="col col-md-6">
                                   <InputSelect
-                                    options={PaymentTypeOptions}
-                                    label={"Payment Type"}
+                                    options={PaymentTypeOptions.map((e) => ({
+                                      ...e,
+                                      label: t(e.label),
+                                    }))}
+                                    label={t("PaymentType")}
                                     defaultValue={e?.paymentType}
                                     disabled={formType !== FormTypes.Add}
                                     multiple={false}
@@ -917,7 +922,7 @@ const PaymentVouchersForm: React.FC<{
                                 <div className="col col-md-6">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="Amount"
+                                    label={t("Amount")}
                                     variant="outlined"
                                     fullWidth
                                     size="small"
@@ -971,7 +976,7 @@ const PaymentVouchersForm: React.FC<{
                                           value: item.id,
                                         })
                                       )}
-                                      label={"Collection Book"}
+                                      label={t("CollectionBook")}
                                       disabled={formType === FormTypes.Details}
                                       onChange={(value: string | undefined) => {
                                         console.log("value:", value);
@@ -993,7 +998,7 @@ const PaymentVouchersForm: React.FC<{
                                     <TextField
                                       type="text"
                                       className="form-input form-control"
-                                      label="Agent Name"
+                                      label={t("AgentName")}
                                       variant="outlined"
                                       fullWidth
                                       size="small"
@@ -1056,7 +1061,7 @@ const PaymentVouchersForm: React.FC<{
                                             value: item.id,
                                           })
                                         )}
-                                      label={"Bank"}
+                                      label={t("Bank")}
                                       disabled={formType === FormTypes.Details}
                                       onChange={(value: string | undefined) => {
                                         console.log("value:", value);
@@ -1078,7 +1083,7 @@ const PaymentVouchersForm: React.FC<{
                                     <TextField
                                       type="text"
                                       className="form-input form-control"
-                                      label="Cheque Number"
+                                      label={t("ChequeNumber")}
                                       variant="outlined"
                                       fullWidth
                                       size="small"
@@ -1116,7 +1121,7 @@ const PaymentVouchersForm: React.FC<{
                                     <TextField
                                       type="text"
                                       className="form-input form-control"
-                                      label="Name"
+                                      label={t("Name")}
                                       variant="outlined"
                                       fullWidth
                                       size="small"
@@ -1150,7 +1155,7 @@ const PaymentVouchersForm: React.FC<{
                                     <TextField
                                       type="text"
                                       className="form-input form-control"
-                                      label="Number"
+                                      label={t("Number")}
                                       variant="outlined"
                                       fullWidth
                                       size="small"
@@ -1190,7 +1195,7 @@ const PaymentVouchersForm: React.FC<{
                                 <TextField
                                   type="text"
                                   className="form-input form-control"
-                                  label="Reference Number"
+                                  label={t("ReferenceNumber")}
                                   variant="outlined"
                                   fullWidth
                                   size="small"
@@ -1227,7 +1232,7 @@ const PaymentVouchersForm: React.FC<{
                                 <TextField
                                   type="text"
                                   className="form-input form-control"
-                                  label="Last 4 digits"
+                                  label={t("Last4Digits")}
                                   variant="outlined"
                                   fullWidth
                                   size="small"
@@ -1266,7 +1271,7 @@ const PaymentVouchersForm: React.FC<{
                                 <TextField
                                   type="text"
                                   className="form-input form-control"
-                                  label="Number"
+                                  label={t("Number")}
                                   variant="outlined"
                                   fullWidth
                                   size="small"
@@ -1311,7 +1316,7 @@ const PaymentVouchersForm: React.FC<{
                                     ]}
                                   >
                                     <DateTimePicker
-                                      label="Cheque Issue Date"
+                                      label={t("ChequeIssueDate")}
                                       viewRenderers={{
                                         hours: renderTimeViewClock,
                                         minutes: renderTimeViewClock,
@@ -1359,7 +1364,7 @@ const PaymentVouchersForm: React.FC<{
                                     ]}
                                   >
                                     <DateTimePicker
-                                      label="Cheque Collection Date"
+                                      label={t("ChequeCollectionDate")}
                                       viewRenderers={{
                                         hours: renderTimeViewClock,
                                         minutes: renderTimeViewClock,
@@ -1405,7 +1410,7 @@ const PaymentVouchersForm: React.FC<{
                                 <TextField
                                   type="text"
                                   className="form-input form-control"
-                                  label="Identification Number"
+                                  label={t("IdentificationNumber")}
                                   variant="outlined"
                                   fullWidth
                                   size="small"
@@ -1447,7 +1452,7 @@ const PaymentVouchersForm: React.FC<{
                                     ]}
                                   >
                                     <DateTimePicker
-                                      label="Promissory Collection Date"
+                                      label={t("PromissoryCollectionDate")}
                                       viewRenderers={{
                                         hours: renderTimeViewClock,
                                         minutes: renderTimeViewClock,

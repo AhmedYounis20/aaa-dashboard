@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const capitalize = (s: string) =>{
   const path = s.charAt(0).toUpperCase() + s.slice(1);
@@ -8,15 +9,16 @@ const capitalize = (s: string) =>{
 }
 
 const Breadcrumb: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x :string) => x);
 
   return (
-    <nav aria-label="breadcrumb">
+            <nav aria-label={t("Breadcrumb")}>
       <ol className="breadcrumb flex list-none p-0 m-0 bg-gray-100 py-2 rounded">
         <li className="breadcrumb-item">
           <Link to="/" className="text-blue-600 hover:underline">
-            Home
+            {t("Home")}
           </Link>
         </li>
         {pathnames.map((value :string, index:number) => {

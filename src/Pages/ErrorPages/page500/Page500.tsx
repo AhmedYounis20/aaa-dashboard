@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 const Page500 = () => {
+  const { t } = useTranslation();
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <div className="container">
@@ -18,7 +21,7 @@ const Page500 = () => {
               <input
                 type="text"
                 className="form-control"
-                placeholder="What are you looking for?"
+                placeholder={t("WhatAreYouLookingFor")}
               />
               <button className="btn btn-info ms-2">Search</button>
             </div>

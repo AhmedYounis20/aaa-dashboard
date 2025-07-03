@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize } from "@mui/material";
@@ -41,6 +42,7 @@ const JournalEntriesForm: React.FC<{
   handleCloseForm: () => void;
   actionAfter: () => void;
 }> = ({ formType, id, handleCloseForm, actionAfter }) => {
+const { t } = useTranslation();
   const url = "entries";
   const currenciesApiResult = useGetCurrenciesQuery({
     skip: formType == FormTypes.Delete,
@@ -373,7 +375,7 @@ const JournalEntriesForm: React.FC<{
             <>
               {formType === FormTypes.Delete ? (
                 <p>
-                  are you sure, you want delete entry with entry number{" "}
+                  {t("AreYouSureDelete")} entry with entry number{" "}
                   {model?.entryNumber}
                 </p>
               ) : (
@@ -387,7 +389,7 @@ const JournalEntriesForm: React.FC<{
                               <InputText
                                 type="text"
                                 className="form-input form-control"
-                                label="Financial Period Number"
+                                label={t("FinancialPeriodNumber")}
                                 variant="outlined"
                                 fullWidth
                                 size="small"
@@ -402,7 +404,7 @@ const JournalEntriesForm: React.FC<{
                                 type="text"
                                 size="small"
                                 className="form-input form-control"
-                                label="Entry Number"
+                                label={t("EntryNumber")}
                                 variant="outlined"
                                 fullWidth
                                 disabled={true}
@@ -419,7 +421,7 @@ const JournalEntriesForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Document Number"
+                            label={t("DocumentNumber")}
                             variant="outlined"
                             size="small"
                             fullWidth
@@ -446,7 +448,7 @@ const JournalEntriesForm: React.FC<{
                                 value: item.id,
                               })
                             )}
-                            label={"Currency"}
+                            label={t("Currency")}
                             value={model?.currencyId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: any) => {
@@ -465,7 +467,7 @@ const JournalEntriesForm: React.FC<{
                         <div className="col col-md-4">
                           <InputNumber
                             className="form-input form-control"
-                            label="Exchange Rate (required)"
+                            label={t("ExchangeRateRequired")}
                             variant="outlined"
                             fullWidth
                             size="small"
@@ -488,7 +490,7 @@ const JournalEntriesForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Receiver Name"
+                            label={t("ReceiverName")}
                             variant="outlined"
                             fullWidth
                             size="small"
@@ -505,7 +507,7 @@ const JournalEntriesForm: React.FC<{
                       <div className="row mb-2">
                         <div className="col col-md-12">
                           <InputDateTimePicker
-                            label="Entry Date"
+                            label={t("EntryDate")}
                             type="datetime"
                             value={model?.entryDate ?? null}
                             onChange={(value) => {
@@ -536,7 +538,7 @@ const JournalEntriesForm: React.FC<{
                                 value: item.id,
                               })
                             )}
-                            label={"Branch"}
+                            label={t("Branch")}
                             value={model?.branchId}
                             disabled={formType === FormTypes.Details}
                             onChange={(value: any) =>
@@ -554,7 +556,7 @@ const JournalEntriesForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label="Financial Collector"
+                            label={t("FinancialCollector")}
                             variant="outlined"
                             fullWidth
                             size="small"
@@ -581,8 +583,8 @@ const JournalEntriesForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
-                            placeholder="notes..."
+                            aria-label={t("Notes")}
+                            placeholder={t("Notes")}
                             onChange={(event: { target: { value: string } }) =>
                               updateModel(
                                 setModel,
@@ -642,7 +644,7 @@ const JournalEntriesForm: React.FC<{
                                         value: item.id,
                                       })
                                     )}
-                                    label={"Debit Account"}
+                                    label={t("DebitAccount")}
                                     value={e.chartOfAccountId}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string | undefined) => {
@@ -677,7 +679,7 @@ const JournalEntriesForm: React.FC<{
                                 <div className="col col-md-4">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="Amount"
+                                    label={t("Amount")}
                                     variant="outlined"
                                     fullWidth
                                     size="small"
@@ -768,7 +770,7 @@ const JournalEntriesForm: React.FC<{
                                         value: item.id,
                                       })
                                     )}
-                                    label={"Credit Account"}
+                                    label={t("CreditAccount")}
                                     value={e.chartOfAccountId}
                                     disabled={formType === FormTypes.Details}
                                     onChange={(value: string | undefined) => {
@@ -803,7 +805,7 @@ const JournalEntriesForm: React.FC<{
                                 <div className="col col-md-4">
                                   <InputNumber
                                     className="form-input form-control"
-                                    label="Amount"
+                                    label={t("Amount")}
                                     variant="outlined"
                                     fullWidth
                                     size="small"

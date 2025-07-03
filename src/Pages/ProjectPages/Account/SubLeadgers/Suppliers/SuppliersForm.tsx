@@ -23,6 +23,7 @@ const SuppliersForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id,parentId, handleCloseForm }) => {
+const { t } = useTranslation();
   const [deleteFunc] = useDeleteSupplierByIdMutation();
   const [model, setModel] = useState<SupplierModel>({
     name: "",
@@ -52,7 +53,7 @@ const SuppliersForm: React.FC<{
     });
   const [update] = useUpdateSupplierMutation();
   const [create] = useCreateSupplierMutation();
-  const {t}=  useTranslation();
+
   useEffect(() => {
     if(formType != FormTypes.Add && !isUpdated){
 
@@ -152,7 +153,7 @@ const SuppliersForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -395,7 +396,7 @@ const SuppliersForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
+                            aria-label={t("Notes")}
                             onChange={(event) =>
                               setModel((prevModel) =>
                                 prevModel

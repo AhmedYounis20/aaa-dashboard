@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from "react";
 import { FormTypes } from "../../../../../interfaces/Components";
 
@@ -23,6 +24,7 @@ const columns = [
 ];
 
 const CostCenterRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -69,7 +71,7 @@ const CostCenterRoot = () => {
             <AppContent
               tableType="tree"
               data={data}
-              title="CostCenters"
+              title={t("CostCenters")}
               btn
               addBtn
               actionBtn={() => {

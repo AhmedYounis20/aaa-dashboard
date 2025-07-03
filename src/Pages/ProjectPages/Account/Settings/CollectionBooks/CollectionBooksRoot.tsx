@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useGetCollectionBooksQuery } from "../../../../../Apis/Account/CollectionBooksApi";
 import { AppContent } from '../../../../../Components';
@@ -7,6 +8,7 @@ import { Box } from '@mui/material';
 import Loader from '../../../../../Components/Loader';
 
 const CollectionBooksRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -36,7 +38,7 @@ const CollectionBooksRoot = () => {
             <AppContent
               tableType="table"
               data={data.result}
-              title="CollectionBooks"
+              title={t("CollectionBooks")}
               addBtn
               btn
               startIcon

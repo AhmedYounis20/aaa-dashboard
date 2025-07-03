@@ -86,7 +86,7 @@ const GlSettingsRoot: React.FC = () => {
                   <div>
                     <InputSelect
                       options={DecimalDigitsNumberOptions}
-                      label={"Decimal Digits Number"}
+                      label={t("DecimalDigitsNumber")}
                       defaultValue={model?.decimalDigitsNumber}
                       multiple={false}
                       onChange={({ target }: { target: { value: number } }) => {
@@ -108,8 +108,11 @@ const GlSettingsRoot: React.FC = () => {
                   <div>
                     <div>
                       <InputSelect
-                        options={DepreciationApplicationOptions}
-                        label={"Depreciation Application"}
+                        options={DepreciationApplicationOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("DepreciationApplication")}
                         defaultValue={model?.depreciationApplication}
                         multiple={false}
                         onChange={({
@@ -139,7 +142,7 @@ const GlSettingsRoot: React.FC = () => {
                     <div>
                       <InputNumber
                         className="form-input form-control"
-                        label="month Days"
+                        label={t("MonthDays")}
                         variant="outlined"
                         fullWidth
                         value={model?.monthDays}
@@ -181,7 +184,7 @@ const GlSettingsRoot: React.FC = () => {
                           }
                         />
                       }
-                      label="Is Allowing Edit Voucher"
+                      label={t("IsAllowingEditVoucher")}
                     />
                   </div>
                   <div>
@@ -205,7 +208,7 @@ const GlSettingsRoot: React.FC = () => {
                           }
                         />
                       }
-                      label="is Allowing Negative Balances"
+                      label={t("IsAllowingNegativeBalances")}
                     />
                   </div>
                 </div>
@@ -231,7 +234,7 @@ const GlSettingsRoot: React.FC = () => {
                           }
                         />
                       }
-                      label="Is Allowing Delete Voucher"
+                      label={t("IsAllowingDeleteVoucher")}
                     />
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetBanksQuery } from "../../../../../Apis/Account/BanksApi";
 import { FormTypes } from '../../../../../interfaces/Components';
 import BanksForm from './BanksForm';
@@ -22,6 +23,7 @@ const columns = [
 ];
 
 const BanksRoot = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetBanksQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
@@ -53,7 +55,7 @@ const BanksRoot = () => {
           {data?.result && (
             <AppContent
               tableType="tree"
-              title="Banks"
+              title={t("Banks")}
               btn
               addBtn
               actionBtn={() => {

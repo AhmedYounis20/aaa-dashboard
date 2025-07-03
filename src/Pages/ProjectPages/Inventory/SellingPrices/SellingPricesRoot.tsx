@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 import Loader from '../../../../Components/Loader';
 import { getSellingPrices } from "../../../../Apis/Inventory/SellingPricesApi";
 import  SellingPriceModel  from "../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import { useTranslation } from 'react-i18next';
 
 const SellingPricesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -13,6 +14,7 @@ const SellingPricesRoot = () => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [data, setData] = useState<SellingPriceModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { t } = useTranslation();
   
   const fetchData = async () => {
     const result = await getSellingPrices();
@@ -51,8 +53,8 @@ const SellingPricesRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Selling Prices"
-              btnName="add new"
+              title={t("SellingPrices")}
+              btnName={t("AddNew")}
               addBtn
               btn
               startIcon

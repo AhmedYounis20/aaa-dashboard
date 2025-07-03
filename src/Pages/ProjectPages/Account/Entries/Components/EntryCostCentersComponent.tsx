@@ -1,4 +1,5 @@
 import { IconButton } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import { FormTypes } from "../../../../../interfaces/Components";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
@@ -7,6 +8,7 @@ import EntryCostCenter from "../../../../../interfaces/ProjectInterfaces/Account
 import { Add, Delete } from "@mui/icons-material";
 import {v4 as uuid } from "uuid";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
+
 const EntryCostCentersComponent: React.FC<{
   formType: FormTypes;
   entryCostCenters: EntryCostCenter[];
@@ -14,6 +16,7 @@ const EntryCostCentersComponent: React.FC<{
   errors: Record<string, string>;
   onChange: (entryCostCenters: EntryCostCenter[]) => void;
 }> = ({ formType, entryCostCenters, onChange, costCenters, errors={} }) => {
+const { t } = useTranslation();
   // Function to create a new cost center entry
   const createCostCenter = (accountNature: AccountNature): EntryCostCenter => ({
     accountNature,
@@ -55,8 +58,8 @@ const EntryCostCentersComponent: React.FC<{
               value: item.id,
             }))}
             label={`${
-              e.accountNature == AccountNature.Debit ? "Debit" : "Credit"
-            } Cost Center`}
+              e.accountNature == AccountNature.Debit ? t("Debit") : t("Credit")
+            } ${t("CostCenters")}`}
             value={e?.costCenterId}
             disabled={formType === FormTypes.Details}
             onChange={(value: string | null) =>
@@ -72,7 +75,7 @@ const EntryCostCentersComponent: React.FC<{
         <div className="col col-md-4">
           <InputNumber
             className="form-input form-control"
-            label="Amount"
+            label={t("Amount")}
             variant="outlined"
             fullWidth
             size="small"
@@ -116,10 +119,10 @@ const EntryCostCentersComponent: React.FC<{
     <div className="card card-body">
       <div className="row mb-2">
         <div className="col col-md-6">
-          Debit Cost Centers
+          {t("Debit")} {t("CostCenters")}
         </div>
         <div className="col col-md-6">
-          Credit Cost Centers
+          {t("Credit")} {t("CostCenters")}
         </div>
       </div>
       <div className="row">

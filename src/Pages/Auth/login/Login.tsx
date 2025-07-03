@@ -8,10 +8,12 @@ import { jwtDecode } from "jwt-decode";
 import { setLoggedInUser } from "../../../Storage/Redux/userAuthSlice";
 import { toastify } from "../../../Helper/toastify";
 import { loginRequest } from "../../../Apis/Identity/authApi";
+import { useTranslation } from "react-i18next";
 
 const Login: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [userInput, setUserInput] = useState<UserLoginModel>({
     username: "",
@@ -62,14 +64,14 @@ const Login: React.FC = () => {
                 <div className="card p-4">
                   <div className="card-body">
                     <form method="post" onSubmit={handleSubmit}>
-                      <h1>Login</h1>
+                      <h1>{t("Login")}</h1>
                       <p className="text-body-secondary">
-                        Sign In to your account
+                        {t("SignInToAccount")}
                       </p>
                       <div className="input-group mb-3">
                         <input
                           className="form-control"
-                          placeholder="Username"
+                          placeholder={t("Username")}
                           autoComplete="username"
                           name="username"
                           onChange={handleUserInput}
@@ -80,7 +82,7 @@ const Login: React.FC = () => {
                         <input
                           type="password"
                           className="form-control"
-                          placeholder="Password"
+                          placeholder={t("Password")}
                           name="password"
                           autoComplete="current-password"
                           onChange={handleUserInput}
@@ -91,7 +93,7 @@ const Login: React.FC = () => {
                         className="btn btn-primary px-2 form-control"
                         type="submit"
                       >
-                        Login
+                        {t("Login")}
                       </button>
                     </form>
                   </div>

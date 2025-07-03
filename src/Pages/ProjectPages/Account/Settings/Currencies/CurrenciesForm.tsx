@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
 import { FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material';
@@ -22,6 +23,7 @@ const CurrenciesForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
+const { t } = useTranslation();
   const currencyResult = useGetCurrenciesByIdQuery(id, {
     skip: formType == FormTypes.Add
   });
@@ -141,7 +143,7 @@ const CurrenciesForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -149,7 +151,7 @@ const CurrenciesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name (required)"
+                        label={t("NameRequired")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -165,7 +167,7 @@ const CurrenciesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name Second Language (required)"
+                        label={t("NameSecondLanguageRequired")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -186,7 +188,7 @@ const CurrenciesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Symbol (required)"
+                        label={t("SymbolRequired")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -205,7 +207,7 @@ const CurrenciesForm: React.FC<{
                     <div className="col col-md-6">
                       <InputNumber
                         className="form-input form-control"
-                        label="Exchange Rate"
+                        label={t("ExchangeRate")}
                         isRquired
                         variant="outlined"
                         fullWidth
@@ -238,7 +240,7 @@ const CurrenciesForm: React.FC<{
                               }
                             />
                           }
-                          label="Is Default"
+                          label={t("IsDefault")}
                         />
                         {errors.isDefault && <FormHelperText>{errors.isDefault}</FormHelperText>}
                       </FormControl>
@@ -258,7 +260,7 @@ const CurrenciesForm: React.FC<{
                               }
                             />
                           }
-                          label="Is Active"
+                          label={t("IsActive")}
                         />
                         {errors.isActive && <FormHelperText>{errors.isActive}</FormHelperText>}
                       </FormControl>

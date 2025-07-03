@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useGetSuppliersQuery } from "../../../../../Apis/Account/SuppliersApi";
 import SuppliersForm from './SuppliersForm';
@@ -21,6 +22,7 @@ const columns: { Header: string; accessor: string }[] = [
 ];
 
 const SuppliersRoot = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetSuppliersQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
@@ -58,7 +60,7 @@ const SuppliersRoot = () => {
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
               handleSelectParentId={setParentId}
-              title="Suppliers"
+              title={t("Suppliers")}
               btn
               addBtn
               actionBtn={() => {
@@ -66,7 +68,7 @@ const SuppliersRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="new"
+              btnName={t("New")}
               startIcon
             />
           )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { FormTypes } from '../../../../../interfaces/Components';
 
@@ -8,6 +9,7 @@ import EntryModel from '../../../../../interfaces/ProjectInterfaces/Account/Entr
 import { getOpeningEntries } from "../../../../../Apis/Account/OpeningEntriesApi";
 
 const OpeningEntriesRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -51,8 +53,8 @@ const OpeningEntriesRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Opening Entries"
-              btnName="new"
+              title={t("OpeningEntries")}
+              btnName={t("New")}
               addBtn
               btn
               startIcon

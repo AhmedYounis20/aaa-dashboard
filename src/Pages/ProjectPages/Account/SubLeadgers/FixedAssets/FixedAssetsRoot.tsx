@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { FormTypes } from '../../../../../interfaces/Components';
 import Loader from '../../../../../Components/Loader';
@@ -22,6 +23,7 @@ const columns = [
 ];
 
 const FixedAssetsRoot = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetFixedAssetsQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
@@ -52,7 +54,7 @@ const FixedAssetsRoot = () => {
           {data?.result && (
             <AppContent
               tableType="tree"
-              title="FixedAssets"
+              title={t("FixedAssets")}
               btn
               addBtn
               actionBtn={() => {
@@ -60,7 +62,7 @@ const FixedAssetsRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName="add new"
+              btnName={t("AddNew")}
               columns={columns}
               data={data.result}
               handleShowForm={handleShowForm}

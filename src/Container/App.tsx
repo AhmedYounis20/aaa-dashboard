@@ -19,11 +19,14 @@ function App() {
   const mode = useSelector((state: RootState) => state.global.mode);
   const { i18n } = useTranslation();
   const currentDir = i18n.language === "ar" ? "rtl" : "ltr";
-  const [dir,] = useState<"rtl" | "ltr">(currentDir);
+  const [dir, setDir] = useState<"rtl" | "ltr">(currentDir);
 
   useEffect(() => {
-    document.documentElement.dir = dir;
-  }, [dir]);
+    const newDir = i18n.language === "ar" ? "rtl" : "ltr";
+    setDir(newDir);
+    document.documentElement.dir = newDir;
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   const theme = useMemo(
     () => createTheme(themeSettings(mode, dir)),
@@ -33,23 +36,24 @@ function App() {
   console.log(theme);
   console.log(cache);
 
-return (
-  <>
-    {dir === "rtl" ? (
-      <CacheProvider value={rtlCache}>
+  return (
+    <>
+      {dir === "rtl" ? (
+        <CacheProvider value={rtlCache}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {renderRouter()}
+          </ThemeProvider>
+        </CacheProvider>
+      ) : (
         <ThemeProvider theme={theme}>
           <CssBaseline />
           {renderRouter()}
         </ThemeProvider>
-      </CacheProvider>
-    ) : (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {renderRouter()}
-      </ThemeProvider>
-    )}
-  </>
-);
+      )}
+    </>
+  );
+}
 
 function renderRouter() {
   return (
@@ -69,19 +73,18 @@ function renderRouter() {
   );
 }
 
-  function AddRoute(item: ISidebarItem, idx: number) {
-    return (
-      <Route
-        key={idx}
-        path={item.path ?? "/"}
-        element={item.page ? <item.page /> : null}
-      >
-        {item.submenu
-          ? item.submenu.map((subItem, idx) => AddRoute(subItem, idx))
-          : null}
-      </Route>
-    );
-  }
+function AddRoute(item: ISidebarItem, idx: number) {
+  return (
+    <Route
+      key={idx}
+      path={item.path ?? "/"}
+      element={item.page ? <item.page /> : null}
+    >
+      {item.submenu
+        ? item.submenu.map((subItem, idx) => AddRoute(subItem, idx))
+        : null}
+    </Route>
+  );
 }
 
 export default App;

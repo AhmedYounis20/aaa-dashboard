@@ -23,7 +23,8 @@ const BaseForm: React.FC<{
   size = "xlarge"
 }) => {
   const [modalSizeClass, setModalSizeClass] = useState<string>("modal-xl");
-      const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
 
   useEffect(()=>{
     if(size == "small")
@@ -49,6 +50,42 @@ const BaseForm: React.FC<{
       handleCloseForm();
     setWaitingResponse(false);
   };
+
+  const renderButtons = () => {
+    const closeButton = (
+      <button
+        key="close"
+        type="button"
+        className="btn btn-secondary"
+        onClick={handleCloseForm}
+        disabled={waitingResponse}
+        style={{ height: 40, marginLeft: 10, marginRight: 10 }}
+      >
+        {t("Close")}
+      </button>
+    );
+
+    const actionButton = formType !== FormTypes.Details ? (
+      <button
+        key="action"
+        type="button"
+        className="btn btn-primary"
+        style={{ height: 40 }}
+        onClick={async () => await handleSubmit()}
+        disabled={waitingResponse}
+      >
+        {waitingResponse ? (
+          <Loader height={"5px"} color="text-white" />
+        ) : (
+          <>{t(formType == FormTypes.Delete ? "Delete" : "Save")}</>
+        )}
+      </button>
+    ) : null;
+
+    // Reverse order for RTL (Arabic)
+    return isRTL ? [actionButton, closeButton] : [closeButton, actionButton];
+  };
+
   return (
     <div
       className={`${isModal && "modal "} fade show d-block ${modalSizeClass} `}
@@ -64,7 +101,7 @@ const BaseForm: React.FC<{
                 type="button"
                 className="close btn"
                 data-dismiss="modal"
-                aria-label="Close"
+                aria-label={t("Close")}
                 onClick={handleCloseForm}
               >
                 <span aria-hidden="true">&times;</span>
@@ -73,31 +110,7 @@ const BaseForm: React.FC<{
           )}
           <div className="modal-body">{children}</div>
           <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleCloseForm}
-              disabled={waitingResponse}
-              style={{ height: 40, marginLeft: 10, marginRight: 10 }}
-            >
-              {t("Close")}
-            </button>
-
-            {formType !== FormTypes.Details && (
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ height: 40 }}
-                onClick={async () => await handleSubmit()}
-                disabled={waitingResponse}
-              >
-                {waitingResponse ? (
-                  <Loader height={"5px"} color="text-white" />
-                ) : (
-                  <>{t(formType == FormTypes.Delete ? "Delete" : "Save")}</>
-                )}
-              </button>
-            )}
+            {renderButtons()}
           </div>
         </div>
       </div>

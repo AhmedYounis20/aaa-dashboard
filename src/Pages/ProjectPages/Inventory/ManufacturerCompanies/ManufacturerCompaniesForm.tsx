@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import  ManufacturerCompanyModel  from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
@@ -17,6 +18,7 @@ const ManufacturerCompaniesForm: React.FC<{
   handleCloseForm: () => void;
   afterAction: () => void;
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
+const { t } = useTranslation();
   const [model, setModel] = useState<ManufacturerCompanyModel>({
     id: "",
     name: "",
@@ -106,7 +108,7 @@ const ManufacturerCompaniesForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-3">
@@ -114,7 +116,7 @@ const ManufacturerCompaniesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Name"
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -132,7 +134,7 @@ const ManufacturerCompaniesForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="NameSecondLanguage"
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}

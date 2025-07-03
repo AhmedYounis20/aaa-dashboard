@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormTypes } from '../../../../../interfaces/Components';
 
 import Loader from '../../../../../Components/Loader';
@@ -8,6 +9,7 @@ import EntryModel from '../../../../../interfaces/ProjectInterfaces/Account/Entr
 import { getJournalEntries } from "../../../../../Apis/Account/JournalEntriesApi";
 
 const JournalEntriesRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -53,8 +55,8 @@ const JournalEntriesRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Journal Entries"
-              btnName="new"
+              title={t("JournalEntries")}
+              btnName={t("New")}
               addBtn
               btn
               startIcon
