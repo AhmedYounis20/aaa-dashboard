@@ -53,7 +53,7 @@ const ItemsForm: React.FC<{
       isDefaultSales: true,
       lastCostPrice: 0,
       orderNumber,
-      partsCount: 0,
+      partsCount: 1,
       sellingPrices: [],
     };
 

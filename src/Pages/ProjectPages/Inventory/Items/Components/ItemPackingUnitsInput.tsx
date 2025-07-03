@@ -10,6 +10,7 @@ import { FormControlLabel, Switch } from "@mui/material";
 import { getSellingPrices } from "../../../../../Apis/Inventory/SellingPricesApi";
 import ItemPackingUnitSellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemPackingUnitSellingPriceModel";
 import SellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import InputText from "../../../../../Components/Inputs/InputText";
 
 const ItemPackingUnitsInput: React.FC<{
   formType: FormTypes;
@@ -141,6 +142,7 @@ const handleDeleteRow = (index: number) => {
               <th style={{ minWidth: "150px" }}>
                 {handleTranslate("PartsCount")}
               </th>
+              <th style={{ minWidth: "200px" }}>{handleTranslate("Equals")}</th>
               <th style={{ minWidth: "150px" }}>
                 {handleTranslate("IsDefaultSales")}
               </th>
@@ -194,6 +196,7 @@ const handleDeleteRow = (index: number) => {
                       handleUpdate(updated);
                     }}
                     handleBlur={null}
+                    defaultSelect
                     error={!!errors[`packingUnits[${rowIndex}].packingUnitId`]}
                     helperText={handleTranslate(
                       errors[`packingUnits[${rowIndex}].packingUnitId`]
@@ -205,13 +208,40 @@ const handleDeleteRow = (index: number) => {
                     className="form-control"
                     variant="outlined"
                     fullWidth
-                    disabled={formType === FormTypes.Details}
+                    disabled={
+                      formType === FormTypes.Details ||
+                      unit.isDefaultPackingUnit
+                    }
                     value={unit.partsCount ?? 0}
                     onChange={(value) => handleDiscountChange(rowIndex, value)}
                     error={!!errors[`packingUnits[${rowIndex}].partsCount`]}
                     helperText={handleTranslate(
                       errors[`packingUnits[${rowIndex}].partsCount`]
                     )}
+                  />
+                </td>
+                <td>
+                  <InputText
+                    className="form-control"
+                    variant="outlined"
+                    fullWidth
+                    value={
+                      " ( " +
+                      (packingUnits.find(
+                        (e) =>
+                          e.id ==
+                          itemPackingUnits.find((e) => e.isDefaultPackingUnit)
+                            ?.packingUnitId
+                      )?.name ?? "") +
+                      " ) " +
+                      " = " +
+                      unit.partsCount.toString() +
+                      " x " +
+                      (packingUnits.find((e) => e.id == unit.packingUnitId)
+                        ?.name ?? "")
+                    }
+                    disabled
+                    label=""
                   />
                 </td>
                 <td>
@@ -256,11 +286,9 @@ const handleDeleteRow = (index: number) => {
                       handleUpdate(updated);
                     }}
                     error={!!errors[`packingUnits[${rowIndex}].lastCostPrice`]}
-                    helperText={
-                      handleTranslate(errors[
-                        `packingUnits[${rowIndex}].lastCostPrice`
-                      ])
-                    }
+                    helperText={handleTranslate(
+                      errors[`packingUnits[${rowIndex}].lastCostPrice`]
+                    )}
                   />
                 </td>
                 <td>
@@ -278,9 +306,9 @@ const handleDeleteRow = (index: number) => {
                     error={
                       !!errors[`packingUnits[${rowIndex}].averageCostPrice`]
                     }
-                    helperText={
-                     handleTranslate( errors[`packingUnits[${rowIndex}].averageCostPrice`])
-                    }
+                    helperText={handleTranslate(
+                      errors[`packingUnits[${rowIndex}].averageCostPrice`]
+                    )}
                   />
                 </td>
                 {unit.sellingPrices?.map((sp, sellidx) => (
@@ -303,11 +331,11 @@ const handleDeleteRow = (index: number) => {
                           `packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`
                         ]
                       }
-                      helperText={
-                       handleTranslate(errors[
+                      helperText={handleTranslate(
+                        errors[
                           `packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`
-                        ])
-                      }
+                        ]
+                      )}
                     />
                   </td>
                 ))}
