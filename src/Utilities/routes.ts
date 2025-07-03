@@ -36,6 +36,8 @@ import ReceiptVouchersRoot from "../Pages/ProjectPages/Account/Entries/ReceiptVo
 import JournalEntriesRoot from "../Pages/ProjectPages/Account/Entries/JournalEntries/JournalEntriesRoot";
 import OpeningEntriesRoot from "../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot";
 import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
+import ColorsRoot from "../Pages/ProjectPages/Inventory/Colors/ColorsRoot";
+import SizesRoot from "../Pages/ProjectPages/Inventory/Sizes/SizesRoot";
 
 export interface ISidebarItem {
     icon?: ReactElement;
@@ -208,6 +210,18 @@ export const sidebarItemsData: ISidebarItem[] = [
         icon: React.createElement(InventoryRounded),
         path: "/items",
         page: ItemsRoot
+      },
+      {
+        title: "Colors",
+        icon: React.createElement(DiamondIcon),
+        path: "/colors",
+        page: ColorsRoot
+      },
+      {
+        title: "Sizes",
+        icon: React.createElement(TableChartIcon),
+        path: "/sizes",
+        page: SizesRoot
       },
     ],
   },
