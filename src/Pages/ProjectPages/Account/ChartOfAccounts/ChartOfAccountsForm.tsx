@@ -160,7 +160,7 @@ const ChartOfAccountsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{handleTranslate("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-3">

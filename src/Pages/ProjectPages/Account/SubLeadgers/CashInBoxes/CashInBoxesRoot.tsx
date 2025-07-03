@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useGetCashInBoxesQuery } from "../../../../../Apis/Account/CashInBoxesApi";
 import { AppContent } from '../../../../../Components';
@@ -22,6 +23,7 @@ const columns = [
 ];
 
 const CashInBoxesRoot = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetCashInBoxesQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
@@ -58,7 +60,7 @@ const CashInBoxesRoot = () => {
                 changeFormType={setFormType}
                 handleSelectId={handleSelectId}
                 handleSelectParentId={setParentId}
-                title="CashInBoxes"
+                title={t("CashInBoxes")}
                 btn
                 addBtn
                 actionBtn={() => {
@@ -67,7 +69,7 @@ const CashInBoxesRoot = () => {
                   handleShowForm();
                 }}
                 startIcon
-                btnName="add new"
+                btnName={t("AddNew")}
               />
             </>
           )}

@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 const Register = () => {
+  const { t } = useTranslation();
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <div className="container">
@@ -17,7 +20,7 @@ const Register = () => {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Username"
+                        placeholder={t("Username")}
                         autoComplete="username"
                       />
                     </div>
@@ -28,7 +31,7 @@ const Register = () => {
                       <input
                         type="email"
                         className="form-control"
-                        placeholder="Email"
+                        placeholder={t("Email")}
                         autoComplete="email"
                       />
                     </div>
@@ -41,7 +44,7 @@ const Register = () => {
                       <input
                         type="password"
                         className="form-control"
-                        placeholder="Password"
+                        placeholder={t("Password")}
                         autoComplete="new-password"
                       />
                     </div>
@@ -54,7 +57,7 @@ const Register = () => {
                       <input
                         type="password"
                         className="form-control"
-                        placeholder="Repeat password"
+                        placeholder={t("RepeatPassword")}
                         autoComplete="new-password"
                       />
                     </div>

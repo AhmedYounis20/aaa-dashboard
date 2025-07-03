@@ -26,6 +26,7 @@ const BanksForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id, parentId, handleCloseForm }) => {
+  const { t } = useTranslation();
   const [deleteFunc] = useDeleteBankByIdMutation();
   const [model, setModel] = useState<BankModel>({
     name: "",
@@ -53,7 +54,7 @@ const BanksForm: React.FC<{
   });
   const [update] = useUpdateBankMutation();
   const [create] = useCreateBankMutation();
-  const {t} = useTranslation();
+
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
@@ -151,7 +152,7 @@ const BanksForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -353,7 +354,7 @@ const BanksForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
+                            aria-label={t("Notes")}
                             onChange={(event) =>
                               setModel((prevModel) =>
                                 prevModel

@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
+import { AppContent } from '../../../../Components';
+import { FormTypes } from '../../../../interfaces/Components';
+import ColorsForm from './ColorsForm';
+import { Box } from '@mui/material';
+import Loader from '../../../../Components/Loader';
+import { getColors } from "../../../../Apis/Inventory/ColorsApi";
+import ColorModel from "../../../../interfaces/ProjectInterfaces/Inventory/Colors/ColorModel";
 import { useTranslation } from 'react-i18next';
-import { FormTypes } from '../../../../../interfaces/Components';
 
-import Loader from '../../../../../Components/Loader';
-import { AppContent } from '../../../../../Components';
-import EntriesForm from './JournalEntriesForm';
-import EntryModel from '../../../../../interfaces/ProjectInterfaces/Account/Entries/Entry';
-import { getJournalEntries } from "../../../../../Apis/Account/JournalEntriesApi";
-
-const JournalEntriesRoot = () => {
-  const { t } = useTranslation();
+const ColorsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
-  const [data, setData] = useState<EntryModel[]>([]);
+  const [data, setData] = useState<ColorModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { t } = useTranslation();
 
   const fetchData = async () => {
-    const result = await getJournalEntries();
+    const result = await getColors();
     if (result && result.isSuccess) {
       setData(result.result);
       setIsLoading(false);
@@ -29,34 +29,32 @@ const JournalEntriesRoot = () => {
 
   const handleShowForm = () => {
     setShowForm(true);
-  };  
-
+  };
   const handleCloseForm = () => {
     setShowForm(false);
   };
-
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
   return (
-    <div className="h-full">
+    <div className="w-full">
       {isLoading ? (
         <Loader />
       ) : (
-        <>
+        <Box>
           {showForm && (
-            <EntriesForm
+            <ColorsForm
               id={selectedId}
-              formType={formType}
               handleCloseForm={handleCloseForm}
-              actionAfter={() => fetchData()}
+              formType={formType}
+              afterAction={() => fetchData()}
             />
           )}
-          {data && (
+
+          {!isLoading && (
             <AppContent
               tableType="table"
               data={data}
-              title={t("JournalEntries")}
-              btnName={t("New")}
+              title={t("Colors")}
+              btnName={t("AddNew")}
               addBtn
               btn
               startIcon
@@ -76,10 +74,10 @@ const JournalEntriesRoot = () => {
               ]}
             />
           )}
-        </>
+        </Box>
       )}
     </div>
   );
-};
+}
 
-export default JournalEntriesRoot;
+export default ColorsRoot; 

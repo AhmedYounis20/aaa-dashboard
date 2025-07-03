@@ -29,6 +29,7 @@ const CustomersForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id, parentId, handleCloseForm }) => {
+  const { t } = useTranslation();
   const [deleteFunc] = useDeleteCustomerByIdMutation();
   const [model, setModel] = useState<CustomerModel>({
     name: "",
@@ -55,7 +56,7 @@ const CustomersForm: React.FC<{
   });
   const [update] = useUpdateCustomerMutation();
   const [create] = useCreateCustomerMutation();
-  const {t} = useTranslation();
+
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!customerResult.isLoading) {
@@ -153,7 +154,7 @@ const CustomersForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -406,7 +407,7 @@ const CustomersForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
+                            aria-label={t("Notes")}
                             onChange={(event) =>
                               setModel((prevModel) =>
                                 prevModel

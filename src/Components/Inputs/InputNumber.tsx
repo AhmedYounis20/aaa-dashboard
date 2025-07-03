@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
+  import { useTranslation } from "react-i18next";
 
 interface InputNumberProps {
   label?: string;
@@ -35,6 +36,7 @@ const InputNumber: React.FC<InputNumberProps> = ({
   precision = null,
   allowEmpty = false,
 }) => {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState<string>("");
 
   // Helper: Clamp percent and format with precision
@@ -119,7 +121,7 @@ const InputNumber: React.FC<InputNumberProps> = ({
   return (
     <TextField
       type="number" // use text to handle custom input (allow comma etc)
-      label={`${label}${isRquired ? " (Required)" : ""}`}
+      label={`${label}${isRquired ? ` (${t("Required")})` : ""}`}
       value={inputValue}
       onChange={handleChange}
       onBlur={handleBlur}

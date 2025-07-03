@@ -28,6 +28,7 @@ const BranchesForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id, parentId, handleCloseForm }) => {
+  const { t } = useTranslation();
   const [deleteFunc] = useDeleteBranchByIdMutation();
   const [model, setModel] = useState<BranchModel>({
     name: "",
@@ -52,7 +53,7 @@ const BranchesForm: React.FC<{
   });
   const [update] = useUpdateBranchMutation();
   const [create] = useCreateBranchMutation();
-  const {t} = useTranslation();
+
   useEffect(() => {
     if (formType != FormTypes.Add && !isUpdated) {
       if (!bankResult.isLoading) {
@@ -177,7 +178,7 @@ const BranchesForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -330,7 +331,7 @@ const BranchesForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label="notes"
+                            aria-label={t("Notes")}
                             placeholder={t("Notes")+"..."}
                             onChange={(event) =>
                               setModel((prevModel) =>

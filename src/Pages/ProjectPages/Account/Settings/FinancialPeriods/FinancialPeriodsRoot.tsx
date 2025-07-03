@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { AppContent } from '../../../../../Components';
 import { FormTypes } from '../../../../../interfaces/Components';
@@ -6,6 +7,7 @@ import { useGetFinancialPeriodsQuery } from "../../../../../Apis/Account/Financi
 import Loader from '../../../../../Components/Loader';
 
 const FinancialPeriodsRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -34,8 +36,8 @@ const FinancialPeriodsRoot = () => {
             <AppContent
               tableType="table"
               data={data.result}
-              title="FinancialPeriods"
-              btnName="new"
+              title={t("FinancialPeriods")}
+              btnName={t("New")}
               addBtn
               btn
               startIcon

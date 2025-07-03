@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { FormTypes } from '../../../../../interfaces/Components';
 
@@ -8,6 +9,7 @@ import ComplexEntryModel from '../../../../../interfaces/ProjectInterfaces/Accou
 import { getReceiptEntries } from "../../../../../Apis/Account/ReceiptEntriesApi";
 
 const ReceiptVouchersRoot = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -51,8 +53,8 @@ const ReceiptVouchersRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Receipt Vouchers"
-              btnName="new"
+              title={t("ReceiptVouchers")}
+              btnName={t("New")}
               addBtn
               btn
               startIcon

@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 import Loader from '../../../../Components/Loader';
 import { getManufacturerCompanies } from "../../../../Apis/Inventory/ManufacturerCompaniesApi";
 import  ManufacturerCompanyModel  from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
+import { useTranslation } from 'react-i18next';
 
 const ManufacturerCompaniesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -13,6 +14,7 @@ const ManufacturerCompaniesRoot = () => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [data, setData] = useState<ManufacturerCompanyModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { t } = useTranslation();
   
   const fetchData = async () => {
     const result = await getManufacturerCompanies();
@@ -51,8 +53,8 @@ const ManufacturerCompaniesRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Manufacturer Companies"
-              btnName="add new"
+              title={t("ManufacturerCompanies")}
+              btnName={t("AddNew")}
               addBtn
               btn
               startIcon

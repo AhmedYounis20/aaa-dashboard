@@ -5,6 +5,7 @@ import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
 import { toastify } from '../../../../Helper/toastify';
 import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from "../../../../Apis/Account/AccountGuidesApi"
 import InputText from '../../../../Components/Inputs/InputText';
+import { useTranslation } from 'react-i18next';
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
@@ -13,6 +14,7 @@ const AccountGuidesForm: React.FC<{
   afterAction: () => void;
   handleTranslate: (key: string) => string;
 }> = ({ formType, id, handleCloseForm, afterAction, handleTranslate }) => {
+  const { t } = useTranslation();
   const [model, setModel] = useState<AccountGuideModel>({
     id: "",
     name: "",
@@ -102,7 +104,7 @@ const AccountGuidesForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}?</p>
               ) : (
                 <>
                   <div className="row mb-3">

@@ -5,6 +5,8 @@ import { Add, Delete } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import DescriptionIcon from '@mui/icons-material/Description';
 import ImagePreview from "../Images/ImagePreview";
+import { useTranslation } from "react-i18next";
+
 interface InputFileProps {
   allowedTypes: string[];
   onFilesChange: (attachments: AttachmentModel[]) => void;
@@ -22,6 +24,7 @@ const InputFile: React.FC<InputFileProps> = ({
   onlySelectedTypes = false,
   disabled = false
 }) => {
+  const { t } = useTranslation();
   const [attachments, setAttachments] = useState<AttachmentModel[]>(value);
 
   const handleFileChange = async (
@@ -139,7 +142,7 @@ const InputFile: React.FC<InputFileProps> = ({
             disabled={disabled}
           >
             <UploadIcon />
-            <span style={{ fontSize: 20, opacity: 0.5 }}>{"upload"}</span>
+            <span style={{ fontSize: 20, opacity: 0.5 }}>{t("Upload")}</span>
           </IconButton>
         </label>
         {attachments.length > 0 && multiSelect && (
@@ -164,7 +167,7 @@ const InputFile: React.FC<InputFileProps> = ({
               disabled={disabled}
             >
               <Add />
-              <span style={{ fontSize: 20, opacity: 0.5 }}>{"Add"}</span>
+              <span style={{ fontSize: 20, opacity: 0.5 }}>{t("Add")}</span>
             </IconButton>
           </label>
         )}
@@ -179,9 +182,9 @@ const InputFile: React.FC<InputFileProps> = ({
             <span style={{ fontSize: 20, opacity: 0.5 }}>
               {attachments.length
                 ? attachments.length +
-                  " file" +
-                  (attachments.length > 1 ? "s" : "")
-                : "no files"}
+                  " " +
+                  (attachments.length > 1 ? t("Files") : t("File"))
+                : t("NoFiles")}
             </span>
           </IconButton>
         </label>
@@ -205,7 +208,7 @@ const InputFile: React.FC<InputFileProps> = ({
                             ";base64," +
                             attachment.fileContent
                           }
-                          alt="image"
+                          alt={t("Image")}
                           height={50}
                           width={50}
                         />

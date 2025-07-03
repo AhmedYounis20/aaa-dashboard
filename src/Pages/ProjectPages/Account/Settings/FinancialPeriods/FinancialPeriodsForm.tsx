@@ -14,12 +14,14 @@ import { ApiResponse } from "../../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../../Helper/toastify";
 import InputDateTimePicker from "../../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../../Components/Inputs/InputText";
+import { useTranslation } from "react-i18next";
 
 const FinancialPeriodsForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
+  const { t } = useTranslation();
   const accountGuidesResult = useGetFinancialPeriodsByIdQuery(id);
   const [model, setModel] = useState<FinancialPeriodModel | undefined>(
     undefined
@@ -94,7 +96,7 @@ const FinancialPeriodsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>Are you sure you want to delete {model?.yearNumber}?</p>
+                <p>{t("AreYouSureDelete")} {model?.yearNumber}?</p>
               ) : (
                 <>
                   <div className="row mb-3">
@@ -102,7 +104,7 @@ const FinancialPeriodsForm: React.FC<{
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label="Year Number"
+                        label={t("YearNumber")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -122,8 +124,11 @@ const FinancialPeriodsForm: React.FC<{
                     <div className="col col-md-6">
                       <InputSelect
                         error={undefined}
-                        options={financialPeriodOptions}
-                        label={"Financial Period Type In Months"}
+                        options={financialPeriodOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("FinancialPeriods")}
                         defaultValue={model?.periodTypeByMonth}
                         disabled={formType === FormTypes.Details}
                         multiple={false}
@@ -151,7 +156,7 @@ const FinancialPeriodsForm: React.FC<{
                       <div className="col col-md-6">
                         <InputDateTimePicker
                           type="datetime"
-                          label="Start Date"
+                          label={t("StartDate")}
                           value={model?.startDate ?? null}
                           onChange={(value) => {
                             if (value) {
@@ -167,7 +172,7 @@ const FinancialPeriodsForm: React.FC<{
                     )}
                     <div className="col col-md-6">
                       <InputDateTimePicker
-                        label="End Date"
+                        label={t("EndDate")}
                         type="datetime"
                         value={model?.endDate ?? null}
                         disabled

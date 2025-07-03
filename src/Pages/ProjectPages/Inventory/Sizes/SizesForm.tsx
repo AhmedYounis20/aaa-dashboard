@@ -2,67 +2,68 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import  SellingPriceModel  from "../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import SizeModel from "../../../../interfaces/ProjectInterfaces/Inventory/Sizes/SizeModel";
 import { toastify } from '../../../../Helper/toastify';
 import {
-  createSellingPrice,
-  deleteSellingPrice,
-  getSellingPriceById,
-  updateSellingPrice,
-} from "../../../../Apis/Inventory/SellingPricesApi";
+  createSize,
+  deleteSize,
+  getSizeById,
+  updateSize,
+  getNextSizeCode,
+} from "../../../../Apis/Inventory/SizesApi";
 import InputText from '../../../../Components/Inputs/InputText';
 
-const SellingPricesForm: React.FC<{
+const SizesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
   afterAction: () => void;
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
-const { t } = useTranslation();
-  const [model, setModel] = useState<SellingPriceModel>({
+  const { t } = useTranslation();
+  const [model, setModel] = useState<SizeModel>({
     id: "",
+    code: "",
     name: "",
     nameSecondLanguage: "",
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
-
-  // const [updateGuide] = useUpdateSellingPriceMutation();
-  // const [createGuide] = useCreateSellingPriceMutation();
-  // const [deleteGuide] = useDeleteSellingPriceMutation();
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
 
   useEffect(() => {
-    if (formType != FormTypes.Add) {
+    if (formType !== FormTypes.Add) {
       const fetchData = async () => {
-        const result = await getSellingPriceById(id);
+        const result = await getSizeById(id);
         if (result) {
           setModel(result.result);
           setIsLoading(false);
         }
       };
       fetchData();
+    } else {
+      const fetchNextCode = async () => {
+        const result = await getNextSizeCode();
+        if (result && result.isSuccess) {
+          setModel((prev) => ({ ...prev, code: result.result }));
+        }
+        setIsLoading(false);
+      };
+      fetchNextCode();
     }
-  }, []);
+  }, [formType, id]);
 
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteSellingPrice(id);
+    const response = await deleteSize(id);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
     } else if (response) {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
+      response.errorMessages?.forEach((error: string) => toastify(error, "error"));
       return false;
     }
     return false;
   };
   const handleUpdate = async () => {
-    const response = await updateSellingPrice(model.id, model);
+    const response = await updateSize(model.id, model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
@@ -74,10 +75,9 @@ const { t } = useTranslation();
     return false;
   };
   const handleAdd = async () => {
-    const response = await createSellingPrice(model);
+    const response = await createSize(model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
-      console.log(response);
       afterAction();
       return true;
     } else if (response && response.errorMessages) {
@@ -99,10 +99,7 @@ const { t } = useTranslation();
       >
         <div>
           {isLoading ? (
-            <div
-              className="d-flex flex-row align-items-center justify-content-center"
-              style={{ height: "100px" }}
-            >
+            <div className="d-flex flex-row align-items-center justify-content-center" style={{ height: "100px" }}>
               <div className="spinner-border text-primary" role="status"></div>
             </div>
           ) : (
@@ -112,7 +109,18 @@ const { t } = useTranslation();
               ) : (
                 <>
                   <div className="row mb-3">
-                    <div className="col col-md-6">
+                    <div className="col col-md-4">
+                      <InputText
+                        type="text"
+                        className="form-input form-control"
+                        label={t("Code")}
+                        variant="outlined"
+                        fullWidth
+                        disabled
+                        value={model?.code}
+                      />
+                    </div>
+                    <div className="col col-md-4">
                       <InputText
                         type="text"
                         className="form-input form-control"
@@ -121,16 +129,10 @@ const { t } = useTranslation();
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, name: value }
-                              : prevModel
-                          )
-                        }
+                        onChange={(value) => setModel((prev) => ({ ...prev, name: value }))}
                       />
                     </div>
-                    <div className="col col-md-6">
+                    <div className="col col-md-4">
                       <InputText
                         type="text"
                         className="form-input form-control"
@@ -139,16 +141,7 @@ const { t } = useTranslation();
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  nameSecondLanguage: value,
-                                }
-                              : prevModel
-                          )
-                        }
+                        onChange={(value) => setModel((prev) => ({ ...prev, nameSecondLanguage: value }))}
                       />
                     </div>
                   </div>
@@ -162,4 +155,4 @@ const { t } = useTranslation();
   );
 };
 
-export default SellingPricesForm;
+export default SizesForm; 

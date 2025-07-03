@@ -10,41 +10,43 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import { useTranslation } from "react-i18next";
 
-const stats = [
-  {
-    label: "Total Revenue",
-    value: "$120,000",
-    icon: <TrendingUpIcon color="success" sx={{ fontSize: 40 }} />,
-    color: "#e8f5e9",
-  },
-  {
-    label: "Total Expenses",
-    value: "$48,500",
-    icon: <TrendingDownIcon color="error" sx={{ fontSize: 40 }} />,
-    color: "#ffebee",
-  },
-  {
-    label: "Account Balance",
-    value: "$71,500",
-    icon: <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 40 }} />,
-    color: "#e3f2fd",
-  },
-  {
-    label: "Pending Invoices",
-    value: "23",
-    icon: <ReceiptIcon color="warning" sx={{ fontSize: 40 }} />,
-    color: "#fff8e1",
-  },
-];
-
-export default function Dashboard() {
+const Dashboard = () => {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const stats = [
+    {
+      label: t("TotalRevenue"),
+      value: "$120,000",
+      icon: <TrendingUpIcon color="success" sx={{ fontSize: 40 }} />,
+      color: "#e8f5e9",
+    },
+    {
+      label: t("TotalExpenses"),
+      value: "$48,500",
+      icon: <TrendingDownIcon color="error" sx={{ fontSize: 40 }} />,
+      color: "#ffebee",
+    },
+    {
+      label: t("AccountBalance"),
+      value: "$71,500",
+      icon: <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 40 }} />,
+      color: "#e3f2fd",
+    },
+    {
+      label: t("PendingInvoices"),
+      value: "23",
+      icon: <ReceiptIcon color="warning" sx={{ fontSize: 40 }} />,
+      color: "#fff8e1",
+    },
+  ];
 
   return (
     <Box p={3}>
       <Typography variant="h4" fontWeight="bold" mb={3}>
-        Welcome Back to Your ERP Dashboard
+        {t("WelcomeBack")}
       </Typography>
 
       <Grid container spacing={3}>
@@ -80,4 +82,6 @@ export default function Dashboard() {
       </Grid>
     </Box>
   );
-}
+};
+
+export default Dashboard;

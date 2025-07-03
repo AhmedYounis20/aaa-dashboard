@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import { createItem, deleteItem, getItemById, getItemNextCode, updateItem} from "../../../../Apis/Inventory/ItemsApi";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
@@ -33,14 +34,8 @@ const ItemsForm: React.FC<{
   handleCloseForm: () => void;
   afterAction: () => void;
   handleTranslate: (key: string) => string;
-}> = ({
-  formType,
-  id,
-  parentId,
-  handleCloseForm,
-  afterAction,
-  handleTranslate,
-}) => {
+}> = ({ formType, id, parentId, handleCloseForm, afterAction, handleTranslate }) => {
+  const { t } = useTranslation();
   const createItemPackingUnit: (
     isDefault?: boolean,
     orderNumber?: number
@@ -220,7 +215,7 @@ const ItemsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">

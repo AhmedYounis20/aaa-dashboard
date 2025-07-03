@@ -25,6 +25,7 @@ const FixedAssetsForm: React.FC<{
   parentId: string | null;
   handleCloseForm: () => void;
 }> = ({ formType, id,parentId, handleCloseForm }) => {  
+const { t } = useTranslation();
   const [deleteFunc] = useDeleteFixedAssetByIdMutation();
   const [model, setModel] = useState<FixedAssetModel>({
     accumelatedCode :"",
@@ -52,7 +53,6 @@ const FixedAssetsForm: React.FC<{
   });
   const [update] = useUpdateFixedAssetMutation();
   const [create] = useCreateFixedAssetMutation();
-  const {t} = useTranslation();
     const modelDefaultDataResult = useGetDefaultModelDataQuery({parentId : parentId, fixedAssetType : model.fixedAssetType}, {
       skip: formType != FormTypes.Add,
     });
@@ -170,7 +170,7 @@ const FixedAssetsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-4">

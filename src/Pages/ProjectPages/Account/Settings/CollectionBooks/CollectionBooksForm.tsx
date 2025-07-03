@@ -18,6 +18,7 @@ const CollectionBooksForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
+  const { t } = useTranslation();
   const accountGuidesResult = useGetCollectionBooksByIdQuery(id);
   const [model, setModel] = useState<CollectionBookModel>({
     id: "",
@@ -31,7 +32,7 @@ const CollectionBooksForm: React.FC<{
   const [updateBook] = useUpdateCollectionBookMutation();
   const [createBook] = useCreateCollectionBookMutation();
   const [deleteBook] = useDeleteCollectionBookMutation();
-  const {t} = useTranslation();
+
   useEffect(() => {
     if (formType != FormTypes.Add) {
       if (!accountGuidesResult.isLoading) {
@@ -104,7 +105,7 @@ const CollectionBooksForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>are you sure, you want delete {model?.nameSecondLanguage}</p>
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
               ) : (
                 <>
                   <div className="row mb-3">

@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 import Loader from '../../../../Components/Loader';
 import { getPackingUnits } from "../../../../Apis/Inventory/PackingUnitsApi";
 import  PackingUnitModel  from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import { useTranslation } from 'react-i18next';
 
 const PackingUnitsRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -13,6 +14,7 @@ const PackingUnitsRoot = () => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [data, setData] = useState<PackingUnitModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { t } = useTranslation();
   
   const fetchData = async () => {
     const result = await getPackingUnits();
@@ -51,8 +53,8 @@ const PackingUnitsRoot = () => {
             <AppContent
               tableType="table"
               data={data}
-              title="Packing Units"
-              btnName="add new"
+              title={t("PackingUnits")}
+              btnName={t("AddNew")}
               addBtn
               btn
               startIcon
