@@ -320,5 +320,9 @@
     "ASSET_LIFE_SPAN_MUST_BE_GREATER_THAN_0": "مدة حياة الأصل يجب أن تكون أكبر من 0",
     "DEPRECIATION_RATE_IS_REQUIRED": "معدل الإهلاك مطلوب",
     "DEPRECIATION_RATE_MUST_BE_GREATER_THAN_OR_EQUAL_TO_0": "معدل الإهلاك يجب أن يكون أكبر من أو يساوي 0",
-    "DEPRECIATION_RATE_CANNOT_EXCEED_100": "معدل الإهلاك لا يمكن أن يتجاوز 100"
+    "DEPRECIATION_RATE_CANNOT_EXCEED_100": "معدل الإهلاك لا يمكن أن يتجاوز 100",
+    "Manage": "إدارة",
+    "Column Visibility": "إظهار الأعمدة",
+    "columns selected": "أعمدة محددة",
+    "Settings": "الإعدادات"
 }

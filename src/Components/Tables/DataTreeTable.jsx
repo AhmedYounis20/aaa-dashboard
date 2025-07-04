@@ -13,6 +13,7 @@ import {
   Box,
   Typography,
   Chip,
+  useTheme,
 } from "@mui/material";
 import {
   KeyboardArrowRight,
@@ -28,6 +29,12 @@ import { FormTypes } from "../../interfaces/Components/FormType";
 import ImagePreview from "../Images/ImagePreview";
 import { useTranslation } from "react-i18next";
 
+// Utility to get nested value by accessor string (e.g., 'a.b.c')
+const getValueByAccessor = (obj, accessor) => {
+  if (!accessor) return undefined;
+  return accessor.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+};
+
 const DataTreeTable = ({
   columns,
   data,
@@ -42,6 +49,7 @@ const DataTreeTable = ({
   const [openRows, setOpenRows] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
   const {t} = useTranslation();
+  const theme = useTheme();
   
   const handleToggle = (id) => {
     setOpenRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -49,11 +57,11 @@ const DataTreeTable = ({
 
   const getBackgroundColor = (depth) => {
     const colors = [
-      '#f8f9fa', 
-      '#e9ecef', 
-      '#dee2e6', 
-      '#ced4da', 
-      '#adb5bd'
+      theme.palette.background.paper,
+      theme.palette.action.hover,
+      theme.palette.grey[50],
+      theme.palette.grey[100],
+      theme.palette.grey[200]
     ];
     return colors[depth % colors.length];
   };
@@ -68,23 +76,19 @@ const DataTreeTable = ({
 
   const renderCell = (row, column) => {
     let value;
-
-    if (column.accessor === "chartOfAccount.code" && row.chartOfAccount) {
-      value = row["chartOfAccount"]["code"];
+    if (typeof column.function === 'function') {
+      value = column.function(getValueByAccessor(row, column.accessor));
     } else {
-      value = typeof column.function == "function"
-        ? column.function(row[column.accessor])
-        : row[column.accessor];
+      value = getValueByAccessor(row, column.accessor);
     }
-  
     return (
       <TableCell 
         key={column.accessor}
         sx={{
-          borderBottom: '1px solid #e0e0e0',
+          borderBottom: `1px solid ${theme.palette.divider}`,
           padding: '12px 16px',
           fontSize: '0.875rem',
-          color: '#424242',
+          color: theme.palette.text.primary,
         }}
       >
         {value}
@@ -98,11 +102,11 @@ const DataTreeTable = ({
         <TableRow
           sx={{
             backgroundColor: hoveredRow === row.id 
-              ? '#f0f8ff' 
+              ? theme.palette.action.hover
               : getBackgroundColor(depth),
             transition: 'background-color 0.2s ease',
             '&:hover': {
-              backgroundColor: '#f0f8ff',
+              backgroundColor: theme.palette.action.hover,
             },
           }}
           onMouseEnter={() => handleMouseEnter(row.id)}
@@ -111,7 +115,7 @@ const DataTreeTable = ({
           <TableCell 
             sx={{ 
               paddingLeft: depth * 20 + 16,
-              borderBottom: '1px solid #e0e0e0',
+              borderBottom: `1px solid ${theme.palette.divider}`,
               width: '50px',
             }}
           >
@@ -121,10 +125,14 @@ const DataTreeTable = ({
                   size="small" 
                   onClick={() => handleToggle(row.id)}
                   sx={{
-                    color: '#1976d2',
+                    color: theme.palette.primary.main,
+                    backgroundColor: theme.palette.primary.light,
                     '&:hover': {
-                      backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      transform: 'scale(1.1)',
                     },
+                    transition: 'all 0.2s ease',
                   }}
                 >
                   {openRows[row.id] ? (
@@ -139,7 +147,7 @@ const DataTreeTable = ({
             sx={{ 
               width: '50px', 
               paddingLeft: 8,
-              borderBottom: '1px solid #e0e0e0',
+              borderBottom: `1px solid ${theme.palette.divider}`,
             }}
           >
             {row.nodeType == 1 ? (
@@ -147,10 +155,14 @@ const DataTreeTable = ({
                 size="small" 
                 onClick={() => handleToggle(row.id)}
                 sx={{
-                  color: '#ff9800',
+                  color: theme.palette.warning.main,
+                  backgroundColor: theme.palette.warning.light,
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                    backgroundColor: theme.palette.warning.main,
+                    color: theme.palette.warning.contrastText,
+                    transform: 'scale(1.1)',
                   },
+                  transition: 'all 0.2s ease',
                 }}
               >
                 <Folder />
@@ -162,7 +174,7 @@ const DataTreeTable = ({
           {columns.map((column) => renderCell(row, column))}
           <TableCell
             sx={{
-              borderBottom: '1px solid #e0e0e0',
+              borderBottom: `1px solid ${theme.palette.divider}`,
               padding: '8px 16px',
             }}
           >
@@ -171,10 +183,16 @@ const DataTreeTable = ({
                 <IconButton
                   size="small"
                   sx={{
-                    color: '#2e7d32',
+                    color: theme.palette.success.contrastText,
+                    background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+                    boxShadow: `0 2px 8px rgba(${theme.palette.success.main}, 0.3)`,
                     '&:hover': {
-                      backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                      background: `linear-gradient(135deg, ${theme.palette.success.dark} 0%, ${theme.palette.success.main} 100%)`,
+                      color: theme.palette.success.contrastText,
+                      transform: 'scale(1.1)',
+                      boxShadow: `0 4px 12px rgba(${theme.palette.success.main}, 0.4)`,
                     },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   onClick={() => {
                     handleSelectParentId(row["id"]);
@@ -190,10 +208,16 @@ const DataTreeTable = ({
                 <IconButton
                   size="small"
                   sx={{
-                    color: '#1976d2',
+                    color: theme.palette.primary.contrastText,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    boxShadow: `0 2px 8px rgba(${theme.palette.primary.main}, 0.3)`,
                     '&:hover': {
-                      backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                      background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                      color: theme.palette.primary.contrastText,
+                      transform: 'scale(1.1)',
+                      boxShadow: `0 4px 12px rgba(${theme.palette.primary.main}, 0.4)`,
                     },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   onClick={() => {
                     changeFormType(FormTypes.Edit);
@@ -208,10 +232,16 @@ const DataTreeTable = ({
                 <IconButton
                   size="small"
                   sx={{
-                    color: '#d32f2f',
+                    color: theme.palette.error.contrastText,
+                    background: `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.error.dark} 100%)`,
+                    boxShadow: `0 2px 8px rgba(${theme.palette.error.main}, 0.3)`,
                     '&:hover': {
-                      backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                      background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, ${theme.palette.error.main} 100%)`,
+                      color: theme.palette.error.contrastText,
+                      transform: 'scale(1.1)',
+                      boxShadow: `0 4px 12px rgba(${theme.palette.error.main}, 0.4)`,
                     },
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   onClick={() => {
                     changeFormType(FormTypes.Delete);
@@ -225,10 +255,16 @@ const DataTreeTable = ({
               <IconButton
                 size="small"
                 sx={{
-                  color: '#7b1fa2',
+                  color: theme.palette.info.contrastText,
+                  background: `linear-gradient(135deg, ${theme.palette.info.main} 0%, ${theme.palette.info.dark} 100%)`,
+                  boxShadow: `0 2px 8px rgba(${theme.palette.info.main}, 0.3)`,
                   '&:hover': {
-                    backgroundColor: 'rgba(123, 31, 162, 0.1)',
+                    background: `linear-gradient(135deg, ${theme.palette.info.dark} 0%, ${theme.palette.info.main} 100%)`,
+                    color: theme.palette.info.contrastText,
+                    transform: 'scale(1.1)',
+                    boxShadow: `0 4px 12px rgba(${theme.palette.info.main}, 0.4)`,
                   },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onClick={() => {
                   changeFormType(FormTypes.Details);
@@ -241,122 +277,81 @@ const DataTreeTable = ({
             </Box>
           </TableCell>
         </TableRow>
-        {data.filter((e) => e.parentId == row.id) && (
-          <TableRow>
-            <TableCell 
-              sx={{ padding: 0 }} 
-              colSpan={columns.length + 3}
-            >
-              <Collapse in={openRows[row.id]} timeout="auto" unmountOnExit>
-                <Box sx={{ backgroundColor: '#fafafa' }}>
-                  <Table size="small">
-                    <TableBody>
-                      {renderRows(
-                        data.filter((e) => e["parentId"] === row.id),
-                        depth + 1
-                      )}
-                    </TableBody>
-                  </Table>
-                </Box>
-              </Collapse>
-            </TableCell>
-          </TableRow>
-        )}
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+            <Collapse in={openRows[row.id]} timeout="auto" unmountOnExit>
+              <Box sx={{ margin: 1 }}>
+                <Table size="small" aria-label="purchases">
+                  <TableBody>
+                    {renderRows(
+                      data?.filter((e) => e.parentId === row.id),
+                      depth + 1
+                    )}
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse>
+          </TableCell>
+        </TableRow>
       </React.Fragment>
     ));
   };
 
   return (
-    <Paper
-      elevation={2}
+    <TableContainer 
+      component={Paper} 
       sx={{
-        borderRadius: 2,
-        overflow: 'hidden',
-        border: '1px solid #e0e0e0',
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: 0,
+        boxShadow: 'none',
+        border: 'none',
       }}
     >
-      <TableContainer
-        sx={{
-          maxHeight: "72vh",
-          height: "100%",
-          overflow: "auto",
-        }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+      <Table sx={{ minWidth: 650 }} aria-label="tree table">
+        <TableHead>
+          <TableRow sx={{
+            backgroundColor: theme.palette.primary.main,
+            '& .MuiTableCell-head': {
+              color: theme.palette.mode === 'dark' ? '#fff' : '#111',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              borderBottom: `1px solid ${theme.palette.primary.dark}`,
+            },
+          }}>
+            <TableCell sx={{ width: '50px', color: theme.palette.mode === 'dark' ? '#fff' : '#111' }}></TableCell>
+            <TableCell sx={{ width: '50px', color: theme.palette.mode === 'dark' ? '#fff' : '#111' }}></TableCell>
+            {columns.map((column) => (
               <TableCell 
-                sx={{ 
-                  width: '50px',
-                  borderBottom: '2px solid #e0e0e0',
-                  backgroundColor: '#f5f5f5',
-                }}
-              />
-              <TableCell 
-                sx={{ 
-                  width: '50px',
-                  borderBottom: '2px solid #e0e0e0',
-                  backgroundColor: '#f5f5f5',
-                }}
-              />
-              {columns.map((column, index) => (
-                <TableCell 
-                  key={index}
-                  sx={{
-                    borderBottom: '2px solid #e0e0e0',
-                    backgroundColor: '#f5f5f5',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    color: '#424242',
-                    padding: '16px',
-                  }}
-                >
-                  {t(column.Header)}
-                </TableCell>
-              ))}
-              <TableCell
+                key={column.accessor}
                 sx={{
-                  borderBottom: '2px solid #e0e0e0',
-                  backgroundColor: '#f5f5f5',
-                  fontWeight: 600,
+                  borderBottom: `1px solid ${theme.palette.primary.dark}`,
+                  padding: '12px 16px',
                   fontSize: '0.875rem',
-                  color: '#424242',
-                  padding: '16px',
+                  fontWeight: 600,
+                  color: theme.palette.mode === 'dark' ? '#fff' : '#111',
                 }}
               >
-                {t("Operations")}
+                {t(column.Header || column.header)}
               </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.length > 0 ? (
-              renderRows(data.filter((e) => !e.parentId))
-            ) : (
-              <TableRow sx={{ backgroundColor: getBackgroundColor(1) }}>
-                <TableCell
-                  colSpan={columns.length + 3}
-                  sx={{ 
-                    textAlign: "center",
-                    padding: '40px 16px',
-                    color: '#666',
-                    fontSize: '1rem',
-                  }}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="h6" color="text.secondary">
-                      {t("NoData")}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {t("NoDataAvailable")}
-                    </Typography>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+            ))}
+            <TableCell 
+              sx={{
+                borderBottom: `1px solid ${theme.palette.primary.dark}`,
+                padding: '12px 16px',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                color: theme.palette.mode === 'dark' ? '#fff' : '#111',
+              }}
+            >
+              {t("Operations")}
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {renderRows(data?.filter((e) => !e.parentId))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

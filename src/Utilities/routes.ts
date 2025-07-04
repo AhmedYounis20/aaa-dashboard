@@ -1,19 +1,32 @@
-import { Construction, CurrencyBitcoin, DashboardCustomize, Factory, InventoryRounded, Store } from "@mui/icons-material";
+import { 
+  AccountTree, 
+  AccountBalance, 
+  People, 
+  Business, 
+  Build, 
+  Storefront, 
+  Settings, 
+  Book, 
+  CollectionsBookmark, 
+  Timeline, 
+  CurrencyExchange, 
+  AttachMoney, 
+  Inventory, 
+  Factory, 
+  Receipt, 
+  Payment, 
+  AccountBalanceWallet, 
+  Description, 
+  FolderOpen,
+  Category,
+  Palette,
+  Straighten,
+  LocalShipping,
+  Assessment
+} from "@mui/icons-material";
 import React, { ReactElement } from "react";
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import DiamondIcon from '@mui/icons-material/Diamond';
-import WebhookIcon from '@mui/icons-material/Webhook';
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import TableChartIcon from '@mui/icons-material/TableChart';
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
-import SettingsIcon from "@mui/icons-material/Settings";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import BookIcon from "@mui/icons-material/Book";
+
 import ChartOfAccountsRoot from "../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot";
 import BanksRoot from "../Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot";
 import CashInBoxesRoot from "../Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot";
@@ -49,15 +62,14 @@ export interface ISidebarItem {
 
 // TODO: make the icon value is string
 
-
 export const sidebarItemsData: ISidebarItem[] = [
   {
     title: "GeneralLeadgers",
-    icon: React.createElement(AccountBoxIcon),
+    icon: React.createElement(AccountTree),
     submenu: [
       {
         title: "ChartOfAccounts",
-        icon: React.createElement(TableChartIcon),
+        icon: React.createElement(Assessment),
         path: "/chartOfAccounts",
         page: ChartOfAccountsRoot,
       },
@@ -65,41 +77,41 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "SubLeadgers",
-    icon: React.createElement(LeaderboardIcon),
+    icon: React.createElement(AccountBoxIcon),
     submenu: [
       {
         title: "Banks",
-        icon: React.createElement(AccountBalanceIcon),
+        icon: React.createElement(AccountBalance),
         path: "/subleadgers/banks",
         page: BanksRoot,
       },
       {
         title: "CashInBoxes",
-        icon: React.createElement(MonetizationOnIcon),
+        icon: React.createElement(AccountBalanceWallet),
         path: "/subleadgers/cashInBoxes",
         page: CashInBoxesRoot,
       },
       {
         title: "Customers",
-        icon: React.createElement(FaceRetouchingNaturalIcon),
+        icon: React.createElement(People),
         path: "/subleadgers/customers",
         page: CustomersRoot
       },
       {
         title: "Suppliers",
-        icon: React.createElement(DashboardCustomize),
+        icon: React.createElement(Business),
         path: "/subleadgers/suppliers",
         page: SuppliersRoot
       },
       {
         title: "FixedAssets",
-        icon: React.createElement(Construction),
+        icon: React.createElement(Build),
         path: "/subleadgers/fixedAssets",
         page: FixedAssetsRoot
       },
       {
         title: "Branches",
-        icon: React.createElement(Store),
+        icon: React.createElement(Storefront),
         path: "/subleadgers/Branches",
         page: BranchesRoot
       },
@@ -107,53 +119,53 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Settings",
-    icon: React.createElement(SettingsIcon),
+    icon: React.createElement(Settings),
     submenu: [
       {
         title: "Glsettings",
-        icon: React.createElement(DiamondIcon),
+        icon: React.createElement(Settings),
         path: "/glSettings",
         page: GlSettingsRoot
       },
       {
         title: "AccountGuides",
-        icon: React.createElement(WebhookIcon),
+        icon: React.createElement(Book),
         path: "/accountguides",
         page: AccountGuidesRoot
       },
       {
         title: "CollectionBooks",
-        icon: React.createElement(BookIcon),
+        icon: React.createElement(CollectionsBookmark),
         path: "/collectionBooks",
         page: CollectionBooksRoot
       },
       {
         title: "CostCenter",
-        icon: React.createElement(WebhookIcon),
+        icon: React.createElement(Category),
         path: "/costCenter",
         page: CostCenterRoot
       },
       {
         title: "FinancialPeriods",
-        icon: React.createElement(CreditScoreIcon),
+        icon: React.createElement(Timeline),
         path: "/financialPeriods",
         page: FinancialPeriodsRoot
       },
       {
         title: "Currencies",
-        icon: React.createElement(CurrencyBitcoin),
+        icon: React.createElement(CurrencyExchange),
         path: "/currencies",
         page: CurrenciesRoot
       },
       {
         title: "SellingPrices",
-        icon: React.createElement(AttachMoneyIcon),
+        icon: React.createElement(AttachMoney),
         path: "/sellingPrices",
         page: SellingPricesRoot
       },
       {
         title: "PackingUnits",
-        icon: React.createElement(AccountBoxIcon),
+        icon: React.createElement(LocalShipping),
         path: "/packingUnits",
         page: PackingUnitsRoot
       },
@@ -167,35 +179,35 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Entries",
-    icon: React.createElement(LibraryBooksIcon),
+    icon: React.createElement(Description),
     submenu: [
       {
         title: "CompinedEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(FolderOpen),
         path: "/compinedentries",
         page: CompinedEntriesRoot
       },
       {
         title: "PaymentVouchers",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(Payment),
         path: "/paymentVouchers",
         page: PaymentVouchersRoot
       },
       {
         title: "ReceiptVouchers",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(Receipt),
         path: "/receiptVouchers",
         page: ReceiptVouchersRoot
       },
       {
         title: "JournalEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(Description),
         path: "/journalEntries",
         page: JournalEntriesRoot
       },
       {
         title: "OpeningEntries",
-        icon: React.createElement(ChangeCircleIcon),
+        icon: React.createElement(FolderOpen),
         path: "/openingEntries",
         page: OpeningEntriesRoot
       },
@@ -203,29 +215,28 @@ export const sidebarItemsData: ISidebarItem[] = [
   },
   {
     title: "Inventory",
-    icon: React.createElement(InventoryRounded),
+    icon: React.createElement(Inventory),
     submenu: [
       {
         title: "Items",
-        icon: React.createElement(InventoryRounded),
+        icon: React.createElement(Inventory),
         path: "/items",
         page: ItemsRoot
       },
       {
         title: "Colors",
-        icon: React.createElement(DiamondIcon),
+        icon: React.createElement(Palette),
         path: "/colors",
         page: ColorsRoot
       },
       {
         title: "Sizes",
-        icon: React.createElement(TableChartIcon),
+        icon: React.createElement(Straighten),
         path: "/sizes",
         page: SizesRoot
       },
     ],
   },
 ];
-
 
 export default sidebarItemsData;

@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, Button } from "@mui/material";
+import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import DataTreeTable from "../../Tables/DataTreeTable";
 import DataTable from "../../Tables/DataTable";
 import AddIcon from '@mui/icons-material/Add';
@@ -15,7 +15,7 @@ type AppContentProps = {
   btnColor?: any;
   endIcon?: any;
   startIcon?: any;
-  columns?: any;
+  columns?: any[];
   handleShowForm?: any;
   changeFormType?: any;
   handleSelectId?: any;
@@ -44,6 +44,7 @@ export default function AppContent({
   btn = false,
 }: AppContentProps) {
   const {t} = useTranslation();
+  const theme = useTheme();
   
   const defaultHiddenColumns = defaultHiddenCols || ["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"];
   
@@ -55,33 +56,51 @@ export default function AppContent({
         flexDirection: "column",
         gap: 3,
         p: 3,
-        backgroundColor: '#fafafa',
+        backgroundColor: theme.palette.background.default,
         minHeight: '100vh',
+        transition: 'all 0.3s ease',
       }}
     >
+      {/* Header Section */}
       <Stack
         direction={"row"}
         justifyContent={"space-between"}
         alignItems={"center"}
         sx={{
-          p: 2,
-          backgroundColor: 'white',
-          borderRadius: 2,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          border: '1px solid #e0e0e0',
+          p: 3,
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: 3,
+          boxShadow: theme.shadows[2],
+          border: `1px solid ${theme.palette.divider}`,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: theme.shadows[4],
+          },
         }}
       >
-        <Typography 
-          variant="h4" 
-          sx={{
-            fontWeight: 600,
-            color: '#1976d2',
-            textTransform: "capitalize",
-            letterSpacing: '0.5px',
-          }}
-        >
-          {t(title)}
-        </Typography>
+        <Box>
+          <Typography 
+            variant="h4" 
+            sx={{
+              fontWeight: 700,
+              color: theme.palette.primary.main,
+              textTransform: "capitalize",
+              letterSpacing: '0.5px',
+              mb: 0.5,
+            }}
+          >
+            {t(title)}
+          </Typography>
+          <Typography 
+            variant="body2" 
+            sx={{
+              color: theme.palette.text.secondary,
+              fontWeight: 500,
+            }}
+          >
+            {t("Manage")} {t(title).toLowerCase()}
+          </Typography>
+        </Box>
 
         {btn && (
           <Button
@@ -90,31 +109,54 @@ export default function AppContent({
             color={btnColor || "primary"}
             startIcon={<AddIcon />}
             sx={{
-              px: 3,
+              px: 4,
               py: 1.5,
               borderRadius: 2,
               textTransform: 'none',
               fontWeight: 600,
-              fontSize: '1rem',
-              boxShadow: '0 4px 8px rgba(25, 118, 210, 0.3)',
+              fontSize: '0.95rem',
+              boxShadow: `0 4px 12px ${theme.palette.primary.main}40`,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              position: 'relative',
+              overflow: 'hidden',
               '&:hover': {
-                boxShadow: '0 6px 12px rgba(25, 118, 210, 0.4)',
-                transform: 'translateY(-1px)',
+                boxShadow: `0 6px 20px ${theme.palette.primary.main}60`,
+                transform: 'translateY(-2px)',
+                background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
               },
-              transition: 'all 0.2s ease',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                transition: 'left 0.6s',
+              },
+              '&:hover::before': {
+                left: '100%',
+              },
             }}
           >
-            {t("Add")}
+            {t("Add")} {t(title)}
           </Button>
         )}
       </Stack>
 
+      {/* Table Section */}
       <Box
         sx={{
-          backgroundColor: 'white',
-          borderRadius: 2,
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: 3,
           overflow: 'hidden',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          boxShadow: theme.shadows[2],
+          border: `1px solid ${theme.palette.divider}`,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: theme.shadows[4],
+          },
         }}
       >
         {tableType === "tree" ? (
@@ -137,7 +179,7 @@ export default function AppContent({
             handleSelectId={handleSelectId}
             changeFormType={changeFormType}
             handleShowForm={handleShowForm}
-            defaultHiddenColumns={defaultHiddenColumns}
+            defaultHiddenColumns={defaultHiddenColumns as any}
           />
         )}
       </Box>

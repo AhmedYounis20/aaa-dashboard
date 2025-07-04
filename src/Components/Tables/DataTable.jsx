@@ -1,22 +1,22 @@
-import { useState, useEffect, useContext } from "react";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import {
-  Grid,
-  FormControl,
-  Select,
-  MenuItem,
-  Checkbox,
+import React, { useState, useEffect, useContext } from 'react';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { 
+  Paper, 
+  Box, 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem, 
+  Typography, 
+  Checkbox, 
   ListItemText,
   IconButton,
-  InputLabel,
-  Box,
-  Paper,
-  Typography,
-} from "@mui/material";
-import { FormTypes } from "../../interfaces/Components";
-import { Delete, EditNote, Info, Visibility } from "@mui/icons-material";
-import { appContext } from "../../layout/DefaultLayout";
+  useTheme
+} from '@mui/material';
+import { EditNote, Delete, Visibility } from '@mui/icons-material';
+import { FormTypes } from '../../interfaces/Components/FormType';
 import { useTranslation } from "react-i18next";
+import { appContext } from '../../layout/DefaultLayout';
 
 const DataTable = ({
   data = [],
@@ -30,21 +30,45 @@ const DataTable = ({
   const [columns, setColumns] = useState([]);
   const [visibleColumns, setVisibleColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
-  const {t} = useTranslation()
-  const { isSidebarOpen, isMobile} = useContext(appContext)
+  const {t} = useTranslation();
+  const { isSidebarOpen, isMobile} = useContext(appContext);
+  const theme = useTheme();
+
+  const getValueByAccessor = (obj, accessor) => {
+    if (!accessor) return undefined;
+    return accessor.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+  };
 
   useEffect(() => {
     if (data.length > 0) {
-      const initialColumns = Object.keys(data[0]).map((field) => ({
-        field: field,
-        headerName: t(field.charAt(0).toUpperCase() + field.slice(1)),
-        hide: defaultHiddenColumns.includes(field),
-        flex: 1,
-        minWidth: 120,
-        groupable: true,
-        headerClassName: 'custom-header',
-        cellClassName: 'custom-cell',
-      }));
+      let initialColumns;
+      if (Array.isArray(data.columns) && data.columns.length > 0) {
+        initialColumns = data.columns.map((col) => ({
+          ...col,
+          field: col.accessor || col.field,
+          headerName: t(col.Header || col.headerName || col.field),
+          hide: defaultHiddenColumns.includes(col.accessor || col.field),
+          flex: 1,
+          minWidth: 120,
+          groupable: true,
+          headerClassName: 'custom-header',
+          cellClassName: 'custom-cell',
+          valueGetter: col.accessor && col.accessor.includes('.')
+            ? (params) => getValueByAccessor(params.row, col.accessor)
+            : undefined,
+        }));
+      } else {
+        initialColumns = Object.keys(data[0]).map((field) => ({
+          field: field,
+          headerName: t(field.charAt(0).toUpperCase() + field.slice(1)),
+          hide: defaultHiddenColumns.includes(field),
+          flex: 1,
+          minWidth: 120,
+          groupable: true,
+          headerClassName: 'custom-header',
+          cellClassName: 'custom-cell',
+        }));
+      }
 
       const operationsColumn = {
         field: "operations",
@@ -60,10 +84,16 @@ const DataTable = ({
               <IconButton
                 size="small"
                 sx={{
-                  color: '#1976d2',
+                  color: theme.palette.primary.contrastText,
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  boxShadow: `0 2px 8px rgba(${theme.palette.primary.main}, 0.3)`,
                   '&:hover': {
-                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                    color: theme.palette.primary.contrastText,
+                    transform: 'scale(1.1)',
+                    boxShadow: `0 4px 12px rgba(${theme.palette.primary.main}, 0.4)`,
                   },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onClick={() => {
                   changeFormType(FormTypes.Edit);
@@ -78,10 +108,16 @@ const DataTable = ({
               <IconButton
                 size="small"
                 sx={{
-                  color: '#d32f2f',
+                  color: theme.palette.error.contrastText,
+                  background: `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.error.dark} 100%)`,
+                  boxShadow: `0 2px 8px rgba(${theme.palette.error.main}, 0.3)`,
                   '&:hover': {
-                    backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                    background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, ${theme.palette.error.main} 100%)`,
+                    color: theme.palette.error.contrastText,
+                    transform: 'scale(1.1)',
+                    boxShadow: `0 4px 12px rgba(${theme.palette.error.main}, 0.4)`,
                   },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onClick={() => {
                   changeFormType(FormTypes.Delete);
@@ -95,10 +131,16 @@ const DataTable = ({
             <IconButton
               size="small"
               sx={{
-                color: '#2e7d32',
+                color: theme.palette.success.contrastText,
+                background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+                boxShadow: `0 2px 8px rgba(${theme.palette.success.main}, 0.3)`,
                 '&:hover': {
-                  backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                  background: `linear-gradient(135deg, ${theme.palette.success.dark} 0%, ${theme.palette.success.main} 100%)`,
+                  color: theme.palette.success.contrastText,
+                  transform: 'scale(1.1)',
+                  boxShadow: `0 4px 12px rgba(${theme.palette.success.main}, 0.4)`,
                 },
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onClick={() => {
                 changeFormType(FormTypes.Details);
@@ -121,7 +163,7 @@ const DataTable = ({
         operationsColumn,
       ]);
     }
-  }, [data, defaultHiddenColumns, showedit, showdelete]);
+  }, [data, defaultHiddenColumns, showedit, showdelete, theme]);
 
   const handleChange = (event) => {
     const {
@@ -139,18 +181,19 @@ const DataTable = ({
 
   return (
     <Paper
-      elevation={2}
+      elevation={0}
       sx={{
-        borderRadius: 2,
+        borderRadius: 0,
         overflow: 'hidden',
-        border: '1px solid #e0e0e0',
+        border: 'none',
+        backgroundColor: 'transparent',
       }}
     >
       <Box
         sx={{
           p: 2,
-          borderBottom: '1px solid #e0e0e0',
-          backgroundColor: '#fafafa',
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          backgroundColor: theme.palette.background.default,
         }}
       >
         <FormControl size="small" fullWidth>
@@ -165,13 +208,14 @@ const DataTable = ({
             value={selectedColumns}
             onChange={handleChange}
             renderValue={(selected) => (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                 {selected.length} {t("columns selected")}
               </Typography>
             )}
             sx={{
               '& .MuiOutlinedInput-root': {
-                backgroundColor: 'white',
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: 2,
               },
             }}
           >
@@ -209,60 +253,53 @@ const DataTable = ({
           disableColumnSelector
           sx={{
             border: 0,
+            backgroundColor: theme.palette.background.paper,
             '& .MuiDataGrid-root': {
               border: 'none',
             },
             '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid #f0f0f0',
+              borderBottom: `1px solid ${theme.palette.divider}`,
               padding: '12px 16px',
               fontSize: '0.875rem',
+              color: theme.palette.text.primary,
+              '&:hover': {
+                backgroundColor: theme.palette.action.hover,
+              },
             },
             '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#f5f5f5',
-              borderBottom: '2px solid #e0e0e0',
-              '& .MuiDataGrid-columnHeader': {
-                borderRight: '1px solid #e0e0e0',
-                '&:last-child': {
-                  borderRight: 'none',
+              backgroundColor: theme.palette.primary.main || '#1976d2',
+              color: theme.palette.mode === 'dark' ? '#fff' : '#111',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              borderBottom: `2px solid ${theme.palette.primary.dark || '#115293'}`,
+              textShadow: '0 1px 2px rgba(0,0,0,0.08)',
+            },
+            '& .MuiDataGrid-columnHeader': {
+              borderBottom: `1px solid ${theme.palette.primary.dark}`,
+            },
+            '& .MuiDataGrid-row': {
+              '&:hover': {
+                backgroundColor: theme.palette.action.hover,
+              },
+              '&.Mui-selected': {
+                backgroundColor: theme.palette.primary.light,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.light,
                 },
               },
             },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              color: '#424242',
-            },
-            '& .MuiDataGrid-row': {
-              '&:nth-of-type(odd)': {
-                backgroundColor: '#fafafa',
-              },
-              '&:nth-of-type(even)': {
-                backgroundColor: '#ffffff',
-              },
-              '&:hover': {
-                backgroundColor: '#f0f8ff',
-                transition: 'background-color 0.2s ease',
-              },
-            },
-            '& .MuiDataGrid-cell:focus': {
-              outline: 'none',
-            },
-            '& .MuiDataGrid-cell:focus-within': {
-              outline: 'none',
+            '& .MuiDataGrid-toolbarContainer': {
+              backgroundColor: theme.palette.background.default,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              padding: '8px 16px',
             },
             '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid #e0e0e0',
-              backgroundColor: '#fafafa',
-            },
-            '& .MuiDataGrid-toolbarContainer': {
-              padding: '8px 16px',
-              backgroundColor: '#fafafa',
-              borderBottom: '1px solid #e0e0e0',
+              backgroundColor: theme.palette.background.default,
+              borderTop: `1px solid ${theme.palette.divider}`,
             },
             '& .MuiDataGrid-virtualScroller': {
-              backgroundColor: 'transparent',
+              backgroundColor: theme.palette.background.paper,
             },
-            maxWidth: isSidebarOpen && !isMobile ? "100%" : "100%",
           }}
         />
       </Box>
