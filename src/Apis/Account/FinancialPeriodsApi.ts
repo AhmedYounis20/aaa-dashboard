@@ -1,52 +1,47 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 import FinancialPeriodModel from "../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
 
-const FinancialPeriodsApi = createApi({
-  reducerPath: "financialPeriodsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["financialPeriods"],
-  endpoints: (builder) => ({
-    getFinancialPeriods: builder.query({
-      query: () => "financialPeriods",
-      providesTags: ["financialPeriods"],
-    }),
-    getFinancialPeriodsById: builder.query({
-      query: (id) => `financialPeriods/${id}`,
-      providesTags: ["financialPeriods"],
-    }),
-    updateFinancialPeriod: builder.mutation({
-      query: (body: FinancialPeriodModel) => ({
-        url: `financialPeriods/${body.id}`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags: ["financialPeriods"],
-    }),
-    createFinancialPeriod: builder.mutation({
-      query: (body: FinancialPeriodModel) => ({
-        url: `financialPeriods`,
-        method: "POST",
-        body: body,
-      }),
-      invalidatesTags: ["financialPeriods"],
-    }),
-  }),
-});
+const apiEndPoint = "FinancialPeriods";
 
-export const {
-  useGetFinancialPeriodsQuery,
-  useGetFinancialPeriodsByIdQuery,
-  useUpdateFinancialPeriodMutation,
-  useCreateFinancialPeriodMutation,
-} = FinancialPeriodsApi;
-export default FinancialPeriodsApi;
+// GET all financial periods
+const getFinancialPeriods = async (): Promise<ApiResult<FinancialPeriodModel[]>> => {
+  return await httpGet<FinancialPeriodModel[]>(apiEndPoint, {});
+};
+
+// GET a single financial period by ID
+const getFinancialPeriodById = async (
+  id: string
+): Promise<ApiResult<FinancialPeriodModel>> => {
+  return await httpGet<FinancialPeriodModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// POST (Create) a new financial period
+const createFinancialPeriod = async (
+  data: FinancialPeriodModel
+): Promise<ApiResult<FinancialPeriodModel>> => {
+  return await httpPost<FinancialPeriodModel>(apiEndPoint, data);
+};
+
+// PUT (Update) a financial period
+const updateFinancialPeriod = async (
+  id: string,
+  data: FinancialPeriodModel
+): Promise<ApiResult<FinancialPeriodModel>> => {
+  return await httpPut<FinancialPeriodModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a financial period by ID
+const deleteFinancialPeriod = async (
+  id: string
+): Promise<ApiResult<FinancialPeriodModel>> => {
+  return await httpDelete<FinancialPeriodModel>(`${apiEndPoint}/${id}`, { id });
+};
+
+export {
+  getFinancialPeriods,
+  getFinancialPeriodById,
+  createFinancialPeriod,
+  updateFinancialPeriod,
+  deleteFinancialPeriod
+};

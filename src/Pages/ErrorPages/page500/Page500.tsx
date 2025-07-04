@@ -9,9 +9,9 @@ const Page500 = () => {
           <div className="col-md-6">
             <div className="text-center">
               <h1 className="display-3">500</h1>
-              <h4 className="pt-3">Houston, we have a problem!</h4>
+              <h4 className="pt-3">{t("HoustonProblem")}</h4>
               <p className="text-muted">
-                The page you are looking for is temporarily unavailable.
+                {t("PageTemporarilyUnavailable")}
               </p>
             </div>
             <div className="input-group mt-4">
@@ -23,7 +23,7 @@ const Page500 = () => {
                 className="form-control"
                 placeholder={t("WhatAreYouLookingFor")}
               />
-              <button className="btn btn-info ms-2">Search</button>
+              <button className="btn btn-info ms-2">{t("Search")}</button>
             </div>
           </div>
         </div>

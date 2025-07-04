@@ -9,9 +9,9 @@ const Page404 = () => {
           <div className="col-md-6">
             <div className="text-center">
               <h1 className="display-3">404</h1>
-              <h4 className="pt-3">Oops! You're lost.</h4>
+              <h4 className="pt-3">{t("OopsYoureLost")}</h4>
               <p className="text-muted">
-                The page you are looking for was not found.
+                {t("PageNotFound")}
               </p>
             </div>
             <div className="input-group mt-4">
@@ -23,7 +23,7 @@ const Page404 = () => {
                 className="form-control"
                 placeholder={t("WhatAreYouLookingFor")}
               />
-              <button className="btn btn-info ms-2">Search</button>
+              <button className="btn btn-info ms-2">{t("Search")}</button>
             </div>
           </div>
         </div>

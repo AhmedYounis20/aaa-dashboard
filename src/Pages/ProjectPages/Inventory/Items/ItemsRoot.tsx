@@ -7,21 +7,6 @@ import { AppContent } from '../../../../Components';
 import ItemModel  from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
 import { useTranslation } from 'react-i18next';
 
-const columns = [
-  {
-    Header: "Code",
-    accessor: "code",
-  },
-  {
-    Header: "Name",
-    accessor: "name",
-  },
-  {
-    Header: "NameSecondLanguage",
-    accessor: "nameSecondLanguage",
-  },
-];
-
 const ItemsRoot = () => {
 
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -31,7 +16,23 @@ const ItemsRoot = () => {
   const [data, setData] = useState<ItemModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const {t} = useTranslation();
-    const handleShowForm = () => {
+
+  const columns = [
+    {
+      Header: t("Code"),
+      accessor: "code",
+    },
+    {
+      Header: t("Name"),
+      accessor: "name",
+    },
+    {
+      Header: t("NameSecondLanguage"),
+      accessor: "nameSecondLanguage",
+    },
+  ];
+
+  const handleShowForm = () => {
     setShowForm(true);
   };
   const handleCloseForm = () => {

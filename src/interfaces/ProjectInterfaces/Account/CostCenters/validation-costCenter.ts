@@ -6,32 +6,32 @@ const guidRegex = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
 export const CostCentersSchema = yup.object().shape({
     name: yup
         .string()
-        .required("Name is required")
-        .max(100, "Name Can't excced 100 Letters"),
+        .required("NAME_IS_REQUIRED")
+        .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
     nameSecondLanguage: yup
         .string()
-        .required("Name is required")
-        .max(100, "Name Can't excced 100 Letters"),
+        .required("NAME_SECOND_LANGUAGE_IS_REQUIRED")
+        .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
     nodeType : yup
     .mixed<Type>()
-    .oneOf(Object.values(Type) as Type[], "Invalid type") 
-    .required("Type is required"),
+    .oneOf(Object.values(Type) as Type[], "INVALID_TYPE") 
+    .required("NODETYPE_IS_REQUIRED"),
 
     costCenterType: yup
         .mixed<CostCenterType>()
         .oneOf(Object.values(CostCenterType).filter(value => typeof value === "number") as CostCenterType[])
-        .required("Cost Center Type is required"),
+        .required("COST_CENTER_TYPE_IS_REQUIRED"),
 
     percent: yup
     .number()
     .when('nodeType', {
         is: Type.Domain, 
         then: schema => schema
-            .required("Percent is required when node type is 'Domain'")
-            .min(0, "Percent must be greater than or equal to 0")
-            .max(100, "Percent cannot exceed 100"),
+            .required("PERCENT_IS_REQUIRED_WHEN_DOMAIN")
+            .min(0, "PERCENT_MUST_BE_GREATER_THAN_OR_EQUAL_TO_0")
+            .max(100, "PERCENT_CANNOT_EXCEED_100"),
         otherwise: schema => schema.notRequired(),
     }),
 
@@ -40,14 +40,14 @@ export const CostCentersSchema = yup.object().shape({
     .of(
         yup
             .string()
-            .required("Each account must be a string")
-            .matches(guidRegex, "Each account must be a valid GUID") 
+            .required("EACH_ACCOUNT_MUST_BE_STRING")
+            .matches(guidRegex, "EACH_ACCOUNT_MUST_BE_VALID_GUID") 
         )
         .when(['nodeType', 'costCenterType'], {
         is: (nodeType: Type, costCenterType: CostCenterType) => nodeType === Type.Domain && costCenterType === CostCenterType.RelatedToAccount,
         then: schema => schema
-            .required("At least add one account when node type is Domain and cost center type is Related")
-            .min(1, "At least add one account"),
+            .required("AT_LEAST_ADD_ONE_ACCOUNT_WHEN_DOMAIN_AND_RELATED")
+            .min(1, "AT_LEAST_ADD_ONE_ACCOUNT"),
         otherwise: schema => schema.notRequired(),
         }),
     })

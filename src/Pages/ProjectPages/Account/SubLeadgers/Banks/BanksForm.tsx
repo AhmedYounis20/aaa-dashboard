@@ -1,22 +1,13 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { ApiResponse } from "../../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../../Helper/toastify";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
-import {
-  NodeType,
-  NodeTypeOptions,
-} from "../../../../../interfaces/Components/NodeType";
-import {  TextareaAutosize } from "@mui/material";
+import { NodeType, NodeTypeOptions } from "../../../../../interfaces/Components/NodeType";
+import { TextareaAutosize } from "@mui/material";
 import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
-import {
-  useCreateBankMutation,
-  useDeleteBankByIdMutation,
-  useGetBanksByIdQuery,
-  useGetDefaultModelDataQuery,
-  useUpdateBankMutation,
-} from "../../../../../Apis/Account/BanksApi";
+import { getBankById, getDefaultBank, createBank, updateBank, deleteBank } from "../../../../../Apis/Account/BanksApi";
+import { BankSchema } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/validation-bank";
 import { useTranslation } from "react-i18next";
 import InputText from "../../../../../Components/Inputs/InputText";
 
@@ -25,9 +16,9 @@ const BanksForm: React.FC<{
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, parentId, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
-  const [deleteFunc] = useDeleteBankByIdMutation();
   const [model, setModel] = useState<BankModel>({
     name: "",
     nameSecondLanguage: "",
@@ -41,99 +32,94 @@ const BanksForm: React.FC<{
     notes: "",
     phone: "",
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
-
-  const bankResult = useGetBanksByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
-  const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
-    skip: formType != FormTypes.Add,
-  });
-  const [update] = useUpdateBankMutation();
-  const [create] = useCreateBankMutation();
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (formType != FormTypes.Add && !isUpdated) {
-      if (!bankResult.isLoading) {
-        setModel(bankResult.data.result);
-        if (bankResult.data?.result.nodeType === 0) {
-          setModel((prevModel) =>
-            prevModel
-              ? {
-                  ...prevModel,
-                  code: bankResult.data.result.chartOfAccount.code,
-                }
-              : prevModel
-          );
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getBankById(id);
+        if (result && result.result) {
+          setModel(result.result);
         }
         setIsLoading(false);
-      }
+      };
+      fetchData();
+    } else {
+      const fetchDefault = async () => {
+        setIsLoading(true);
+        const result = await getDefaultBank(parentId);
+        if (result && result.result) {
+          setModel((prevModel) => ({
+            ...prevModel,
+            code: result.result.code,
+          }));
+        }
+        setIsLoading(false);
+      };
+      fetchDefault();
     }
-  }, [bankResult.isLoading, bankResult, formType, isUpdated]);
-  useEffect(() => {
-    if (formType == FormTypes.Add) {
-      if (!modelDefaultDataResult.isLoading) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: modelDefaultDataResult?.data?.result?.code,
-              }
-            : prevModel
-        );
-      }
+  }, [formType, id, parentId]);
+
+  const validate = async () => {
+    try {
+      await BankSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as any).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
     }
-  }, [
-    model?.nodeType,
-    formType,
-    modelDefaultDataResult,
-    modelDefaultDataResult.isLoading,
-  ]);
+  };
+
   const handleUpdate = async () => {
-    if (model) {
-      const response: ApiResponse = await update(model);
-      setIsUpdated(true);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        response.error?.data?.errorMessages?.map((error: string) => {
-          toastify(error, "error");
-        });
-        return false;
+    if ((await validate()) === false) return false;
+    const response = await updateBank(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
       }
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
+      return false;
     }
     return false;
   };
   const handleAdd = async () => {
-    if (model) {
-      const response: ApiResponse = await create(model);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        response.error?.data?.errorMessages?.map((error: string) => {
-          toastify(error, "error");
-        });
-        return false;
+    if ((await validate()) === false) return false;
+    const response = await createBank(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
       }
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
+      return false;
     }
     return false;
   };
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteFunc(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteBank(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
+      }
       return true;
-    } else {
-      response.error?.data?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-      });
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
       return false;
     }
+    return false;
   };
 
   return (
@@ -166,16 +152,9 @@ const BanksForm: React.FC<{
                         isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  name: value,
-                                }
-                              : prevModel
-                          )
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, name: value }))}
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -188,16 +167,9 @@ const BanksForm: React.FC<{
                         isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  nameSecondLanguage: value,
-                                }
-                              : prevModel
-                          )
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, nameSecondLanguage: value }))}
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

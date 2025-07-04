@@ -1,68 +1,60 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
 import BranchModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 
-const BranchesApi = createApi({
-  reducerPath: "BranchesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["Branches"],
-  endpoints: (builder) => ({
-    getBranches: builder.query({
-      query: () => "Branches",
-      providesTags: ["Branches"],
-    }),
-    getBranchesById: builder.query({
-      query: (id) => `Branches/${id}`,
-      providesTags: ["Branches"],
-    }),
-    getDefaultModelData: builder.query({
-      query: (parentId) =>
-        `branches/NextAccountDefaultData${
-          parentId == null ? "" : `?parentId=${parentId}`
-        }`,
-      providesTags: ["Branches"],
-    }),
-    createBranch: builder.mutation({
-      query: (body: BranchModel) => ({
-        url: `branches`,
-        method: "POST",
-        body: body,
-      }),
-      invalidatesTags: ["Branches"],
-    }),
-    deleteBranchById: builder.mutation({
-      query: (id) => ({
-        url: `Branches/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Branches"],
-    }),
-    updateBranch: builder.mutation({
-      query: (body: BranchModel) => ({
-        url: `Branches/${body.id}`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags: ["Branches"],
-    }),
-  }),
-});
+const apiEndPoint = "branches";
 
-export const {
-  useGetBranchesQuery,
-  useGetBranchesByIdQuery,
-  useDeleteBranchByIdMutation,
-  useUpdateBranchMutation,
-  useCreateBranchMutation,
-  useGetDefaultModelDataQuery
-} = BranchesApi;
-export default BranchesApi;
+// GET all branches
+const getBranches = async (): Promise<ApiResult<BranchModel[]>> => {
+  return await httpGet<BranchModel[]>(apiEndPoint, {});
+};
+
+// GET a single branch by ID
+const getBranchById = async (
+  id: string
+): Promise<ApiResult<BranchModel>> => {
+  return await httpGet<BranchModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// GET default model data
+const getDefaultBranchData = async (
+  parentId: string | null
+): Promise<ApiResult<BranchModel>> => {
+  return await httpGet<BranchModel>(
+    `${apiEndPoint}/NextAccountDefaultData${
+      parentId == null ? "" : `?parentId=${parentId}`
+    }`,
+    {}
+  );
+};
+
+// POST (Create) a new branch
+const createBranch = async (
+  model: BranchModel
+): Promise<ApiResult<BranchModel>> => {
+  return await httpPost<BranchModel>(apiEndPoint, model);
+};
+
+// PUT (Update) a branch
+const updateBranch = async (
+  id: string,
+  model: BranchModel
+): Promise<ApiResult<BranchModel>> => {
+  return await httpPut<BranchModel>(`${apiEndPoint}/${id}`, model);
+};
+
+// DELETE a branch by ID
+const deleteBranch = async (
+  id: string
+): Promise<ApiResult<BranchModel>> => {
+  return await httpDelete<BranchModel>(`${apiEndPoint}/${id}`, {});
+};
+
+export {
+  getBranches,
+  getBranchById,
+  getDefaultBranchData,
+  createBranch,
+  updateBranch,
+  deleteBranch
+};

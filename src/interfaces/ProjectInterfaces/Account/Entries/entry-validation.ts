@@ -1,12 +1,12 @@
 import * as yup from 'yup'
 
 export const FinancialTransactionSchema = yup.object().shape({
-  debitAccountId: yup.string().required("Debit Account is Required"),
+  debitAccountId: yup.string().required("DEBIT_ACCOUNT_IS_REQUIRED"),
 
-  creditAccountId: yup.string().required("Credit Account is Required"),
+  creditAccountId: yup.string().required("CREDIT_ACCOUNT_IS_REQUIRED"),
   amount: yup
     .number()
-    .test("greater-than-zero", "amount is required", (val) => {
+    .test("greater-than-zero", "AMOUNT_IS_REQUIRED", (val) => {
       return val !== undefined && val > 0;
     }),
 
@@ -35,10 +35,10 @@ export const EntryCostCenterSchema = yup.object().shape({
   costCenterId: yup.string().nullable(),
   amount: yup
     .number()
-    .min(0, 'Must be 0 or more') // base rule
+    .min(0, 'MUST_BE_0_OR_MORE') // base rule
     .when('costCenterId', {
       is: (val: string | null) => val != null && val.trim() !== '',
-      then: (schema) => schema.moreThan(0, 'Must be greater than 0'),
+      then: (schema) => schema.moreThan(0, 'MUST_BE_GREATER_THAN_0'),
     }),
 
   // debitAccountId: string;
@@ -64,14 +64,14 @@ export const EntryCostCenterSchema = yup.object().shape({
 export const EntrySchema = yup.object().shape({
   financialTransactions: yup.array().of(FinancialTransactionSchema).required(),
   costCenters : yup.array().of(EntryCostCenterSchema).required(),
-  currencyId: yup.string().required("currency is Required"),
+  currencyId: yup.string().required("CURRENCY_IS_REQUIRED"),
   exchangeRate: yup
     .number()
-    .required("exchage rate Is required"),
-  financialPeriodId: yup.string().required("Financial Period Id Is required"),
-  financialPeriodNumber: yup.string().required("Financial Number Is required"),
-  entryDate: yup.date().required("entry date is required"),
-  branchId: yup.string().required("branch Id is required"),
+    .required("EXCHANGE_RATE_IS_REQUIRED"),
+  financialPeriodId: yup.string().required("FINANCIAL_PERIOD_ID_IS_REQUIRED"),
+  financialPeriodNumber: yup.string().required("FINANCIAL_NUMBER_IS_REQUIRED"),
+  entryDate: yup.date().required("ENTRY_DATE_IS_REQUIRED"),
+  branchId: yup.string().required("BRANCH_ID_IS_REQUIRED"),
   // creditAccountId: string;
   // amount: number;
   // notes: string | null;

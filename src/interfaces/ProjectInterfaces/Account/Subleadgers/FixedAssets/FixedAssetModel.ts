@@ -1,7 +1,8 @@
 import FixedAssetType from "./FixedAssetType";
+import ChartOfAccountModel from "../../ChartOfAccount/ChartOfAccountModel";
 
 interface FixedAssetModel {
-  id:string;
+  id: string;
   name: string;
   nameSecondLanguage: string;
   parentId: string | null;
@@ -17,6 +18,10 @@ interface FixedAssetModel {
   depreciationRate: number;
   fixedAssetType: FixedAssetType;
   notes: string;
+  // API response optional properties
+  chartOfAccount?: ChartOfAccountModel;
+  accumlatedAccount?: ChartOfAccountModel;
+  expensesAccount?: ChartOfAccountModel;
 }
 
 export default FixedAssetModel;

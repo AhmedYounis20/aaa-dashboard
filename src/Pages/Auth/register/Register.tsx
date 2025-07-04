@@ -10,8 +10,8 @@ const Register = () => {
             <div className="card mx-4">
               <div className="card-body p-4">
                 <form>
-                  <h1>Register</h1>
-                  <p className="text-muted">Create your account</p>
+                  <h1>{t("Register")}</h1>
+                  <p className="text-muted">{t("CreateYourAccount")}</p>
                   <div className="mb-3">
                     <div className="input-group">
                       <span className="input-group-text">
@@ -64,7 +64,7 @@ const Register = () => {
                   </div>
                   <div className="d-grid">
                     <button type="submit" className="btn btn-success">
-                      Create Account
+                      {t("CreateAccount")}
                     </button>
                   </div>
                 </form>

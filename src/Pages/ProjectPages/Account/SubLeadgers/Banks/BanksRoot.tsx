@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGetBanksQuery } from "../../../../../Apis/Account/BanksApi";
 import { FormTypes } from '../../../../../interfaces/Components';
 import BanksForm from './BanksForm';
 import Loader from '../../../../../Components/Loader';
 import { AppContent } from '../../../../../Components';
+import { getBanks } from "../../../../../Apis/Account/BanksApi";
+
 const columns = [
   {
     Header: "Code",
@@ -24,11 +25,24 @@ const columns = [
 
 const BanksRoot = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useGetBanksQuery(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>("");
   const [parentId, setParentId] = useState<string | null>(null);
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchData = async () => {
+    const result = await getBanks();
+    if (result && result.isSuccess) {
+      setData(result.result);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -50,9 +64,10 @@ const BanksRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               parentId={parentId}
+              afterAction={() => fetchData()}
             />
           )}
-          {data?.result && (
+          {data && (
             <AppContent
               tableType="tree"
               title={t("Banks")}
@@ -64,7 +79,7 @@ const BanksRoot = () => {
                 handleShowForm();
               }}
               columns={columns}
-              data={data.result}
+              data={data}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}

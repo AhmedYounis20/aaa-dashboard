@@ -12,6 +12,8 @@ import Loader from '../../../../Components/Loader';
 import updateModel from '../../../../Helper/updateModelHelper';
 import { getAccountGuides } from "../../../../Apis/Account/AccountGuidesApi";
 import InputText from '../../../../Components/Inputs/InputText';
+import { ChartOfAccountSchema } from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/validation-chartOfAccount';
+import * as yup from 'yup';
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
@@ -57,23 +59,8 @@ const ChartOfAccountsForm: React.FC<{
     description: "",
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // useEffect(() => {
-  //   else if (for) {
-  //     if (!chartOfAccountResult.isLoading) {
-  //       setModel(chartOfAccountResult.data.result);
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // }, [
-  //   chartOfAccountResult?.isLoading,
-  //   chartOfAccountResult?.data?.result,
-  //   defaultChartOfAccountResult?.isLoading,
-  //   defaultChartOfAccountResult?.data?.result,
-  //   formType,
-  //   isUpdated,
-  // ]);
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (formType != FormTypes.Add) {
@@ -113,7 +100,24 @@ const ChartOfAccountsForm: React.FC<{
     }
     return false;
   };
+
+  const validate = async () => {
+    try {
+      await ChartOfAccountSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
+    }
+  };
+
   const handleUpdate = async () => {
+    if ((await validate()) === false) return false;
     const response = await updateChartOfAccount(model.id, model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
@@ -125,11 +129,12 @@ const ChartOfAccountsForm: React.FC<{
     }
     return false;
   };
+
   const handleAdd = async () => {
+    if ((await validate()) === false) return false;
     const response = await createChartOfAccount(model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
-      console.log(response);
       afterAction();
       return true;
     } else if (response && response.errorMessages) {
@@ -171,6 +176,7 @@ const ChartOfAccountsForm: React.FC<{
                         label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -183,6 +189,8 @@ const ChartOfAccountsForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? handleTranslate(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -204,6 +212,8 @@ const ChartOfAccountsForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? handleTranslate(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>
@@ -215,8 +225,18 @@ const ChartOfAccountsForm: React.FC<{
                         label={handleTranslate("Code")}
                         variant="outlined"
                         fullWidth
-                        disabled
+                        isRquired
+                        disabled={formType === FormTypes.Details}
                         value={model?.code}
+                        onChange={(value) =>
+                          setModel((prevModel) =>
+                            prevModel
+                              ? { ...prevModel, code: value }
+                              : prevModel
+                          )
+                        }
+                        error={!!errors.code}
+                        helperText={errors.code ? handleTranslate(errors.code) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">

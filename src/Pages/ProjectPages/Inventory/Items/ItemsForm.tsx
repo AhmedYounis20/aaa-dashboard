@@ -367,7 +367,7 @@ const ItemsForm: React.FC<{
                                 )
                               }
                               error={!!errors.gs1Code}
-                              helperText={errors.gs1Code}
+                              helperText={errors.gs1Code ? handleTranslate(errors.gs1Code) : undefined}
                             />
                           </div>
 
@@ -390,7 +390,7 @@ const ItemsForm: React.FC<{
                                 )
                               }
                               error={!!errors.egsCode}
-                              helperText={errors.egsCode}
+                              helperText={errors.egsCode ? handleTranslate(errors.egsCode) : undefined}
                             />
                           </div>
 

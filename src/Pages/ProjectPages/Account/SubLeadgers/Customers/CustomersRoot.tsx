@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { useGetCustomersQuery } from "../../../../../Apis/Account/CustomersApi";
+import { useState, useEffect } from 'react';
+import { getCustomers } from "../../../../../Apis/Account/CustomersApi";
 import { FormTypes } from '../../../../../interfaces/Components';
 import CustomersForm from './CustomersForm';
 import Loader from '../../../../../Components/Loader';
@@ -22,17 +22,30 @@ const columns = [
 
 const CustomersRoot = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useGetCustomersQuery(null);
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
-    const [parentId, setParentId] = useState<string | null>(null);
+  const [parentId, setParentId] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    const res = await getCustomers();
+    setData(res);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
   };
   const handleCloseForm = () => {
     setShowForm(false);
+    fetchData(); // refresh after add/edit/delete
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
@@ -48,6 +61,7 @@ const CustomersRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               parentId={parentId}
+              afterAction={() => fetchData()}
             />
           )}
           {data?.result && (

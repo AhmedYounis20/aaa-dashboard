@@ -1,5 +1,7 @@
+import ChartOfAccountModel from "../../ChartOfAccount/ChartOfAccountModel";
+
 interface SupplierModel {
-  id:string;
+  id: string;
   name: string;
   nameSecondLanguage: string;
   parentId: string | null;
@@ -11,7 +13,9 @@ interface SupplierModel {
   taxNumber: string;
   address: string;
   companyName: string;
-  notes:string;
+  notes: string;
+  // API response optional properties
+  chartOfAccount?: ChartOfAccountModel;
 }
 
 export default SupplierModel;

@@ -17,7 +17,7 @@ import {
 } from "../../../../../Apis/Account/CostCenterApi";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { toastify } from "../../../../../Helper/toastify";
-import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from "@mui/material";
+import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton, FormHelperText } from "@mui/material";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
@@ -216,7 +216,6 @@ function CostCenterForm({
                   setModel({ ...model, name: e });
                 }}
                 error={!!errors.name}
-                helperText={errors.name}
               />
               <InputText
                 type="text"
@@ -230,7 +229,6 @@ function CostCenterForm({
                   setModel({ ...model, nameSecondLanguage: e });
                 }}
                 error={!!errors.nameSecondLanguage}
-                helperText={errors.nameSecondLanguage}
               />
             </Box>
             <InputSelect
@@ -255,8 +253,10 @@ function CostCenterForm({
               name={"nodeType"}
               onBlur={undefined}
               error={!!errors.nodeType}
-              // helperText={errors.nodeType}
             />
+            {errors.nodeType && (
+              <FormHelperText error>{t(errors.nodeType)}</FormHelperText>
+            )}
 
             {model?.nodeType === NodeType.Domain && (
               <>
@@ -287,8 +287,10 @@ function CostCenterForm({
                     name={"costCenterType"}
                     onBlur={undefined}
                     error={!!errors.costCenterType}
-                    // helperText={!!errors.costCenterType}
                   />
+                  {errors.costCenterType && (
+                    <FormHelperText error>{t(errors.costCenterType)}</FormHelperText>
+                  )}
                   <InputNumber
                     label={t("Percent")}
                     value={model?.percent}
@@ -300,7 +302,7 @@ function CostCenterForm({
                     }}
                     inputType="percent"
                     error={!!errors.percent}
-                    helperText={errors.percent}
+                    helperText={errors.percent ? t(errors.percent) : undefined}
                     disabled={formType === FormTypes.Details}
                   />
                 </Box>

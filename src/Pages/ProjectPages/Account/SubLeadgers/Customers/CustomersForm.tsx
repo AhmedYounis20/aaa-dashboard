@@ -1,36 +1,37 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { ApiResponse } from "../../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../../Helper/toastify";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import {
   NodeType,
   NodeTypeOptions,
 } from "../../../../../interfaces/Components/NodeType";
-import {  TextareaAutosize } from "@mui/material";
+import { TextareaAutosize } from "@mui/material";
 import CustomerType, {
   CustomerTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerType";
 import {
-  useCreateCustomerMutation,
-  useDeleteCustomerByIdMutation,
-  useGetCustomersByIdQuery,
-  useGetDefaultModelDataQuery,
-  useUpdateCustomerMutation,
+  getCustomerById,
+  getDefaultCustomer,
+  updateCustomer,
+  createCustomer,
+  deleteCustomer,
 } from "../../../../../Apis/Account/CustomersApi";
 import CustomerModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerModel";
 import { useTranslation } from "react-i18next";
 import InputText from "../../../../../Components/Inputs/InputText";
+import { CustomerSchema } from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/validation-customer';
+import * as yup from 'yup';
 
 const CustomersForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, parentId, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
-  const [deleteFunc] = useDeleteCustomerByIdMutation();
   const [model, setModel] = useState<CustomerModel>({
     name: "",
     nameSecondLanguage: "",
@@ -41,101 +42,105 @@ const CustomersForm: React.FC<{
     email: "",
     notes: "",
     phone: "",
-    address:"",
+    address: "",
     customerType: CustomerType.Consumer,
-    mobile:"",
-    taxNumber:"",
+    mobile: "",
+    taxNumber: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
-    const [isUpdated, setIsUpdated] = useState<boolean>(false);
-  const customerResult = useGetCustomersByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
-  const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
-    skip: formType != FormTypes.Add,
-  });
-  const [update] = useUpdateCustomerMutation();
-  const [create] = useCreateCustomerMutation();
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (formType != FormTypes.Add && !isUpdated) {
-      if (!customerResult.isLoading) {
-        setModel(customerResult.data.result);
-        if (customerResult.data?.result.nodeType === 0) {
-          setModel((prevModel) =>
-            prevModel
-              ? {
-                  ...prevModel,
-                  code: customerResult.data.result.chartOfAccount.code,
-                }
-              : prevModel
-          );
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getCustomerById(id);
+        if (result && result.result) {
+          setModel(result.result);
         }
         setIsLoading(false);
-      }
+      };
+      fetchData();
+    } else {
+      const fetchDefault = async () => {
+        setIsLoading(true);
+        const result = await getDefaultCustomer(parentId);
+        if (result && result.result) {
+          setModel((prevModel) => ({
+            ...prevModel,
+            code: result.result.code,
+          }));
+        }
+        setIsLoading(false);
+      };
+      fetchDefault();
     }
-  }, [customerResult.isLoading, customerResult,formType,isUpdated]);
-  useEffect(() => {
-    if (formType == FormTypes.Add) {
-      if (!modelDefaultDataResult.isLoading) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: modelDefaultDataResult?.data?.result?.code,
-              }
-            : prevModel
-        );
-      }
+  }, [formType, id, parentId, isUpdated]);
+
+  const validate = async () => {
+    try {
+      await CustomerSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
     }
-  }, [
-    model?.nodeType,
-    formType,
-    modelDefaultDataResult,
-    modelDefaultDataResult.isLoading,
-  ]);
+  };
+
   const handleUpdate = async () => {
-    if (model) {
-      const response: ApiResponse = await update(model);
-      setIsUpdated(true);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        toastify(response.error.data.errorMessages[0], "error");
-        return false;
+    if ((await validate()) === false) return false;
+    const response = await updateCustomer(model.id, model);
+    setIsUpdated(true);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
       }
+      return true;
+    } else if (response && response.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
     }
     return false;
   };
   const handleAdd = async () => {
-    if (model) {
-      const response: ApiResponse = await create(model);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        response.error?.data?.errorMessages?.map((error: string) => {
-          toastify(error, "error");
-        });
-        return false;
+    if ((await validate()) === false) return false;
+    const response = await createCustomer(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
       }
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => {
+        toastify(error, "error");
+      });
+      return false;
     }
     return false;
   };
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteFunc(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteCustomer(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) {
+        afterAction();
+      }
       return true;
-    } else {
-      console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => {
         toastify(error, "error");
-        console.log(error);
       });
       return false;
     }
+    return false;
   };
 
   return (
@@ -178,6 +183,8 @@ const CustomersForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -200,6 +207,8 @@ const CustomersForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

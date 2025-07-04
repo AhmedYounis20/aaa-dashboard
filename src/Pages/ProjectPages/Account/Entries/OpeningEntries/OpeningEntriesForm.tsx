@@ -5,17 +5,15 @@ import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
 import { toastify } from "../../../../../Helper/toastify";
-import yup from "yup";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
 import InputFile from "../../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../../interfaces/BaseModels/AttachmentModel";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import { Add, Delete } from "@mui/icons-material";
 import { EntrySchema } from "../../../../../interfaces/ProjectInterfaces/Account/Entries/entry-validation";
-import { useGetCurrenciesQuery } from "../../../../../Apis/Account/CurrenciesApi";
 import CurrencyModel from "../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
 import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
-import { useGetBranchesQuery } from "../../../../../Apis/Account/BranchesApi";
+import { getBranches } from "../../../../../Apis/Account/BranchesApi";
 import updateModel from "../../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../../interfaces/Components/NodeType";
 import { ChartOfAccountModel } from "../../../../../interfaces/ProjectInterfaces";
@@ -46,13 +44,11 @@ const { t } = useTranslation();
   // const entryResult = useGetEntryByIdQuery(id, {
   //   skip: formType == FormTypes.Add,
   // });
-  const currenciesApiResult = useGetCurrenciesQuery({
-    skip: formType == FormTypes.Delete,
-  });
+  // const currenciesApiResult = useGetCurrenciesQuery({
+  //   pageNumber: 1,
+  //   pageSize: 100,
+  // });
 
-  const branchesApiResult = useGetBranchesQuery({
-    skip: formType == FormTypes.Delete,
-  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   // const [updateEntry] = useUpdateEntryMutation();
   // const [createEntry] = useCreateEntryMutation();
@@ -60,12 +56,12 @@ const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
+  const [currencies] = useState<CurrencyModel[]>([]);
 
   const createFinancialTransaction: (
     accountnature: AccountNature
@@ -133,7 +129,7 @@ const { t } = useTranslation();
   }, [formType]);
 
   useEffect(() => {
-    if (formType == FormTypes.Add) {
+    if (formType === FormTypes.Add) {
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
         datetime: model.entryDate,
       }).then((e) => {
@@ -161,32 +157,48 @@ const { t } = useTranslation();
   }, [model.entryDate,formType]);
 
   useEffect(() => {
-    if (currenciesApiResult.isSuccess && !currenciesApiResult.isLoading) {
-      setCurrencies(currenciesApiResult.data.result);
-    }
-  }, [
-    currenciesApiResult,
-    currenciesApiResult.isLoading,
-    currenciesApiResult.isSuccess,
-  ]);
+    const fetchBranches = async () => {
+      if (formType !== FormTypes.Delete) {
+        try {
+          const branchesResponse = await getBranches();
+          if (branchesResponse?.result) {
+            setBranches(
+              branchesResponse.result.filter(
+                (e: BranchModel) => e.nodeType == NodeType.Domain
+              )
+            );
+          }
+        } catch (error) {
+          console.error('Error fetching branches:', error);
+        }
+      }
+    };
+
+    fetchBranches();
+  }, [formType]);
+
   useEffect(() => {
-    if (branchesApiResult.isSuccess && !branchesApiResult.isLoading) {
-      setBranches(
-        branchesApiResult.data.result.filter(
-          (e: BranchModel) => e.nodeType == NodeType.Domain
-        )
-      );
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getOpeningEntryById(id);
+        if (result && result.result) {
+          setModel({ ...result.result });
+          setTransactionNumber(
+            result.result.financialTransactions.findLast(
+              (e: any) => e.orderNumber != null
+            )?.orderNumber ?? 1
+          );
+        }
+        setIsLoading(false);
+      };
+      fetchData();
     }
-  }, [
-    branchesApiResult,
-    branchesApiResult.isLoading,
-    branchesApiResult.isSuccess,
-  ]);
+  }, [formType, id]);
   //#endregion
 
   const changeExchangeRate = (currencyId: string) => {
     const currency = currencies.find((e) => e.id == currencyId);
-    console.log(currency);
     setModel((prev) =>
       prev
         ? { ...prev, exchangeRate: currency ? currency.exchangeRate : 0 }
@@ -242,18 +254,6 @@ const { t } = useTranslation();
       return prev + 1;
     });
   };
-  useEffect(() => {
-    if (formType !== FormTypes.Add ) {
-      const fetchData = async () => {
-        const result = await getOpeningEntryById(id);
-        if (result) {
-          setModel(result.result);
-          setIsLoading(false);
-        }
-      };
-      fetchData();
-    }
-  }, [formType,id]);
 
   const validate = async () => {
     try {
@@ -262,78 +262,48 @@ const { t } = useTranslation();
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+      (validationErrors as any).inner.forEach((error: any) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
-      console.log(validationErrorsMap);
       setErrors(validationErrorsMap);
       return false;
     }
   };
 
+  const handleAdd = async () => {
+    if ((await validate()) === false) return false;
+    const response = await createOpeningEntry(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
+      return false;
+    }
+    return false;
+  };
+  const handleUpdate = async () => {
+    if ((await validate()) === false) return false;
+    const response = await updateOpeningEntry(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
+      return false;
+    }
+    return false;
+  };
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteOpeningEntry(id);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
-      return false;
-    }
-    return false;
-  };
-
-  const handleUpdate = async () => {
-    if ((await validate()) === false) return false;
-
-    SortFinancialTransactions();
-    const response = await updateOpeningEntry(model.id,model);
-    if (response && response.isSuccess) {
-      toastify(response.successMessage);
-      afterAction();
-      return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      }
-      else {
-        response.errorMessages?.map((val:  string) =>
-          toastify(val, "error")
-        );
-      }
-      return false;
-    }
-    return false;
-  };
-  const SortFinancialTransactions = () => {
-    const financialTransactions = model.financialTransactions;
-    for (let i = 1; i <= financialTransactions.length; i++) {
-      financialTransactions[i - 1].orderNumber = i;
-    }
-    setModel({ ...model, financialTransactions: financialTransactions });
-  };
-
-  const handleAdd = async () => {
-    // if ((await validate()) === false) return false;
-    SortFinancialTransactions();
-    console.log("send");
-    const response= await createOpeningEntry(model);
-    console.log(response);
-    if (response && response.isSuccess) {
-      toastify(response.successMessage);
-      afterAction();
-      return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
@@ -383,7 +353,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.financialPeriodNumber}
                                 error={!!errors.financialPeriodNumber}
-                                helperText={errors.financialPeriodNumber}
+                                helperText={errors.financialPeriodNumber ? t(errors.financialPeriodNumber) : undefined}
                               />
                             </div>
                             <div className="col col-md-6">
@@ -397,7 +367,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.entryNumber}
                                 error={!!errors.entryNumber}
-                                helperText={errors.entryNumber}
+                                helperText={errors.entryNumber ? t(errors.entryNumber) : undefined}
                               />
                             </div>
                           </div>
@@ -422,7 +392,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.documentNumber}
-                            helperText={errors.documentNumber}
+                            helperText={errors.documentNumber ? t(errors.documentNumber) : undefined}
                           />
                         </div>
                       </div>
@@ -431,8 +401,8 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.currencyId}
-                            helperText={errors.currencyId}
-                            options={currencies?.map(
+                            helperText={errors.currencyId ? t(errors.currencyId) : undefined}
+                            options={chartOfAccounts?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
                                 label: item.name,
@@ -472,7 +442,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.exchangeRate}
-                            helperText={errors.exchangeRate}
+                            helperText={errors.exchangeRate ? t(errors.exchangeRate) : undefined}
                           />
                         </div>
                       </div>
@@ -495,7 +465,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.receiverName}
-                            helperText={errors.receiverName}
+                            helperText={errors.receiverName ? t(errors.receiverName) : undefined}
                           />
                         </div>
                       </div>
@@ -512,7 +482,7 @@ const { t } = useTranslation();
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
-                                helperText: errors.entryDate,
+                                helperText: errors.entryDate ? t(errors.entryDate) : undefined,
                               },
                             }}
                           />
@@ -525,7 +495,7 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.branchId}
-                            helperText={errors.branchId}
+                            helperText={errors.branchId ? t(errors.branchId) : undefined}
                             options={branches?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
@@ -568,7 +538,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.symbol}
-                            helperText={errors.symbol}
+                            helperText={errors.symbol ? t(errors.symbol) : undefined}
                           />
                         </div>
                       </div>
@@ -700,7 +670,11 @@ const { t } = useTranslation();
                                         `financialTransactions[${getTransactionIndexById(
                                           e.id
                                         )}].amount`
-                                      ]
+                                      ] ? t(errors[
+                                        `financialTransactions[${getTransactionIndexById(
+                                          e.id
+                                        )}].amount`
+                                      ]) : undefined
                                     }
                                   />
                                 </div>
@@ -826,7 +800,11 @@ const { t } = useTranslation();
                                         `financialTransactions[${getTransactionIndexById(
                                           e.id
                                         )}].amount`
-                                      ]
+                                      ] ? t(errors[
+                                        `financialTransactions[${getTransactionIndexById(
+                                          e.id
+                                        )}].amount`
+                                      ]) : undefined
                                     }
                                   />
                                 </div>

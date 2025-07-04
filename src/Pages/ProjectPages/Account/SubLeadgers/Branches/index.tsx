@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { FormTypes } from '../../../../../interfaces/Components';
-import Loader from '../../../../../Components/Loader';
-import { AppContent } from '../../../../../Components';
-import { useGetBranchesQuery } from "../../../../../Apis/Account/BranchesApi";
-import BranchesForm from './BranchesForm';
+import { useState, useEffect } from "react";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { getBranches } from "../../../../../Apis/Account/BranchesApi";
+import BranchesForm from "./BranchesForm";
+import { useTranslation } from "react-i18next";
+import Loader from "../../../../../Components/Loader";
+import { AppContent } from "../../../../../Components";
 import ImagePreview from '../../../../../Components/Images/ImagePreview';
 import AttachmentResult from '../../../../../interfaces/BaseModels/AttachmentResult';
-const columns = [
+
+const columns: { Header: string; accessor: string; function?: (attachment: AttachmentResult | null | undefined) => JSX.Element | null }[] = [
   {
     Header: "Logo",
     accessor: "attachment",
@@ -35,16 +37,32 @@ const columns = [
     Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
-
-  // Add more columns as needed
 ];
 
 const BranchesRoot = () => {
-  const { data, isLoading } = useGetBranchesQuery(null);
+  const { t } = useTranslation();
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
   const [parentId, setParentId] = useState<string | null>(null);
+  
+  const fetchBranches = async () => {
+    try {
+      const response = await getBranches();
+      setData(response);
+    } catch (error) {
+      console.error('Error fetching branches:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+
+    fetchBranches();
+  }, []);
+
   const handleShowForm = () => {
     setShowForm(true);
   };
@@ -52,11 +70,6 @@ const BranchesRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
-
-  if(!data?.result) return <div className='h-screen flex items-center justify-center'>
-    <Loader />
-  </div>
 
   return (
     <div className="h-full">
@@ -70,12 +83,19 @@ const BranchesRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               parentId={parentId}
+               afterAction={() => fetchBranches()}
             />
           )}
           {data?.result && (
             <AppContent
               tableType="tree"
-              title="Branches"
+              data={data.result}
+              columns={columns}
+              handleShowForm={handleShowForm}
+              changeFormType={setFormType}
+              handleSelectId={handleSelectId}
+              handleSelectParentId={setParentId}
+              title={t("Branches")}
               btn
               addBtn
               actionBtn={() => {
@@ -83,18 +103,14 @@ const BranchesRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              columns={columns}
-              data={data && data?.result}
-              handleShowForm={handleShowForm}
-              changeFormType={setFormType}
-              handleSelectId={handleSelectId}
-              handleSelectParentId={setParentId}
+              btnName={t("New")}
+              startIcon
             />
           )}
         </>
       )}
     </div>
   );
-}
+};
 
 export default BranchesRoot;

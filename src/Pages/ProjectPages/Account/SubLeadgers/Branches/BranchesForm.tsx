@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { ApiResponse } from "../../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../../Helper/toastify";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import {
@@ -10,124 +9,137 @@ import {
 } from "../../../../../interfaces/Components/NodeType";
 import {  TextareaAutosize } from "@mui/material";
 import {
-  useCreateBranchMutation,
-  useDeleteBranchByIdMutation,
-  useGetBranchesByIdQuery,
-  useGetDefaultModelDataQuery,
-  useUpdateBranchMutation,
+  createBranch,
+  deleteBranch,
+  getBranchById,
+  getDefaultBranchData,
+  updateBranch,
 } from "../../../../../Apis/Account/BranchesApi";
 import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
 import InputFile from "../../../../../Components/Inputs/InputFile";
 import AttachmentModel from "../../../../../interfaces/BaseModels/AttachmentModel";
 import InputText from "../../../../../Components/Inputs/InputText";
 import { useTranslation } from "react-i18next";
+import { BranchSchema } from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/validation-branch';
+import * as yup from 'yup';
 
 const BranchesForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id, parentId, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
-  const [deleteFunc] = useDeleteBranchByIdMutation();
   const [model, setModel] = useState<BranchModel>({
+    id: "",
     name: "",
     nameSecondLanguage: "",
-    id: "",
     parentId: parentId,
     nodeType: NodeType.Category,
-    address: "",
-    phone: "",
     code: "",
+    phone: "",
+    address: "",
     notes: "",
-    logo: null
+    logo: null,
   });
-  const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
-    skip: formType != FormTypes.Add,
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
-    const [isUpdated, setIsUpdated] = useState<boolean>(false);
-
-  const bankResult = useGetBranchesByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
-  const [update] = useUpdateBranchMutation();
-  const [create] = useCreateBranchMutation();
+  const [isLoading, setIsLoading] = useState<boolean>(
+    formType != FormTypes.Add
+  );
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (formType != FormTypes.Add && !isUpdated) {
-      if (!bankResult.isLoading) {
-        setModel(bankResult.data.result);
-        console.log(bankResult.data.result);
-        if (bankResult.data?.result.nodeType === 0) {
-          setModel((prevModel) =>
-            prevModel
-              ? {
-                  ...prevModel,
-                  code: bankResult.data.result.chartOfAccount.code,
-                  logo: bankResult.data.result.attachment ? {
-                    fileContent: bankResult.data.result.attachment.fileData,
-                    contentType:
-                      bankResult.data.result.attachment.fileContentType,
-                    fileName:
-                       bankResult.data.result.attachment.fileName ,
-                    attachmentId : bankResult.data.result.fileName.attachmentId
-                  } : null,
-                }
-              : prevModel
-          );
+    const fetchBranchData = async () => {
+      if (formType !== FormTypes.Add) {
+        setIsLoading(true);
+        try {
+          const response = await getBranchById(id);
+          setModel({
+            ...response.result,
+            code: response.result.chartOfAccount?.code || response.result.code,
+            logo: response.result.attachment ? {
+              fileContent: response.result.attachment.fileData,
+              contentType: response.result.attachment.fileContentType,
+              fileName: response.result.attachment.fileName,
+              attachmentId: response.result.attachment.attachmentId
+            } : null
+          });
+        } catch (error) {
+          console.error('Error fetching branch:', error);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
-    }
-  }, [bankResult.isLoading, bankResult, formType,isUpdated]);
+    };
+
+    fetchBranchData();
+  }, [formType, id]);
+
   useEffect(() => {
-    if (formType == FormTypes.Add) {
-      if (!modelDefaultDataResult.isLoading) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: modelDefaultDataResult?.data?.result?.code,
-              }
-            : prevModel
-        );
+    const fetchDefaultData = async () => {
+      if (formType === FormTypes.Add) {
+        try {
+          const response = await getDefaultBranchData(parentId);
+          if (response?.result) {
+            setModel((prevModel) =>
+              prevModel
+                ? {
+                    ...prevModel,
+                    code: response.result?.code,
+                  }
+                : prevModel
+            );
+          }
+        } catch (error) {
+          console.error('Error fetching default data:', error);
+        }
       }
+    };
+
+    fetchDefaultData();
+  }, [formType, parentId, model?.nodeType]);
+
+  const validate = async () => {
+    try {
+      await BranchSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
     }
-  }, [
-    model?.nodeType,
-    formType,
-    modelDefaultDataResult,
-    modelDefaultDataResult.isLoading,
-  ]);
+  };
   const handleAdd = async () => {
-    if (model) {
-      const response: ApiResponse = await create(model);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        response.error?.data?.errorMessages?.map((error: string) => {
-          toastify(error, "error");
-        });
-        return false;
-      }
+    if ((await validate()) === false) return false;
+    const response = await createBranch(model);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
+      return true;
+    } else if (response?.errorMessages) {
+      response.errorMessages?.map((error: string) => {
+        toastify(error, "error");
+      });
+      return false;
     }
     return false;
   };
   const handleUpdate = async () => {
-    if (model) {
-      const response: ApiResponse = await update(model);
-      setIsUpdated(true);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        response.error?.data?.errorMessages?.map((error: string) => {
-          toastify(error, "error");
-        });
-        return false;
-      }
+    if ((await validate()) === false) return false;
+    const response = await updateBranch(model.id, model);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
+      return true;
+    } else if (response?.errorMessages) {
+      response.errorMessages?.map((error: string) => {
+        toastify(error, "error");
+      });
+      return false;
     }
     return false;
   };
@@ -148,13 +160,14 @@ const BranchesForm: React.FC<{
     }
   }
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteFunc(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteBranch(id);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
       return true;
     } else {
       console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
+      response?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -189,6 +202,7 @@ const BranchesForm: React.FC<{
                         label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -201,6 +215,8 @@ const BranchesForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -210,6 +226,7 @@ const BranchesForm: React.FC<{
                         label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -222,6 +239,8 @@ const BranchesForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

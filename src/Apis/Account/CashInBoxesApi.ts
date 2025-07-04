@@ -1,67 +1,60 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 import CashInBoxModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/CashInBoxes/CashInBoxModel";
 
-const CashInBoxesApi = createApi({
-  reducerPath: "cashInBoxesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["cashInBoxes"],
-  endpoints: (builder) => ({
-    getCashInBoxes: builder.query({
-      query: () => "cashInBoxes",
-      providesTags: ["cashInBoxes"],
-    }),
-    getCashInBoxesById: builder.query({
-      query: (id) => `cashInBoxes/${id}`,
-      providesTags: ["cashInBoxes"],
-    }),
-    getDefaultModelData: builder.query({
-      query: (parentId) =>
-        `cashInBoxes/NextAccountDefaultData${
-          parentId == null ? "" : `?parentId=${parentId}`
-        }`,
-      providesTags: ["cashInBoxes"],
-    }),
-    createCashInBox: builder.mutation({
-      query: (body: CashInBoxModel) => ({
-        url: `cashInBoxes`,
-        method: "POST",
-        body: body,
-      }),
-      invalidatesTags: ["cashInBoxes"],
-    }),
-    deleteCashInBoxById: builder.mutation({
-      query: (id) => ({
-        url: `cashInBoxes/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["cashInBoxes"],
-    }),
-    updateCashInBox: builder.mutation({
-      query: (body: CashInBoxModel) => ({
-        url: `cashInBoxes/${body.id}`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags: ["cashInBoxes"],
-    }),
-  }),
-});
+const apiEndPoint = "cashInBoxes";
 
-export const { useGetCashInBoxesQuery,
-   useGetCashInBoxesByIdQuery,
-   useDeleteCashInBoxByIdMutation,
-   useUpdateCashInBoxMutation,
-   useGetDefaultModelDataQuery,
-   useCreateCashInBoxMutation
-  } = CashInBoxesApi;
-export default CashInBoxesApi;
+// GET all cash in boxes
+const getCashInBoxes = async (): Promise<ApiResult<CashInBoxModel[]>> => {
+  return await httpGet<CashInBoxModel[]>(apiEndPoint, {});
+};
+
+// GET a single cash in box by ID
+const getCashInBoxById = async (
+  id: string
+): Promise<ApiResult<CashInBoxModel>> => {
+  return await httpGet<CashInBoxModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// GET default model data (for add form)
+const getDefaultCashInBox = async (
+  parentId: string | null
+): Promise<ApiResult<CashInBoxModel> | null> => {
+  return await httpGet<CashInBoxModel>(
+    `${apiEndPoint}/NextAccountDefaultData${
+      parentId == null ? "" : `?parentId=${parentId}`
+    }`,
+    {}
+  );
+};
+
+// CREATE a new cash in box
+const createCashInBox = async (
+  data: CashInBoxModel
+): Promise<ApiResult<CashInBoxModel>> => {
+  return await httpPost<CashInBoxModel>(apiEndPoint, data);
+};
+
+// UPDATE a cash in box
+const updateCashInBox = async (
+  id: string,
+  data: CashInBoxModel
+): Promise<ApiResult<CashInBoxModel>> => {
+  return await httpPut<CashInBoxModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a cash in box
+const deleteCashInBox = async (
+  id: string
+): Promise<ApiResult<CashInBoxModel>> => {
+  return await httpDelete<CashInBoxModel>(`${apiEndPoint}/${id}`, {});
+};
+
+export {
+  getCashInBoxes,
+  getCashInBoxById,
+  getDefaultCashInBox,
+  createCashInBox,
+  updateCashInBox,
+  deleteCashInBox,
+};

@@ -1,76 +1,39 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
 import FixedAssetModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetModel";
-import FixedAssetType from "../../interfaces/ProjectInterfaces/Account/Subleadgers/FixedAssets/FixedAssetType";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 
-const FixedAssetsApi = createApi({
-  reducerPath: "fixedAssetsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["fixedAssets"],
-  endpoints: (builder) => ({
-    getFixedAssets: builder.query({
-      query: () => "fixedAssets",
-      providesTags: ["fixedAssets"],
-    }),
-    getFixedAssetsById: builder.query({
-      query: (id) => `fixedAssets/${id}`,
-      providesTags: ["fixedAssets"],
-    }),
-    getDefaultModelData: builder.query({
-      query: (query: {
-        parentId?: string | null;
-        fixedAssetType: FixedAssetType;
-      }) =>
-        `fixedAssets/NextAccountDefaultData${
-          `?fixedAssetType=${query.fixedAssetType}` + 
-            (!query.parentId 
-            ? ""
-            : `&parentId=${query.parentId}`)
-        }`,
+const getFixedAssets = async (): Promise<ApiResult<FixedAssetModel[]>> => {
+  return await httpGet<FixedAssetModel[]>("fixedAssets", {});
+};
 
-      providesTags: ["fixedAssets"],
-    }),
-    createFixedAsset: builder.mutation({
-      query: (body: FixedAssetModel) => ({
-        url: `fixedAssets`,
-        method: "POST",
-        body: body,
-      }),
-      invalidatesTags: ["fixedAssets"],
-    }),
-    deleteFixedAssetById: builder.mutation({
-      query: (id) => ({
-        url: `fixedAssets/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["fixedAssets"],
-    }),
-    updateFixedAsset: builder.mutation({
-      query: (body: FixedAssetModel) => ({
-        url: `fixedAssets/${body.id}`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags: ["fixedAssets"],
-    }),
-  }),
-});
+const getFixedAssetById = async (id: string): Promise<ApiResult<FixedAssetModel>> => {
+  return await httpGet<FixedAssetModel>(`fixedAssets/${id}`, {});
+};
 
-export const {
-  useGetFixedAssetsQuery,
-  useGetFixedAssetsByIdQuery,
-  useDeleteFixedAssetByIdMutation,
-  useUpdateFixedAssetMutation,
-  useCreateFixedAssetMutation,
-  useGetDefaultModelDataQuery
-} = FixedAssetsApi;
-export default FixedAssetsApi;
+const createFixedAsset = async (model: FixedAssetModel): Promise<ApiResult<FixedAssetModel>> => {
+  return await httpPost<FixedAssetModel>("fixedAssets", model);
+};
+
+const updateFixedAsset = async (id: string, model: FixedAssetModel): Promise<ApiResult<FixedAssetModel>> => {
+  return await httpPut<FixedAssetModel>(`fixedAssets/${id}`, model);
+};
+
+const deleteFixedAsset = async (id: string): Promise<ApiResult<FixedAssetModel>> => {
+  return await httpDelete<FixedAssetModel>(`fixedAssets/${id}`, {});
+};
+
+const getDefaultFixedAssetData = async (parentId: string | null, fixedAssetType: number): Promise<ApiResult<FixedAssetModel>> => {
+  return await httpGet<FixedAssetModel>(`fixedAssets/NextAccountDefaultData`, {
+    parentId,
+    fixedAssetType,
+  });
+};
+
+export {
+  getFixedAssets,
+  getFixedAssetById,
+  createFixedAsset,
+  updateFixedAsset,
+  deleteFixedAsset,
+  getDefaultFixedAssetData,
+};

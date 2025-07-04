@@ -3,31 +3,20 @@ import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
 import { FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material';
-import {
-  useCreateCurrencyMutation,
-  useDeleteCurrencyMutation,
-  useGetCurrenciesByIdQuery,
-  useUpdateCurrencyMutation,
-} from "../../../../../Apis/Account/CurrenciesApi";
 import CurrencyModel from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel';
-import { ApiResponse } from '../../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../../Helper/toastify';
 import { CurrencySchema } from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/currency-validation';
-import yup from 'yup';
 import InputText from '../../../../../Components/Inputs/InputText';
 import InputNumber from '../../../../../Components/Inputs/InputNumber';
-
+import { getCurrencyById, createCurrency, updateCurrency, deleteCurrency } from '../../../../../Apis/Account/CurrenciesApi';
 
 const CurrenciesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
-const { t } = useTranslation();
-  const currencyResult = useGetCurrenciesByIdQuery(id, {
-    skip: formType == FormTypes.Add
-  });
-
+  afterAction?: () => void;
+}> = ({ formType, id, handleCloseForm, afterAction }) => {
+  const { t } = useTranslation();
   const [model, setModel] = useState<CurrencyModel>({
     id: id,
     name: "",
@@ -37,22 +26,23 @@ const { t } = useTranslation();
     isDefault: false,
     symbol: ""
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [updateCurrency] = useUpdateCurrencyMutation();
-  const [createCurrency] = useCreateCurrencyMutation();
-  const [deleteCurrency] = useDeleteCurrencyMutation();
   const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  const [isUpdated] = useState<boolean>(false);
 
   useEffect(() => {
-    if (formType != FormTypes.Add && !isUpdated) {
-      if (!currencyResult.isLoading) {
-        setModel(currencyResult?.data?.result);
+    if (formType !== FormTypes.Add && !isUpdated) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getCurrencyById(id);
+        if (result && result.result) {
+          setModel(result.result);
+        }
         setIsLoading(false);
-      }
+      };
+      fetchData();
     }
-  }, [currencyResult.isLoading, currencyResult, formType, isUpdated]);
+  }, [formType, id, isUpdated]);
 
   const validate = async () => {
     try {
@@ -61,7 +51,7 @@ const { t } = useTranslation();
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+      (validationErrors as any).inner.forEach((error: any) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
       setErrors(validationErrorsMap);
@@ -69,77 +59,58 @@ const { t } = useTranslation();
     }
   };
 
-  const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteCurrency(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
-      return true;
-    }
-    else {
-      console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      }
-      );
-      return false;
-    }
-  };
-
   const handleUpdate = async () => {
-    if (await validate() === false) return false;
-
-    const response: ApiResponse = await updateCurrency(model);
-    setIsUpdated(true);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    if ((await validate()) === false) return false;
+    const response = await updateCurrency(model.id, model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) afterAction();
       return true;
-    } else if (response.error) {
-      toastify(response.error.data.errorMessages[0], "error");
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
       return false;
     }
     return false;
   };
-
   const handleAdd = async () => {
-    if (await validate() === false) return false;
-
-    const response: ApiResponse = await createCurrency(model);
-    if (response.data) {
-      toastify(response.data.successMessage);
-      console.log(response);
+    if ((await validate()) === false) return false;
+    const response = await createCurrency(model);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) afterAction();
       return true;
-    } else if (response.error) {
-      toastify(response.error.data.errorMessages[0], "error");
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
       return false;
     }
     return false;
-
   };
-
-  useEffect(() => {
-    console.log(errors);
-  }, [errors])
-
+  const handleDelete = async (): Promise<boolean> => {
+    const response = await deleteCurrency(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      if (afterAction) afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, "error"));
+      return false;
+    }
+    return false;
+  };
 
   return (
-    <div className="h-full">
+    <div className="container h-full">
       <BaseForm
         formType={formType}
-        isModal
-        handleAdd={handleAdd}
-        handleDelete={handleDelete}
         handleCloseForm={handleCloseForm}
+        handleDelete={async () => await handleDelete()}
         handleUpdate={handleUpdate}
+        handleAdd={handleAdd}
+        isModal
       >
         <div>
           {isLoading ? (
-            <div
-              className="d-flex flex-row align-items-center justify-content-center"
-              style={{ height: "100px" }}
-            >
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
+            <div className="spinner-border text-primary" role="status"></div>
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -151,35 +122,30 @@ const { t } = useTranslation();
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label={t("NameRequired")}
+                        label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
-                          setModel({ ...model, name: value })
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, name: value }))}
                         error={!!errors.name}
-                        helperText={errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label={t("NameSecondLanguageRequired")}
+                        label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(value) =>
-                          setModel({
-                            ...model,
-                            nameSecondLanguage: value,
-                          })
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, nameSecondLanguage: value }))}
                         error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>
@@ -188,20 +154,14 @@ const { t } = useTranslation();
                       <InputText
                         type="text"
                         className="form-input form-control"
-                        label={t("SymbolRequired")}
+                        label={t("Symbol")}
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.symbol}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, symbol: value }
-                              : prevModel
-                          )
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, symbol: value }))}
                         error={!!errors.symbol}
-                        helperText={errors.symbol}
+                        helperText={errors.symbol ? t(errors.symbol) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -213,14 +173,9 @@ const { t } = useTranslation();
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.exchangeRate}
-                        onChange={(value) =>
-                          setModel({
-                            ...model,
-                            exchangeRate: value,
-                          })
-                        }
+                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, exchangeRate: value }))}
                         error={!!errors.exchangeRate}
-                        helperText={errors.exchangeRate}
+                        helperText={errors.exchangeRate ? t(errors.exchangeRate) : undefined}
                       />
                     </div>
                   </div>

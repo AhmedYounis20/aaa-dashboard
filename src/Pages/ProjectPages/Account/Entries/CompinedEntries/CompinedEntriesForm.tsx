@@ -5,7 +5,6 @@ import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize } from "@mui/material";
 import { toastify } from "../../../../../Helper/toastify";
-import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -20,15 +19,14 @@ import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompele
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import { Add, Delete } from "@mui/icons-material";
 import { EntrySchema } from "../../../../../interfaces/ProjectInterfaces/Account/Entries/entry-validation";
-import { useGetCurrenciesQuery } from "../../../../../Apis/Account/CurrenciesApi";
 import CurrencyModel from "../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
 import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
-import { useGetBranchesQuery } from "../../../../../Apis/Account/BranchesApi";
+import { getBranches } from "../../../../../Apis/Account/BranchesApi";
+import { getBanks } from "../../../../../Apis/Account/BanksApi";
 import updateModel from "../../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../../interfaces/Components/NodeType";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
-import { useGetCollectionBooksQuery } from "../../../../../Apis/Account/CollectionBooksApi";
-import { useGetBanksQuery } from "../../../../../Apis/Account/BanksApi";
+import { getCollectionBooks } from "../../../../../Apis/Account/CollectionBooksApi";
 import {
   ChartOfAccountModel,
   CollectionBookModel,
@@ -43,7 +41,6 @@ import {
 import { SubLeadgerType } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/SubLeadgerType";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import ComplexEntryModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexEntry";
-import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
 import InputDateTimePicker from "../../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../../Components/Inputs/InputText";
 import EntryCostCentersComponent from "../Components/EntryCostCentersComponent";
@@ -57,6 +54,7 @@ import {
   updateCompinedEntry,
 } from "../../../../../Apis/Account/CompinedEntriesApi";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
 
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
@@ -66,37 +64,56 @@ const CompinedEntriesForm: React.FC<{
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
 const { t } = useTranslation();
   const url = "entries";
-  const currenciesApiResult = useGetCurrenciesQuery({
-    skip: formType == FormTypes.Delete,
-  });
 
-  const collectionBooksApiResult = useGetCollectionBooksQuery({
-    skip: formType == FormTypes.Delete,
-  });
-
-  const branchesApiResult = useGetBranchesQuery({
-    skip: formType == FormTypes.Delete,
-  });
-  const banksApiResult = useGetBanksQuery({
-    skip: formType == FormTypes.Delete,
-  });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
+  const [currencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     []
   );
   const [costCenters, setCostCenters] = useState<CostCenterModel[]>([]);
+  const [banks, setBanks] = useState<BankModel[]>([]);
 
   const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>(
     []
   );
-  const [banks, setBanks] = useState<BankModel[]>([]);
+
+  // Fetch branches and collection books
+  useEffect(() => {
+    const fetchData = async () => {
+      if (formType !== FormTypes.Delete) {
+        try {
+          const branchesResponse = await getBranches();
+          if (branchesResponse?.result) {
+            setBranches(
+              branchesResponse.result.filter(
+                (e: BranchModel) => e.nodeType == NodeType.Domain
+              )
+            );
+          }
+
+          const banksResponse = await getBanks();
+          if (banksResponse?.result) {
+            setBanks(banksResponse.result);
+          }
+
+          const collectionBooksResponse = await getCollectionBooks();
+          if (collectionBooksResponse?.result) {
+            setCollectionBooks(collectionBooksResponse.result);
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [formType]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
     () => {
@@ -165,24 +182,6 @@ const { t } = useTranslation();
   }, [formType]);
 
   useEffect(() => {
-    if (banksApiResult.isSuccess && !banksApiResult.isLoading) {
-      setBanks(banksApiResult.data.result);
-    }
-  }, [banksApiResult, banksApiResult.isLoading, banksApiResult.isSuccess]);
-  useEffect(() => {
-    if (
-      collectionBooksApiResult.isSuccess &&
-      !collectionBooksApiResult.isLoading
-    ) {
-      setCollectionBooks(collectionBooksApiResult.data.result);
-    }
-  }, [
-    collectionBooksApiResult,
-    collectionBooksApiResult.isLoading,
-    collectionBooksApiResult.isSuccess,
-  ]);
-
-  useEffect(() => {
     if (formType == FormTypes.Add) {
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
         datetime: model.entryDate,
@@ -211,27 +210,23 @@ const { t } = useTranslation();
   }, [model.entryDate, formType]);
 
   useEffect(() => {
-    if (currenciesApiResult.isSuccess && !currenciesApiResult.isLoading) {
-      setCurrencies(currenciesApiResult.data.result);
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getCompinedEntryById(id);
+        if (result && result.result) {
+          setModel({ ...result.result });
+          setTransactionNumber(
+            result.result.financialTransactions.findLast(
+              (e: ComplexFinancialTransactionModel) => e.orderNumber != null
+            )?.orderNumber ?? 1
+          );
+        }
+        setIsLoading(false);
+      };
+      fetchData();
     }
-  }, [
-    currenciesApiResult,
-    currenciesApiResult.isLoading,
-    currenciesApiResult.isSuccess,
-  ]);
-  useEffect(() => {
-    if (branchesApiResult.isSuccess && !branchesApiResult.isLoading) {
-      setBranches(
-        branchesApiResult.data.result.filter(
-          (e: BranchModel) => e.nodeType == NodeType.Domain
-        )
-      );
-    }
-  }, [
-    branchesApiResult,
-    branchesApiResult.isLoading,
-    branchesApiResult.isSuccess,
-  ]);
+  }, [formType, id]);
   //#endregion
 
   const changeExchangeRate = (currencyId: string) => {
@@ -294,29 +289,6 @@ const { t } = useTranslation();
     });
   };
 
-  useEffect(() => {
-    if (formType !== FormTypes.Add) {
-      const fetchData = async () => {
-        const result = await getCompinedEntryById(id);
-
-        if (result && result.isSuccess) {
-          console.log("entry:", result);
-          // Ensure a new object reference is created to trigger re-render
-          setModel({
-            ...result.result, // Assign API result
-          });
-          setTransactionNumber(
-            result.result.financialTransactions.findLast(
-              (e: ComplexFinancialTransactionModel) => e.orderNumber != null
-            )?.orderNumber ?? 1
-          );
-          setIsLoading(false);
-        }
-      };
-      fetchData();
-    }
-  }, [formType, id]);
-
   const validate = async () => {
     try {
       await EntrySchema.validate(model, { abortEarly: false });
@@ -324,84 +296,50 @@ const { t } = useTranslation();
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+      (validationErrors as any).inner.forEach((error: any) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
-      console.log(validationErrorsMap);
       setErrors(validationErrorsMap);
       return false;
     }
   };
 
-  const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteCompinedEntry(id);
-    if (response.isSuccess) {
-      toastify(response.successMessage);
-      afterAction();
-      return true;
-    } else {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
-      return false;
-    }
-  };
-
-  const handleUpdate = async () => {
+  const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    SortFinancialTransactions();
-    const modelToCreate: ComplexEntryModel = {
-      ...model,
-      costCenters: model.costCenters.filter(
-        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
-      ),
-    };
-    const response = await updateCompinedEntry(id, modelToCreate);
+    const response = await createCompinedEntry(model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
   };
-  const SortFinancialTransactions = () => {
-    const financialTransactions = model.financialTransactions;
-    for (let i = 1; i <= financialTransactions.length; i++) {
-      financialTransactions[i - 1].orderNumber = i;
-    }
-    setModel({ ...model, financialTransactions: financialTransactions });
-  };
 
-  const handleAdd = async () => {
+  const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-    SortFinancialTransactions();
-    const modelToCreate: ComplexEntryModel = {
-      ...model,
-      costCenters: model.costCenters.filter(
-        (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
-      ),
-    };
-    console.log("send");
-    const response = await createCompinedEntry(modelToCreate);
+    const response = await updateCompinedEntry(model.id, model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
+      return false;
+    }
+    return false;
+  };
+
+  const handleDelete = async (): Promise<boolean> => {
+    const response = await deleteCompinedEntry(id);
+    if (response && response.isSuccess) {
+      toastify(response.successMessage);
+      afterAction();
+      return true;
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
@@ -450,7 +388,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.financialPeriodNumber}
                                 error={!!errors.financialPeriodNumber}
-                                helperText={errors.financialPeriodNumber}
+                                helperText={errors.financialPeriodNumber ? t(errors.financialPeriodNumber) : undefined}
                               />
                             </div>
                             <div className="col col-md-6">
@@ -464,7 +402,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.entryNumber}
                                 error={!!errors.entryNumber}
-                                helperText={errors.entryNumber}
+                                helperText={errors.entryNumber ? t(errors.entryNumber) : undefined}
                               />
                             </div>
                           </div>
@@ -485,7 +423,7 @@ const { t } = useTranslation();
                               updateModel(setModel, "documentNumber", value)
                             }
                             error={!!errors.documentNumber}
-                            helperText={errors.documentNumber}
+                            helperText={errors.documentNumber ? t(errors.documentNumber) : undefined}
                           />
                         </div>
                       </div>
@@ -494,7 +432,7 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.currencyId}
-                            helperText={errors.currencyId}
+                            helperText={errors.currencyId ? t(errors.currencyId) : undefined}
                             options={currencies?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
@@ -534,7 +472,7 @@ const { t } = useTranslation();
                                 value)
                             }
                             error={!!errors.exchangeRate}
-                            helperText={errors.exchangeRate}
+                            helperText={errors.exchangeRate ? t(errors.exchangeRate) : undefined}
                           />
                         </div>
                       </div>
@@ -553,7 +491,7 @@ const { t } = useTranslation();
                               updateModel(setModel, "receiverName", value)
                             }
                             error={!!errors.receiverName}
-                            helperText={errors.receiverName}
+                            helperText={errors.receiverName ? t(errors.receiverName) : undefined}
                           />
                         </div>
                       </div>
@@ -570,7 +508,7 @@ const { t } = useTranslation();
                             slotProps={{
                               textField: {
                                 error: !!errors.entryDate,
-                                helperText: errors.entryDate,
+                                helperText: errors.entryDate ? t(errors.entryDate) : undefined,
                               },
                             }}
                           />
@@ -583,7 +521,7 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.branchId}
-                            helperText={errors.branchId}
+                            helperText={errors.branchId ? t(errors.branchId) : undefined}
                             options={branches?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
@@ -626,7 +564,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.symbol}
-                            helperText={errors.symbol}
+                            helperText={errors.symbol ? t(errors.symbol) : undefined}
                           />
                         </div>
                       </div>
@@ -715,7 +653,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].debitAccountId`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].debitAccountId`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -768,7 +708,9 @@ const { t } = useTranslation();
                                     helperText={
                                       errors[
                                         `financialTransactions[${idx}].debitAccountId`
-                                      ]
+                                      ] ? t(errors[
+                                        `financialTransactions[${idx}].debitAccountId`
+                                      ]) : undefined
                                     }
                                   />
                                 </div>
@@ -846,7 +788,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].creditAccountId`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].creditAccountId`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -898,7 +842,9 @@ const { t } = useTranslation();
                                     helperText={
                                       errors[
                                         `financialTransactions[${idx}].creditAccountId`
-                                      ]
+                                      ] ? t(errors[
+                                        `financialTransactions[${idx}].creditAccountId`
+                                      ]) : undefined
                                     }
                                   />
                                 </div>
@@ -961,7 +907,9 @@ const { t } = useTranslation();
                                     helperText={
                                       errors[
                                         `financialTransactions[${idx}].amount`
-                                      ]
+                                      ] ? t(errors[
+                                        `financialTransactions[${idx}].amount`
+                                      ]) : undefined
                                     }
                                   />
                                 </div>
@@ -1037,7 +985,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].cashAgentName`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].cashAgentName`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -1118,7 +1068,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].chequeNumber`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].chequeNumber`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -1156,7 +1108,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].promissoryName`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].promissoryName`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -1188,7 +1142,9 @@ const { t } = useTranslation();
                                       helperText={
                                         errors[
                                           `financialTransactions[${idx}].promissoryNumber`
-                                        ]
+                                        ] ? t(errors[
+                                          `financialTransactions[${idx}].promissoryNumber`
+                                        ]) : undefined
                                       }
                                     />
                                   </div>
@@ -1225,7 +1181,9 @@ const { t } = useTranslation();
                                   helperText={
                                     errors[
                                       `financialTransactions[${idx}].wireTransferReferenceNumber`
-                                    ]
+                                    ] ? t(errors[
+                                      `financialTransactions[${idx}].wireTransferReferenceNumber`
+                                    ]) : undefined
                                   }
                                 />
                               </div>
@@ -1259,7 +1217,9 @@ const { t } = useTranslation();
                                   helperText={
                                     errors[
                                       `financialTransactions[${idx}].creditCardLastDigits`
-                                    ]
+                                    ] ? t(errors[
+                                      `financialTransactions[${idx}].creditCardLastDigits`
+                                    ]) : undefined
                                   }
                                 />
                               </div>
@@ -1295,7 +1255,9 @@ const { t } = useTranslation();
                                   helperText={
                                     errors[
                                       `financialTransactions[${idx}].cashPhoneNumber`
-                                    ]
+                                    ] ? t(errors[
+                                      `financialTransactions[${idx}].cashPhoneNumber`
+                                    ]) : undefined
                                   }
                                 />
                               </div>
@@ -1344,7 +1306,9 @@ const { t } = useTranslation();
                                           helperText:
                                             errors[
                                               `financialTransactions[${idx}].chequeIssueDate`
-                                            ],
+                                            ] ? t(errors[
+                                              `financialTransactions[${idx}].chequeIssueDate`
+                                            ]) : undefined
                                         },
                                       }}
                                     />
@@ -1393,7 +1357,9 @@ const { t } = useTranslation();
                                           helperText:
                                             errors[
                                               `financialTransactions[${idx}].chequeCollectionDate`
-                                            ],
+                                            ] ? t(errors[
+                                              `financialTransactions[${idx}].chequeCollectionDate`
+                                            ]) : undefined
                                         },
                                       }}
                                     />
@@ -1432,7 +1398,9 @@ const { t } = useTranslation();
                                   helperText={
                                     errors[
                                       `financialTransactions[${idx}].promissoryIdentityCard`
-                                    ]
+                                    ] ? t(errors[
+                                      `financialTransactions[${idx}].promissoryIdentityCard`
+                                    ]) : undefined
                                   }
                                 />
                               </div>
@@ -1478,7 +1446,9 @@ const { t } = useTranslation();
                                           helperText:
                                             errors[
                                               `financialTransactions[${idx}].promissoryCollectionDate`
-                                            ],
+                                            ] ? t(errors[
+                                              `financialTransactions[${idx}].promissoryCollectionDate`
+                                            ]) : undefined
                                         },
                                       }}
                                     />

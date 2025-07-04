@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { ApiResponse } from '../../../../../interfaces/ApiResponse';
 import { toastify } from '../../../../../Helper/toastify';
 import {
-  useCreateSupplierMutation,
-  useDeleteSupplierByIdMutation,
-  useGetDefaultModelDataQuery,
-  useGetSuppliersByIdQuery,
-  useUpdateSupplierMutation,
+  createSupplier,
+  deleteSupplier,
+  getDefaultSupplier,
+  getSupplierById,
+  updateSupplier,
 } from "../../../../../Apis/Account/SuppliersApi";
 import SupplierModel from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel';
 import InputSelect from '../../../../../Components/Inputs/InputSelect';
@@ -16,15 +15,17 @@ import { NodeType, NodeTypeOptions } from '../../../../../interfaces/Components/
 import {   TextareaAutosize } from '@mui/material';
 import InputText from '../../../../../Components/Inputs/InputText';
 import { useTranslation } from 'react-i18next';
+import { SupplierSchema } from '../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/validation-supplier';
+import * as yup from 'yup';
 
 const SuppliersForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-}> = ({ formType, id,parentId, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id,parentId, handleCloseForm, afterAction }) => {
 const { t } = useTranslation();
-  const [deleteFunc] = useDeleteSupplierByIdMutation();
   const [model, setModel] = useState<SupplierModel>({
     name: "",
     nameSecondLanguage: "",
@@ -44,92 +45,116 @@ const { t } = useTranslation();
     formType != FormTypes.Add
   );
     const [isUpdated, setIsUpdated] = useState<boolean>(false);
-
-  const supplierResult = useGetSuppliersByIdQuery(id, {
-    skip: formType == FormTypes.Add,
-  });
-    const modelDefaultDataResult = useGetDefaultModelDataQuery(parentId, {
-      skip: formType != FormTypes.Add,
-    });
-  const [update] = useUpdateSupplierMutation();
-  const [create] = useCreateSupplierMutation();
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if(formType != FormTypes.Add && !isUpdated){
-
-      if (!supplierResult.isLoading) {
-        setModel(supplierResult.data.result);
-        if (supplierResult.data?.result.nodeType === 0) {
-          setModel((prevModel) =>
-            prevModel
-              ? {
-                  ...prevModel,
-                  code: supplierResult.data.result.chartOfAccount.code,
-                }
-              : prevModel
-          );
+    const fetchSupplierData = async () => {
+      if (formType !== FormTypes.Add && !isUpdated) {
+        setIsLoading(true);
+        try {
+          const response = await getSupplierById(id);
+          setModel(response.result);
+          // Handle chartOfAccount property safely
+          if (response.result.nodeType === 0 && response.result.chartOfAccount?.code) {
+            setModel((prevModel) =>
+              prevModel
+                ? {
+                    ...prevModel,
+                    code: response.result.chartOfAccount!.code,
+                  }
+                : prevModel
+            );
+          }
+        } catch (error) {
+          console.error('Error fetching supplier:', error);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
-    }
-  }, [supplierResult.isLoading, supplierResult?.data?.result,formType,isUpdated]);
+    };
+
+    fetchSupplierData();
+  }, [formType, id, isUpdated]);
+
   useEffect(() => {
-    if (formType == FormTypes.Add) {
-      if (!modelDefaultDataResult.isLoading) {
-        setModel((prevModel) =>
-          prevModel
-            ? {
-                ...prevModel,
-                code: modelDefaultDataResult?.data?.result?.code,
-              }
-            : prevModel
-        );
+    const fetchDefaultData = async () => {
+      if (formType === FormTypes.Add) {
+        try {
+          const response = await getDefaultSupplier(parentId);
+          if (response?.result) {
+            setModel((prevModel) =>
+              prevModel
+                ? {
+                    ...prevModel,
+                    code: response.result?.code,
+                  }
+                : prevModel
+            );
+          }
+        } catch (error) {
+          console.error('Error fetching default data:', error);
+        }
       }
+    };
+
+    fetchDefaultData();
+  }, [formType, parentId, model?.nodeType]);
+
+  const validate = async () => {
+    try {
+      await SupplierSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      if (validationErrors instanceof yup.ValidationError) {
+        validationErrors.inner.forEach((error) => {
+          if (error.path) validationErrorsMap[error.path] = error.message;
+        });
+      }
+      setErrors(validationErrorsMap);
+      return false;
     }
-  }, [
-    model?.nodeType,
-    formType,
-    modelDefaultDataResult,
-    modelDefaultDataResult.isLoading,
-  ]);
+  };
   const handleUpdate = async () => {
-    if (model) {
-      const response: ApiResponse = await update(model);
-      setIsUpdated(true);
-      if (response.data) {
-        toastify(response.data.successMessage);
-        return true;
-      } else if (response.error) {
-        toastify(response.error.data.errorMessages[0], "error");
-        return false;
-      }
+    if ((await validate()) === false) return false;
+    const response = await updateSupplier(model.id, model);
+    setIsUpdated(true);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
+      return true;
+    } else if (response?.errorMessages) {
+      toastify(response.errorMessages[0], "error");
+      return false;
     }
     return false;
   };
    const handleAdd = async () => {
-     if (model) {
-       const response: ApiResponse = await create(model);
-       if (response.data) {
-         toastify(response.data.successMessage);
-         return true;
-       } else if (response.error) {
-         response.error?.data?.errorMessages?.map((error: string) => {
-           toastify(error, "error");
-         });
-         return false;
-       }
+     if ((await validate()) === false) return false;
+     const response = await createSupplier(model);
+     if (response?.result) {
+       toastify(response.successMessage);
+       afterAction && afterAction();
+       return true;
+     } else if (response?.errorMessages) {
+       response.errorMessages?.map((error: string) => {
+         toastify(error, "error");
+       });
+       return false;
      }
      return false;
    };
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteFunc(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteSupplier(id);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
       return true;
     } else {
       console.log(response);
 
-      response.error?.data?.errorMessages?.map((error: string) => {
+      response?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
@@ -164,6 +189,7 @@ const { t } = useTranslation();
                         label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -176,6 +202,8 @@ const { t } = useTranslation();
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -185,6 +213,7 @@ const { t } = useTranslation();
                         label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -197,6 +226,8 @@ const { t } = useTranslation();
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

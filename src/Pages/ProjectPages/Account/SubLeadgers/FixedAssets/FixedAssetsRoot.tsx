@@ -1,11 +1,12 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { FormTypes } from '../../../../../interfaces/Components';
-import Loader from '../../../../../Components/Loader';
-import { AppContent } from '../../../../../Components';
-import { useGetFixedAssetsQuery } from "../../../../../Apis/Account/FixedAssetsApi";
-import FixedAssetsForm from './FixedAssetsForm';
-const columns = [
+import { useState, useEffect } from "react";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { getFixedAssets } from "../../../../../Apis/Account/FixedAssetsApi";
+import FixedAssetsForm from "./FixedAssetsForm";
+import { useTranslation } from "react-i18next";
+import Loader from "../../../../../Components/Loader";
+import { AppContent } from "../../../../../Components";
+
+const columns: { Header: string; accessor: string }[] = [
   {
     Header: "Code",
     accessor: "chartOfAccount.code", // accessor is the "key" in the data
@@ -18,17 +19,32 @@ const columns = [
     Header: "NameSecondLanguage",
     accessor: "nameSecondLanguage",
   },
-
   // Add more columns as needed
 ];
 
 const FixedAssetsRoot = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useGetFixedAssetsQuery(null);
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
-  const [parentId, setParentId] = useState<string | null >(null);
+  const [parentId, setParentId] = useState<string | null>(null);
+
+  const fetchFixedAssets = async () => {
+    try {
+      const response = await getFixedAssets();
+      setData(response);
+    } catch (error) {
+      console.error('Error fetching fixed assets:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+
+    fetchFixedAssets();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -37,6 +53,7 @@ const FixedAssetsRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
   return (
     <div className="h-full">
       {isLoading ? (
@@ -49,11 +66,18 @@ const FixedAssetsRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               parentId={parentId}
+              afterAction={() => fetchFixedAssets()}
             />
           )}
           {data?.result && (
             <AppContent
               tableType="tree"
+              data={data.result}
+              columns={columns}
+              handleShowForm={handleShowForm}
+              changeFormType={setFormType}
+              handleSelectId={handleSelectId}
+              handleSelectParentId={setParentId}
               title={t("FixedAssets")}
               btn
               addBtn
@@ -62,13 +86,8 @@ const FixedAssetsRoot = () => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
               }}
-              btnName={t("AddNew")}
-              columns={columns}
-              data={data.result}
-              handleShowForm={handleShowForm}
-              changeFormType={setFormType}
-              handleSelectId={handleSelectId}
-              handleSelectParentId={setParentId}
+              btnName={t("New")}
+              startIcon
             />
           )}
         </>

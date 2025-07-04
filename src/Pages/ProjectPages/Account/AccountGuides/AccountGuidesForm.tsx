@@ -6,6 +6,8 @@ import { toastify } from '../../../../Helper/toastify';
 import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from "../../../../Apis/Account/AccountGuidesApi"
 import InputText from '../../../../Components/Inputs/InputText';
 import { useTranslation } from 'react-i18next';
+import { AccountGuideSchema } from '../../../../interfaces/ProjectInterfaces/Account/AccountGuides/validation-accountGuide';
+import * as yup from 'yup';
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
@@ -23,6 +25,7 @@ const AccountGuidesForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // const [updateGuide] = useUpdateAccountGuideMutation();
   // const [createGuide] = useCreateAccountGuideMutation();
@@ -57,7 +60,22 @@ const AccountGuidesForm: React.FC<{
     }
     return false;
   };
+  const validate = async () => {
+    try {
+      await AccountGuideSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
+    }
+  };
   const handleUpdate = async () => {
+    if ((await validate()) === false) return false;
     const response = await updateAccountGuide(model.id, model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
@@ -70,6 +88,7 @@ const AccountGuidesForm: React.FC<{
     return false;
   };
   const handleAdd = async () => {
+    if ((await validate()) === false) return false;
     const response = await createAccountGuide(model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
@@ -115,6 +134,7 @@ const AccountGuidesForm: React.FC<{
                         label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -124,6 +144,8 @@ const AccountGuidesForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? handleTranslate(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -133,6 +155,7 @@ const AccountGuidesForm: React.FC<{
                         label={handleTranslate("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -145,6 +168,8 @@ const AccountGuidesForm: React.FC<{
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? handleTranslate(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

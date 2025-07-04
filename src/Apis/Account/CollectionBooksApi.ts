@@ -1,60 +1,47 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 import { CollectionBookModel } from "../../interfaces/ProjectInterfaces";
 
-const CollectionBooksApi = createApi({
-  reducerPath: "collectionBooksApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["collectionBooks"],
-  endpoints: (builder) => ({
-    getCollectionBooks: builder.query({
-      query: () => "collectionBooks",
-      providesTags: ["collectionBooks"],
-    }),
-    getCollectionBooksById: builder.query({
-      query: (id) => `collectionBooks/${id}`,
-      providesTags: ["collectionBooks"],
-    }),
-    updateCollectionBook: builder.mutation({
-      query: (currencyBody: CollectionBookModel) => ({
-        url: `collectionBooks/${currencyBody.id}`,
-        method: "PUT",
-        body: currencyBody,
-      }),
-      invalidatesTags: ["collectionBooks"],
-    }),
-    createCollectionBook: builder.mutation({
-      query: (currencyBody: CollectionBookModel) => ({
-        url: `collectionBooks`,
-        method: "POST",
-        body: currencyBody,
-      }),
-      invalidatesTags: ["collectionBooks"],
-    }),
-    deleteCollectionBook: builder.mutation({
-      query: (id: string) => ({
-        url: `collectionBooks/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["collectionBooks"],
-    }),
-  }),
-});
+const apiEndPoint = "CollectionBooks";
 
-export const {
-  useGetCollectionBooksQuery,
-  useGetCollectionBooksByIdQuery,
-  useCreateCollectionBookMutation,
-  useUpdateCollectionBookMutation,
-  useDeleteCollectionBookMutation,
-} = CollectionBooksApi;
-export default CollectionBooksApi;
+// GET all collection books
+const getCollectionBooks = async (): Promise<ApiResult<CollectionBookModel[]>> => {
+  return await httpGet<CollectionBookModel[]>(apiEndPoint, {});
+};
+
+// GET a single collection book by ID
+const getCollectionBookById = async (
+  id: string
+): Promise<ApiResult<CollectionBookModel> | null> => {
+  return await httpGet<CollectionBookModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// POST (Create) a new collection book
+const createCollectionBook = async (
+  data: CollectionBookModel
+): Promise<ApiResult<CollectionBookModel> | null> => {
+  return await httpPost<CollectionBookModel>(apiEndPoint, data);
+};
+
+// PUT (Update) a collection book
+const updateCollectionBook = async (
+  id: string,
+  data: CollectionBookModel
+): Promise<ApiResult<CollectionBookModel> | null> => {
+  return await httpPut<CollectionBookModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a collection book by ID
+const deleteCollectionBook = async (
+  id: string
+): Promise<ApiResult<CollectionBookModel> | null> => {
+  return await httpDelete<CollectionBookModel>(`${apiEndPoint}/${id}`, { id });
+};
+
+export {
+  getCollectionBooks,
+  getCollectionBookById,
+  createCollectionBook,
+  updateCollectionBook,
+  deleteCollectionBook
+};

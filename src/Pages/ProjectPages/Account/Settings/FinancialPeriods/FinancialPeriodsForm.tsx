@@ -2,39 +2,54 @@ import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import {
-  useGetFinancialPeriodsByIdQuery,
-  useUpdateFinancialPeriodMutation,
-  useCreateFinancialPeriodMutation,
+  getFinancialPeriodById,
+  updateFinancialPeriod,
+  createFinancialPeriod,
 } from "../../../../../Apis/Account/FinancialPeriodsApi";
 import FinancialPeriodModel from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
 import dayjs from "dayjs";
 import { financialPeriodOptions, FinancialPeriodType } from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodType";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
-import { ApiResponse } from "../../../../../interfaces/ApiResponse";
 import { toastify } from "../../../../../Helper/toastify";
 import InputDateTimePicker from "../../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../../Components/Inputs/InputText";
 import { useTranslation } from "react-i18next";
+import { FinancialPeriodSchema } from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/validation-financialPeriod";
 
 const FinancialPeriodsForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
-  const accountGuidesResult = useGetFinancialPeriodsByIdQuery(id);
   const [model, setModel] = useState<FinancialPeriodModel | undefined>(
     undefined
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [update] = useUpdateFinancialPeriodMutation();
-  const [create] = useCreateFinancialPeriodMutation();
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
   useEffect(() => {
-    if (!accountGuidesResult.isLoading) {
-      setModel(accountGuidesResult.data.result);
-      setIsLoading(false);
-    }
-  }, [accountGuidesResult.isLoading,accountGuidesResult]);
+    const fetchFinancialPeriod = async () => {
+      if (formType !== FormTypes.Add) {
+        setIsLoading(true);
+        try {
+          const response = await getFinancialPeriodById(id);
+          if (response?.result) {
+            setModel(response.result);
+          }
+        } catch (error) {
+          console.error('Error fetching financial period:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFinancialPeriod();
+  }, [formType, id]);
 
   useEffect(() => {
     if (model?.startDate && model?.periodTypeByMonth) {
@@ -48,14 +63,32 @@ const FinancialPeriodsForm: React.FC<{
     }
   }, [model?.periodTypeByMonth, model?.startDate]);
 
+  const validate = async () => {
+    if (!model) return false;
+    try {
+      await FinancialPeriodSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as any).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
+    }
+  };
+
   const handleUpdate = async () => {
+    if ((await validate()) === false) return false;
     if (model) {
-      const response: ApiResponse = await update(model);
-      if (response.data) {
-        toastify(response.data.successMessage);
+      const response = await updateFinancialPeriod(model.id, model);
+      if (response?.result) {
+        toastify(response.successMessage);
+        afterAction && afterAction();
         return true;
-      } else if (response.error) {
-        toastify(response.error.data.errorMessages[0], "error");
+      } else if (response?.errorMessages) {
+        toastify(response.errorMessages[0], "error");
         return false;
       }
     }
@@ -63,18 +96,21 @@ const FinancialPeriodsForm: React.FC<{
   };
 
   const handleCreate = async () => {
+    if ((await validate()) === false) return false;
     if (model) {
-      const response: ApiResponse = await create(model);
-      if (response.data) {
-        toastify(response.data.successMessage);
+      const response = await createFinancialPeriod(model);
+      if (response?.result) {
+        toastify(response.successMessage);
+        afterAction && afterAction();
         return true;
-      } else if (response.error) {
-        toastify(response.error.data.errorMessages[0], "error");
+      } else if (response?.errorMessages) {
+        toastify(response.errorMessages[0], "error");
         return false;
       }
     }
     return false;
   };
+  
   return (
     <div className="container h-full">
       <BaseForm
@@ -119,11 +155,13 @@ const FinancialPeriodsForm: React.FC<{
                               : undefined
                           )
                         }
+                        error={!!errors.yearNumber}
+                        helperText={errors.yearNumber ? t(errors.yearNumber) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
                       <InputSelect
-                        error={undefined}
+                        error={!!errors.periodTypeByMonth}
                         options={financialPeriodOptions.map((e) => ({
                           ...e,
                           label: t(e.label),
@@ -149,6 +187,9 @@ const FinancialPeriodsForm: React.FC<{
                         onBlur={undefined}
                         name={"Financial Period Type In Months"}
                       />
+                      {errors.periodTypeByMonth && (
+                        <div className="text-danger small mt-1">{t(errors.periodTypeByMonth)}</div>
+                      )}
                     </div>
                   </div>
                   <div className="row mb-3">
@@ -168,6 +209,9 @@ const FinancialPeriodsForm: React.FC<{
                             }
                           }}
                         />
+                        {errors.startDate && (
+                          <div className="text-danger small mt-1">{t(errors.startDate)}</div>
+                        )}
                       </div>
                     )}
                     <div className="col col-md-6">
@@ -177,6 +221,9 @@ const FinancialPeriodsForm: React.FC<{
                         value={model?.endDate ?? null}
                         disabled
                       />
+                      {errors.endDate && (
+                        <div className="text-danger small mt-1">{t(errors.endDate)}</div>
+                      )}
                     </div>
                   </div>
                 </>

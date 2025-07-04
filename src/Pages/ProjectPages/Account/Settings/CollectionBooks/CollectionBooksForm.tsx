@@ -3,23 +3,23 @@ import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
 import { CollectionBookModel } from '../../../../../interfaces/ProjectInterfaces';
 import {
-  useCreateCollectionBookMutation,
-  useDeleteCollectionBookMutation,
-  useGetCollectionBooksByIdQuery,
-  useUpdateCollectionBookMutation,
+  createCollectionBook,
+  deleteCollectionBook,
+  getCollectionBookById,
+  updateCollectionBook,
 } from "../../../../../Apis/Account/CollectionBooksApi";
 import { toastify } from '../../../../../Helper/toastify';
-import { ApiResponse } from '../../../../../interfaces/ApiResponse';
 import InputText from '../../../../../Components/Inputs/InputText';
 import { useTranslation } from 'react-i18next';
+import { CollectionBookSchema } from '../../../../../interfaces/ProjectInterfaces/Account/CollectionBooks/validation-collectionBook';
 
 const CollectionBooksForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
+  afterAction?: () => void;
+}> = ({ formType, id, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
-  const accountGuidesResult = useGetCollectionBooksByIdQuery(id);
   const [model, setModel] = useState<CollectionBookModel>({
     id: "",
     name: "",
@@ -28,57 +28,83 @@ const CollectionBooksForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-
-  const [updateBook] = useUpdateCollectionBookMutation();
-  const [createBook] = useCreateCollectionBookMutation();
-  const [deleteBook] = useDeleteCollectionBookMutation();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (formType != FormTypes.Add) {
-      if (!accountGuidesResult.isLoading) {
-        setModel(accountGuidesResult.data.result);
-        setIsLoading(false);
+    const fetchCollectionBook = async () => {
+      if (formType !== FormTypes.Add) {
+        setIsLoading(true);
+        try {
+          const response = await getCollectionBookById(id);
+          if (response?.result) {
+            setModel(response.result);
+          }
+        } catch (error) {
+          console.error('Error fetching collection book:', error);
+        } finally {
+          setIsLoading(false);
+        }
       }
+    };
+
+    fetchCollectionBook();
+  }, [formType, id]);
+
+  const validate = async () => {
+    try {
+      await CollectionBookSchema.validate(model, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as any).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
+      return false;
     }
-  }, [
-    accountGuidesResult.isLoading,
-    accountGuidesResult?.data?.result,
-    formType,
-  ]);
+  };
 
   const handleDelete = async (): Promise<boolean> => {
-    const response: ApiResponse = await deleteBook(id);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    const response = await deleteCollectionBook(id);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
       return true;
     } else {
       console.log(response);
-      response.error?.data?.errorMessages?.map((error: string) => {
+      response?.errorMessages?.map((error: string) => {
         toastify(error, "error");
         console.log(error);
       });
       return false;
     }
   };
+
   const handleUpdate = async () => {
-    const response: ApiResponse = await updateBook(model);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    if ((await validate()) === false) return false;
+    const response = await updateCollectionBook(model.id, model);
+    if (response?.result) {
+      toastify(response.successMessage);
+      afterAction && afterAction();
       return true;
-    } else if (response.error) {
-      toastify(response.error.data.errorMessages[0], "error");
+    } else if (response?.errorMessages) {
+      toastify(response.errorMessages[0], "error");
       return false;
     }
     return false;
   };
+
   const handleAdd = async () => {
-    const response: ApiResponse = await createBook(model);
-    if (response.data) {
-      toastify(response.data.successMessage);
+    if ((await validate()) === false) return false;
+    const response = await createCollectionBook(model);
+    if (response?.result) {
+      toastify(response.successMessage);
       console.log(response);
+      afterAction && afterAction();
       return true;
-    } else if (response.error) {
-      toastify(response.error.data.errorMessages[0], "error");
+    } else if (response?.errorMessages) {
+      toastify(response.errorMessages[0], "error");
       return false;
     }
     return false;
@@ -118,13 +144,15 @@ const CollectionBooksForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
+                        onChange={(value) => {
                           setModel((prevModel) =>
                             prevModel
                               ? { ...prevModel, name: value }
                               : prevModel
-                          )
-                        }
+                          );
+                        }}
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -136,7 +164,7 @@ const CollectionBooksForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(value) =>
+                        onChange={(value) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -144,8 +172,10 @@ const CollectionBooksForm: React.FC<{
                                   nameSecondLanguage: value,
                                 }
                               : prevModel
-                          )
-                        }
+                          );
+                        }}
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>

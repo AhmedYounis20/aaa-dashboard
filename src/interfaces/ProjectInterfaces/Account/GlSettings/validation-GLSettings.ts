@@ -4,18 +4,18 @@ import DecimalDigitsNumber from './DecimalDigitsNumber';
 export const GLSettingsSchema = yup.object().shape({
     decimalDigitsNumber: yup
     .number()
-    .oneOf(DecimalDigitsNumber, "Invalid Decimal digits number")
-    .required("decimal digits number is required"),
+    .oneOf(DecimalDigitsNumber, "INVALID_DECIMAL_DIGITS_NUMBER")
+    .required("DECIMAL_DIGITS_NUMBER_IS_REQUIRED"),
 
     depreciationApplication: yup
     .string()
-    .required("deprecation application is required"),
+    .required("DEPRECIATION_APPLICATION_IS_REQUIRED"),
 
     monthDays: yup
     .number()
     .test(
         "greater-than-zero",
-        "month days is required",
+        "MONTH_DAYS_IS_REQUIRED",
         (val) => {
             return val !== undefined && val > 0
         }

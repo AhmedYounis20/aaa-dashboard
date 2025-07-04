@@ -1,68 +1,60 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import { baseUrl } from "../../Utilities/SD";
+import { ApiResult } from "../../interfaces/ApiResponse";
+import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 import CustomerModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerModel";
 
-const CustomersApi = createApi({
-  reducerPath: "customersApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: baseUrl,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ["customers"],
-  endpoints: (builder) => ({
-    getCustomers: builder.query({
-      query: () => "customers",
-      providesTags: ["customers"],
-    }),
-    getCustomersById: builder.query({
-      query: (id) => `customers/${id}`,
-      providesTags: ["customers"],
-    }),
-    getDefaultModelData: builder.query({
-      query: (parentId) =>
-        `customers/NextAccountDefaultData${
-          parentId == null ? "" : `?parentId=${parentId}`
-        }`,
-      providesTags: ["customers"],
-    }),
-    createCustomer: builder.mutation({
-      query: (body: CustomerModel) => ({
-        url: `customers`,
-        method: "POST",
-        body: body,
-      }),
-      invalidatesTags: ["customers"],
-    }),
-    deleteCustomerById: builder.mutation({
-      query: (id) => ({
-        url: `customers/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["customers"],
-    }),
-    updateCustomer: builder.mutation({
-      query: (body: CustomerModel) => ({
-        url: `customers/${body.id}`,
-        method: "PUT",
-        body: body,
-      }),
-      invalidatesTags: ["customers"],
-    }),
-  }),
-});
+const apiEndPoint = "customers";
 
-export const {
-  useGetCustomersQuery,
-  useGetCustomersByIdQuery,
-  useDeleteCustomerByIdMutation,
-  useUpdateCustomerMutation,
-  useGetDefaultModelDataQuery,
-  useCreateCustomerMutation,
-} = CustomersApi;
-export default CustomersApi;
+// GET all customers
+const getCustomers = async (): Promise<ApiResult<CustomerModel[]>> => {
+  return await httpGet<CustomerModel[]>(apiEndPoint, {});
+};
+
+// GET a single customer by ID
+const getCustomerById = async (
+  id: string
+): Promise<ApiResult<CustomerModel>> => {
+  return await httpGet<CustomerModel>(`${apiEndPoint}/${id}`, {});
+};
+
+// GET default model data (for add form)
+const getDefaultCustomer = async (
+  parentId: string | null
+): Promise<ApiResult<CustomerModel> | null> => {
+  return await httpGet<CustomerModel>(
+    `${apiEndPoint}/NextAccountDefaultData${
+      parentId == null ? "" : `?parentId=${parentId}`
+    }`,
+    {}
+  );
+};
+
+// CREATE a new customer
+const createCustomer = async (
+  data: CustomerModel
+): Promise<ApiResult<CustomerModel>> => {
+  return await httpPost<CustomerModel>(apiEndPoint, data);
+};
+
+// UPDATE a customer
+const updateCustomer = async (
+  id: string,
+  data: CustomerModel
+): Promise<ApiResult<CustomerModel>> => {
+  return await httpPut<CustomerModel>(`${apiEndPoint}/${id}`, data);
+};
+
+// DELETE a customer
+const deleteCustomer = async (
+  id: string
+): Promise<ApiResult<CustomerModel>> => {
+  return await httpDelete<CustomerModel>(`${apiEndPoint}/${id}`, {});
+};
+
+export {
+  getCustomers,
+  getCustomerById,
+  getDefaultCustomer,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+};

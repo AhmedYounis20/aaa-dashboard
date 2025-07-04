@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { useGetSuppliersQuery } from "../../../../../Apis/Account/SuppliersApi";
-import SuppliersForm from './SuppliersForm';
-import { FormTypes } from '../../../../../interfaces/Components';
-import Loader from '../../../../../Components/Loader';
-import { AppContent } from '../../../../../Components';
+import { useState, useEffect } from "react";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { getSuppliers } from "../../../../../Apis/Account/SuppliersApi";
+import SuppliersForm from "./SuppliersForm";
+import { useTranslation } from "react-i18next";
+import Loader from "../../../../../Components/Loader";
+import { AppContent } from "../../../../../Components";
 
 const columns: { Header: string; accessor: string }[] = [
   {
@@ -23,11 +23,27 @@ const columns: { Header: string; accessor: string }[] = [
 
 const SuppliersRoot = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useGetSuppliersQuery(null);
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>();
-    const [parentId, setParentId] = useState<string | null>(null);
+  const [parentId, setParentId] = useState<string | null>(null);
+
+  const fetchSuppliers = async () => {
+    try {
+      const response = await getSuppliers();
+      setData(response);
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+
+    fetchSuppliers();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -49,6 +65,7 @@ const SuppliersRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               parentId={parentId}
+              afterAction={() => fetchSuppliers()}
             />
           )}
           {data?.result && (

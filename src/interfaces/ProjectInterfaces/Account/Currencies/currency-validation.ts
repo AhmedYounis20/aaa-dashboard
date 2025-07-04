@@ -3,32 +3,32 @@ import * as yup from 'yup'
 export const CurrencySchema = yup.object().shape({
     name: yup
     .string()
-    .required("Name is Required")
+    .required("NAME_IS_REQUIRED")
     .min(1)
-    .max(100, "Name can't exceed 100 letters"),
+    .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
     nameSecondLanguage: yup
     .string()
-    .required("الأسم مطلوب")
+    .required("NAME_SECOND_LANGUAGE_IS_REQUIRED")
     .min(1)
-    .max(100, "لا يمكن أن يتجاوز الأسم 100 حرف"),
+    .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
   symbol: yup
     .string()
-    .required("Symbol is required")
+    .required("SYMBOL_IS_REQUIRED")
     .min(1)
-    .max(4, "Symbol can't not exceed 4 letters"),
+    .max(4, "SYMBOL_CANNOT_EXCEED_4_LETTERS"),
 
     exchangeRate: yup
     .number()
-    .required("Exchange Rate is required")
+    .required("EXCHANGE_RATE_IS_REQUIRED")
     .test(
       "is-greater-than-zero",
-      "Exchange Rate must ne greater than 0",
+      "EXCHANGE_RATE_MUST_BE_GREATER_THAN_0",
       val => val > 0
     ).test(
       "exchange-rate",
-      "Exchange rate must be equal one",
+      "EXCHANGE_RATE_MUST_BE_EQUAL_ONE",
       function (value) {
         const { isDefault } = this.parent;
         if(!isDefault ||  value === 1) {
@@ -42,7 +42,7 @@ export const CurrencySchema = yup.object().shape({
 
     isActive: yup.boolean().test(
       'isActive',
-      "isActive must be true",
+      "ISACTIVE_MUST_BE_TRUE",
       function (value) {
         const {isDefault} = this.parent;
         if( !isDefault || value ) {

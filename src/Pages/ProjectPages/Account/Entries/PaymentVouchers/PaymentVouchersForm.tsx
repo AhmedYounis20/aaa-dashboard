@@ -5,7 +5,6 @@ import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
 import { toastify } from "../../../../../Helper/toastify";
-import yup from "yup";
 import ComplexFinancialTransactionModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,13 +18,12 @@ import AttachmentModel from "../../../../../interfaces/BaseModels/AttachmentMode
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import { Add, Delete } from "@mui/icons-material";
 import { EntrySchema } from "../../../../../interfaces/ProjectInterfaces/Account/Entries/entry-validation";
-import { useGetCurrenciesQuery } from "../../../../../Apis/Account/CurrenciesApi";
 import CurrencyModel from "../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
 import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
-import { useGetBranchesQuery } from "../../../../../Apis/Account/BranchesApi";
+import { getBranches } from "../../../../../Apis/Account/BranchesApi";
 import updateModel from "../../../../../Helper/updateModelHelper";
 import { NodeType } from "../../../../../interfaces/Components/NodeType";
-import { useGetCollectionBooksQuery } from "../../../../../Apis/Account/CollectionBooksApi";
+import { getCollectionBooks } from "../../../../../Apis/Account/CollectionBooksApi";
 import {
   ChartOfAccountModel,
   CollectionBookModel,
@@ -59,20 +57,11 @@ const PaymentVouchersForm: React.FC<{
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
 const { t } = useTranslation();
   const url = "entries";
-  const currenciesApiResult = useGetCurrenciesQuery({
-    skip: formType == FormTypes.Delete,
-  });
-  const collectionBooksApiResult = useGetCollectionBooksQuery({
-    skip: formType == FormTypes.Delete,
-  });
-  const branchesApiResult = useGetBranchesQuery({
-    skip: formType == FormTypes.Delete,
-  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
+  const [currencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
@@ -82,6 +71,33 @@ const { t } = useTranslation();
   const [collectionBooks, setCollectionBooks] = useState<CollectionBookModel[]>(
     []
   );
+
+  // Fetch branches and collection books
+  useEffect(() => {
+    const fetchData = async () => {
+      if (formType !== FormTypes.Delete) {
+        try {
+          const branchesResponse = await getBranches();
+          if (branchesResponse?.result) {
+            setBranches(
+              branchesResponse.result.filter(
+                (e: BranchModel) => e.nodeType == NodeType.Domain
+              )
+            );
+          }
+
+          const collectionBooksResponse = await getCollectionBooks();
+          if (collectionBooksResponse?.result) {
+            setCollectionBooks(collectionBooksResponse.result);
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [formType]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =
     () => {
@@ -165,18 +181,6 @@ const { t } = useTranslation();
   }, [formType]);
 
   useEffect(() => {
-    if (
-      collectionBooksApiResult.isSuccess &&
-      !collectionBooksApiResult.isLoading
-    ) {
-      setCollectionBooks(collectionBooksApiResult.data.result);
-    }
-  }, [
-    collectionBooksApiResult,
-    collectionBooksApiResult.isLoading,
-    collectionBooksApiResult.isSuccess,
-  ]);
-  useEffect(() => {
     if (formType == FormTypes.Add) {
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
         datetime: model.entryDate,
@@ -205,27 +209,23 @@ const { t } = useTranslation();
   }, [model.entryDate]);
 
   useEffect(() => {
-    if (currenciesApiResult.isSuccess && !currenciesApiResult.isLoading) {
-      setCurrencies(currenciesApiResult.data.result);
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        const result = await getPaymentEntryById(id);
+        if (result && result.result) {
+          setModel({ ...result.result });
+          setTransactionNumber(
+            result.result.financialTransactions.findLast(
+              (e: ComplexFinancialTransactionModel) => e.orderNumber != null
+            )?.orderNumber ?? 1
+          );
+        }
+        setIsLoading(false);
+      };
+      fetchData();
     }
-  }, [
-    currenciesApiResult,
-    currenciesApiResult.isLoading,
-    currenciesApiResult.isSuccess,
-  ]);
-  useEffect(() => {
-    if (branchesApiResult.isSuccess && !branchesApiResult.isLoading) {
-      setBranches(
-        branchesApiResult.data.result.filter(
-          (e: BranchModel) => e.nodeType == NodeType.Domain
-        )
-      );
-    }
-  }, [
-    branchesApiResult,
-    branchesApiResult.isLoading,
-    branchesApiResult.isSuccess,
-  ]);
+  }, [formType, id]);
   //#endregion
 
   const changeExchangeRate = (currencyId :  string) => {
@@ -288,40 +288,6 @@ const { t } = useTranslation();
       return prev + 1;
     });
   };
-  useEffect(() => {
-    if (formType !== FormTypes.Add ) {
-          const fetchData = async () => {
-            const result = await getPaymentEntryById(id);
-            
-            if (result && result.isSuccess) {
-                      console.log("entry:",result);
-                      // Ensure a new object reference is created to trigger re-render
-                      setModel({
-                        ...result.result, // Assign API result
-                        financialTransactions:
-                          result.result.financialTransactions.map(
-                            (t: ComplexFinancialTransactionModel) => ({
-                              ...t,
-                              debitAccountId: t.debitAccountId || "", // Ensure proper values
-                              creditAccountId: t.creditAccountId || "",
-                            })
-                          ),
-                      });
-                      setTransactionNumber(
-                        result.result.financialTransactions.findLast(
-                          (e: ComplexFinancialTransactionModel) =>
-                            e.orderNumber != null
-                      )?.orderNumber ?? 1
-                        );
-                      setIsLoading(false);
-            }
-          };
-        fetchData();
-
-
-      }
-    }
-  , [formType,id]);
 
   const validate = async () => {
     try {
@@ -330,10 +296,9 @@ const { t } = useTranslation();
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+      (validationErrors as any).inner.forEach((error: any) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
-      console.log(validationErrorsMap);
       setErrors(validationErrorsMap);
       return false;
     }
@@ -345,12 +310,8 @@ const { t } = useTranslation();
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
@@ -358,56 +319,27 @@ const { t } = useTranslation();
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-
-    SortFinancialTransactions();
-        const modelToCreate: ComplexEntryModel = {
-          ...model,
-          costCenters: model.costCenters.filter(
-            (e) => e.costCenterId != null && e.costCenterId.trim() !== ""
-          ),
-        };
-
-    const response = await updatePaymentEntry(model.id, modelToCreate);
+    const response = await updatePaymentEntry(model.id, model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
   };
-  const SortFinancialTransactions = () => {
-    const financialTransactions = model.financialTransactions;
-    for (let i = 1; i <= financialTransactions.length; i++) {
-      financialTransactions[i - 1].orderNumber = i;
-    }
-    setModel({ ...model, financialTransactions: financialTransactions });
-  };
 
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    SortFinancialTransactions();
-    console.log("send");
-    const modelToCreate : ComplexEntryModel = {...model,costCenters : model.costCenters.filter(e=>e.costCenterId != null && e.costCenterId.trim() !=='')};
-    const response = await createPaymentEntry(modelToCreate);
-
-    console.log(response);
+    const response = await createPaymentEntry(model);
     if (response && response.isSuccess) {
       toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      if (response.errorMessages?.length == 0) {
-        toastify(response.successMessage, "error");
-      } else {
-        response.errorMessages?.map((val: string) => toastify(val, "error"));
-      }
+    } else if (response && response.errorMessages) {
+      response.errorMessages.map((error: string) => toastify(error, 'error'));
       return false;
     }
     return false;
@@ -456,7 +388,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.financialPeriodNumber}
                                 error={!!errors.financialPeriodNumber}
-                                helperText={errors.financialPeriodNumber}
+                                helperText={errors.financialPeriodNumber ? t(errors.financialPeriodNumber) : undefined}
                               />
                             </div>
                             <div className="col col-md-6">
@@ -470,7 +402,7 @@ const { t } = useTranslation();
                                 disabled={true}
                                 value={model?.entryNumber}
                                 error={!!errors.entryNumber}
-                                helperText={errors.entryNumber}
+                                helperText={errors.entryNumber ? t(errors.entryNumber) : undefined}
                               />
                             </div>
                           </div>
@@ -495,7 +427,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.documentNumber}
-                            helperText={errors.documentNumber}
+                            helperText={errors.documentNumber ? t(errors.documentNumber) : undefined}
                           />
                         </div>
                       </div>
@@ -504,7 +436,7 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.currencyId}
-                            helperText={errors.currencyId}
+                            helperText={errors.currencyId ? t(errors.currencyId) : undefined}
                             options={currencies?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
@@ -545,7 +477,7 @@ const { t } = useTranslation();
                                 value)
                             }
                             error={!!errors.exchangeRate}
-                            helperText={errors.exchangeRate}
+                            helperText={errors.exchangeRate ? t(errors.exchangeRate) : undefined}
                           />
                         </div>
                       </div>
@@ -568,7 +500,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.receiverName}
-                            helperText={errors.receiverName}
+                            helperText={errors.receiverName ? t(errors.receiverName) : undefined}
                           />
                         </div>
                       </div>
@@ -598,7 +530,7 @@ const { t } = useTranslation();
                           <InputAutoComplete
                             size={"small"}
                             error={!!errors.branchId}
-                            helperText={errors.branchId}
+                            helperText={errors.branchId ? t(errors.branchId) : undefined}
                             options={branches?.map(
                               (item: { name: string; id: string }) => ({
                                 ...item,
@@ -615,7 +547,6 @@ const { t } = useTranslation();
                             multiple={false}
                             name={"Branches"}
                             handleBlur={null}
-                            defaultSelect={true}
                           />
                         </div>
                       </div>
@@ -641,7 +572,7 @@ const { t } = useTranslation();
                               )
                             }
                             error={!!errors.symbol}
-                            helperText={errors.symbol}
+                            helperText={errors.symbol ? t(errors.symbol) : undefined}
                           />
                         </div>
                       </div>
