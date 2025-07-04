@@ -9,9 +9,12 @@ import {
   ListItemText,
   IconButton,
   InputLabel,
+  Box,
+  Paper,
+  Typography,
 } from "@mui/material";
 import { FormTypes } from "../../interfaces/Components";
-import { Delete, EditNote, Info } from "@mui/icons-material";
+import { Delete, EditNote, Info, Visibility } from "@mui/icons-material";
 import { appContext } from "../../layout/DefaultLayout";
 import { useTranslation } from "react-i18next";
 
@@ -30,61 +33,82 @@ const DataTable = ({
   const {t} = useTranslation()
   const { isSidebarOpen, isMobile} = useContext(appContext)
 
-
   useEffect(() => {
     if (data.length > 0) {
       const initialColumns = Object.keys(data[0]).map((field) => ({
         field: field,
         headerName: t(field.charAt(0).toUpperCase() + field.slice(1)),
         hide: defaultHiddenColumns.includes(field),
-        flex:1,
-        groupable:true
+        flex: 1,
+        minWidth: 120,
+        groupable: true,
+        headerClassName: 'custom-header',
+        cellClassName: 'custom-cell',
       }));
 
       const operationsColumn = {
         field: "operations",
         headerName: t("Operations"),
-        width: 150,
+        width: 180,
+        sortable: false,
+        filterable: false,
+        headerClassName: 'custom-header',
+        cellClassName: 'custom-cell',
         renderCell: (params) => (
-          <div tabIndex={-1}>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
             {showedit && (
               <IconButton
                 size="small"
-                style={{ marginInline: 2 }}
+                sx={{
+                  color: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                  },
+                }}
                 onClick={() => {
                   changeFormType(FormTypes.Edit);
                   handleSelectId(params.row.id);
                   handleShowForm();
                 }}
               >
-                <EditNote titleAccess={ t("Update")} />
+                <EditNote fontSize="small" />
               </IconButton>
             )}
             {showdelete && (
               <IconButton
                 size="small"
-                style={{ marginInline: 2 }}
+                sx={{
+                  color: '#d32f2f',
+                  '&:hover': {
+                    backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                  },
+                }}
                 onClick={() => {
                   changeFormType(FormTypes.Delete);
                   handleSelectId(params.row.id);
                   handleShowForm();
                 }}
               >
-                <Delete titleAccess={t("Delete")} />
+                <Delete fontSize="small" />
               </IconButton>
             )}
             <IconButton
               size="small"
-              style={{ marginInline: 2 }}
+              sx={{
+                color: '#2e7d32',
+                '&:hover': {
+                  backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                },
+              }}
               onClick={() => {
                 changeFormType(FormTypes.Details);
                 handleSelectId(params.row.id);
                 handleShowForm();
               }}
             >
-              <Info titleAccess={t("Details")} />
+              <Visibility fontSize="small" />
             </IconButton>
-          </div>
+          </Box>
         ),
       };
 
@@ -113,102 +137,136 @@ const DataTable = ({
     setVisibleColumns(updatedColumns.filter((column) => !column.hide));
   };
 
-
   return (
-    <Grid
-      container
-      style={{
-        paddingTop: 10,
-        paddingBottom: 10,
-
-        borderRadius: 10,
-        width: "100%",
-        display: "flex",
-        justifyContent: "start",
+    <Paper
+      elevation={2}
+      sx={{
+        borderRadius: 2,
+        overflow: 'hidden',
+        border: '1px solid #e0e0e0',
       }}
-      className="border"
     >
-      <Grid
-        item
-        xs={8}
-        style={{
-          marginBottom: 10,
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: '1px solid #e0e0e0',
+          backgroundColor: '#fafafa',
         }}
       >
-        <FormControl size="medium" fullWidth style={{ margin: 10 }}>
-          <InputLabel id="demo-simple-select-label" variant="outlined">
-            {"columns Visiblity"}
+        <FormControl size="small" fullWidth>
+          <InputLabel id="columns-visibility-label">
+            {t("Column Visibility")}
           </InputLabel>
           <Select
-            label={"columns Visiblity"}
-            title="columns Visiblity"
+            labelId="columns-visibility-label"
+            label={t("Column Visibility")}
             variant="outlined"
             multiple
             value={selectedColumns}
             onChange={handleChange}
-            renderValue={(selected) => selected.map(e=> t(e.charAt(0).toUpperCase()+e.slice(1))).join(", ")}
+            renderValue={(selected) => (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {selected.length} {t("columns selected")}
+              </Typography>
+            )}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'white',
+              },
+            }}
           >
             {columns
               .filter((e) => e.field !== "operations")
               .map((column) => (
                 <MenuItem
-                  key={t(
-                    column.field.charAt(0).toUpperCase() + column.field.slice(1)
-                  )}
+                  key={column.field}
                   value={column.field}
+                  sx={{ py: 0.5 }}
                 >
-                  <Checkbox checked={!column.hide} />
+                  <Checkbox 
+                    checked={!column.hide}
+                    size="small"
+                    sx={{ mr: 1 }}
+                  />
                   <ListItemText
-                    primary={
-                      column.headerName.charAt(0).toUpperCase() +
-                      column.headerName.slice(1)
-                    }
+                    primary={column.headerName}
+                    primaryTypographyProps={{ variant: 'body2' }}
                   />
                 </MenuItem>
               ))}
           </Select>
         </FormControl>
-      </Grid>
-      <Grid
-        item
-        style={{
-          height: "60vh",
-          width: "100%",
-          display: "flex",
-          justifyContent: "start",
-        }}
-      >
+      </Box>
+      
+      <Box sx={{ height: '60vh', width: '100%' }}>
         <DataGrid
           rows={data}
           columns={visibleColumns}
-          pageSize={5}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           disableColumnSelector
-          style={{ border: 0, width: "100%" }}
-          scrollbarSize={5}
           sx={{
-            ".MuiDataGrid-cell:focus": {
-              outline: "none",
-            },
-            ".MuiDataGrid-cell:focus-within": {
-              outline: "none",
-            },
-            "& .MuiDataGrid-row:nth-of-type(odd)": {
-              backgroundColor: "rgba(235, 235, 235, .7)",
-            },
-            "& .MuiDataGrid-row:nth-of-type(even)": {
-              backgroundColor: "white",
-            },
-            "& .MuiDataGrid-row:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.1)",
-            },
             border: 0,
-            maxWidth: isSidebarOpen && !isMobile ? "1500px" : "auto",
+            '& .MuiDataGrid-root': {
+              border: 'none',
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: '1px solid #f0f0f0',
+              padding: '12px 16px',
+              fontSize: '0.875rem',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+              borderBottom: '2px solid #e0e0e0',
+              '& .MuiDataGrid-columnHeader': {
+                borderRight: '1px solid #e0e0e0',
+                '&:last-child': {
+                  borderRight: 'none',
+                },
+              },
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              color: '#424242',
+            },
+            '& .MuiDataGrid-row': {
+              '&:nth-of-type(odd)': {
+                backgroundColor: '#fafafa',
+              },
+              '&:nth-of-type(even)': {
+                backgroundColor: '#ffffff',
+              },
+              '&:hover': {
+                backgroundColor: '#f0f8ff',
+                transition: 'background-color 0.2s ease',
+              },
+            },
+            '& .MuiDataGrid-cell:focus': {
+              outline: 'none',
+            },
+            '& .MuiDataGrid-cell:focus-within': {
+              outline: 'none',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '1px solid #e0e0e0',
+              backgroundColor: '#fafafa',
+            },
+            '& .MuiDataGrid-toolbarContainer': {
+              padding: '8px 16px',
+              backgroundColor: '#fafafa',
+              borderBottom: '1px solid #e0e0e0',
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              backgroundColor: 'transparent',
+            },
+            maxWidth: isSidebarOpen && !isMobile ? "100%" : "100%",
           }}
         />
-      </Grid>
-    </Grid>
+      </Box>
+    </Paper>
   );
 };
 
