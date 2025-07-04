@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import AttachmentModel from "../../interfaces/BaseModels/AttachmentModel";
 import UploadIcon from "@mui/icons-material/Upload";
 import { Add, Delete } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { IconButton, Box, Typography, Card, CardContent, Grid, useTheme } from "@mui/material";
 import DescriptionIcon from '@mui/icons-material/Description';
 import ImagePreview from "../Images/ImagePreview";
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,7 @@ const InputFile: React.FC<InputFileProps> = ({
   disabled = false
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const [attachments, setAttachments] = useState<AttachmentModel[]>(value);
 
   const handleFileChange = async (
@@ -120,9 +121,9 @@ const InputFile: React.FC<InputFileProps> = ({
       onFilesChange(attachments);
   }
   return (
-    <div className="p-2 card">
-      <div className="ml-5 mb-2">
-        <label style={{ display: "inline-block" }}>
+    <Card sx={{ p: 2, backgroundColor: theme.palette.background.paper }}>
+      <Box sx={{ ml: 2.5, mb: 2 }}>
+        <Box component="label" sx={{ display: "inline-block" }}>
           {/* Hidden file input */}
           <input
             type="file"
@@ -137,16 +138,25 @@ const InputFile: React.FC<InputFileProps> = ({
 
           <IconButton
             size="large"
-            style={{ borderRadius: 20 }}
+            sx={{ 
+              borderRadius: 2.5,
+              color: theme.palette.primary.main,
+              '&:hover': {
+                backgroundColor: theme.palette.primary.light,
+                color: theme.palette.primary.contrastText,
+              },
+            }}
             component="span"
             disabled={disabled}
           >
             <UploadIcon />
-            <span style={{ fontSize: 20, opacity: 0.5 }}>{t("Upload")}</span>
+            <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>
+              {t("Upload")}
+            </Typography>
           </IconButton>
-        </label>
+        </Box>
         {attachments.length > 0 && multiSelect && (
-          <label style={{ display: "inline-block" }}>
+          <Box component="label" sx={{ display: "inline-block", ml: 1 }}>
             {/* Hidden file input */}
             <input
               type="file"
@@ -161,112 +171,131 @@ const InputFile: React.FC<InputFileProps> = ({
 
             <IconButton
               size="medium"
-              style={{ borderRadius: 20 }}
-              className="btn form-control"
+              sx={{ 
+                borderRadius: 2.5,
+                color: theme.palette.secondary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.secondary.light,
+                  color: theme.palette.secondary.contrastText,
+                },
+              }}
               component="span"
               disabled={disabled}
             >
               <Add />
-              <span style={{ fontSize: 20, opacity: 0.5 }}>{t("Add")}</span>
+              <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>
+                {t("Add")}
+              </Typography>
             </IconButton>
-          </label>
+          </Box>
         )}
-        <label>
+        <Box>
           <IconButton
             size="medium"
-            style={{ borderRadius: 20 }}
-            className="btn form-control"
+            sx={{ 
+              borderRadius: 2.5,
+              color: theme.palette.text.secondary,
+            }}
             component="span"
             disabled={true}
           >
-            <span style={{ fontSize: 20, opacity: 0.5 }}>
+            <Typography sx={{ fontSize: 20, opacity: 0.7 }}>
               {attachments.length
                 ? attachments.length +
                   " " +
                   (attachments.length > 1 ? t("Files") : t("File"))
                 : t("NoFiles")}
-            </span>
+            </Typography>
           </IconButton>
-        </label>
-      </div>
+        </Box>
+      </Box>
       {attachments.length > 0 && (
-        <div style={{ maxHeight: 200, overflowY: "scroll" }}>
+        <Box sx={{ 
+          maxHeight: 200, 
+          overflowY: "scroll",
+          '&::-webkit-scrollbar': {
+            width: 8,
+          },
+          '&::-webkit-scrollbar-track': {
+            background: theme.palette.grey[100],
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.grey[400],
+            borderRadius: 1,
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: theme.palette.grey[600],
+          },
+        }}>
           {attachments.map((attachment, index) => (
-            <div key={index}>
-              <div
-                className="card card-body m-0 mb-2"
-                style={{ width: "auto", backgroundColor: "whitesmoke" }}
-              >
-                <div className="row">
-                  <div className="col col-md-3 justify-content-center align-items-center">
-                    <div>
-                      {attachment.contentType.startsWith("image") ? (
-                        <ImagePreview
-                          src={
-                            "data:" +
-                            attachment.contentType +
-                            ";base64," +
-                            attachment.fileContent
-                          }
-                          alt={t("Image")}
-                          height={50}
-                          width={50}
-                        />
-                      ) : (
-                        <DescriptionIcon />
-                      )}
-                    </div>
-                    <div>
-                      {attachment.contentType.split("/")[0] != "image" &&
-                        attachment.contentType.split("/")[1]}
-                    </div>
-                  </div>
-                  <div className="col col-md-7">
-                    <strong>{attachment.fileName}</strong>
-                  </div>
-                  <div className="col col-md-2 align-content-center">
-                    <div
-                      style={{
-                        justifyContent: "end",
-                        alignItems: "end",
-                        display: "flex",
-                      }}
-                    >
-                      {!disabled && (
-                        <IconButton
-                          size="small"
-                          onClick={() => removeSelectedFile(index)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <style>
-                  {`
-                      div::-webkit-scrollbar {
-                        width: 8px;
-                      }
-                      div::-webkit-scrollbar-track {
-                        background: #f1f1f1;
-                      }
-                      div::-webkit-scrollbar-thumb {
-                        background: #888;
-                        border-radius: 4px;
-                      }
-                      div::-webkit-scrollbar-thumb:hover {
-                        background: #555;
-                      }
-                    `}
-                </style>
-              </div>
-            </div>
+            <Box key={index}>
+              <Card sx={{ 
+                mb: 1, 
+                backgroundColor: theme.palette.grey[50],
+                border: `1px solid ${theme.palette.divider}`,
+              }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={3}>
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Box>
+                          {attachment.contentType.startsWith("image") ? (
+                            <ImagePreview
+                              src={
+                                "data:" +
+                                attachment.contentType +
+                                ";base64," +
+                                attachment.fileContent
+                              }
+                              alt={t("Image")}
+                              height={50}
+                              width={50}
+                            />
+                          ) : (
+                            <DescriptionIcon sx={{ 
+                              fontSize: 50, 
+                              color: theme.palette.text.secondary 
+                            }} />
+                          )}
+                        </Box>
+                        <Typography variant="caption" color="text.secondary">
+                          {attachment.contentType.split("/")[0] != "image" &&
+                            attachment.contentType.split("/")[1]}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={7}>
+                      <Typography variant="body2" fontWeight={600}>
+                        {attachment.fileName}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        {!disabled && (
+                          <IconButton
+                            size="small"
+                            onClick={() => removeSelectedFile(index)}
+                            sx={{
+                              color: theme.palette.error.main,
+                              '&:hover': {
+                                backgroundColor: theme.palette.error.light,
+                                color: theme.palette.error.contrastText,
+                              },
+                            }}
+                          >
+                            <Delete />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
-    </div>
+    </Card>
   );
 };
 
