@@ -1,6 +1,7 @@
 export enum NodeType{
   Domain,
-  Category
+  Category,
+  SubDomain
 }
 
 export const NodeTypeOptions = Object.entries(NodeType)

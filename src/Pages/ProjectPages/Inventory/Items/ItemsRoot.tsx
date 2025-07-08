@@ -84,8 +84,8 @@ const ItemsRoot = () => {
                   }}
                   startIcon
                   columns={columns}
-                  showdelete={false}
-                  showedit={false}
+                  showdelete={true}
+                  showedit={true}
                   handleSelectId={handleSelectId}
                   handleSelectParentId={setParentId}
                   changeFormType={setFormType}

@@ -26,6 +26,7 @@ import ItemPackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inven
 import { EMPTY_UUID } from '../../../../Utilities/SD';
 import { ItemSchema } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/item-validation';
 import yup from "yup";
+import SubDomainCombinationBuilder from './Components/SubDomainCombinationBuilder';
 
 const ItemsForm: React.FC<{
   formType: FormTypes;
@@ -98,10 +99,10 @@ const ItemsForm: React.FC<{
         if (companiesResult) {
           setCompanies(companiesResult.result);
         }
-      };
-      fetchData();
+        fetchData();
     }
-  }, [formType]);
+}
+}, [formType]);
 
   const validate = async () => {
     try {
@@ -130,6 +131,7 @@ const ItemsForm: React.FC<{
             packingUnits: result.result.packingUnits ?? [
               createItemPackingUnit(true, 0),
             ],
+            subDomainCombinations: result.result.subDomainCombinations?.map(c => ({ ...c, isExisting: true })) ?? [],
           });
           setIsLoading(false);
         }
@@ -194,6 +196,12 @@ const ItemsForm: React.FC<{
     return false;
   };
 
+  // Filter NodeType options: only show SubDomain if editing/creating a SubDomain
+  const filteredNodeTypeOptions =
+    model.nodeType === NodeType.SubDomain
+      ? NodeTypeOptions
+      : NodeTypeOptions.filter((opt) => opt.value !== NodeType.SubDomain);
+
   return (
     <div className="container h-full">
       <BaseForm
@@ -234,7 +242,7 @@ const ItemsForm: React.FC<{
                           variant="outlined"
                           fullWidth
                           isRquired
-                          disabled={formType === FormTypes.Details}
+                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
                           value={model?.name}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -280,7 +288,7 @@ const ItemsForm: React.FC<{
                           isRquired
                           variant="outlined"
                           fullWidth
-                          disabled={formType === FormTypes.Details}
+                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
                           value={model?.code}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -294,7 +302,7 @@ const ItemsForm: React.FC<{
 
                       <div className="col-md-6">
                         <InputSelect
-                          options={NodeTypeOptions.map((e) => ({
+                          options={filteredNodeTypeOptions.map((e) => ({
                             ...e,
                             label: handleTranslate(e.label),
                           }))}
@@ -690,6 +698,8 @@ const ItemsForm: React.FC<{
                                     label={handleTranslate(
                                       "IsDiscountBasedOnSellingPrice"
                                     )}
+                                    disabled={
+                                      formType === FormTypes.Details}
                                   />
                                 </div>
                                 <div className="col col-md-6">
@@ -732,6 +742,15 @@ const ItemsForm: React.FC<{
                     </>
                   )}
                 </>
+              )}
+              {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
+              {model.nodeType === NodeType.Domain && (
+                  <SubDomainCombinationBuilder
+                    combinations={model.subDomainCombinations || []}
+                    onChange={combinations => setModel(prev => prev ? { ...prev, subDomainCombinations: combinations } : prev)}
+                    handleTranslate={handleTranslate}
+                    formType={formType}
+                  />
               )}
             </>
           )}

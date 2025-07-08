@@ -248,6 +248,7 @@ const handleDeleteRow = (index: number) => {
                   <FormControlLabel
                     control={
                       <Switch
+                        disabled={formType === FormTypes.Details}
                         checked={unit.isDefaultSales}
                         onChange={({ target }) =>
                           handleUpdateIsDefaultSales(rowIndex, target.checked)
@@ -261,6 +262,7 @@ const handleDeleteRow = (index: number) => {
                   <FormControlLabel
                     control={
                       <Switch
+                        disabled={formType === FormTypes.Details}
                         checked={unit.isDefaultPurchases}
                         onChange={({ target }) =>
                           handleUpdateIsDefaultPurchase(
@@ -358,6 +360,7 @@ const handleDeleteRow = (index: number) => {
       <button
         className="btn btn-secondary mt-2"
         onClick={handleAddNewItemPackingUnit}
+        disabled={formType === FormTypes.Details}
       >
         <Add fontSize="small" />
       </button>

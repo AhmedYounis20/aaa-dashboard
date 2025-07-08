@@ -26,7 +26,8 @@ interface ItemModel {
   suppliersIds: string[];
   manufacturerCompaniesIds: string[];
   sellingPriceDiscounts : Array<ItemSellingPriceDiscountModel>
-  packingUnits: ItemPackingUnitModel[]
+  packingUnits: ItemPackingUnitModel[];
+  subDomainCombinations?: import('./ColorSizeCombinationModel').ColorSizeCombinationModel[];
 }
 
 export default ItemModel;
