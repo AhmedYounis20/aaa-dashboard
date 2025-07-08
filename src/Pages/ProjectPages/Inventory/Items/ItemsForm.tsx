@@ -99,8 +99,8 @@ const ItemsForm: React.FC<{
         if (companiesResult) {
           setCompanies(companiesResult.result);
         }
-        fetchData();
-    }
+      }
+      fetchData();
 }
 }, [formType]);
 
@@ -543,7 +543,7 @@ const ItemsForm: React.FC<{
                                         return prevModel
                                           ? {
                                               ...prevModel,
-                                              suppliersIds: value ?? [],
+                                              manufacturerCompaniesIds: value ?? [],
                                             }
                                           : prevModel;
                                       });

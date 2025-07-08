@@ -44,6 +44,14 @@ const FinancialPeriodsForm: React.FC<{
           setIsLoading(false);
         }
       } else {
+        // Initialize model for new financial period
+        setModel({
+          id: "",
+          yearNumber: "",
+          periodTypeByMonth: 0,
+          startDate: null,
+          endDate: null
+        });
         setIsLoading(false);
       }
     };
@@ -52,14 +60,26 @@ const FinancialPeriodsForm: React.FC<{
   }, [formType, id]);
 
   useEffect(() => {
-    if (model?.startDate && model?.periodTypeByMonth) {
+    console.log("useEffect triggered:", {
+      startDate: model?.startDate,
+      periodTypeByMonth: model?.periodTypeByMonth,
+      hasStartDate: !!model?.startDate,
+      hasPeriodType: model?.periodTypeByMonth != null
+    });
+    
+    if (model?.startDate != null && model?.periodTypeByMonth != null) {
+      console.log("Calculating end date...");
       const newEndDate = dayjs(model.startDate).add(
         model.periodTypeByMonth,
         "month"
       );
+      console.log("New end date:", newEndDate.toDate());
+      
       setModel((prevModel) =>
         prevModel ? { ...prevModel, endDate: newEndDate.toDate() } : undefined
       );
+    } else {
+      console.log("Skipping calculation - missing required values");
     }
   }, [model?.periodTypeByMonth, model?.startDate]);
 
@@ -137,27 +157,27 @@ const FinancialPeriodsForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-                      <InputText
-                        type="text"
-                        className="form-input form-control"
-                        label={t("YearNumber")}
-                        variant="outlined"
-                        fullWidth
-                        disabled={formType === FormTypes.Details}
-                        value={model?.yearNumber || ""}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  yearNumber: value,
-                                }
-                              : undefined
-                          )
-                        }
-                        error={!!errors.yearNumber}
-                        helperText={errors.yearNumber ? t(errors.yearNumber) : undefined}
-                      />
+<InputText
+                          type="text"
+                          className="form-input form-control"
+                          label={t("YearNumber")}
+                          variant="outlined"
+                          fullWidth
+                          isRquired
+                          disabled={formType === FormTypes.Details}
+                          value={model?.yearNumber ?? ""}
+                          onChange={(value) =>
+                            setModel((prev) =>
+                              prev
+                                ? { ...prev, yearNumber: value }
+                                : prev
+                            )
+                          }
+                          error={!!errors.yearNumber}
+                          helperText={t(
+                            errors.yearNumber
+                          )}
+                        />
                     </div>
                     <div className="col col-md-6">
                       <InputSelect
@@ -200,13 +220,12 @@ const FinancialPeriodsForm: React.FC<{
                           label={t("StartDate")}
                           value={model?.startDate ?? null}
                           onChange={(value) => {
-                            if (value) {
-                              setModel((prevModel) =>
-                                prevModel
-                                  ? { ...prevModel, startDate: value }
-                                  : prevModel
-                              );
-                            }
+                            console.log("Date picker onChange:", value);
+                            setModel((prevModel) =>
+                              prevModel
+                                ? { ...prevModel, startDate: value }
+                                : prevModel
+                            );
                           }}
                         />
                         {errors.startDate && (
