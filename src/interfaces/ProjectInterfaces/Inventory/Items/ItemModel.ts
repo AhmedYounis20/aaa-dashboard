@@ -28,6 +28,7 @@ interface ItemModel {
   sellingPriceDiscounts : Array<ItemSellingPriceDiscountModel>
   packingUnits: ItemPackingUnitModel[];
   subDomainCombinations?: import('./ColorSizeCombinationModel').ColorSizeCombinationModel[];
+  applyDomainChanges?: boolean;
 }
 
 export default ItemModel;

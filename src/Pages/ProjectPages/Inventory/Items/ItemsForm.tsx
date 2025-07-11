@@ -79,6 +79,7 @@ const ItemsForm: React.FC<{
     model: "",
     version: "",
     packingUnits: [createItemPackingUnit(true, 0)],
+    applyDomainChanges: false,
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -124,7 +125,7 @@ const ItemsForm: React.FC<{
     if (formType != FormTypes.Add) {
       const fetchData = async () => {
         const result = await getItemById(id);
-        if (result) {
+        if (result) {         
           setModel({
             ...result.result,
             sellingPriceDiscounts: result.result.sellingPriceDiscounts ?? [],
@@ -132,6 +133,7 @@ const ItemsForm: React.FC<{
               createItemPackingUnit(true, 0),
             ],
             subDomainCombinations: result.result.subDomainCombinations?.map(c => ({ ...c, isExisting: true })) ?? [],
+            applyDomainChanges: result.result.applyDomainChanges ?? false,
           });
           setIsLoading(false);
         }
@@ -262,7 +264,7 @@ const ItemsForm: React.FC<{
                           variant="outlined"
                           fullWidth
                           isRquired
-                          disabled={formType === FormTypes.Details}
+                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
                           value={model?.nameSecondLanguage}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -308,7 +310,7 @@ const ItemsForm: React.FC<{
                           }))}
                           label={handleTranslate("NodeType")}
                           defaultValue={model?.nodeType}
-                          disabled={formType !== FormTypes.Add}
+                          disabled={formType !== FormTypes.Add || model.nodeType === NodeType.SubDomain}
                           multiple={false}
                           onChange={({
                             target,
@@ -323,7 +325,53 @@ const ItemsForm: React.FC<{
                     </div>
                   </div>
 
-                  {model.nodeType == NodeType.Domain && (
+                  {/* Special SubDomain Settings Card */}
+                  {model.nodeType == NodeType.SubDomain && (
+                    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                      <div className="d-flex align-items-center justify-content-between mb-3">
+                        <h5 className="mb-0 fw-semibold text-dark-emphasis">
+                          ⚙️ {handleTranslate("SubDomainSettings")}
+                        </h5>
+                      </div>
+                      
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={model?.applyDomainChanges ?? false}
+                                onChange={({
+                                  target,
+                                }: {
+                                  target: { checked: boolean };
+                                }) => {
+                                  console.log("Switch changed to:", target.checked);
+                                  setModel((prevModel) =>
+                                    prevModel
+                                      ? {
+                                          ...prevModel,
+                                          applyDomainChanges: target.checked,
+                                        }
+                                      : prevModel
+                                  );
+                                }}
+                                disabled={formType === FormTypes.Details}
+                              />
+                            }
+                            label={handleTranslate("ApplyDomainChanges")}
+                            disabled={formType === FormTypes.Details}
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <small className="text-muted">
+                            Current value: {model?.applyDomainChanges ? 'true' : 'false'}
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(model.nodeType == NodeType.Domain || model.nodeType == NodeType.SubDomain) && (
                     <>
                       <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                         <div className="d-flex align-items-center justify-content-between mb-3">

@@ -78,7 +78,31 @@ const ItemPackingUnitsInput: React.FC<{
       );
       return { ...unit, sellingPrices: newPrices };
     });
-    handleUpdate(updated);
+
+    // If this is the default packing unit, update all other units
+    const changedUnit = updated[rowIndex];
+    if (changedUnit.isDefaultPackingUnit) {
+      const defaultPrice = value ?? 0;
+      
+      // Update all other packing units based on the default price
+      const finalUpdated = updated.map((unit, i) => {
+        if (i === rowIndex) return unit; // Keep the default unit as is
+        
+        // Calculate new price: default_price * parts_count
+        const newPrices = unit.sellingPrices?.map((sp) => {
+          if (sp.sellingPriceId === priceId) {
+            return { ...sp, amount: unit.partsCount == 0 ? 0 : (defaultPrice / unit.partsCount) };
+          }
+          return sp;
+        });
+        
+        return { ...unit, sellingPrices: newPrices };
+      });
+      
+      handleUpdate(finalUpdated);
+    } else {
+      handleUpdate(updated);
+    }
   };
 
   const handleUpdateIsDefaultSales = (index: number, value: boolean) => {
@@ -285,7 +309,24 @@ const handleDeleteRow = (index: number) => {
                     onChange={(value) => {
                       const updated = [...itemPackingUnits];
                       updated[rowIndex].lastCostPrice = value ?? 0;
-                      handleUpdate(updated);
+                      
+                      // If this is the default packing unit, update all other units
+                      const changedUnit = updated[rowIndex];
+                      if (changedUnit.isDefaultPackingUnit) {
+                        const defaultPrice = value ?? 0;
+                        
+                        // Update all other packing units based on the default price
+                        const finalUpdated = updated.map((unit, i) => {
+                          if (i === rowIndex) return unit; // Keep the default unit as is
+                          
+                          // Calculate new price: default_price * parts_count
+                          return { ...unit, lastCostPrice: unit.partsCount == 0 ? 0 : (defaultPrice / unit.partsCount) };
+                        });
+                        
+                        handleUpdate(finalUpdated);
+                      } else {
+                        handleUpdate(updated);
+                      }
                     }}
                     error={!!errors[`packingUnits[${rowIndex}].lastCostPrice`]}
                     helperText={handleTranslate(
@@ -303,7 +344,24 @@ const handleDeleteRow = (index: number) => {
                     onChange={(value) => {
                       const updated = [...itemPackingUnits];
                       updated[rowIndex].averageCostPrice = value ?? 0;
-                      handleUpdate(updated);
+                      
+                      // If this is the default packing unit, update all other units
+                      const changedUnit = updated[rowIndex];
+                      if (changedUnit.isDefaultPackingUnit) {
+                        const defaultPrice = value ?? 0;
+                        
+                        // Update all other packing units based on the default price
+                        const finalUpdated = updated.map((unit, i) => {
+                          if (i === rowIndex) return unit; // Keep the default unit as is
+                          
+                          // Calculate new price: default_price * parts_count
+                          return { ...unit, averageCostPrice: unit.partsCount == 0 ?  0 : (defaultPrice / unit.partsCount) };
+                        });
+                        
+                        handleUpdate(finalUpdated);
+                      } else {
+                        handleUpdate(updated);
+                      }
                     }}
                     error={
                       !!errors[`packingUnits[${rowIndex}].averageCostPrice`]
