@@ -180,7 +180,7 @@ export const themeSettings = (
               main: tokensDark.grey[500],
             },
             background: {
-              default: tokensDark.grey[0],
+              default: tokensDark.grey[10],
               paper: "#ffffff",
             },
             text: {

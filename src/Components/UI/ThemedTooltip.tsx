@@ -2,11 +2,11 @@ import { Tooltip, useTheme, TooltipProps } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 interface ThemedTooltipProps extends Omit<TooltipProps, "title"> {
-  titleKey: string;
+  title: string;
 }
 
 export default function ThemedTooltip({
-  titleKey,
+  title,
   children,
   ...props
 }: ThemedTooltipProps) {
@@ -15,7 +15,7 @@ export default function ThemedTooltip({
 
   return (
     <Tooltip
-      title={t(titleKey)}
+      title={t(title)}
       placement={theme.direction === "rtl" ? "left" : "right"}
       arrow
       disableInteractive

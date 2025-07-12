@@ -1,4 +1,4 @@
-import { Box, useMediaQuery, useTheme} from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import { AppHeader } from "../Components";
 import { withAuth } from "../Hoc";
 import { createContext, useState } from "react";
@@ -16,43 +16,43 @@ export const appContext = createContext<appProps>({
 const DefaultLayout = () => {
   const isMobile = useMediaQuery("(max-width: 991px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
-  const theme = useTheme();
 
   return (
     <appContext.Provider
-    value={{
-      isMobile,
-      isSidebarOpen,
-      setIsSidebarOpen,
-    }}
-  >
-    <Box display="flex" height="100vh" overflow="hidden">
-      <AppHeader
+      value={{
+        isMobile,
+        isSidebarOpen,
+        setIsSidebarOpen,
+      }}
+    >
+      <Box>
+        <AppHeader
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
         />
 
-      <Box
-        component="main"
-        flexGrow={1}
-        display="flex"
-        sx={{ marginTop: "64px" }}
-      >
-        <AppSidebar items={sidebarItemsData} />
         <Box
-          component="section"
+          component='main'
           flexGrow={1}
-          p={3}
-          overflow="auto"
-           sx={{
-            backgroundColor: theme.palette.background.default,
-          }}
+          display='flex'
+          sx={{ marginTop: "64px" }}
         >
-          <Outlet />
+          <AppSidebar items={sidebarItemsData} />
+          <Box
+            component='section'
+            flexGrow={1}
+            p={3}
+            overflow='auto'
+            sx={{
+              marginLeft: isSidebarOpen ? "250px" : "80px",
+              transition: "margin-left 0.3s ease",
+            }}
+          >
+            <Outlet />
+          </Box>
         </Box>
       </Box>
-    </Box>
-  </appContext.Provider>
+    </appContext.Provider>
   );
 };
 
