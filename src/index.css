@@ -28,5 +28,5 @@
   border-radius: 4px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgb(55, 188, 255);
 }
