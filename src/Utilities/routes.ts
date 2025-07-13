@@ -51,6 +51,7 @@ import OpeningEntriesRoot from "../Pages/ProjectPages/Account/Entries/OpeningEnt
 import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
 import ColorsRoot from "../Pages/ProjectPages/Inventory/Colors/ColorsRoot";
 import SizesRoot from "../Pages/ProjectPages/Inventory/Sizes/SizesRoot";
+import InventoryTransactionsPage from "../Pages/ProjectPages/Inventory/InventoryTransactions";
 
 export interface ISidebarItem {
     icon?: ReactElement;
@@ -234,6 +235,18 @@ export const sidebarItemsData: ISidebarItem[] = [
         icon: React.createElement(Straighten),
         path: "/sizes",
         page: SizesRoot
+      },
+      // {
+      //   title: "StockBalance",
+      //   icon: React.createElement(Warehouse),
+      //   path: "/stock-balance",
+      //   page: StockBalancePage
+      // },
+      {
+        title: "InventoryTransactions",
+        icon: React.createElement(LocalShipping),
+        path: "/inventory-transactions",
+        page: InventoryTransactionsPage
       },
     ],
   },
