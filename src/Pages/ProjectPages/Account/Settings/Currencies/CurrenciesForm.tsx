@@ -197,7 +197,7 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsDefault")}
                         />
-                        {errors.isDefault && <FormHelperText>{errors.isDefault}</FormHelperText>}
+                        {errors.isDefault && <FormHelperText>{t(errors.isDefault)}</FormHelperText>}
                       </FormControl>
                     </div>
                     <div className="col col-md-6">
@@ -217,7 +217,7 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsActive")}
                         />
-                        {errors.isActive && <FormHelperText>{errors.isActive}</FormHelperText>}
+                        {errors.isActive && <FormHelperText>{t(errors.isActive)}</FormHelperText>}
                       </FormControl>
                     </div>
                   </div>

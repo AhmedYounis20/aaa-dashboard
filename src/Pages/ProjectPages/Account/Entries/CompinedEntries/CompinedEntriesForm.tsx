@@ -55,6 +55,7 @@ import {
 } from "../../../../../Apis/Account/CompinedEntriesApi";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
 import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
+import { getCurrencies } from '../../../../../Apis/Account/CurrenciesApi';
 
 const CompinedEntriesForm: React.FC<{
   formType: FormTypes;
@@ -70,7 +71,7 @@ const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
-  const [currencies] = useState<CurrencyModel[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [transactionNumber, setTransactionNumber] = useState<number>(1);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
@@ -85,8 +86,13 @@ const { t } = useTranslation();
 
   // Fetch branches and collection books
   useEffect(() => {
-    const fetchData = async () => {
-      if (formType !== FormTypes.Delete) {
+    if (formType !== FormTypes.Delete) {
+      const fetchData = async () => {
+        // Fetch currencies
+        const currenciesResponse = await getCurrencies();
+        if (currenciesResponse?.result) {
+          setCurrencies(currenciesResponse.result);
+        }
         try {
           const branchesResponse = await getBranches();
           if (branchesResponse?.result) {
@@ -109,10 +115,10 @@ const { t } = useTranslation();
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-      }
-    };
+      };
 
-    fetchData();
+      fetchData();
+    }
   }, [formType]);
 
   const createFinancialTransaction: () => ComplexFinancialTransactionModel =

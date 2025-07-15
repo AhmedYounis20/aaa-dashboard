@@ -295,6 +295,7 @@
     "DOCUMENT_NUMBER_IS_REQUIRED": "رقم المستند مطلوب",
     "ENTRY_NUMBER_IS_REQUIRED": "رقم القيد مطلوب",
     "SYMBOL_IS_REQUIRED": "الرمز مطلوب",
+    "Symbol": "الرمز",
     "PAYMENT_TYPE_IS_REQUIRED": "نوع الدفع مطلوب",
     "COST_CENTER_TYPE_IS_REQUIRED": "نوع مركز التكلفة مطلوب",
     "PERCENT_IS_REQUIRED": "النسبة المئوية مطلوبة",
