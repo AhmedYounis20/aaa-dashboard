@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import DecimalDigitsNumber from './DecimalDigitsNumber';
+import DepreciationApplication from './DepreciationApplication';
 
 export const GLSettingsSchema = yup.object().shape({
     decimalDigitsNumber: yup
@@ -13,13 +14,10 @@ export const GLSettingsSchema = yup.object().shape({
 
     monthDays: yup
     .number()
-    .test(
-        "greater-than-zero",
-        "MONTH_DAYS_IS_REQUIRED",
-        (val) => {
-            return val !== undefined && val > 0
-        }
-    ),
+    .when('depreciationApplication', {
+      is: (val: DepreciationApplication) => val == DepreciationApplication.Monthly,
+      then: (schema) => schema.moreThan(0, 'MONTH_DAYS_IS_REQUIRED'),
+    }),
 
     isAllowingEditVoucher: yup.boolean().default(true),
     isAllowingDeleteVoucher: yup.boolean().default(true),

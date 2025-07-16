@@ -110,11 +110,18 @@ const httpPost = async <T>(
       );
       return apiResponse;
     }
-
+    else
+    toastify(apiResponse.successMessage,"success");
     return apiResponse;
   } catch (error: any) {
+
     console.error("Error in httpPost:", error);
     handleErrorResponse(error);
+    if(error.response && error.response.data){
+      const res : ApiResult<T> = error.response.data;
+      return res;
+    }
+
     const res: ApiResult<T> = {
       isSuccess: false,
       errorMessages: [error],
@@ -149,6 +156,10 @@ const httpGet = async <T>(
   } catch (error: any) {
     console.error("Error in httpGet:", error);
     handleErrorResponse(error);
+    if(error.response && error.response.data){
+      const res : ApiResult<T> = error.response.data;
+      return res;
+    }
     const res : ApiResult<T> = {
       isSuccess : false,
       errorMessages : [error],
@@ -178,11 +189,18 @@ const httpPut = async <T>(
       );
       return apiResponse;
     }
+    else
+        toastify(apiResponse.successMessage,"success");
+    
 
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpPut:", error);
     handleErrorResponse(error);
+    if(error.response && error.response.data){
+      const res : ApiResult<T> = error.response.data;
+      return res;
+    }
     const res: ApiResult<T> = {
       isSuccess: false,
       errorMessages: [error],
@@ -213,11 +231,16 @@ const httpDelete = async <T>(
       );
       return apiResponse;
     }
-
+    else
+    toastify(apiResponse.successMessage,"success");
     return apiResponse;
   } catch (error: any) {
     console.error("Error in httpDelete:", error);
     handleErrorResponse(error);
+    if(error.response && error.response.data){
+      const res : ApiResult<T> = error.response.data;
+      return res;
+    }
     const res: ApiResult<T> = {
       isSuccess: false,
       errorMessages: [error],

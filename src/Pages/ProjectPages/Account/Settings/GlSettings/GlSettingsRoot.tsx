@@ -44,13 +44,13 @@ const GlSettingsRoot: React.FC = () => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
       setErrors(validationErrorsMap);
+      console.log(validationErrorsMap);
       return false;
     }
   };
 
   const handleUpdate = async () => {
-  if(await validate() === false) return false;
-  if(await validate() === false) return false;
+    if(await validate() === false) return false;
     if (model) {
       const result = await updateGlSettings(model);
       if (result && result.isSuccess) {
@@ -101,8 +101,8 @@ const GlSettingsRoot: React.FC = () => {
                       }}
                       name={"DecimalDigitsNumber"}
                       onBlur={undefined}
-                      error={!!errors.decimalDigitsNumber}
-                      // helperText={errors.decimalDigitsNumber}
+                      error={errors.decimalDigitsNumber}
+                      //helperText={t(errors.decimalDigitsNumber)}
                     />
                   </div>
                   <div>
@@ -144,6 +144,7 @@ const GlSettingsRoot: React.FC = () => {
                         className="form-input form-control"
                         label={t("MonthDays")}
                         variant="outlined"
+                        isRquired
                         fullWidth
                         value={model?.monthDays}
                         onChange={(value) =>
@@ -156,8 +157,8 @@ const GlSettingsRoot: React.FC = () => {
                               : prevModel
                           )
                         }
-                        error={!!errors.monthDay}
-                        helperText={errors.monthDay}
+                        error={!!errors.monthDays}
+                        helperText={t(errors.monthDays)}
                       />
                     </div>
                   )}

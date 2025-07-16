@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
-import { toastify } from '../../../../Helper/toastify';
 import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from "../../../../Apis/Account/AccountGuidesApi"
 import InputText from '../../../../Components/Inputs/InputText';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +26,6 @@ const AccountGuidesForm: React.FC<{
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // const [updateGuide] = useUpdateAccountGuideMutation();
-  // const [createGuide] = useCreateAccountGuideMutation();
-  // const [deleteGuide] = useDeleteAccountGuideMutation();
-
   useEffect(() => {
     if (formType != FormTypes.Add) {
       const fetchData = async () => {
@@ -47,17 +42,9 @@ const AccountGuidesForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteAccountGuide(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
-      return false;
-    }
+    } 
     return false;
   };
   const validate = async () => {
@@ -78,27 +65,20 @@ const AccountGuidesForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateAccountGuide(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     const response = await createAccountGuide(model);
+    console.log(response);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
 
