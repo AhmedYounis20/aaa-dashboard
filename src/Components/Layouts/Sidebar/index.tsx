@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { ISidebarItem } from "../../../Utilities/routes";
-import FlexBetween from "../../FlexBetween";
+import ThemedTooltip from "../../UI/ThemedTooltip";
 import {
   Typography,
   Box,
@@ -30,7 +30,6 @@ import {
   MoreVert,
 } from "@mui/icons-material";
 import "./index.css";
-import ThemedTooltip from "../../ui/ThemedTooltip";
 
 interface ISidebarProps {
   items: ISidebarItem[];
@@ -104,7 +103,8 @@ export default function AppSidebar({ items }: ISidebarProps) {
         border: 0,
         position: "fixed",
         top: 0,
-        left: 0,
+        left: theme.direction === "rtl" ? "auto" : 0,
+        right: theme.direction === "rtl" ? 0 : "auto",
         height: "calc(100% - 64px)",
         width: isSidebarOpen ? "250px" : "80px",
         marginTop: "64px",

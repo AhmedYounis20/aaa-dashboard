@@ -46,6 +46,7 @@ const DefaultLayout = () => {
             sx={{
               marginLeft: isSidebarOpen ? "250px" : "80px",
               transition: "margin-left 0.3s ease",
+              height: "100%",
             }}
           >
             <Outlet />

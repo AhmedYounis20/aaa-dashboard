@@ -127,7 +127,7 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(SettingsOutlined),
     submenu: [
       {
-        title: "GlSettings",
+        title: "Glsettings",
         icon: React.createElement(BookmarkBorderOutlined),
         path: "/glSettings",
         page: GlSettingsRoot
@@ -248,7 +248,7 @@ export const sidebarItemsData: ISidebarItem[] = [
       // },
       {
         title: "InventoryTransactions",
-        icon: React.createElement(LocalShipping),
+        icon: React.createElement(LocalShippingOutlined),
         path: "/inventory-transactions",
         page: InventoryTransactionsPage
       },
