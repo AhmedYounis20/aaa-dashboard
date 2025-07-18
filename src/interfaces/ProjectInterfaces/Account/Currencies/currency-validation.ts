@@ -4,19 +4,19 @@ export const CurrencySchema = yup.object().shape({
     name: yup
     .string()
     .required("NAME_IS_REQUIRED")
-    .min(1)
+    .min(1,"NAME_IS_REQUIRED")
     .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
     nameSecondLanguage: yup
     .string()
     .required("NAME_SECOND_LANGUAGE_IS_REQUIRED")
-    .min(1)
+    .min(1,"NAME_SECOND_LANGUAGE_IS_REQUIRED")
     .max(100, "NAME_CANNOT_EXCEED_100_LETTERS"),
 
   symbol: yup
     .string()
     .required("SYMBOL_IS_REQUIRED")
-    .min(1)
+    .min(1,"SYMBOL_IS_REQUIRED")
     .max(4, "SYMBOL_CANNOT_EXCEED_4_LETTERS"),
 
     exchangeRate: yup

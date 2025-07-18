@@ -6,7 +6,7 @@ const apiEndPoint = "ChartOfAccounts";
 // GET all currencies
 const getChartOfAccounts = async (): Promise<ApiResult<
   ChartOfAccountModel[]
-> | null> => {
+>> => {
   return await httpGet<ChartOfAccountModel[]>(apiEndPoint, {});
 };
 
@@ -19,7 +19,7 @@ const getChartOfAccountById = async (
 
 const getDefaultChartOfAccount = async (
   parentId: string | null
-): Promise<ApiResult<ChartOfAccountModel> | null> => {
+): Promise<ApiResult<ChartOfAccountModel>> => {
   return await httpGet<ChartOfAccountModel>(
     `${apiEndPoint}/NextAccountDefaultData${
       parentId == null ? "" : `?parentId=${parentId}`
@@ -31,7 +31,7 @@ const getDefaultChartOfAccount = async (
 // POST (Create) a new currency
 const createChartOfAccount = async (
   data: ChartOfAccountModel
-): Promise<ApiResult<ChartOfAccountModel> | null> => {
+): Promise<ApiResult<ChartOfAccountModel>> => {
   return await httpPost<ChartOfAccountModel>(apiEndPoint, data);
 };
 
@@ -39,14 +39,14 @@ const createChartOfAccount = async (
 const updateChartOfAccount = async (
   id: string,
   data: ChartOfAccountModel
-): Promise<ApiResult<ChartOfAccountModel> | null> => {
+): Promise<ApiResult<ChartOfAccountModel>> => {
   return await httpPut<ChartOfAccountModel>(`${apiEndPoint}/${id}`, data);
 };
 
 // DELETE a currency by ID
 const deleteChartOfAccount = async (
   id: string
-): Promise<ApiResult<ChartOfAccountModel> | null> => {
+): Promise<ApiResult<ChartOfAccountModel>> => {
   return await httpDelete<ChartOfAccountModel>(`${apiEndPoint}/${id}`, { id });
 };
 
