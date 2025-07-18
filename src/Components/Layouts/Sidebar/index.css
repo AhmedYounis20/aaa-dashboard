@@ -1,1 +1,12 @@
 /* No transitions needed - sidebar closes immediately */
+.ps-submenu-content {
+  background-color: transparent !important;
+  overflow: hidden !important;
+}
+
+.ps-toggled .ps-submenu-expand-icon span {
+  width: 10px !important;
+  height: 10px !important;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}

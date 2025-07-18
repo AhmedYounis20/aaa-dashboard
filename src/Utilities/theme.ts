@@ -180,7 +180,7 @@ export const themeSettings = (
               main: tokensDark.grey[500],
             },
             background: {
-              default: tokensDark.grey[0],
+              default: tokensDark.grey[10],
               paper: "#ffffff",
             },
             text: {
@@ -190,53 +190,49 @@ export const themeSettings = (
           }),
     },
     typography: {
-      fontFamily: ["Inter", "Roboto", "Helvetica", "Arial", "sans-serif"].join(","),
-      fontSize: 14,
+      fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,      fontSize: 14,
       h1: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 40,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 40,
         fontWeight: 700,
         lineHeight: 1.2,
       },
       h2: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 32,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 32,
         fontWeight: 600,
         lineHeight: 1.3,
       },
       h3: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 24,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 24,
         fontWeight: 600,
         lineHeight: 1.4,
       },
       h4: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 20,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 20,
         fontWeight: 600,
         lineHeight: 1.4,
       },
       h5: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 16,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 16,
         fontWeight: 600,
         lineHeight: 1.5,
       },
       h6: {
-        fontFamily: ["Inter", "sans-serif"].join(","),
-        fontSize: 14,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 14,
         fontWeight: 600,
         lineHeight: 1.5,
       },
       body1: {
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
         fontSize: 14,
         lineHeight: 1.6,
       },
       body2: {
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
         fontSize: 13,
         lineHeight: 1.5,
       },
       button: {
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
         fontWeight: 600,
         textTransform: "none",
       },
@@ -293,4 +289,3 @@ export const themeSettings = (
     },
   };
 };
-

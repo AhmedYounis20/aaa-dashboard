@@ -14,7 +14,7 @@ export const appContext = createContext<appProps>({
 });
 
 const DefaultLayout = () => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 991px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
 
   return (
@@ -25,26 +25,29 @@ const DefaultLayout = () => {
         setIsSidebarOpen,
       }}
     >
-      <Box display="flex" height="100vh" overflow="hidden">
-        <AppSidebar items={sidebarItemsData} />
+      <Box>
+        <AppHeader
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
 
         <Box
-          component="main"
+          component='main'
           flexGrow={1}
-          display="flex"
-          flexDirection="column"
-          height="100vh"
-          overflow="hidden"
+          display='flex'
+          sx={{ marginTop: "64px" }}
         >
-          <AppHeader
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-          />
+          <AppSidebar items={sidebarItemsData} />
           <Box
-            component="section"
+            component='section'
             flexGrow={1}
             p={3}
-            overflow="auto"
+            overflow='auto'
+            sx={{
+              marginLeft: isSidebarOpen ? "250px" : "80px",
+              transition: "margin-left 0.3s ease",
+              height: "100%",
+            }}
           >
             <Outlet />
           </Box>

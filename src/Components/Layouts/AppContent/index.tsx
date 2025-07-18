@@ -56,7 +56,6 @@ export default function AppContent({
         flexDirection: "column",
         gap: 3,
         p: 3,
-        backgroundColor: theme.palette.background.default,
         minHeight: '100vh',
         transition: 'all 0.3s ease',
       }}
