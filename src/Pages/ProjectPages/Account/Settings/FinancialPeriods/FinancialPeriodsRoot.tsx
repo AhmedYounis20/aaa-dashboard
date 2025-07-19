@@ -5,6 +5,7 @@ import FinancialPeriodsForm from "./FinancialPeriodsForm";
 import { useTranslation } from "react-i18next";
 import Loader from "../../../../../Components/Loader";
 import { AppContent } from "../../../../../Components";
+import FinancialPeriodModel from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
 
 const columns: { Header: string; accessor: string }[] = [
   {
@@ -14,6 +15,14 @@ const columns: { Header: string; accessor: string }[] = [
   {
     Header: "PeriodTypeByMonth",
     accessor: "periodTypeByMonth",
+  },
+  {
+    Header: "StartDate",
+    accessor: "startDate",
+  },
+    {
+    Header: "EndDate",
+    accessor: "endDate",
   },
 ];
 
@@ -60,6 +69,7 @@ const FinancialPeriodsRoot = () => {
               handleCloseForm={handleCloseForm}
               formType={formType}
               afterAction={() => fetchFinancialPeriods()}
+              isStartDateDisabled = {data  && data.result}
             />
           )}
           {data?.result && (
@@ -73,6 +83,8 @@ const FinancialPeriodsRoot = () => {
               title={t("FinancialPeriods")}
               btn
               addBtn
+              showEditButtonIf={(e : FinancialPeriodModel)=> e.isEditable?? false}
+              showDeleteButtonIf={(e : FinancialPeriodModel)=> e.isDeletable?? false}
               actionBtn={() => {
                 setFormType(FormTypes.Add);
                 handleShowForm();

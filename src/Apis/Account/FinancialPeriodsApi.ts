@@ -16,6 +16,13 @@ const getFinancialPeriodById = async (
   return await httpGet<FinancialPeriodModel>(`${apiEndPoint}/${id}`, {});
 };
 
+const getDefaultFinancialPeriodData = async (
+): Promise<ApiResult<FinancialPeriodModel>> => {
+  return await httpGet<FinancialPeriodModel>(
+    `${apiEndPoint}/nextDefaultdata`,
+    {}
+  );
+};
 // POST (Create) a new financial period
 const createFinancialPeriod = async (
   data: FinancialPeriodModel
@@ -43,5 +50,6 @@ export {
   getFinancialPeriodById,
   createFinancialPeriod,
   updateFinancialPeriod,
-  deleteFinancialPeriod
+  deleteFinancialPeriod,
+  getDefaultFinancialPeriodData
 };

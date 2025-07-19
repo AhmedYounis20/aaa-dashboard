@@ -45,6 +45,9 @@ const DataTreeTable = ({
   showedit = true,
   showadd = true,
   showdelete = true,
+  showEditButtonIf = (e)=> true,
+  showDeleteButtonIf = (e)=> true
+
 }) => {
   const [openRows, setOpenRows] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
@@ -204,7 +207,7 @@ const DataTreeTable = ({
                   <Add fontSize="small" />
                 </IconButton>
               )}
-              {showedit && (
+              {showedit && showEditButtonIf(row) && (
                 <IconButton
                   size="small"
                   sx={{
@@ -228,7 +231,7 @@ const DataTreeTable = ({
                   <EditNote fontSize="small" />
                 </IconButton>
               )}
-              {showdelete && (
+              {showdelete && showDeleteButtonIf(row) && (
                 <IconButton
                   size="small"
                   sx={{

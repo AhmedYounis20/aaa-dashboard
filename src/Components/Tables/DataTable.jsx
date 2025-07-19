@@ -21,11 +21,14 @@ import { appContext } from '../../layout/DefaultLayout';
 const DataTable = ({
   data = [],
   defaultHiddenColumns = [],
+  defaultColumns,
   changeFormType,
   handleSelectId,
   handleShowForm,
   showedit = true,
   showdelete = true,
+  showEditButtonIf = (e)=> true,
+  showDeleteButtonIf = (e)=> true
 }) => {
   const [columns, setColumns] = useState([]);
   const [visibleColumns, setVisibleColumns] = useState([]);
@@ -42,10 +45,10 @@ const DataTable = ({
   useEffect(() => {
     if (data.length > 0) {
       let initialColumns;
-      if (Array.isArray(data.columns) && data.columns.length > 0) {
-        initialColumns = data.columns.map((col) => ({
+      if (Array.isArray(defaultColumns) && defaultColumns.length > 0) {
+        initialColumns = (defaultColumns).map((col) => ({
           ...col,
-          field: col.accessor || col.field,
+          field: col.accessor || col.Header || col.field,
           headerName: t(col.Header || col.headerName || col.field),
           hide: defaultHiddenColumns.includes(col.accessor || col.field),
           flex: 1,
@@ -80,7 +83,7 @@ const DataTable = ({
         cellClassName: 'custom-cell',
         renderCell: (params) => (
           <Box sx={{ display: 'flex', gap: 0.5 }}>
-            {showedit && (
+            {(showedit && showEditButtonIf(params.row)) && (
               <IconButton
                 size="small"
                 sx={{
@@ -104,7 +107,7 @@ const DataTable = ({
                 <EditNote fontSize="small" />
               </IconButton>
             )}
-            {showdelete && (
+            {showdelete  && showDeleteButtonIf(params.row) && (
               <IconButton
                 size="small"
                 sx={{

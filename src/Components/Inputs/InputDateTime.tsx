@@ -18,6 +18,7 @@ interface AppDateTimePickerProps {
   disabled?: boolean;
   type?: PickerType;
   slotProps?: any;
+  required? : boolean
 }
 
 const InputDateTimePicker: React.FC<AppDateTimePickerProps> = ({
@@ -27,12 +28,13 @@ const InputDateTimePicker: React.FC<AppDateTimePickerProps> = ({
   disabled = false,
   type = "datetime",
   slotProps,
+  required = false
 }) => {
   const { t } = useTranslation();
   const defaultLabel = t("SelectDate");
 
   const commonProps = {
-    label: label || defaultLabel,
+    label: (label || defaultLabel) +  (required ?  " ("+t("Required")+")" :""),
     value: value ? dayjs(value) : null,
     onChange: (newValue: any) => {
       onChange?.(newValue ? newValue.toDate() : null);

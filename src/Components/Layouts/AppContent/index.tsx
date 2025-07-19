@@ -24,6 +24,8 @@ type AppContentProps = {
   showdelete?: boolean;
   showedit?: boolean;
   showadd?: boolean;
+  showEditButtonIf?: (e: any)=> boolean;
+  showDeleteButtonIf?: (e:any)=> boolean;
 };
 
 export default function AppContent({
@@ -41,6 +43,8 @@ export default function AppContent({
   showdelete,
   showedit,
   showadd,
+  showEditButtonIf,
+  showDeleteButtonIf,
   btn = false,
 }: AppContentProps) {
   const {t} = useTranslation();
@@ -169,6 +173,8 @@ export default function AppContent({
             showadd={showadd}
             showedit={showedit}
             showdelete={showdelete}
+            showEditButtonIf ={showEditButtonIf}
+            showDeleteButtonIf ={showDeleteButtonIf}
           />
         ) : (
           <DataTable
@@ -179,6 +185,9 @@ export default function AppContent({
             changeFormType={changeFormType}
             handleShowForm={handleShowForm}
             defaultHiddenColumns={defaultHiddenColumns as any}
+            defaultColumns= {columns}
+            showEditButtonIf = {showEditButtonIf}
+            showDeleteButtonIf ={showDeleteButtonIf}
           />
         )}
       </Box>

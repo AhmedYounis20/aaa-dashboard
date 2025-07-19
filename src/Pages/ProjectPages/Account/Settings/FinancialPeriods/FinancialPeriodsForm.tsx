@@ -5,12 +5,13 @@ import {
   getFinancialPeriodById,
   updateFinancialPeriod,
   createFinancialPeriod,
+  getDefaultFinancialPeriodData,
+  deleteFinancialPeriod,
 } from "../../../../../Apis/Account/FinancialPeriodsApi";
 import FinancialPeriodModel from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
 import dayjs from "dayjs";
 import { financialPeriodOptions, FinancialPeriodType } from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodType";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
-import { toastify } from "../../../../../Helper/toastify";
 import InputDateTimePicker from "../../../../../Components/Inputs/InputDateTime";
 import InputText from "../../../../../Components/Inputs/InputText";
 import { useTranslation } from "react-i18next";
@@ -21,7 +22,8 @@ const FinancialPeriodsForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
   afterAction?: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
+  isStartDateDisabled : boolean;
+}> = ({ formType, id, handleCloseForm, afterAction,isStartDateDisabled}) => {
   const { t } = useTranslation();
   const [model, setModel] = useState<FinancialPeriodModel | undefined>(
     undefined
@@ -43,22 +45,23 @@ const FinancialPeriodsForm: React.FC<{
         } finally {
           setIsLoading(false);
         }
-      } else {
-        // Initialize model for new financial period
-        setModel({
-          id: "",
-          yearNumber: "",
-          periodTypeByMonth: 0,
-          startDate: null,
-          endDate: null
-        });
-        setIsLoading(false);
+      }else {
+        try {
+          const response = await getDefaultFinancialPeriodData();
+          if (response?.result) {
+            setModel(response.result);
+          }
+          
+        } catch (error) {
+          console.error('Error fetching default data:', error);
+        } finally{
+          setIsLoading(false);
+        }
       }
     };
 
     fetchFinancialPeriod();
   }, [formType, id]);
-
   useEffect(() => {
     console.log("useEffect triggered:", {
       startDate: model?.startDate,
@@ -104,13 +107,9 @@ const FinancialPeriodsForm: React.FC<{
     if (model) {
       const response = await updateFinancialPeriod(model.id, model);
       if (response?.result) {
-        toastify(response.successMessage);
         afterAction && afterAction();
         return true;
-      } else if (response?.errorMessages) {
-        toastify(response.errorMessages[0], "error");
-        return false;
-      }
+      } 
     }
     return false;
   };
@@ -120,16 +119,22 @@ const FinancialPeriodsForm: React.FC<{
     if (model) {
       const response = await createFinancialPeriod(model);
       if (response?.result) {
-        toastify(response.successMessage);
         afterAction && afterAction();
         return true;
-      } else if (response?.errorMessages) {
-        toastify(response.errorMessages[0], "error");
-        return false;
-      }
+      } 
     }
     return false;
   };
+  
+    const handleDelete = async (): Promise<boolean> => {
+      const response = await deleteFinancialPeriod(id);
+      if (response?.result) {
+        afterAction && afterAction();
+        return true;
+      } else {
+        return false;
+      }
+    };
   
   return (
     <div className="container h-full">
@@ -138,7 +143,7 @@ const FinancialPeriodsForm: React.FC<{
         handleCloseForm={handleCloseForm}
         handleUpdate={handleUpdate}
         handleAdd={handleCreate}
-        handleDelete={undefined}
+        handleDelete={async () => await handleDelete()}
         isModal
       >
         <div>
@@ -157,14 +162,14 @@ const FinancialPeriodsForm: React.FC<{
                 <>
                   <div className="row mb-3">
                     <div className="col col-md-6">
-<InputText
+                      <InputText
                           type="text"
                           className="form-input form-control"
                           label={t("YearNumber")}
                           variant="outlined"
                           fullWidth
                           isRquired
-                          disabled={formType === FormTypes.Details}
+                          disabled={formType != FormTypes.Add && !model?.isNameEditable}
                           value={model?.yearNumber ?? ""}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -188,7 +193,7 @@ const FinancialPeriodsForm: React.FC<{
                         }))}
                         label={t("FinancialPeriods")}
                         defaultValue={model?.periodTypeByMonth}
-                        disabled={formType === FormTypes.Details}
+                        disabled={formType == FormTypes.Details}
                         multiple={false}
                         onChange={({
                           target,
@@ -213,32 +218,34 @@ const FinancialPeriodsForm: React.FC<{
                     </div>
                   </div>
                   <div className="row mb-3">
-                    {formType != FormTypes.Details && (
-                      <div className="col col-md-6">
-                        <InputDateTimePicker
-                          type="datetime"
-                          label={t("StartDate")}
-                          value={model?.startDate ?? null}
-                          onChange={(value) => {
-                            console.log("Date picker onChange:", value);
-                            setModel((prevModel) =>
-                              prevModel
-                                ? { ...prevModel, startDate: value }
-                                : prevModel
-                            );
-                          }}
-                        />
-                        {errors.startDate && (
-                          <div className="text-danger small mt-1">{t(errors.startDate)}</div>
-                        )}
-                      </div>
-                    )}
+                    <div className="col col-md-6">
+                      <InputDateTimePicker
+                        type="datetime"
+                        disabled={formType !== FormTypes.Add || isStartDateDisabled}
+                        label={t("StartDate")}
+                        value={model?.startDate ?? null}
+                        onChange={(value) => {
+                          console.log("Date picker onChange:", value);
+                          setModel((prevModel) =>
+                            prevModel
+                              ? { ...prevModel, startDate: value }
+                              : prevModel
+                          );
+                        }}
+                      required
+                      />
+                      {errors.startDate && (
+                        <div className="text-danger small mt-1">{t(errors.startDate)}</div>
+                      )}
+                    </div>
+                    
                     <div className="col col-md-6">
                       <InputDateTimePicker
                         label={t("EndDate")}
                         type="datetime"
                         value={model?.endDate ?? null}
                         disabled
+                        required
                       />
                       {errors.endDate && (
                         <div className="text-danger small mt-1">{t(errors.endDate)}</div>
