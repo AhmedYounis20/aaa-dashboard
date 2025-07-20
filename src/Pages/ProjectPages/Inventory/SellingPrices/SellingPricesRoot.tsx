@@ -58,6 +58,7 @@ const SellingPricesRoot = () => {
               addBtn
               btn
               startIcon
+              showDeleteButtonIf={(e : SellingPriceModel)=> e.isDeletable ?? false}
               actionBtn={() => {
                 setFormType(FormTypes.Add);
                 handleShowForm();
