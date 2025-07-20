@@ -8,6 +8,10 @@ const getItems = async (): Promise<ApiResult<ItemModel[]>> => {
   return await httpGet<ItemModel[]>(apiEndPoint, {});
 };
 
+const getItemsVariants = async (): Promise<ApiResult<ItemModel[]>> => {
+  return await httpGet<ItemModel[]>(`${apiEndPoint}/variants`, {});
+};
+
 // GET a single currency by ID
 const getItemById = async (
   id: string
@@ -49,4 +53,5 @@ export {
   updateItem,
   deleteItem,
   getItemNextCode,
+  getItemsVariants
 };

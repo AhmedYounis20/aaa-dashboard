@@ -14,7 +14,7 @@ import { v4 as uuid } from 'uuid';
 
 // API imports
 import { createExportTransaction, getExportTransactionNumber, getExportTransactionById } from '../../../../Apis/Inventory/ExportTransactionsApi';
-import { getItems, getItemById } from '../../../../Apis/Inventory/ItemsApi';
+import { getItemsVariants, getItemById } from '../../../../Apis/Inventory/ItemsApi';
 import { getPackingUnits } from '../../../../Apis/Inventory/PackingUnitsApi';
 import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
@@ -93,7 +93,7 @@ const ExportTransactionForm: React.FC<{
       if (formType !== FormTypes.Delete) {
         try {
           const [itemsRes, packingUnitsRes, branchesRes, chartOfAccountsRes] = await Promise.all([
-            getItems(),
+            getItemsVariants(),
             getPackingUnits(),
             getBranches(),
             getChartOfAccounts()
