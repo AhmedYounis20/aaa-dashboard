@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import  PackingUnitModel  from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
-import { toastify } from '../../../../Helper/toastify';
 import {
   createPackingUnit,
   deletePackingUnit,
@@ -11,6 +10,8 @@ import {
   updatePackingUnit,
 } from "../../../../Apis/Inventory/PackingUnitsApi";
 import InputText from '../../../../Components/Inputs/InputText';
+import { PackingUnitSchema } from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/validation-packingUnit';
+import * as yup from 'yup';
 
 const PackingUnitsForm: React.FC<{
   formType: FormTypes;
@@ -27,6 +28,7 @@ const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<boolean>(
     formType != FormTypes.Add
   );
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // const [updateGuide] = useUpdatePackingUnitMutation();
   // const [createGuide] = useCreatePackingUnitMutation();
@@ -48,42 +50,42 @@ const { t } = useTranslation();
   const handleDelete = async (): Promise<boolean> => {
     const response = await deletePackingUnit(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
-      return false;
-    }
+    } 
     return false;
   };
-  const handleUpdate = async () => {
-    const response = await updatePackingUnit(model.id, model);
-    if (response && response.isSuccess) {
-      toastify(response.successMessage);
-      afterAction();
+  const validate = async () => {
+    try {
+      await PackingUnitSchema.validate(model, { abortEarly: false });
+      setErrors({});
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
+    } catch (validationErrors) {
+      const validationErrorsMap: Record<string, string> = {};
+      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
+      setErrors(validationErrorsMap);
       return false;
     }
+  };
+
+  const handleUpdate = async () => {
+    if ((await validate()) === false) return false;
+    const response = await updatePackingUnit(model.id, model);
+    if (response && response.isSuccess) {
+      afterAction();
+      return true;
+    } 
     return false;
   };
   const handleAdd = async () => {
+    if ((await validate()) === false) return false;
     const response = await createPackingUnit(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
-      console.log(response);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
 
@@ -119,6 +121,7 @@ const { t } = useTranslation();
                         label={t("Name")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -128,6 +131,8 @@ const { t } = useTranslation();
                               : prevModel
                           )
                         }
+                        error={!!errors.name}
+                        helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
                     <div className="col col-md-6">
@@ -137,6 +142,7 @@ const { t } = useTranslation();
                         label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
+                        isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -149,6 +155,8 @@ const { t } = useTranslation();
                               : prevModel
                           )
                         }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
                       />
                     </div>
                   </div>
