@@ -1,5 +1,5 @@
-import { NodeType } from "../../../Components/NodeType";
 import { DiscountType } from "./DiscountType";
+import { ItemNodeType } from "./ItemNodeType";
 import ItemPackingUnitModel from "./ItemPackingUnitModel";
 import ItemSellingPriceDiscountModel from "./ItemSellingPriceDiscountModel";
 import { ItemType } from "./ItemType";
@@ -27,7 +27,7 @@ interface ItemModel {
   itemType: ItemType;
   name: string;
   nameSecondLanguage: string;
-  nodeType: NodeType;
+  nodeType: ItemNodeType;
   barCodes: string[];
   suppliersIds: string[];
   manufacturerCompaniesIds: string[];

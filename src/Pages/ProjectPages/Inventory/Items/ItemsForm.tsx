@@ -8,7 +8,6 @@ import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import updateModel from '../../../../Helper/updateModelHelper';
 import InputText from '../../../../Components/Inputs/InputText';
-import { NodeType, NodeTypeOptions } from '../../../../interfaces/Components/NodeType';
 import { ItemType, ItemTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemType';
 import BarCodesInput from './Components/BarCodes';
 import InputNumber from '../../../../Components/Inputs/InputNumber';
@@ -27,6 +26,7 @@ import { EMPTY_UUID } from '../../../../Utilities/SD';
 import { ItemSchema } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/item-validation';
 import yup from "yup";
 import SubDomainCombinationBuilder from './Components/SubDomainCombinationBuilder';
+import { ItemNodeType, ItemNodeTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType';
 
 const ItemsForm: React.FC<{
   formType: FormTypes;
@@ -62,7 +62,7 @@ const ItemsForm: React.FC<{
     name: "",
     nameSecondLanguage: "",
     parentId: parentId,
-    nodeType: NodeType.Category,
+    nodeType: ItemNodeType.Category,
     defaultDiscountType: DiscountType.Percent,
     barCodes: [],
     suppliersIds: [],
@@ -93,7 +93,7 @@ const ItemsForm: React.FC<{
         const result = await getSuppliers();
         if (result) {
           setSuppliers(
-            result.result.filter((e) => e.nodeType == NodeType.Domain)
+            result.result.filter((e) => e.nodeType == ItemNodeType.Domain)
           );
         }
         const companiesResult = await getManufacturerCompanies();
@@ -200,9 +200,9 @@ const ItemsForm: React.FC<{
 
   // Filter NodeType options: only show SubDomain if editing/creating a SubDomain
   const filteredNodeTypeOptions =
-    model.nodeType === NodeType.SubDomain
-      ? NodeTypeOptions
-      : NodeTypeOptions.filter((opt) => opt.value !== NodeType.SubDomain);
+    model.nodeType === ItemNodeType.SubDomain
+      ? ItemNodeTypeOptions
+      : ItemNodeTypeOptions.filter((opt) => opt.value !== ItemNodeType.SubDomain);
 
   return (
     <div className="container h-full">
@@ -244,7 +244,7 @@ const ItemsForm: React.FC<{
                           variant="outlined"
                           fullWidth
                           isRquired
-                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
+                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
                           value={model?.name}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -264,7 +264,7 @@ const ItemsForm: React.FC<{
                           variant="outlined"
                           fullWidth
                           isRquired
-                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
+                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
                           value={model?.nameSecondLanguage}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -290,7 +290,7 @@ const ItemsForm: React.FC<{
                           isRquired
                           variant="outlined"
                           fullWidth
-                          disabled={formType === FormTypes.Details || model.nodeType === NodeType.SubDomain}
+                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
                           value={model?.code}
                           onChange={(value) =>
                             setModel((prev) =>
@@ -310,12 +310,12 @@ const ItemsForm: React.FC<{
                           }))}
                           label={handleTranslate("NodeType")}
                           defaultValue={model?.nodeType}
-                          disabled={formType !== FormTypes.Add || model.nodeType === NodeType.SubDomain}
+                          disabled={formType !== FormTypes.Add || model.nodeType === ItemNodeType.SubDomain}
                           multiple={false}
                           onChange={({
                             target,
                           }: {
-                            target: { value: NodeType };
+                            target: { value: ItemNodeType };
                           }) => updateModel(setModel, "nodeType", target.value)}
                           name="NodeType"
                           onBlur={null}
@@ -326,7 +326,7 @@ const ItemsForm: React.FC<{
                   </div>
 
                   {/* Special SubDomain Settings Card */}
-                  {model.nodeType == NodeType.SubDomain && (
+                  {model.nodeType == ItemNodeType.SubDomain && (
                     <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                       <div className="d-flex align-items-center justify-content-between mb-3">
                         <h5 className="mb-0 fw-semibold text-dark-emphasis">
@@ -371,7 +371,7 @@ const ItemsForm: React.FC<{
                     </div>
                   )}
 
-                  {(model.nodeType == NodeType.Domain || model.nodeType == NodeType.SubDomain) && (
+                  {(model.nodeType == ItemNodeType.Domain || model.nodeType == ItemNodeType.SubDomain) && (
                     <>
                       <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                         <div className="d-flex align-items-center justify-content-between mb-3">
@@ -792,7 +792,7 @@ const ItemsForm: React.FC<{
                 </>
               )}
               {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
-              {model.nodeType === NodeType.Domain && (
+              {model.nodeType === ItemNodeType.Domain && (
                   <SubDomainCombinationBuilder
                     combinations={model.subDomainCombinations || []}
                     onChange={combinations => setModel(prev => prev ? { ...prev, subDomainCombinations: combinations } : prev)}
