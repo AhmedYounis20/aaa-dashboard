@@ -2,6 +2,7 @@ import ItemPackingUnitSellingPriceModel from "./ItemPackingUnitSellingPriceModel
 
 interface ItemPackingUnitModel {
   packingUnitId: string;
+  name?: string;
   orderNumber: number;
   partsCount: number;
   isDefaultPackingUnit: boolean;

@@ -26,6 +26,10 @@ const getItemNextCode = async (parentId?: string | null): Promise<ApiResult<stri
   );
 };
 
+const getItemPackingUnits = async (itemId: string) => {
+  return await httpGet<any[]>(`items/${itemId}/packingUnits`, {});
+};
+
 // POST (Create) a new currency
 const createItem = async (
   data: ItemModel
@@ -53,5 +57,6 @@ export {
   updateItem,
   deleteItem,
   getItemNextCode,
-  getItemsVariants
+  getItemsVariants,
+  getItemPackingUnits,
 };

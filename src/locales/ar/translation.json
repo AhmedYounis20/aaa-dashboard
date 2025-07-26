@@ -364,5 +364,19 @@
   "received": "مستلم",
   "issued": "مصروف",
   "cancelled": "ملغي",
-  "Please fill all required fields": "يرجى ملء جميع الحقول المطلوبة"
+  "Please fill all required fields": "يرجى ملء جميع الحقول المطلوبة",
+  "InventoryTransfers": "تحويلات المخزون",
+  "AddTransfer": "إضافة تحويل",
+  "SourceBranch": "فرع المصدر",
+  "DestinationBranch": "فرع الوجهة",
+  "Approve": "اعتماد",
+  "Reject": "رفض",
+  "Transfer approved": "تم اعتماد التحويل",
+  "Transfer rejected": "تم رفض التحويل",
+  "Enter rejection reason": "ادخل سبب الرفض",
+  "User not found": "المستخدم غير موجود",
+  "Transfer Type": "نوع التحويل",
+  "Direct": "مباشر",
+  "Conditional": "مشروط",
+  "All": "الكل"
 }

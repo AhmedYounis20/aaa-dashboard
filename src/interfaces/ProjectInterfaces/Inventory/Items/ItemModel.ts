@@ -4,6 +4,12 @@ import ItemPackingUnitModel from "./ItemPackingUnitModel";
 import ItemSellingPriceDiscountModel from "./ItemSellingPriceDiscountModel";
 import { ItemType } from "./ItemType";
 
+export interface ItemStockBalanceModel {
+  branchId: string;
+  packingUnitId: string;
+  currentBalance: number;
+}
+
 interface ItemModel {
   id: string;
   parentId?: string | null;
@@ -27,6 +33,7 @@ interface ItemModel {
   manufacturerCompaniesIds: string[];
   sellingPriceDiscounts : Array<ItemSellingPriceDiscountModel>
   packingUnits: ItemPackingUnitModel[];
+  stockBalances?: ItemStockBalanceModel[];
   subDomainCombinations?: import('./ColorSizeCombinationModel').ColorSizeCombinationModel[];
   applyDomainChanges?: boolean;
 }

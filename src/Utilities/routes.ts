@@ -51,6 +51,7 @@ import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
 import ColorsRoot from "../Pages/ProjectPages/Inventory/Colors/ColorsRoot";
 import SizesRoot from "../Pages/ProjectPages/Inventory/Sizes/SizesRoot";
 import InventoryTransactionsPage from "../Pages/ProjectPages/Inventory/InventoryTransactions";
+import InventoryTransferRoot from '../Pages/ProjectPages/Inventory/InventoryTransfers/InventoryTransferRoot';
 
 export interface ISidebarItem {
     icon?: ReactElement;
@@ -240,12 +241,12 @@ export const sidebarItemsData: ISidebarItem[] = [
         path: "/sizes",
         page: SizesRoot
       },
-      // {
-      //   title: "StockBalance",
-      //   icon: React.createElement(Warehouse),
-      //   path: "/stock-balance",
-      //   page: StockBalancePage
-      // },
+      {
+        title: "InventoryTransfers",
+        icon: React.createElement(LocalShippingOutlined),
+        path: "/inventory/transfers",
+        page: InventoryTransferRoot
+      },
       {
         title: "InventoryTransactions",
         icon: React.createElement(LocalShippingOutlined),
