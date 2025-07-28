@@ -65,7 +65,7 @@ const FinancialPeriodsRoot = () => {
           {data?.result && (
             <AppContent
               tableType="table"
-              data={data}
+              data={data.result}
               title={t("FinancialPeriods")}
               columns={columns}
               handleShowForm={handleShowForm}
