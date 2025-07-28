@@ -5,6 +5,7 @@ import { FormTypes } from '../../../../../interfaces/Components';
 import CustomersForm from './CustomersForm';
 import Loader from '../../../../../Components/Loader';
 import { AppContent } from '../../../../../Components';
+import { NodeType } from '../../../../../interfaces/Components/NodeType';
 const columns = [
   {
     Header: "Code",
@@ -81,7 +82,8 @@ const CustomersRoot = () => {
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
-              handleSelectParentId={setParentId}
+              handleSelectParentId={setParentId}              
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
             />
           )}
         </>

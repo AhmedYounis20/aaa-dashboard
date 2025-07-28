@@ -5,6 +5,7 @@ import { AppContent } from '../../../../../Components';
 import Loader from '../../../../../Components/Loader';
 import { FormTypes } from '../../../../../interfaces/Components';
 import CashInBoxesForm from './CashInBoxesForm';
+import { NodeType } from '../../../../../interfaces/Components/NodeType';
 
 const CashInBoxesRoot = () => {
   const { t } = useTranslation();
@@ -82,6 +83,7 @@ const CashInBoxesRoot = () => {
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
               handleSelectParentId={setParentId}
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
             />
           )}
         </>

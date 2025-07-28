@@ -5,6 +5,7 @@ import BanksForm from './BanksForm';
 import Loader from '../../../../../Components/Loader';
 import { AppContent } from '../../../../../Components';
 import { getBanks } from "../../../../../Apis/Account/BanksApi";
+import { NodeType } from '../../../../../interfaces/Components/NodeType';
 
 const columns = [
   {
@@ -84,6 +85,7 @@ const BanksRoot = () => {
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
               handleSelectParentId={setParentId}
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
             />
           )}
         </>

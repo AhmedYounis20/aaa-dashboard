@@ -45,6 +45,7 @@ const DataTreeTable = ({
   showedit = true,
   showadd = true,
   showdelete = true,
+  showAddButtonIf = (e)=> true,
   showEditButtonIf = (e)=> true,
   showDeleteButtonIf = (e)=> true
 
@@ -182,7 +183,7 @@ const DataTreeTable = ({
             }}
           >
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-              {showadd && (
+              {showadd && showAddButtonIf(row) && (
                 <IconButton
                   size="small"
                   sx={{

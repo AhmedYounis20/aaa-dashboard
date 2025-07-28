@@ -26,6 +26,7 @@ type AppContentProps = {
   showadd?: boolean;
   showEditButtonIf?: (e: any)=> boolean;
   showDeleteButtonIf?: (e:any)=> boolean;
+  showAddButtonIf?: (e:any)=> boolean;
 };
 
 export default function AppContent({
@@ -45,6 +46,7 @@ export default function AppContent({
   showadd,
   showEditButtonIf,
   showDeleteButtonIf,
+  showAddButtonIf,
   btn = false,
 }: AppContentProps) {
   const {t} = useTranslation();
@@ -175,6 +177,7 @@ export default function AppContent({
             showdelete={showdelete}
             showEditButtonIf ={showEditButtonIf}
             showDeleteButtonIf ={showDeleteButtonIf}
+            showAddButtonIf={showAddButtonIf}
           />
         ) : (
           <DataTable

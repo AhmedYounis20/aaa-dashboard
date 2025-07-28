@@ -7,6 +7,7 @@ import Loader from "../../../../../Components/Loader";
 import { AppContent } from "../../../../../Components";
 import ImagePreview from '../../../../../Components/Images/ImagePreview';
 import AttachmentResult from '../../../../../interfaces/BaseModels/AttachmentResult';
+import { NodeType } from "../../../../../interfaces/Components/NodeType";
 
 const columns: { Header: string; accessor: string; function?: (attachment: AttachmentResult | null | undefined) => JSX.Element | null }[] = [
   {
@@ -105,6 +106,7 @@ const BranchesRoot = () => {
               }}
               btnName={t("New")}
               startIcon
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
             />
           )}
         </>

@@ -5,6 +5,7 @@ import SuppliersForm from "./SuppliersForm";
 import { useTranslation } from "react-i18next";
 import Loader from "../../../../../Components/Loader";
 import { AppContent } from "../../../../../Components";
+import { NodeType } from "../../../../../interfaces/Components/NodeType";
 
 const columns: { Header: string; accessor: string }[] = [
   {
@@ -87,6 +88,7 @@ const SuppliersRoot = () => {
               }}
               btnName={t("New")}
               startIcon
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
             />
           )}
         </>

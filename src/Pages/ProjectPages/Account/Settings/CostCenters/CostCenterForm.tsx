@@ -52,7 +52,7 @@ function CostCenterForm({
     name: "",
     nameSecondLanguage: "",
     nodeType: NodeType.Category,
-    percent: 0,
+    percent: 100,
     costCenterType: CostCenterType.NotRelated,
     chartOfAccounts: [],
   });

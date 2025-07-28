@@ -7,6 +7,7 @@ import { AppContent } from "../../../../../Components";
 import { getCostCenters } from "../../../../../Apis/Account/CostCenterApi";
 import CostCenterForm from "./CostCenterForm";
 import { CostCenterModel } from "../../../../../interfaces/ProjectInterfaces/Account/CostCenters/costCenterModel";
+import { NodeType } from '../../../../../interfaces/Components/NodeType';
 
 const columns = [
   {
@@ -85,6 +86,7 @@ const CostCenterRoot = () => {
               handleSelectParentId={setParentId}
               changeFormType={setFormType}
               handleShowForm={handleShowForm}
+              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
               defaultHiddenCols={[
                 "id",
                 "createdAt",

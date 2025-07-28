@@ -107,6 +107,7 @@ const ItemsRoot = () => {
                   showedit={true}
                   handleSelectId={handleSelectId}
                   handleSelectParentId={setParentId}
+                  showAddButtonIf={(row) => row.nodeType === ItemNodeType.Category}
                   changeFormType={setFormType}
                   handleShowForm={handleShowForm}
                   defaultHiddenCols={[
