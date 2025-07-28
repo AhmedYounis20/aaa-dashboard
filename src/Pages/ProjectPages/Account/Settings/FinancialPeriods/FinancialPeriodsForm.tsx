@@ -191,7 +191,7 @@ const FinancialPeriodsForm: React.FC<{
                           ...e,
                           label: t(e.label),
                         }))}
-                        label={t("FinancialPeriods")}
+                        label={t("PeriodTypeByMonth")}
                         defaultValue={model?.periodTypeByMonth}
                         disabled={formType == FormTypes.Details}
                         multiple={false}

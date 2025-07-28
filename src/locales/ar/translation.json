@@ -378,5 +378,6 @@
   "Transfer Type": "نوع التحويل",
   "Direct": "مباشر",
   "Conditional": "مشروط",
-  "All": "الكل"
+  "All": "الكل",
+  "PeriodTypeByMonth": "نوع الفترة حسب الشهر"
 }
