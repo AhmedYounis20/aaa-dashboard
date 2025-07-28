@@ -189,6 +189,10 @@ function CostCenterForm({
             <div className="spinner-border text-primary" role="status"></div>
           </div>
         ) : (
+            <>
+              {formType === FormTypes.Delete ? (
+                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+              ) : (
           <Box display={"flex"} flexDirection={"column"} gap={2}>
             <Box display={"flex"} gap={1}>
               <InputText
@@ -356,7 +360,9 @@ function CostCenterForm({
               </>
             )}
           </Box>
-        )}
+              )}
+            </>
+          )}
       </BaseForm>
     </div>
   );

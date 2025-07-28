@@ -81,8 +81,6 @@ const CostCenterRoot = () => {
               }}
               startIcon
               columns={columns}
-              showdelete={false}
-              showedit={false}
               handleSelectId={handleSelectId}
               handleSelectParentId={setParentId}
               changeFormType={setFormType}
