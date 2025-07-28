@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { toastify } from '../../../../../Helper/toastify';
 import {
   createSupplier,
   deleteSupplier,
@@ -121,41 +120,29 @@ const { t } = useTranslation();
     const response = await updateSupplier(model.id, model);
     setIsUpdated(true);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
-    } else if (response?.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
    const handleAdd = async () => {
      if ((await validate()) === false) return false;
      const response = await createSupplier(model);
      if (response?.result) {
-       toastify(response.successMessage);
        afterAction && afterAction();
        return true;
-     } else if (response?.errorMessages) {
-       response.errorMessages?.map((error: string) => {
-         toastify(error, "error");
-       });
-       return false;
-     }
+     } 
      return false;
    };
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteSupplier(id);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
     } else {
       console.log(response);
 
       response?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
         console.log(error);
       });
       return false;

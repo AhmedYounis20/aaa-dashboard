@@ -8,7 +8,6 @@ import {
   getCollectionBookById,
   updateCollectionBook,
 } from "../../../../../Apis/Account/CollectionBooksApi";
-import { toastify } from '../../../../../Helper/toastify';
 import InputText from '../../../../../Components/Inputs/InputText';
 import { useTranslation } from 'react-i18next';
 import { CollectionBookSchema } from '../../../../../interfaces/ProjectInterfaces/Account/CollectionBooks/validation-collectionBook';
@@ -68,13 +67,11 @@ const CollectionBooksForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteCollectionBook(id);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
     } else {
       console.log(response);
       response?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
         console.log(error);
       });
       return false;
@@ -85,12 +82,8 @@ const CollectionBooksForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateCollectionBook(model.id, model);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
-    } else if (response?.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
@@ -99,14 +92,10 @@ const CollectionBooksForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createCollectionBook(model);
     if (response?.result) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction && afterAction();
       return true;
-    } else if (response?.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
 

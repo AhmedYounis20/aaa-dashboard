@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { toastify } from "../../../../../Helper/toastify";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import {
   NodeType,
@@ -98,47 +97,31 @@ const CustomersForm: React.FC<{
     const response = await updateCustomer(model.id, model);
     setIsUpdated(true);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) {
         afterAction();
       }
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     const response = await createCustomer(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) {
         afterAction();
       }
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => {
-        toastify(error, "error");
-      });
-      return false;
     }
     return false;
   };
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteCustomer(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) {
         afterAction();
       }
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => {
-        toastify(error, "error");
-      });
-      return false;
     }
     return false;
   };

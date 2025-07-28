@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { toastify } from "../../../../../Helper/toastify";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import {
   NodeType,
@@ -117,14 +116,8 @@ const BranchesForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createBranch(model);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
-    } else if (response?.errorMessages) {
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-      });
-      return false;
     }
     return false;
   };
@@ -132,14 +125,8 @@ const BranchesForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateBranch(model.id, model);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
-    } else if (response?.errorMessages) {
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-      });
-      return false;
     }
     return false;
   };
@@ -162,15 +149,10 @@ const BranchesForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteBranch(id);
     if (response?.result) {
-      toastify(response.successMessage);
       afterAction && afterAction();
       return true;
     } else {
-      console.log(response);
-      response?.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
+      console.log(response);    
       return false;
     }
   };

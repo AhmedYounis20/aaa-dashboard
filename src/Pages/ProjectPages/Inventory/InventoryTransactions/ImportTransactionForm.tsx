@@ -347,13 +347,11 @@ const ImportTransactionForm: React.FC<{
       });
 
       if (response.isSuccess) {
-        toastify(response.successMessage || 'Import transaction created successfully');
+        if(response.successMessage == null || response.successMessage === "") 
+          toastify(response.successMessage || 'Import transaction created successfully');
         afterAction();
         return true;
-      } else if (response.errorMessages) {
-        response.errorMessages.forEach(error => toastify(error, 'error'));
-        return false;
-      }
+      } 
       return false;
     } catch (error) {
       console.error('Error creating import transaction:', error);

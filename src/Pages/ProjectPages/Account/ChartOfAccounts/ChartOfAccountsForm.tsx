@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { createChartOfAccount, deleteChartOfAccount, getChartOfAccountById, getDefaultChartOfAccount, updateChartOfAccount} from "../../../../Apis/Account/ChartOfAccountsApi";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { toastify } from '../../../../Helper/toastify';
 import { AccountGuideModel, AccountNatureOptions, ChartOfAccountModel } from '../../../../interfaces/ProjectInterfaces';
 import { FormControlLabel, Switch } from '@mui/material';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
@@ -87,13 +86,11 @@ const ChartOfAccountsForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteChartOfAccount(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
     } else if (response) {
       console.log(response);
       response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
         console.log(error);
       });
       return false;
@@ -120,12 +117,8 @@ const ChartOfAccountsForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateChartOfAccount(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
@@ -134,13 +127,9 @@ const ChartOfAccountsForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createChartOfAccount(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
 

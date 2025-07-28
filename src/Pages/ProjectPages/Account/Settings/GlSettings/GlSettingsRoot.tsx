@@ -22,14 +22,14 @@ const GlSettingsRoot: React.FC = () => {
   const [model, setModel] = useState<GlSettingsModel>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const {t}=  useTranslation();
+  const fetchData = async () => {
+    const result = await getGlSettings();
+    if (result) {
+      setModel(result.result);
+      setIsLoading(false);
+    }
+  };
     useEffect(() => {
-      const fetchData = async () => {
-        const result = await getGlSettings();
-        if (result) {
-          setModel(result.result);
-          setIsLoading(false);
-        }
-      };
       fetchData();
     }, []);
 
@@ -70,7 +70,7 @@ const GlSettingsRoot: React.FC = () => {
         handleUpdate={handleUpdate}
         handleAdd={undefined}
         handleDelete={undefined}
-        handleCloseForm={undefined}
+        handleCloseForm={fetchData}
       >
         <div>
           <Typography variant="h2" mb={3}>

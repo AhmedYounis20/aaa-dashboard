@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
-import { toastify } from "../../../../../Helper/toastify";
 import ComplexFinancialTransactionModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -307,12 +306,8 @@ const { t } = useTranslation();
   const handleDelete = async (): Promise<boolean> => {
     const response = await deletePaymentEntry(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
     }
     return false;
   };
@@ -321,12 +316,8 @@ const { t } = useTranslation();
     if ((await validate()) === false) return false;
     const response = await updatePaymentEntry(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
     }
     return false;
   };
@@ -335,13 +326,9 @@ const { t } = useTranslation();
     if ((await validate()) === false) return false;
     const response = await createPaymentEntry(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
-    }
+    } 
     return false;
   };
 

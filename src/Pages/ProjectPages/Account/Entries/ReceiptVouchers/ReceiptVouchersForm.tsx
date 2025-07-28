@@ -5,7 +5,6 @@ import BaseForm from "../../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { IconButton, TextareaAutosize, TextField } from "@mui/material";
 import ComplexEntryModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexEntry";
-import { toastify } from "../../../../../Helper/toastify";
 import ComplexFinancialTransactionModel from "../../../../../interfaces/ProjectInterfaces/Account/Entries/ComplexFinancialTransaction";
 import { AccountNature } from "../../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -312,12 +311,8 @@ const { t } = useTranslation();
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteReceiptEntry(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       actionAfter();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
     }
     return false;
   };
@@ -326,13 +321,9 @@ const { t } = useTranslation();
     if ((await validate()) === false) return false;
     const response = await updateReceiptEntry(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       actionAfter();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
-    }
+    } 
     return false;
   };
 
@@ -340,12 +331,8 @@ const { t } = useTranslation();
     if ((await validate()) === false) return false;
     const response = await createReceiptEntry(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       actionAfter();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, 'error'));
-      return false;
     }
     return false;
   };

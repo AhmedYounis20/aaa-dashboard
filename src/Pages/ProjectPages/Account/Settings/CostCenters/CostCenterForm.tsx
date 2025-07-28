@@ -16,7 +16,6 @@ import {
   updateCostCenter,
 } from "../../../../../Apis/Account/CostCenterApi";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
-import { toastify } from "../../../../../Helper/toastify";
 import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton, FormHelperText } from "@mui/material";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
@@ -118,13 +117,9 @@ function CostCenterForm({
     if ((await validate()) === false) return false;
     const response= await createCostCenter(model);
     if (response.isSuccess) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction();
       return true;
-    } else if (response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
@@ -133,13 +128,9 @@ function CostCenterForm({
     console.log(chartOfAccounts, "charts of accounts");
     const response = await updateCostCenter(id,model);
     if (response.isSuccess) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction();
       return true;
-    } else if (response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
@@ -147,13 +138,9 @@ function CostCenterForm({
   const handleDelete = async () => {
     const response= await deleteCostCenter(id);
        if (response.isSuccess) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction();
       return true;
-    } else if (response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };

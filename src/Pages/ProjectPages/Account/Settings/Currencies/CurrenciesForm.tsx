@@ -4,7 +4,6 @@ import BaseForm from '../../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../../interfaces/Components/FormType';
 import { FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import CurrencyModel from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel';
-import { toastify } from '../../../../../Helper/toastify';
 import { CurrencySchema } from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/currency-validation';
 import InputText from '../../../../../Components/Inputs/InputText';
 import InputNumber from '../../../../../Components/Inputs/InputNumber';
@@ -63,12 +62,8 @@ const CurrenciesForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateCurrency(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, "error"));
-      return false;
     }
     return false;
   };
@@ -76,25 +71,17 @@ const CurrenciesForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createCurrency(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, "error"));
-      return false;
     }
     return false;
   };
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteCurrency(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       if (afterAction) afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      response.errorMessages.map((error: string) => toastify(error, "error"));
-      return false;
-    }
+    } 
     return false;
   };
 

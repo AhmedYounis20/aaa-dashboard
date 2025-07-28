@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import ColorModel from "../../../../interfaces/ProjectInterfaces/Inventory/Colors/ColorModel";
-import { toastify } from '../../../../Helper/toastify';
 import {
   createColor,
   deleteColor,
@@ -58,13 +57,9 @@ const ColorsForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteColor(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      response.errorMessages?.forEach((error: string) => toastify(error, "error"));
-      return false;
-    }
+    } 
     return false;
   };
 
@@ -87,12 +82,8 @@ const ColorsForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await updateColor(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
@@ -101,13 +92,9 @@ const ColorsForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createColor(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
 

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
 import SizeModel from "../../../../interfaces/ProjectInterfaces/Inventory/Sizes/SizeModel";
-import { toastify } from '../../../../Helper/toastify';
 import {
   createSize,
   deleteSize,
@@ -53,36 +52,24 @@ const SizesForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteSize(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      response.errorMessages?.forEach((error: string) => toastify(error, "error"));
-      return false;
-    }
+    } 
     return false;
   };
   const handleUpdate = async () => {
     const response = await updateSize(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
   const handleAdd = async () => {
     const response = await createSize(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };

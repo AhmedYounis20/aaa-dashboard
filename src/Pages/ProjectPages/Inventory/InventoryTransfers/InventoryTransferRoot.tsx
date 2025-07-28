@@ -4,7 +4,6 @@ import { getTransfersByStatus, createTransfer, approveTransfer, rejectTransfer,g
 import { InventoryTransferModel, InventoryTransferType } from '../../../../interfaces/ProjectInterfaces/Inventory/InventoryTransferModel';
 import InventoryTransferForm from './InventoryTransferForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { toastify } from '../../../../Helper/toastify';
 
 const InventoryTransferRoot = () => {
   const { t } = useTranslation();
@@ -54,8 +53,7 @@ const InventoryTransferRoot = () => {
     //   return;
     // }
     setLoading(true);
-    const result = await approveTransfer(id);
-    if (result && result.isSuccess) toastify(t('Transfer approved'));
+    await approveTransfer(id);
     fetchTransfers();
     setLoading(false);
   };
@@ -67,8 +65,7 @@ const InventoryTransferRoot = () => {
     // }
     const reason = prompt(t('Enter rejection reason') || '');
     setLoading(true);
-    const result = await rejectTransfer(id,reason || undefined);
-    if (result && result.isSuccess) toastify(t('Transfer rejected'));
+    await rejectTransfer(id,reason || undefined);
     fetchTransfers();
     setLoading(false);
   };

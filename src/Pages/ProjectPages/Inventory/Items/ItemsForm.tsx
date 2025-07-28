@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { createItem, deleteItem, getItemById, getItemNextCode, updateItem} from "../../../../Apis/Inventory/ItemsApi";
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { toastify } from '../../../../Helper/toastify';
 import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
 import InputSelect from '../../../../Components/Inputs/InputSelect';
 import updateModel from '../../../../Helper/updateModelHelper';
@@ -156,30 +155,18 @@ const ItemsForm: React.FC<{
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteItem(id);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response) {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        toastify(error, "error");
-        console.log(error);
-      });
-      return false;
-    }
+    } 
     return false;
   };
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
     const response = await updateItem(model.id, model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
-    }
+    } 
     return false;
   };
   const handleAdd = async () => {
@@ -187,13 +174,9 @@ const ItemsForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createItem(model);
     if (response && response.isSuccess) {
-      toastify(response.successMessage);
       console.log(response);
       afterAction();
       return true;
-    } else if (response && response.errorMessages) {
-      toastify(response.errorMessages[0], "error");
-      return false;
     }
     return false;
   };
