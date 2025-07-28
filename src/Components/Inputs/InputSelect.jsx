@@ -22,7 +22,7 @@ const InputSelect = ({
       </InputLabel>
       <Select
         label={label}
-        defaultValue={defaultValue}
+        value={defaultValue}
         onChange={onChange}
         onBlur={onBlur}
         multiple={multiple}
