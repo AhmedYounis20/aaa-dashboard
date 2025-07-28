@@ -262,7 +262,10 @@ const DataTable = ({
             },
             '& .MuiDataGrid-cell': {
               borderBottom: `1px solid ${theme.palette.divider}`,
-              padding: '12px 16px',
+              paddingTop: '14px', // Make top and bottom padding equal
+              paddingBottom: '14px',
+              paddingLeft: '16px',
+              paddingRight: '16px',
               fontSize: '0.875rem',
               color: theme.palette.text.primary,
               '&:hover': {
@@ -281,6 +284,14 @@ const DataTable = ({
               borderBottom: `1px solid ${theme.palette.primary.dark}`,
             },
             '& .MuiDataGrid-row': {
+              minHeight: '56px', // Use MUI default row height for better padding
+              maxHeight: 'none',
+              '& > .MuiDataGrid-cell': {
+                display: 'flex',
+                alignItems: 'center',
+                paddingTop: '16px',
+                paddingBottom: '16px',
+              },
               '&:hover': {
                 backgroundColor: theme.palette.action.hover,
               },

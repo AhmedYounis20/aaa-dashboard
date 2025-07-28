@@ -34,6 +34,13 @@ const SizesRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
+  const columns = [
+    { Header: t('Code'), accessor: 'code' },
+    { Header: t('Name'), accessor: 'name' },
+    { Header: t('NameSecondLanguage'), accessor: 'nameSecondLanguage' },
+  ];
+
   return (
     <div className="w-full">
       {isLoading ? (
@@ -54,6 +61,7 @@ const SizesRoot = () => {
               tableType="table"
               data={data}
               title={t("Sizes")}
+              columns={columns}
               btnName={t("AddNew")}
               addBtn
               btn
@@ -80,4 +88,4 @@ const SizesRoot = () => {
   );
 }
 
-export default SizesRoot; 
+export default SizesRoot;

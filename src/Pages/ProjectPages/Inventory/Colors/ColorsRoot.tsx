@@ -34,6 +34,32 @@ const ColorsRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
+  const colorCell = (value: string) => (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{
+        width: 30,
+        height: 30,
+        backgroundColor: value,
+        border: '1px solid #ccc',
+        borderRadius: 15,
+      }} />
+      <span>{value}</span>
+    </span>
+  );
+
+  const columns = [
+    { Header: t('Code'), accessor: 'code' },
+    { Header: t('Name'), accessor: 'name' },
+    { Header: t('NameSecondLanguage'), accessor: 'nameSecondLanguage' },
+    {
+      Header: t('Color'),
+      accessor: 'colorValue',
+      renderCell: (params: any) => colorCell(params.value), // For DataTable
+      function: colorCell, // For DataTreeTable
+    },
+  ];
+
   return (
     <div className="w-full">
       {isLoading ? (
@@ -54,6 +80,7 @@ const ColorsRoot = () => {
               tableType="table"
               data={data}
               title={t("Colors")}
+              columns={columns}
               btnName={t("AddNew")}
               addBtn
               btn
@@ -80,4 +107,4 @@ const ColorsRoot = () => {
   );
 }
 
-export default ColorsRoot; 
+export default ColorsRoot;

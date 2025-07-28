@@ -37,6 +37,15 @@ const JournalEntriesRoot = () => {
 
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
+  const columns = [
+    { Header: t('Entry Number'), accessor: 'entryNumber' },
+    { Header: t('Document Number'), accessor: 'documentNumber' },
+    { Header: t('Exchange Rate'), accessor: 'exchangeRate' },
+    { Header: t('Receiver Name'), accessor: 'receiverName' },
+    { Header: t('Entry Date'), accessor: 'entryDate' },
+    { Header: t('Financial Period'), accessor: 'financialPeriodNumber' },
+  ];
+
   return (
     <div className="h-full">
       {isLoading ? (
@@ -56,6 +65,7 @@ const JournalEntriesRoot = () => {
               tableType="table"
               data={data}
               title={t("JournalEntries")}
+              columns={columns}
               btnName={t("New")}
               addBtn
               btn

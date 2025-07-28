@@ -34,6 +34,12 @@ const PackingUnitsRoot = () => {
     setShowForm(false);
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+
+  const columns = [
+    { Header: t('Name'), accessor: 'name' },
+    { Header: t('NameSecondLanguage'), accessor: 'nameSecondLanguage' },
+  ];
+
   return (
     <div className="w-full">
       {isLoading ? (
@@ -54,6 +60,7 @@ const PackingUnitsRoot = () => {
               tableType="table"
               data={data}
               title={t("PackingUnits")}
+              columns={columns}
               btnName={t("AddNew")}
               addBtn
               btn

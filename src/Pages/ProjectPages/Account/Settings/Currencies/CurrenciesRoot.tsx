@@ -15,6 +15,12 @@ const CurrenciesRoot = () => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const columns = [
+    { Header: 'Symbol', accessor: 'symbol' },
+    { Header: 'Name', accessor: 'name' },
+    { Header: 'NameSecondLanguage', accessor: 'nameSecondLanguage' },
+  ];
+
   const fetchData = async () => {
     const result = await getCurrencies();
     if (result && result.isSuccess) {
@@ -50,6 +56,7 @@ const CurrenciesRoot = () => {
               tableType='table'
               data={data}
               title='Currencies'
+              columns={columns}
               btnName='new'
               addBtn
               btn

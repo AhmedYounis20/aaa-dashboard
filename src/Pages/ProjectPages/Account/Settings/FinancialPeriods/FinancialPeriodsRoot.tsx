@@ -6,25 +6,8 @@ import { useTranslation } from "react-i18next";
 import Loader from "../../../../../Components/Loader";
 import { AppContent } from "../../../../../Components";
 import FinancialPeriodModel from "../../../../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
-
-const columns: { Header: string; accessor: string }[] = [
-  {
-    Header: "YearNumber",
-    accessor: "yearNumber",
-  },
-  {
-    Header: "PeriodTypeByMonth",
-    accessor: "periodTypeByMonth",
-  },
-  {
-    Header: "StartDate",
-    accessor: "startDate",
-  },
-    {
-    Header: "EndDate",
-    accessor: "endDate",
-  },
-];
+import { FinancialPeriodType } from '../../../../../interfaces/ProjectInterfaces/Account/Entries/financialPeriodTypes';
+import { getEnumString } from '../../../../../Helper/enumHelper';
 
 const FinancialPeriodsRoot = () => {
   const { t } = useTranslation();
@@ -57,6 +40,13 @@ const FinancialPeriodsRoot = () => {
   };
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
+  const columns = [
+    { Header: 'YearNumber', accessor: 'yearNumber' },
+    { Header: 'PeriodTypeByMonth', accessor: 'periodTypeByMonth', Cell: ({ value }: { value: FinancialPeriodType }) => getEnumString(FinancialPeriodType, value) },
+    { Header: 'StartDate', accessor: 'startDate' },
+    { Header: 'EndDate', accessor: 'endDate' },
+  ];
+
   return (
     <div className="h-full">
       {isLoading ? (
@@ -75,12 +65,12 @@ const FinancialPeriodsRoot = () => {
           {data?.result && (
             <AppContent
               tableType="table"
-              data={data.result}
+              data={data}
+              title={t("FinancialPeriods")}
               columns={columns}
               handleShowForm={handleShowForm}
               changeFormType={setFormType}
               handleSelectId={handleSelectId}
-              title={t("FinancialPeriods")}
               btn
               addBtn
               showEditButtonIf={(e : FinancialPeriodModel)=> e.isEditable?? false}

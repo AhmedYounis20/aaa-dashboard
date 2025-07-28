@@ -16,6 +16,14 @@ const ReceiptVouchersRoot = () => {
   const [data, setData] = useState<ComplexEntryModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const columns = [
+    { Header: t('Entry Number'), accessor: 'entryNumber' },
+    { Header: t('Document Number'), accessor: 'documentNumber' },
+    { Header: t('Exchange Rate'), accessor: 'exchangeRate' },
+    { Header: t('Receiver Name'), accessor: 'receiverName' },
+    { Header: t('Entry Date'), accessor: 'entryDate' },
+    { Header: t('Financial Period'), accessor: 'financialPeriodNumber' },
+  ];
   const fetchData = async () => {
     const result = await getReceiptEntries();
     if (result && result.isSuccess) {
@@ -54,6 +62,7 @@ const ReceiptVouchersRoot = () => {
               tableType="table"
               data={data}
               title={t("ReceiptVouchers")}
+              columns={columns}
               btnName={t("New")}
               addBtn
               btn

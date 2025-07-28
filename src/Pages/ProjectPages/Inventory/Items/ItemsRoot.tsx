@@ -6,6 +6,10 @@ import Loader from '../../../../Components/Loader';
 import { AppContent } from '../../../../Components';
 import ItemModel  from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
 import { useTranslation } from 'react-i18next';
+import { ItemType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemType';
+import { DiscountType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/DiscountType';
+import { ItemNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType';
+import { getEnumString } from '../../../../Helper/enumHelper';
 
 const ItemsRoot = () => {
 
@@ -29,6 +33,21 @@ const ItemsRoot = () => {
     {
       Header: t("NameSecondLanguage"),
       accessor: "nameSecondLanguage",
+    },
+    {
+      Header: t("Type"),
+      accessor: "itemType",
+      Cell: ({ value }: { value: ItemType }) => getEnumString(ItemType, value),
+    },
+    {
+      Header: t("Discount Type"),
+      accessor: "defaultDiscountType",
+      Cell: ({ value }: { value: DiscountType }) => getEnumString(DiscountType, value),
+    },
+    {
+      Header: t("Node Type"),
+      accessor: "nodeType",
+      Cell: ({ value }: { value: ItemNodeType }) => getEnumString(ItemNodeType, value),
     },
   ];
 

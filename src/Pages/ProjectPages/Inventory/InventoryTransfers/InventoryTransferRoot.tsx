@@ -16,6 +16,14 @@ const InventoryTransferRoot = () => {
   const [loading, setLoading] = useState(false);
   const [transferTypeFilter, setTransferTypeFilter] = useState<InventoryTransferType | 'All'>('All');
 
+  // const columns = [
+  //   { Header: t('Source Branch'), accessor: 'sourceBranchId' },
+  //   { Header: t('Destination Branch'), accessor: 'destinationBranchId' },
+  //   { Header: t('Transfer Type'), accessor: 'transferType', Cell: ({ value }: { value: InventoryTransferType }) => getEnumString(InventoryTransferType, value) },
+  //   { Header: t('Status'), accessor: 'status' },
+  //   { Header: t('Notes'), accessor: 'notes' },
+  // ];
+
   const fetchTransfers = async () => {
     setLoading(true);
     const result = status == 'All' ? await getInventoryTransfers() : await getTransfersByStatus(status);
