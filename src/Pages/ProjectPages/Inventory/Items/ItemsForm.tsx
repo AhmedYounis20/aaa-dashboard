@@ -78,7 +78,7 @@ const ItemsForm: React.FC<{
     model: "",
     version: "",
     packingUnits: [createItemPackingUnit(true, 0)],
-    applyDomainChanges: false,
+    applyDomainChanges: true,
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -772,17 +772,21 @@ const ItemsForm: React.FC<{
                       </div>
                     </>
                   )}
-                </>
-              )}
-              {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
-              {model.nodeType === ItemNodeType.Domain && (
+                    {model.nodeType === ItemNodeType.Domain  && (
                   <SubDomainCombinationBuilder
                     combinations={model.subDomainCombinations || []}
                     onChange={combinations => setModel(prev => prev ? { ...prev, subDomainCombinations: combinations } : prev)}
+                    onItemApplyChanges={(val : boolean) => {
+                      setModel(prev => prev ? { ...prev, applyDomainChanges: val } : prev)}}
+                    itemApplyChanges={model.applyDomainChanges ?? false}
                     handleTranslate={handleTranslate}
                     formType={formType}
                   />
               )}
+                </>
+              )}
+              {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
+            
             </>
           )}
         </div>

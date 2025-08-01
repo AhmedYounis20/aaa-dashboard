@@ -34,13 +34,17 @@ import { FormTypes } from '../../../../../interfaces/Components/FormType';
 interface Props {
   combinations: ColorSizeCombinationModel[];
   onChange: (combinations: ColorSizeCombinationModel[]) => void;
+  onItemApplyChanges: (val: boolean) => void;
   handleTranslate: (key: string) => string;
   formType: FormTypes;
+  itemApplyChanges: boolean;
 }
 
 const SubDomainCombinationBuilder: React.FC<Props> = ({
   combinations,
   onChange,
+  onItemApplyChanges,
+  itemApplyChanges,
   handleTranslate,
   formType
 }) => {
@@ -49,7 +53,6 @@ const SubDomainCombinationBuilder: React.FC<Props> = ({
   const [sizes, setSizes] = useState<SizeModel[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [applyDomainChanges, setApplyDomainChanges] = useState(true);
 
   const prevColorsRef = useRef<string[]>([]);
   const prevSizesRef = useRef<string[]>([]);
@@ -90,7 +93,7 @@ const SubDomainCombinationBuilder: React.FC<Props> = ({
     addedColors.forEach(colorId => {
       newSizes.forEach(sizeId => {
         if (!updated.some(c => c.colorId === colorId && c.sizeId === sizeId)) {
-          updated.push({ colorId, sizeId, applyDomainChanges });
+          updated.push({ colorId, sizeId, applyDomainChanges: itemApplyChanges});
         }
       });
     });
@@ -98,7 +101,7 @@ const SubDomainCombinationBuilder: React.FC<Props> = ({
     addedSizes.forEach(sizeId => {
       newColors.forEach(colorId => {
         if (!updated.some(c => c.colorId === colorId && c.sizeId === sizeId)) {
-          updated.push({ colorId, sizeId, applyDomainChanges });
+          updated.push({ colorId, sizeId, applyDomainChanges: itemApplyChanges });
         }
       });
     });
@@ -184,8 +187,8 @@ const SubDomainCombinationBuilder: React.FC<Props> = ({
         sx={{ mb: 2 }}
         control={
           <Switch
-            checked={applyDomainChanges}
-            onChange={e => setApplyDomainChanges(e.target.checked)}
+            checked={itemApplyChanges ?? true}
+            onChange={e => onItemApplyChanges(e.target.checked)}
             disabled={formType === FormTypes.Details}
           />
         }
