@@ -23,7 +23,9 @@ import {
   StoreOutlined,
   TableChartOutlined,
   WarehouseOutlined,
-  CalendarTodayOutlined
+  CalendarTodayOutlined,
+  TuneOutlined,
+  FormatListBulletedOutlined
 } from "@mui/icons-material";
 import React, { ReactElement } from "react";
 import ChartOfAccountsRoot from "../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot";
@@ -52,6 +54,7 @@ import ColorsRoot from "../Pages/ProjectPages/Inventory/Colors/ColorsRoot";
 import SizesRoot from "../Pages/ProjectPages/Inventory/Sizes/SizesRoot";
 import InventoryTransactionsPage from "../Pages/ProjectPages/Inventory/InventoryTransactions";
 import InventoryTransferRoot from '../Pages/ProjectPages/Inventory/InventoryTransfers/InventoryTransferRoot';
+import attributesRoot from '../Pages/ProjectPages/Inventory/Attributes/AttributesRoot';
 
 export interface ISidebarItem {
     icon?: ReactElement;
@@ -253,6 +256,12 @@ export const sidebarItemsData: ISidebarItem[] = [
         path: "/inventory-transactions",
         page: InventoryTransactionsPage
       },
+      {
+        title: "Attributes",
+        icon: React.createElement(TuneOutlined),
+        path: "/Attributes",
+        page: attributesRoot
+      }
     ],
   },
 ];

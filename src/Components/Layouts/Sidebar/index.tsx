@@ -149,9 +149,18 @@ export default function AppSidebar({ items }: ISidebarProps) {
               left: "100%",
             },
           },
+          icon: {
+            marginRight: theme.direction === "rtl" ? 0 : "10px",
+            marginLeft: theme.direction === "rtl" ? "10px" : 0,
+          },
           subMenuContent: {
             borderRadius: "8px",
             transition: "all 0.15s ease-out",
+          },
+          SubMenuExpandIcon: {
+            right: theme.direction === "rtl" ? "auto" : "10px",
+            left: theme.direction === "rtl" ? "10px" : "auto",
+            transition: "all 0.3s ease",
           },
         }}
       >
@@ -183,83 +192,99 @@ export default function AppSidebar({ items }: ISidebarProps) {
               }
             >
               {item?.submenu.map((subItem, subIndex) => (
-                <ThemedTooltip title={subItem.title} key={subIndex}>
-                  <ThemedMenuItem
-                    icon={
-                      subItem.icon &&
-                      React.cloneElement(subItem.icon, {
-                        sx: {
-                          fontSize: "1.28rem",
-                          color: isActivePath(subItem?.path)
-                            ? theme.palette.primary.contrastText
-                            : theme.palette.text.secondary,
-                          transition: isSidebarOpen ? "all 0.3s ease" : "none",
-                        },
-                      })
-                    }
-                    component={subItem?.path && <Link to={subItem?.path} />}
-                    style={{
-                      backgroundColor: isActivePath(subItem?.path)
-                        ? theme.palette.primary.main
-                        : "transparent",
-                      color: isActivePath(subItem?.path)
-                        ? theme.palette.primary.contrastText
-                        : theme.palette.text.primary,
-                      borderRadius: "10px",
-                      transition: isSidebarOpen ? "all 0.15s ease-out" : "none",
-                      position: "relative",
-                      overflow: "hidden",
-                      paddingLeft: theme.spacing(1.25),
-                    }}
-                  >
-                    <Typography
-                      variant='body1'
-                      sx={{
-                        textShadow: isActivePath(subItem?.path)
-                          ? "0 1px 2px rgba(0,0,0,0.3)"
+                <ThemedTooltip
+                  title={subItem.title}
+                  key={subIndex}
+                  placement={`${theme.direction === "rtl" ? "left" : "right"}`}
+                >
+                  <div>
+                    <ThemedMenuItem
+                      icon={
+                        subItem.icon &&
+                        React.cloneElement(subItem.icon, {
+                          sx: {
+                            fontSize: "1.28rem",
+                            color: isActivePath(subItem?.path)
+                              ? theme.palette.primary.contrastText
+                              : theme.palette.text.secondary,
+                            transition: isSidebarOpen
+                              ? "all 0.3s ease"
+                              : "none",
+                          },
+                        })
+                      }
+                      component={subItem?.path && <Link to={subItem?.path} />}
+                      style={{
+                        backgroundColor: isActivePath(subItem?.path)
+                          ? theme.palette.primary.main
+                          : "transparent",
+                        color: isActivePath(subItem?.path)
+                          ? theme.palette.primary.contrastText
+                          : theme.palette.text.primary,
+                        borderRadius: "10px",
+                        transition: isSidebarOpen
+                          ? "all 0.15s ease-out"
                           : "none",
-                        transition: isSidebarOpen ? "all 0.3s ease" : "none",
+                        position: "relative",
+                        overflow: "hidden",
+                        paddingLeft: theme.spacing(1.25),
                       }}
                     >
-                      {t(subItem?.title)}
-                    </Typography>
-                  </ThemedMenuItem>
+                      <Typography
+                        variant='body1'
+                        sx={{
+                          textShadow: isActivePath(subItem?.path)
+                            ? "0 1px 2px rgba(0,0,0,0.3)"
+                            : "none",
+                          transition: isSidebarOpen ? "all 0.3s ease" : "none",
+                        }}
+                      >
+                        {t(subItem?.title)}
+                      </Typography>
+                    </ThemedMenuItem>
+                  </div>
                 </ThemedTooltip>
               ))}
             </SubMenu>
           ) : (
-            <ThemedTooltip title={t(item?.title)} key={index}>
-              <ThemedMenuItem
-                icon={
-                  item.icon &&
-                  React.cloneElement(item.icon, {
-                    sx: {
-                      fontSize: "1.28rem",
-                      transition: "all 0.3s ease",
-                    },
-                  })
-                }
-                component={item?.path && <Link to={item?.path} />}
-                style={{
-                  borderRadius: theme.spacing(1),
-                  backgroundColor: isActivePath(item.path)
-                    ? theme.palette.primary.main
-                    : "transparent",
-                  color: isActivePath(item?.path)
-                    ? theme.palette.primary.contrastText
-                    : theme.palette.text.primary,
-                }}
-                onClick={() => setOpenMenu(null)}
-              >
-                <Typography
-                  variant='body1'
-                  sx={{
-                    transition: "all 0.3s ease",
+            <ThemedTooltip
+              title={t(item?.title)}
+              key={index}
+              placement={`${theme.direction === "rtl" ? "left" : "right"}`}
+            >
+              <div>
+                <ThemedMenuItem
+                  icon={
+                    item.icon &&
+                    React.cloneElement(item.icon, {
+                      sx: {
+                        fontSize: "1.28rem",
+                        transition: "all 0.3s ease",
+                      },
+                    })
+                  }
+                  component={item?.path && <Link to={item?.path} />}
+                  style={{
+                    borderRadius: theme.spacing(1),
+                    backgroundColor: isActivePath(item.path)
+                      ? theme.palette.primary.main
+                      : "transparent",
+                    color: isActivePath(item?.path)
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.text.primary,
                   }}
+                  onClick={() => setOpenMenu(null)}
                 >
-                  {t(item?.title)}
-                </Typography>
-              </ThemedMenuItem>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {t(item?.title)}
+                  </Typography>
+                </ThemedMenuItem>
+              </div>
             </ThemedTooltip>
           )
         )}
