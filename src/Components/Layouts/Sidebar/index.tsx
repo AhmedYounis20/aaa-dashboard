@@ -10,10 +10,11 @@ import {
   Avatar,
   IconButton,
   Divider,
-  Popover,
-  Button,
   styled,
+  Menu as MuiMenu,
+  MenuItem as MuiMenuItem,
 } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { appContext } from "../../../layout/DefaultLayout";
 import { appProps } from "../../../interfaces/Components/appProps";
 import { useTranslation } from "react-i18next";
@@ -23,12 +24,7 @@ import {
   initialuserState,
   setLoggedInUser,
 } from "../../../Storage/Redux/userAuthSlice";
-import {
-  AccountCircle,
-  SettingsOutlined,
-  Logout,
-  MoreVert,
-} from "@mui/icons-material";
+import { AccountCircle, SettingsOutlined, MoreVert } from "@mui/icons-material";
 import "./index.css";
 
 interface ISidebarProps {
@@ -41,7 +37,6 @@ interface ISidebarProps {
 const ThemedMenuItem = styled(MenuItem)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
-  borderRadius: theme.spacing(1),
   transition: theme.transitions.create(["color", "background-color"], {
     duration: theme.transitions.duration.standard,
     easing: theme.transitions.easing.easeInOut,
@@ -94,6 +89,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
 
   return (
     <Sidebar
+      rtl={theme.direction === "rtl" ? true : false}
       backgroundColor={theme.palette.background.paper}
       collapsed={!isSidebarOpen}
       breakPoint={"lg"}
@@ -103,11 +99,10 @@ export default function AppSidebar({ items }: ISidebarProps) {
         border: 0,
         position: "fixed",
         top: 0,
-        left: theme.direction === "rtl" ? "auto" : 0,
-        right: theme.direction === "rtl" ? 0 : "auto",
         height: "calc(100% - 64px)",
-        width: isSidebarOpen ? "250px" : "80px",
-        marginTop: "64px",
+        width: isSidebarOpen ? "230px" : "80px",
+        minWidth: isSidebarOpen ? "230px" : "80px",
+        marginTop: "55px",
         zIndex: 1000,
       }}
       onBackdropClick={() => {
@@ -123,7 +118,6 @@ export default function AppSidebar({ items }: ISidebarProps) {
           button: {
             borderRadius: "8px",
             padding: "5px 10px 5px 5px",
-            //borderBottom: `1px solid ${theme.palette.divider}`,
             ":hover": {
               backgroundColor: "transparent",
               transition: "all 0.2s ease-in-out",
@@ -153,6 +147,19 @@ export default function AppSidebar({ items }: ISidebarProps) {
             borderRadius: "8px",
             transition: "all 0.15s ease-out",
           },
+          SubMenuExpandIcon: {
+            "& span": {
+              borderRightWidth:
+                theme.direction === "rtl" ? "0 !important" : "auto",
+              borderBottomWidth:
+                theme.direction === "rtl" ? "0 !important" : "auto",
+
+              borderLeftWidth:
+                theme.direction === "rtl" ? "1px !important" : "auto",
+              borderTopWidth:
+                theme.direction === "rtl" ? "1px !important" : "auto",
+            },
+          },
         }}
       >
         {items?.map((item, index) =>
@@ -164,7 +171,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 item.icon &&
                 React.cloneElement(item.icon, {
                   sx: {
-                    fontSize: "1.28rem",
+                    fontSize: "1.18rem",
                     transition: "all 0.3s ease",
                   },
                 })
@@ -176,6 +183,9 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 //     : theme.palette.background.paper,
                 borderRadius: theme.spacing(1),
                 marginBlock: theme.spacing(0.625),
+                fontSize: "13px",
+                height: "45px",
+                paddingBlock: 0,
               }}
               open={openMenu === item.title}
               onOpenChange={(isOpen: boolean) =>
@@ -183,87 +193,116 @@ export default function AppSidebar({ items }: ISidebarProps) {
               }
             >
               {item?.submenu.map((subItem, subIndex) => (
-                <ThemedTooltip title={subItem.title} key={subIndex}>
-                  <ThemedMenuItem
-                    icon={
-                      subItem.icon &&
-                      React.cloneElement(subItem.icon, {
-                        sx: {
-                          fontSize: "1.28rem",
-                          color: isActivePath(subItem?.path)
-                            ? theme.palette.primary.contrastText
-                            : theme.palette.text.secondary,
-                          transition: isSidebarOpen ? "all 0.3s ease" : "none",
-                        },
-                      })
-                    }
-                    component={subItem?.path && <Link to={subItem?.path} />}
-                    style={{
-                      backgroundColor: isActivePath(subItem?.path)
-                        ? theme.palette.primary.main
-                        : "transparent",
-                      color: isActivePath(subItem?.path)
-                        ? theme.palette.primary.contrastText
-                        : theme.palette.text.primary,
-                      borderRadius: "10px",
-                      transition: isSidebarOpen ? "all 0.15s ease-out" : "none",
-                      position: "relative",
-                      overflow: "hidden",
-                      paddingLeft: theme.spacing(1.25),
-                    }}
-                  >
-                    <Typography
-                      variant='body1'
-                      sx={{
-                        textShadow: isActivePath(subItem?.path)
-                          ? "0 1px 2px rgba(0,0,0,0.3)"
+                <ThemedTooltip
+                  title={subItem.title}
+                  key={subIndex}
+                  placement={`${theme.direction === "rtl" ? "left" : "right"}`}
+                >
+                  <div>
+                    <ThemedMenuItem
+                      icon={
+                        subItem.icon &&
+                        React.cloneElement(subItem.icon, {
+                          sx: {
+                            fontSize: "1.18rem",
+                            transition: isSidebarOpen
+                              ? "all 0.3s ease"
+                              : "none",
+                          },
+                        })
+                      }
+                      component={subItem?.path && <Link to={subItem?.path} />}
+                      style={{
+                        backgroundColor: isActivePath(subItem?.path)
+                          ? theme.palette.primary.main
+                          : "transparent",
+                        color: isActivePath(subItem?.path)
+                          ? theme.palette.primary.contrastText
+                          : theme.palette.text.primary,
+                        borderRadius: "10px",
+                        transition: isSidebarOpen
+                          ? "all 0.15s ease-out"
                           : "none",
-                        transition: isSidebarOpen ? "all 0.3s ease" : "none",
+                        position: "relative",
+                        overflow: "hidden",
+                        height: "45px",
+                        paddingBlock: 0,
+                        paddingLeft:
+                          theme.direction === "rtl"
+                            ? "auto"
+                            : theme.spacing(2.25),
+                        paddingRight:
+                          theme.direction === "rtl"
+                            ? theme.spacing(2.25)
+                            : "auto",
+                        pointerEvents: isActivePath(subItem?.path)
+                          ? "none"
+                          : "auto",
                       }}
                     >
-                      {t(subItem?.title)}
-                    </Typography>
-                  </ThemedMenuItem>
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          textShadow: isActivePath(subItem?.path)
+                            ? "0 1px 2px rgba(0,0,0,0.3)"
+                            : "none",
+                          transition: isSidebarOpen ? "all 0.1s ease" : "none",
+                        }}
+                      >
+                        {t(subItem?.title)}
+                      </Typography>
+                    </ThemedMenuItem>
+                  </div>
                 </ThemedTooltip>
               ))}
             </SubMenu>
           ) : (
-            <ThemedTooltip title={t(item?.title)} key={index}>
-              <ThemedMenuItem
-                icon={
-                  item.icon &&
-                  React.cloneElement(item.icon, {
-                    sx: {
-                      fontSize: "1.28rem",
-                      transition: "all 0.3s ease",
-                    },
-                  })
-                }
-                component={item?.path && <Link to={item?.path} />}
-                style={{
-                  borderRadius: theme.spacing(1),
-                  backgroundColor: isActivePath(item.path)
-                    ? theme.palette.primary.main
-                    : "transparent",
-                  color: isActivePath(item?.path)
-                    ? theme.palette.primary.contrastText
-                    : theme.palette.text.primary,
-                }}
-                onClick={() => setOpenMenu(null)}
-              >
-                <Typography
-                  variant='body1'
-                  sx={{
-                    transition: "all 0.3s ease",
+            <ThemedTooltip
+              title={t(item?.title)}
+              key={index}
+              placement={`${theme.direction === "rtl" ? "left" : "right"}`}
+            >
+              <div>
+                <ThemedMenuItem
+                  icon={
+                    item.icon &&
+                    React.cloneElement(item.icon, {
+                      sx: {
+                        fontSize: "1.18rem",
+                        transition: "all 0.3s ease",
+                      },
+                    })
+                  }
+                  component={item?.path && <Link to={item?.path} />}
+                  style={{
+                    height: "45px",
+                    paddingBlock: 0,
+                    borderRadius: theme.spacing(1),
+                    backgroundColor: isActivePath(item.path)
+                      ? theme.palette.primary.main
+                      : "transparent",
+                    color: isActivePath(item?.path)
+                      ? theme.palette.primary.contrastText
+                      : theme.palette.text.primary,
+                    pointerEvents: isActivePath(item?.path) ? "none" : "auto",
                   }}
+                  onClick={() => setOpenMenu(null)}
                 >
-                  {t(item?.title)}
-                </Typography>
-              </ThemedMenuItem>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {t(item?.title)}
+                  </Typography>
+                </ThemedMenuItem>
+              </div>
             </ThemedTooltip>
           )
         )}
       </Menu>
+
       {/* Profile Section */}
       <Box
         sx={{
@@ -278,7 +317,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
           position: "fixed",
           bottom: 0,
           left: 0,
-          width: isSidebarOpen ? "250px" : "80px",
+          width: isSidebarOpen ? "230px" : "80px",
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
@@ -288,15 +327,15 @@ export default function AppSidebar({ items }: ISidebarProps) {
             alignItems: "center",
             justifyContent: isSidebarOpen ? "space-between" : "center",
             gap: 1,
-            cursor: "pointer",
           }}
-          onClick={handleProfileClick}
         >
           <Avatar
+            onClick={handleProfileClick}
             sx={{
               width: 35,
               height: 35,
               bgcolor: theme.palette.primary.main,
+              cursor: "pointer",
             }}
           >
             <AccountCircle sx={{ fontSize: 25 }} />
@@ -319,49 +358,17 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 sx={{
                   p: 0,
                 }}
+                onClick={handleProfileClick}
               >
                 <MoreVert sx={{ color: theme.palette.text.secondary }} />
               </IconButton>
             </>
           )}
         </Box>
-        {/* <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <IconButton
-            onClick={handleProfileClick}
-            sx={{
-              p: 0,
-              "&:hover": {
-                transform: "scale(1.1)",
-                transition: "none",
-              },
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: theme.palette.primary.main,
-              }}
-            >
-              <AccountCircle />
-            </Avatar>
-          </IconButton>
-          <Box>
-            <Typography variant='body2' color='text.secondary'>
-              Admin User
-            </Typography>
-            <Typography variant='body2' color='text.secondary'> 
-              Super Admin
-            </Typography>
-          </Box>
-        </Box>   */}
       </Box>
 
       {/* Profile Popup */}
-      <Popover
-        open={Boolean(profileAnchor)}
-        anchorEl={profileAnchor}
-        onClose={() => setProfileAnchor(null)}
+      <MuiMenu
         anchorOrigin={{
           vertical: "top",
           horizontal: "right",
@@ -370,72 +377,64 @@ export default function AppSidebar({ items }: ISidebarProps) {
           vertical: "bottom",
           horizontal: "right",
         }}
+        anchorEl={profileAnchor}
+        open={Boolean(profileAnchor)}
+        onClose={() => setProfileAnchor(null)}
         PaperProps={{
           sx: {
             mt: 1,
-            minWidth: 200,
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15)",
+            minWidth: 180,
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
             borderRadius: 2,
-            border: `1px solid ${theme.palette.divider}`,
+          },
+        }}
+        MenuListProps={{
+          sx: {
+            padding: 0,
           },
         }}
       >
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+        <MuiMenuItem sx={{ py: 1.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Avatar
               sx={{
-                width: 48,
-                height: 48,
+                width: 32,
+                height: 32,
                 bgcolor: theme.palette.primary.main,
               }}
             >
               <AccountCircle />
             </Avatar>
             <Box>
-              <Typography variant='body1' fontWeight={600} color='text.primary'>
+              <Typography variant='body2' fontWeight={600}>
                 Admin User
               </Typography>
-              <Typography variant='body2' color='text.secondary'>
+              <Typography variant='caption' color='text.secondary'>
                 admin@example.com
               </Typography>
             </Box>
           </Box>
-          <Divider sx={{ my: 1 }} />
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Button
-              fullWidth
-              startIcon={<SettingsOutlined />}
-              sx={{
-                justifyContent: "flex-start",
-                color: theme.palette.text.secondary,
-                textTransform: "none",
-                "&:hover": {
-                  backgroundColor: theme.palette.action.hover,
-                  color: theme.palette.primary.main,
-                },
-              }}
-            >
-              Settings
-            </Button>
-            <Button
-              fullWidth
-              startIcon={<Logout />}
-              onClick={handleLogout}
-              sx={{
-                justifyContent: "flex-start",
-                color: theme.palette.error.main,
-                textTransform: "none",
-                "&:hover": {
-                  backgroundColor: theme.palette.error.light,
-                  color: theme.palette.error.contrastText,
-                },
-              }}
-            >
-              Logout
-            </Button>
-          </Box>
-        </Box>
-      </Popover>
+        </MuiMenuItem>
+        <Divider />
+        <MuiMenuItem sx={{ py: 1.5 }}>
+          <SettingsOutlined sx={{ mr: 1, fontSize: 20 }} />
+          {t("Settings")}
+        </MuiMenuItem>
+        <Divider />
+        <MuiMenuItem
+          onClick={handleLogout}
+          sx={{
+            py: 1.5,
+            color: theme.palette.error.main,
+            "&:hover": {
+              backgroundColor: "#ffcece",
+            },
+          }}
+        >
+          <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
+          {t("Logout")}
+        </MuiMenuItem>
+      </MuiMenu>
     </Sidebar>
   );
 }

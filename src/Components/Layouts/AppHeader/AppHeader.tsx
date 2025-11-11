@@ -32,6 +32,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import { setMode } from "../../../Storage/Redux/global";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useTranslation } from "react-i18next";
+import ThemedTooltip from "../../UI/ThemedTooltip";
 
 type AppHeaderProps = {
   isSidebarOpen: boolean;
@@ -48,14 +49,6 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
     null
   );
-  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-  //   setAnchorEl(event.currentTarget);
-  // };
-
-  // const handleClose = () => {
-  //   setAnchorEl(null);
-  // };
 
   const changeLanguage = (lng: "en" | "ar") => {
     i18n.changeLanguage(lng);
@@ -79,15 +72,13 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
     setUserMenuAnchor(event.currentTarget);
   };
 
-  // const open = Boolean(anchorEl);
-  // const id = open ? "user-popover" : undefined;
-
   return (
     <AppBar
       sx={{
         position: "fixed",
         top: 0,
         left: 0,
+        borderRadius: 0,
         backgroundColor: theme.palette.background.paper,
         backgroundImage: "none",
         color: theme.palette.text.primary,
@@ -170,7 +161,9 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <Language />
+            <ThemedTooltip title={t("ChangeLanguage")} placement='bottom'>
+              <Language />
+            </ThemedTooltip>
           </IconButton>
 
           <Menu
@@ -200,6 +193,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               selected={i18n.language === "ar"}
               sx={{
                 fontWeight: i18n.language === "ar" ? 600 : 400,
+                fontFamily: "Cairo, sans-serif",
               }}
             >
               العربية
@@ -217,15 +211,17 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            {theme.palette.mode === "dark" ? (
-              <LightModeOutlined
-                sx={{ fontSize: theme.typography.pxToRem(25) }}
-              />
-            ) : (
-              <DarkModeOutlined
-                sx={{ fontSize: theme.typography.pxToRem(25) }}
-              />
-            )}
+            <ThemedTooltip title={t("SwitchTheme")} placement='bottom'>
+              {theme.palette.mode === "dark" ? (
+                <LightModeOutlined
+                  sx={{ fontSize: theme.typography.pxToRem(25) }}
+                />
+              ) : (
+                <DarkModeOutlined
+                  sx={{ fontSize: theme.typography.pxToRem(25) }}
+                />
+              )}
+            </ThemedTooltip>
           </IconButton>
 
           {/* Notifications */}
@@ -238,7 +234,9 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <NotificationsNone />
+            <ThemedTooltip title={t("Notifications")} placement='bottom'>
+              <NotificationsNone />
+            </ThemedTooltip>
           </IconButton>
 
           {/* User Menu */}
@@ -252,7 +250,9 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <AccountCircle />
+            <ThemedTooltip title={t("AccountSettings")} placement='bottom'>
+              <AccountCircle />
+            </ThemedTooltip>
           </IconButton>
 
           <Menu
@@ -265,6 +265,11 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
                 minWidth: 180,
                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
                 borderRadius: 2,
+              },
+            }}
+            MenuListProps={{
+              sx: {
+                padding: 0,
               },
             }}
           >
@@ -301,8 +306,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
                 py: 1.5,
                 color: theme.palette.error.main,
                 "&:hover": {
-                  backgroundColor: theme.palette.error.light,
-                  color: theme.palette.error.contrastText,
+                  backgroundColor: "#ffcece",
                 },
               }}
             >

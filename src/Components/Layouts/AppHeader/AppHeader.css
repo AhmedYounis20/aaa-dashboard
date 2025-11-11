@@ -1,3 +1,9 @@
+@media (min-width: 600px) {
+  .MuiToolbar-root {
+    min-height: 55px !important;
+  }
+}
+
 .header-logo {
   p {
     font-size: 20px !important;
@@ -9,11 +15,10 @@
   }
 }
 
-.menu-button,
-.user-icon {
+.menu-button {
   background-color: rgb(132 132 132 / 10%) !important;
   border-radius: 50% !important;
-  padding: 8px !important;
+  padding: 5px !important;
   transition: background-color 0.3s ease !important;
 
   &:hover {

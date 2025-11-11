@@ -44,7 +44,7 @@ const DefaultLayout = () => {
             p={3}
             overflow='auto'
             sx={{
-              marginLeft: isSidebarOpen ? "250px" : "80px",
+              marginLeft: isSidebarOpen ? "230px" : "80px",
               transition: "margin-left 0.3s ease",
               height: "100%",
             }}

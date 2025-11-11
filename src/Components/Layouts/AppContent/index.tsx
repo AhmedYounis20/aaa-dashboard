@@ -1,7 +1,7 @@
 import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import DataTreeTable from "../../Tables/DataTreeTable";
 import DataTable from "../../Tables/DataTable";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import { useTranslation } from "react-i18next";
 
 type AppContentProps = {
@@ -24,9 +24,9 @@ type AppContentProps = {
   showdelete?: boolean;
   showedit?: boolean;
   showadd?: boolean;
-  showEditButtonIf?: (e: any)=> boolean;
-  showDeleteButtonIf?: (e:any)=> boolean;
-  showAddButtonIf?: (e:any)=> boolean;
+  showEditButtonIf?: (e: any) => boolean;
+  showDeleteButtonIf?: (e: any) => boolean;
+  showAddButtonIf?: (e: any) => boolean;
 };
 
 export default function AppContent({
@@ -49,11 +49,17 @@ export default function AppContent({
   showAddButtonIf,
   btn = false,
 }: AppContentProps) {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
-  
-  const defaultHiddenColumns = defaultHiddenCols || ["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"];
-  
+
+  const defaultHiddenColumns = defaultHiddenCols || [
+    "id",
+    "createdAt",
+    "createdBy",
+    "modifiedAt",
+    "modifiedBy",
+  ];
+
   return (
     <Box
       sx={{
@@ -62,8 +68,8 @@ export default function AppContent({
         flexDirection: "column",
         gap: 3,
         p: 3,
-        minHeight: '100vh',
-        transition: 'all 0.3s ease',
+        minHeight: "100vh",
+        transition: "all 0.3s ease",
       }}
     >
       {/* Header Section */}
@@ -77,27 +83,27 @@ export default function AppContent({
           borderRadius: 3,
           boxShadow: theme.shadows[2],
           border: `1px solid ${theme.palette.divider}`,
-          transition: 'all 0.3s ease',
-          '&:hover': {
+          transition: "all 0.3s ease",
+          "&:hover": {
             boxShadow: theme.shadows[4],
           },
         }}
       >
         <Box>
-          <Typography 
-            variant="h4" 
+          <Typography
+            variant='h4'
             sx={{
               fontWeight: 700,
               color: theme.palette.primary.main,
               textTransform: "capitalize",
-              letterSpacing: '0.5px',
+              letterSpacing: "0.5px",
               mb: 0.5,
             }}
           >
             {t(title)}
           </Typography>
-          <Typography 
-            variant="body2" 
+          <Typography
+            variant='body2'
             sx={{
               color: theme.palette.text.secondary,
               fontWeight: 500,
@@ -109,7 +115,7 @@ export default function AppContent({
 
         {btn && (
           <Button
-            variant="contained"
+            variant='contained'
             onClick={actionBtn}
             color={btnColor || "primary"}
             startIcon={<AddIcon />}
@@ -117,31 +123,32 @@ export default function AppContent({
               px: 4,
               py: 1.5,
               borderRadius: 2,
-              textTransform: 'none',
+              textTransform: "none",
               fontWeight: 600,
-              fontSize: '0.95rem',
+              fontSize: "0.95rem",
               boxShadow: `0 4px 12px ${theme.palette.primary.main}40`,
               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              position: 'relative',
-              overflow: 'hidden',
-              '&:hover': {
+              position: "relative",
+              overflow: "hidden",
+              "&:hover": {
                 boxShadow: `0 6px 20px ${theme.palette.primary.main}60`,
-                transform: 'translateY(-2px)',
+                transform: "translateY(-2px)",
                 background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
               },
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&::before': {
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              "&::before": {
                 content: '""',
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                transition: 'left 0.6s',
+                left: "-100%",
+                width: "100%",
+                height: "100%",
+                background:
+                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                transition: "left 0.6s",
               },
-              '&:hover::before': {
-                left: '100%',
+              "&:hover::before": {
+                left: "100%",
               },
             }}
           >
@@ -155,11 +162,11 @@ export default function AppContent({
         sx={{
           backgroundColor: theme.palette.background.paper,
           borderRadius: 3,
-          overflow: 'hidden',
+          overflow: "hidden",
           boxShadow: theme.shadows[2],
           border: `1px solid ${theme.palette.divider}`,
-          transition: 'all 0.3s ease',
-          '&:hover': {
+          transition: "all 0.3s ease",
+          "&:hover": {
             boxShadow: theme.shadows[4],
           },
         }}
@@ -175,8 +182,8 @@ export default function AppContent({
             showadd={showadd}
             showedit={showedit}
             showdelete={showdelete}
-            showEditButtonIf ={showEditButtonIf}
-            showDeleteButtonIf ={showDeleteButtonIf}
+            showEditButtonIf={showEditButtonIf}
+            showDeleteButtonIf={showDeleteButtonIf}
             showAddButtonIf={showAddButtonIf}
           />
         ) : (
@@ -188,14 +195,12 @@ export default function AppContent({
             changeFormType={changeFormType}
             handleShowForm={handleShowForm}
             defaultHiddenColumns={defaultHiddenColumns as any}
-            defaultColumns= {columns}
-            showEditButtonIf = {showEditButtonIf}
-            showDeleteButtonIf ={showDeleteButtonIf}
+            defaultColumns={columns}
+            showEditButtonIf={showEditButtonIf}
+            showDeleteButtonIf={showDeleteButtonIf}
           />
         )}
       </Box>
     </Box>
   );
 }
-
-
