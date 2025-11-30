@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
 
 interface InputTextProps {
-  label: string;
+  label?: string;
   value: string | null;
   onChange?: (value: string) => void | null;
   disabled?: boolean;
@@ -14,13 +14,13 @@ interface InputTextProps {
   type?: string;
   className?: string;
   variant?: "outlined" | "filled" | "standard";
-  isRquired? : boolean;
+  isRquired?: boolean;
 }
 
 const InputText: React.FC<InputTextProps> = ({
   label,
   value,
-  onChange  = null,
+  onChange = null,
   disabled = false,
   error = false,
   helperText = "",
@@ -29,14 +29,13 @@ const InputText: React.FC<InputTextProps> = ({
   type = "text",
   className = "",
   variant = "outlined",
-  isRquired = false
-
+  isRquired = false,
 }) => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   return (
     <TextField
       type={type}
-      label={`${label}${isRquired ? ` (${t("Required")})`:""}`}
+      label={label ? `${label}${isRquired ? ` (${t("Required")})` : ""}` : ""}
       value={value}
       onChange={(e) => onChange && onChange(e.target.value)}
       disabled={disabled}

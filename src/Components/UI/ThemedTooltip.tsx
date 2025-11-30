@@ -7,6 +7,7 @@ interface ThemedTooltipProps extends Omit<TooltipProps, "title"> {
 
 export default function ThemedTooltip({
   title,
+  placement,
   children,
   ...props
 }: ThemedTooltipProps) {
@@ -16,7 +17,7 @@ export default function ThemedTooltip({
   return (
     <Tooltip
       title={t(title)}
-      placement={theme.direction === "rtl" ? "left" : "right"}
+      placement={placement || "top"}
       arrow
       disableInteractive
       componentsProps={{

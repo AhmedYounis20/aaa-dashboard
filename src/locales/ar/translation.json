@@ -379,5 +379,12 @@
   "Direct": "مباشر",
   "Conditional": "مشروط",
   "All": "الكل",
-  "PeriodTypeByMonth": "نوع الفترة حسب الشهر"
+  "PeriodTypeByMonth": "نوع الفترة حسب الشهر",
+  "Attributes": "الخصائص",
+  "Values": "القيم",
+  "AddValue": "إضافة قيمة",
+  "Active": "نشط",
+  "Inactive": "غير نشط",
+  "NoDataAvailable": "لا توجد بيانات متاحة",
+  "ThisValueAlreadyExists": "هذه القيمة موجودة بالفعل"
 }
