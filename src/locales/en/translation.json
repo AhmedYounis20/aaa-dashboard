@@ -236,8 +236,8 @@
   "approved": "Approved",
   "received": "Received",
   "issued": "Issued",
-      "cancelled": "Cancelled",
-    "Please fill all required fields": "Please fill all required fields",
+  "cancelled": "Cancelled",
+  "Please fill all required fields": "Please fill all required fields",
   "Manage": "Manage",
   "Column Visibility": "Column Visibility",
   "columns selected": "columns selected",
@@ -270,7 +270,6 @@
   "CostCenters": "Cost Centers",
   "DecimalDigitsNumber": "Decimal Digits Number",
   "DepreciationApplication": "Depreciation Application",
-
   "None": "None",
   "Cash": "Cash",
   "Cheque": "Cheque",
@@ -278,8 +277,6 @@
   "WireTransfer": "Wire Transfer",
   "Atm": "ATM",
   "CreditCard": "Credit Card",
-
- 
   "Online": "Online",
   "Lands": "Lands",
   "Buildings": "Buildings",
@@ -380,5 +377,12 @@
   "Direct": "Direct",
   "Conditional": "Conditional",
   "All": "All",
-  "PeriodTypeByMonth": "Period Type By Month"
+  "PeriodTypeByMonth": "Period Type By Month",
+  "Attributes": "Attributes",
+  "Values": "Values",
+  "AddValue": "Add Value",
+  "Active": "Active",
+  "Inactive": "Inactive",
+  "NoDataAvailable": "No data available",
+  "ThisValueAlreadyExists": "This value already exists"
 }
