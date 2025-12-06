@@ -1,3 +1,5 @@
+import ChartOfAccountModel from "../../ChartOfAccount/ChartOfAccountModel";
+
 interface CashInBoxModel {
   id:string;
   name: string;
@@ -6,6 +8,7 @@ interface CashInBoxModel {
   nodeType: number;
   code: string;
   notes: string;
+  chartOfAccount?: ChartOfAccountModel;
 }
 
 export default CashInBoxModel;

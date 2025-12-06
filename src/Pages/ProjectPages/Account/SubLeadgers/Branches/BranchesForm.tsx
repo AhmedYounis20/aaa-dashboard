@@ -49,7 +49,24 @@ const BranchesForm: React.FC<{
 
   useEffect(() => {
     const fetchBranchData = async () => {
-      if (formType !== FormTypes.Add) {
+       if (formType === FormTypes.Add) {
+        try {
+          const response = await getDefaultBranchData(parentId);
+          if (response?.result) {
+            setModel((prevModel) =>
+              prevModel
+                ? {
+                    ...prevModel,
+                    code: response.result?.code,
+                  }
+                : prevModel
+            );
+          }
+        } catch (error) {
+          console.error('Error fetching default data:', error);
+        }
+      }
+      else {
         setIsLoading(true);
         try {
           const response = await getBranchById(id);
@@ -74,29 +91,13 @@ const BranchesForm: React.FC<{
     fetchBranchData();
   }, [formType, id]);
 
-  useEffect(() => {
-    const fetchDefaultData = async () => {
-      if (formType === FormTypes.Add) {
-        try {
-          const response = await getDefaultBranchData(parentId);
-          if (response?.result) {
-            setModel((prevModel) =>
-              prevModel
-                ? {
-                    ...prevModel,
-                    code: response.result?.code,
-                  }
-                : prevModel
-            );
-          }
-        } catch (error) {
-          console.error('Error fetching default data:', error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchDefaultData = async () => {
+     
+  //   };
 
-    fetchDefaultData();
-  }, [formType, parentId, model?.nodeType]);
+  //   fetchDefaultData();
+  // }, [formType, parentId, model?.nodeType]);
 
   const validate = async () => {
     try {

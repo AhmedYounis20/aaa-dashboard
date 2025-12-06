@@ -56,7 +56,9 @@ const CustomersForm: React.FC<{
         setIsLoading(true);
         const result = await getCustomerById(id);
         if (result && result.result) {
-          setModel(result.result);
+        setModel({...result.result,
+            code: result.result.chartOfAccount?.code ?? result.result.code,
+           });     
         }
         setIsLoading(false);
       };

@@ -36,8 +36,9 @@ const CashInBoxesForm: React.FC<{
         setIsLoading(true);
         const result = await getCashInBoxById(id);
         if (result && result.result) {
-          setModel(result.result);
-        }
+        setModel({...result.result,
+            code: result.result.chartOfAccount?.code ?? result.result.code,
+           });        }
         setIsLoading(false);
       };
       fetchData();
@@ -190,26 +191,8 @@ const CashInBoxesForm: React.FC<{
                   {model?.nodeType === NodeType.Domain && (
                     <div className="card p-4 mx-0 m-2 mt-4">
                       <p>{t("BasicInfo")}</p>
-                      <div className="row mb-4">
+                      <div className="row mb-4 mt-2">
                         <div className="col col-md-6">
-                          <InputText
-                            type="text"
-                            className="form-input form-control"
-                            label={t("Name")}
-                            variant="outlined"
-                            fullWidth
-                            isRquired
-                            disabled={formType === FormTypes.Details}
-                            value={model?.name}
-                            onChange={(value) =>
-                              setModel((prev) =>
-                                prev ? { ...prev, name: value } : prev
-                              )
-                            }
-                            error={!!errors.name}
-                            helperText={errors.name ? t(errors.name) : undefined}
-                          />
-
                           <InputText
                             type="text"
                             className="form-input form-control"

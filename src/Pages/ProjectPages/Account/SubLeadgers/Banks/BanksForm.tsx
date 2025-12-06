@@ -40,7 +40,9 @@ const BanksForm: React.FC<{
         setIsLoading(true);
         const result = await getBankById(id);
         if (result && result.result) {
-          setModel(result.result);
+          setModel({...result.result,
+            code: result.result.chartOfAccount?.code ?? result.result.code,
+           });
         }
         setIsLoading(false);
       };
@@ -71,6 +73,7 @@ const BanksForm: React.FC<{
       (validationErrors as any).inner.forEach((error: any) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
+      console.log(validationErrorsMap);
       setErrors(validationErrorsMap);
       return false;
     }

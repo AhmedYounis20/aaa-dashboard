@@ -1,3 +1,5 @@
+import ChartOfAccountModel from "../../ChartOfAccount/ChartOfAccountModel";
+
 interface BankModel {
   id:string;
   name: string;
@@ -10,6 +12,7 @@ interface BankModel {
   bankAccount: string;
   bankAddress: string;
   notes: string;
+  chartOfAccount?: ChartOfAccountModel;
 }
 
 export default BankModel;

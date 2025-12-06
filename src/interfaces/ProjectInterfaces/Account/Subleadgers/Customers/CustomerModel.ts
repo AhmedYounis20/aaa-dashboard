@@ -1,3 +1,4 @@
+import ChartOfAccountModel from "../../ChartOfAccount/ChartOfAccountModel";
 import CustomerType from "./CustomerType";
 
 interface CustomerModel {
@@ -14,6 +15,7 @@ interface CustomerModel {
   address: string;
   customerType: CustomerType;
   notes: string;
+  chartOfAccount?: ChartOfAccountModel;
 }
 
 export default CustomerModel;
