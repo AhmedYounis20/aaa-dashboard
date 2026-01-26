@@ -7,7 +7,7 @@ import { AppContent } from '../../../../Components';
 import ItemModel  from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
 import { useTranslation } from 'react-i18next';
 import { ItemType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemType';
-import { DiscountType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/DiscountType';
+import { DiscountType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType';
 import { ItemNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType';
 import { getEnumString } from '../../../../Helper/enumHelper';
 

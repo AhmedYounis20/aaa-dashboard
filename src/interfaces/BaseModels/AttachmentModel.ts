@@ -1,5 +1,5 @@
 interface AttachmentModel {
-  attachmentId : string | null;
+  attachmentId? : string | null;
   fileName: string;
   fileContent: string;
   contentType: string;

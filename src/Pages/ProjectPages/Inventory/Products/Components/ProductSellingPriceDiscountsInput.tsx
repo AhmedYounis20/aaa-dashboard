@@ -9,18 +9,18 @@ import {
 } from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
-import ItemSellingPriceDiscountModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemSellingPriceDiscountModel";
+import ProductSellingPriceDiscountModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductSellingPriceDiscountModel";
 
-const DiscountPricesInput: React.FC<{
+const ProductSellingPriceDiscountsInput: React.FC<{
   formType: FormTypes;
-  itemSellingPriceDiscounts: ItemSellingPriceDiscountModel[];
+  productSellingPriceDiscounts: ProductSellingPriceDiscountModel[];
   handleUpdate: (
-    sellingPriceDiscounts: ItemSellingPriceDiscountModel[]
+    sellingPriceDiscounts: ProductSellingPriceDiscountModel[]
   ) => void;
   handleTranslate: (key: string) => string;
 }> = ({
   formType,
-  itemSellingPriceDiscounts,
+  productSellingPriceDiscounts,
   handleUpdate,
   handleTranslate,
 }) => {
@@ -35,7 +35,7 @@ const DiscountPricesInput: React.FC<{
           const missingDiscounts = fetchedPrices
             .filter(
               (e) =>
-                !itemSellingPriceDiscounts.some((a) => a.sellingPriceId == e.id)
+                !productSellingPriceDiscounts.some((a) => a.sellingPriceId == e.id)
             )
             .map((e) => ({
               discount: 0,
@@ -45,42 +45,39 @@ const DiscountPricesInput: React.FC<{
               nameSecondLanguage: e.nameSecondLanguage,
             }));
 
-          const enrichedExisting = itemSellingPriceDiscounts.map((item) => {
+          const enrichedExisting = productSellingPriceDiscounts.map((item) => {
             if (!item.name || !item.nameSecondLanguage) {
               const match = fetchedPrices.find(
-                (p) => p.id == item.sellingPriceId
+                (e) => e.id == item.sellingPriceId
               );
-              if (match) {
-                return {
-                  ...item,
-                  name: item.name || match.name,
-                  nameSecondLanguage:
-                    item.nameSecondLanguage || match.nameSecondLanguage,
-                };
-              }
+              return {
+                ...item,
+                name: match?.name ?? "",
+                nameSecondLanguage: match?.nameSecondLanguage ?? "",
+              };
             }
             return item;
           });
 
-          handleUpdate([...enrichedExisting, ...missingDiscounts]);
+          const allDiscounts = [...enrichedExisting, ...missingDiscounts];
+          handleUpdate(allDiscounts);
         }
       };
       fetchData();
     }
   }, [formType]);
 
-  const handleOpen = () => setIsOpen((prev) => !prev);
-
-  const handleDiscountChange = (index: number, value: number | null) => {
-    const updated = itemSellingPriceDiscounts.map((item, i) =>
-      i == index ? { ...item, discount: value ?? 0 } : item
-    );
-    handleUpdate(updated);
-  };
-
-  const handleDiscountTypeChange = (index: number, value: DiscountType) => {
-    const updated = itemSellingPriceDiscounts.map((item, i) =>
-      i == index ? { ...item, discountType: value } : item
+  const handleDiscountChange = (
+    sellingPriceId: string,
+    field: keyof ProductSellingPriceDiscountModel,
+    value: any
+  ) => {
+    console.log("field:",field);
+    console.log("value:",value);
+    const updated = productSellingPriceDiscounts.map((item) =>
+      item.sellingPriceId === sellingPriceId
+        ? { ...item, [field]: value }
+        : item
     );
     handleUpdate(updated);
   };
@@ -89,7 +86,8 @@ const DiscountPricesInput: React.FC<{
     <>
       <button
         className="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2 px-4 py-2 rounded shadow-sm text-white fw-semibold"
-        onClick={handleOpen}
+        onClick={() => setIsOpen(!isOpen)}
+        disabled={formType === FormTypes.Details}
       >
         <DiscountIcon fontSize="small" />
         <span>{handleTranslate("Discounts")}</span>
@@ -106,7 +104,7 @@ const DiscountPricesInput: React.FC<{
                 <button
                   type="button"
                   className="btn-close btn-close-white"
-                  onClick={handleOpen}
+                  onClick={() => setIsOpen(false)}
                 ></button>
               </div>
 
@@ -121,7 +119,7 @@ const DiscountPricesInput: React.FC<{
                       </tr>
                     </thead>
                     <tbody>
-                      {itemSellingPriceDiscounts.map((discountItem, index) => (
+                      {productSellingPriceDiscounts.map((discountItem, index) => (
                         <tr key={index}>
                           <td>
                             <div className="fw-semibold text-primary">
@@ -146,26 +144,25 @@ const DiscountPricesInput: React.FC<{
                                   : "number"
                               }
                               onChange={(value) =>
-                                handleDiscountChange(index, value)
+                                handleDiscountChange(discountItem.sellingPriceId, "discount", value)
                               }
                             />
                           </td>
                           <td>
                             <InputSelect
-                              options={DiscountTypeOptions}
+                              options={DiscountTypeOptions.map((e) => ({
+                                ...e,
+                                label: handleTranslate(e.label),
+                              }))}
                               label=""
+                              
+                              disabled={formType == FormTypes.Details}
                               defaultValue={discountItem.discountType}
-                              disabled={formType === FormTypes.Details}
-                              multiple={false}
-                              onChange={({
-                                target,
-                              }: {
-                                target: { value: DiscountType };
-                              }) =>
-                                handleDiscountTypeChange(index, target.value)
+                              onChange={({target}:{target:{value:DiscountType}}) =>
+                                handleDiscountChange(discountItem.sellingPriceId, "discountType", target.value)
                               }
                               name="DiscountType"
-                              onBlur={() => {}}
+                              onBlur={null}
                               error={undefined}
                             />
                           </td>
@@ -176,8 +173,12 @@ const DiscountPricesInput: React.FC<{
                 </div>
               </div>
 
-              <div className="modal-footer border-top px-4 py-3">
-                <button className="btn btn-secondary" onClick={handleOpen}>
+              <div className="modal-footer bg-light px-4 py-3">
+                <button
+                  type="button"
+                  className="btn btn-secondary px-4"
+                  onClick={() => setIsOpen(false)}
+                >
                   {handleTranslate("Close")}
                 </button>
               </div>
@@ -189,4 +190,4 @@ const DiscountPricesInput: React.FC<{
   );
 };
 
-export default DiscountPricesInput;
+export default ProductSellingPriceDiscountsInput;

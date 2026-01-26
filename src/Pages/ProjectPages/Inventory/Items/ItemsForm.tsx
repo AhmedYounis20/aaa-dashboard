@@ -10,7 +10,7 @@ import InputText from '../../../../Components/Inputs/InputText';
 import { ItemType, ItemTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemType';
 import BarCodesInput from './Components/BarCodes';
 import InputNumber from '../../../../Components/Inputs/InputNumber';
-import { DiscountType, DiscountTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/DiscountType';
+import { DiscountType, DiscountTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType';
 import InputAutoComplete from '../../../../Components/Inputs/InputAutoCompelete';
 import SupplierModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel';
 import { getSuppliers } from '../../../../Apis/Account/SuppliersApi';
