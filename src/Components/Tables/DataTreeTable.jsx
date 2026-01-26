@@ -80,8 +80,8 @@ const DataTreeTable = ({
 
   const renderCell = (row, column) => {
     let value;
-    if (typeof column.function === 'function') {
-      value = column.function(getValueByAccessor(row, column.accessor));
+    if (typeof column.renderCell === 'function') {
+      value = column.renderCell({data: row, value:getValueByAccessor(row, column.accessor)});
     } else {
       value = getValueByAccessor(row, column.accessor);
     }

@@ -1,4 +1,4 @@
-import { DiscountType } from "./DiscountType";
+import { DiscountType } from "../Products/DiscountType";
 import { ItemNodeType } from "./ItemNodeType";
 import ItemPackingUnitModel from "./ItemPackingUnitModel";
 import ItemSellingPriceDiscountModel from "./ItemSellingPriceDiscountModel";

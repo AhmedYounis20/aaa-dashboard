@@ -1,6 +1,4 @@
 import { 
-  Palette,
-  Straighten,
   AccountBalanceOutlined,
   AccountTreeOutlined,
   AssessmentOutlined,
@@ -49,9 +47,8 @@ import PaymentVouchersRoot from "../Pages/ProjectPages/Account/Entries/PaymentVo
 import ReceiptVouchersRoot from "../Pages/ProjectPages/Account/Entries/ReceiptVouchers/ReceiptVouchersRoot";
 import JournalEntriesRoot from "../Pages/ProjectPages/Account/Entries/JournalEntries/JournalEntriesRoot";
 import OpeningEntriesRoot from "../Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot";
-import ItemsRoot from "../Pages/ProjectPages/Inventory/Items/ItemsRoot";
-import ColorsRoot from "../Pages/ProjectPages/Inventory/Colors/ColorsRoot";
-import SizesRoot from "../Pages/ProjectPages/Inventory/Sizes/SizesRoot";
+import ProductsRoot from "../Pages/ProjectPages/Inventory/Products/ProductsRoot";
+import VariantsRoot from "../Pages/ProjectPages/Inventory/Variants/VariantsRoot";
 import InventoryTransactionsPage from "../Pages/ProjectPages/Inventory/InventoryTransactions";
 import InventoryTransferRoot from '../Pages/ProjectPages/Inventory/InventoryTransfers/InventoryTransferRoot';
 import attributesRoot from '../Pages/ProjectPages/Inventory/Attributes/AttributesRoot';
@@ -233,23 +230,18 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(InventoryOutlined),
     submenu: [
       {
-        title: "Items",
+        title: "Products",
         icon: React.createElement(CategoryOutlined),
-        path: "/items",
-        page: ItemsRoot
+        path: "/products",
+        page: ProductsRoot
       },
       {
-        title: "Colors",
-        icon: React.createElement(Palette),
-        path: "/colors",
-        page: ColorsRoot
+        title: "Variants",
+        icon: React.createElement(InventoryOutlined),
+        path: "/variants",
+        page: VariantsRoot
       },
-      {
-        title: "Sizes",
-        icon: React.createElement(Straighten),
-        path: "/sizes",
-        page: SizesRoot
-      },
+
       {
         title: "InventoryTransfers",
         icon: React.createElement(LocalShippingOutlined),

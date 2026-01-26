@@ -1,6 +1,6 @@
 import { DiscountType } from "../Products/DiscountType";
 
-interface ItemSellingPriceDiscountModel {
+interface VariantSellingPriceDiscountModel {
   sellingPriceId: string;
   discount : number;
   discountType : DiscountType;
@@ -8,4 +8,14 @@ interface ItemSellingPriceDiscountModel {
   nameSecondLanguage: string;
 }
 
-export default ItemSellingPriceDiscountModel;
+export default VariantSellingPriceDiscountModel;
+
+
+
+
+
+
+
+
+
+
