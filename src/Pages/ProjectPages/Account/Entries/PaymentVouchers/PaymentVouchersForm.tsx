@@ -184,7 +184,7 @@ const { t } = useTranslation();
       httpGet<EntryNumber>(`${url}/getEntryNumber`, {
         datetime: model.entryDate,
       }).then((e) => {
-        if (!e) return;
+        if (!e || !e.isSuccess) return;
         const { result } = e;
         setModel((prevModel) =>
           prevModel

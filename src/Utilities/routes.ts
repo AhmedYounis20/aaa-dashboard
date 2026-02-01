@@ -29,6 +29,7 @@ import {
 import React, { ReactElement } from "react";
 import ChartOfAccountsRoot from "../Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot";
 import BanksRoot from "../Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot";
+import TaxesRoot from "../Pages/ProjectPages/Account/SubLeadgers/Taxes/TaxesRoot";
 import CashInBoxesRoot from "../Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot";
 import CustomersRoot from "../Pages/ProjectPages/Account/SubLeadgers/Customers/CustomersRoot";
 import SuppliersRoot from "../Pages/ProjectPages/Account/SubLeadgers/Suppliers/SuppliersRoot";
@@ -92,6 +93,12 @@ export const sidebarItemsData: ISidebarItem[] = [
         icon: React.createElement(AccountBalanceOutlined),
         path: "/subleadgers/banks",
         page: BanksRoot,
+      },
+      {
+        title: "Taxes",
+        icon: React.createElement(ReceiptOutlined),
+        path: "/subleadgers/taxes",
+        page: TaxesRoot,
       },
       {
         title: "CashInBoxes",
