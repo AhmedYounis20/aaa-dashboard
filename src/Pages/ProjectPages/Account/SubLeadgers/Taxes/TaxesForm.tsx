@@ -355,7 +355,6 @@ const TaxesForm: React.FC<{
                               helperText={
                                 errors.percent ? t(errors.percent) : undefined
                               }
-                              precision={2}
                             />
                           </div>
                         )}
