@@ -64,6 +64,10 @@ const DataTable = ({
   showdelete = true,
   showEditButtonIf = (e) => true,
   showDeleteButtonIf = (e) => true,
+  // Client-side: data passed from parent. Server-side: data fetched via onFetchData
+  data: dataProp,
+  loading: clientLoading = false,
+  onRefresh,
   // Server-side pagination props
   reloadKey,
   serverSidePagination = false,
@@ -82,7 +86,7 @@ const DataTable = ({
   const [showSearch, setShowSearch] = useState(false);
 
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [serverLoading, setServerLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -94,7 +98,7 @@ const DataTable = ({
     async (pageNumber, pageSize) => {
       if (!serverSidePagination || !onFetchData) return;
 
-      setLoading(true);
+      setServerLoading(true);
       try {
         const result = await onFetchData({
           pageNumber: pageNumber,
@@ -111,7 +115,7 @@ const DataTable = ({
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false);
+        setServerLoading(false);
       }
     },
     [serverSidePagination, onFetchData],
@@ -122,6 +126,10 @@ const DataTable = ({
       loadData(page, pageSize);
     }
   }, [serverSidePagination, onFetchData, page, pageSize, reloadKey]);
+
+  // Effective row data: server-side uses internal state, client-side uses prop from parent
+  const rowData = serverSidePagination ? data : (dataProp ?? data);
+  const gridLoading = serverSidePagination ? serverLoading : clientLoading;
 
   const ActionsRenderer = (params) => {
     return (
@@ -197,13 +205,14 @@ const DataTable = ({
   };
 
   useEffect(() => {
-    if (data.length > 0 || (defaultColumns && defaultColumns.length > 0)) {
+    const effectiveData = serverSidePagination ? data : (dataProp ?? data);
+    if (effectiveData.length > 0 || (defaultColumns && defaultColumns.length > 0)) {
       let initialColumns = [];
 
       const sourceColumns =
         defaultColumns && defaultColumns.length > 0
           ? defaultColumns
-          : Object.keys(data[0] || {}).map((key) => ({
+          : Object.keys(effectiveData[0] || {}).map((key) => ({
               field: key,
               headerName: key,
             }));
@@ -270,7 +279,7 @@ const DataTable = ({
 
       setColDefs([...initialColumns, actionsCol]);
     }
-  }, [data, defaultColumns, defaultHiddenColumns, t, showedit, showdelete]);
+  }, [data, dataProp, serverSidePagination, defaultColumns, defaultHiddenColumns, t, showedit, showdelete]);
 
   const onGridReady = (params) => {
     setGridApi(params.api);
@@ -320,6 +329,10 @@ const DataTable = ({
   const onSyncData = async () => {
     if (serverSidePagination && onFetchData) {
       await loadData(page, pageSize);
+    }
+
+    if (!serverSidePagination && onRefresh) {
+      onRefresh();
     }
   };
 
@@ -474,12 +487,12 @@ const DataTable = ({
                 <IconButton
                   size='small'
                   onClick={onSyncData}
-                  disabled={loading}
+                  disabled={gridLoading}
                 >
                   <SyncIcon
                     fontSize='small'
                     sx={{
-                      animation: loading ? "spin 2s linear infinite" : "none",
+                      animation: gridLoading ? "spin 2s linear infinite" : "none",
                       "@keyframes spin": {
                         "0%": {
                           transform: "rotate(0deg)",
@@ -493,9 +506,6 @@ const DataTable = ({
                 </IconButton>
               </span>
             </ThemedTooltip>
-            {/* <Typography variant="caption" color="text.secondary">
-              {t("Updated")} {timeAgo}
-            </Typography> */}
           </Box>
         </Box>
       </Box>
@@ -522,7 +532,7 @@ const DataTable = ({
         setPage(1);
         loadData(1, newSize);
       } else if (gridApi) {
-        gridApi.paginationSetPageSize(newSize);
+        gridApi.setGridOption("paginationPageSize", newSize);
       }
     };
 
@@ -803,7 +813,7 @@ const DataTable = ({
         <AgGridReact
           theme='legacy'
           columnDefs={colDefs}
-          rowData={data}
+          rowData={rowData}
           defaultColDef={defaultColDef}
           rowSelection={{
             mode: "multiRow",
@@ -847,7 +857,7 @@ const DataTable = ({
           multiSortKey={"ctrl"}
           localeText={useMemo(() => getAgGridLocaleText(t), [t])}
           enableRtl={theme.direction === "rtl" ? true : false}
-          loading={loading}
+          loading={gridLoading}
         />
       </Box>
       <CustomPagination />

@@ -6,7 +6,6 @@ import DataTreeTable from "../../Tables/DataTreeTable";
 
 type AppContentProps = {
   tableType: "tree" | "table";
-  data?: any[];
   title: string;
   btnName?: string;
   btn?: boolean;
@@ -27,6 +26,10 @@ type AppContentProps = {
   showEditButtonIf?: (e: any) => boolean;
   showDeleteButtonIf?: (e: any) => boolean;
   showAddButtonIf?: (e: any) => boolean;
+  // Client-side pagination props
+  data?: any[];
+  loading?: boolean;
+  onRefresh?: () => void;
   // Server-side pagination props
   reloadKey?: number;
   serverSidePagination?: boolean;
@@ -36,7 +39,6 @@ type AppContentProps = {
 export default function AppContent({
   tableType,
   columns,
-  data,
   handleSelectId,
   handleSelectParentId,
   handleShowForm,
@@ -52,6 +54,9 @@ export default function AppContent({
   showDeleteButtonIf,
   showAddButtonIf,
   btn = false,
+  data,
+  loading,
+  onRefresh,
   reloadKey,
   serverSidePagination = false,
   onFetchData,
@@ -185,6 +190,9 @@ export default function AppContent({
           />
         ) : (
           <DataTable
+            data={data}
+            loading={loading}
+            onRefresh={onRefresh}
             showdelete={showdelete}
             showedit={showedit}
             handleSelectId={handleSelectId}
