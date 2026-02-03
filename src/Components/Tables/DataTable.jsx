@@ -1,67 +1,44 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import ReactDOMServer from "react-dom/server";
-import { AgGridReact } from "ag-grid-react";
-import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import { AgGridReact } from "ag-grid-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactDOMServer from "react-dom/server";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 import {
+  FirstPage,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  LastPage,
+  Search,
+} from "@mui/icons-material";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import SyncIcon from "@mui/icons-material/Sync";
+import {
   Box,
-  Typography,
-  IconButton,
-  useTheme,
-  Avatar,
-  Chip,
   Button,
-  Menu,
+  IconButton,
+  InputBase,
   MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Checkbox,
   Pagination,
   PaginationItem,
   Select,
-  FormControl,
+  Typography,
+  useTheme,
 } from "@mui/material";
-import {
-  EditNote,
-  Delete,
-  Visibility,
-  FilterList,
-  ViewColumn,
-  FileDownload,
-  MoreVert,
-  FirstPage,
-  LastPage,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-} from "@mui/icons-material";
-import SyncIcon from "@mui/icons-material/Sync";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
-import { FaInfo } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 import { FaRegEdit } from "react-icons/fa";
-import { RxCaretUp } from "react-icons/rx";
-import { RxCaretDown } from "react-icons/rx";
-import { RxCaretSort } from "react-icons/rx";
+import { FaInfo } from "react-icons/fa6";
 import { FiFilter } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { RxCaretDown, RxCaretSort, RxCaretUp } from "react-icons/rx";
 import { TbLayoutColumns } from "react-icons/tb";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { FormTypes } from "../../interfaces/Components/FormType";
-import { useTranslation } from "react-i18next";
-import { ColumnVisibilityDropdown } from "./ColumnVisibilityDropdown";
-import { AdvancedFilterDropdown } from "./AdvancedFilterDropdown";
 import ThemedTooltip from "../UI/ThemedTooltip";
+import { AdvancedFilterDropdown } from "./AdvancedFilterDropdown";
+import { ColumnVisibilityDropdown } from "./ColumnVisibilityDropdown";
 
 const getAgGridLocaleText = (t) => ({
   contains: t("contains"),
@@ -72,11 +49,12 @@ const getAgGridLocaleText = (t) => ({
   endsWith: t("endsWith"),
   blank: t("blank"),
   notBlank: t("notBlank"),
-  filterOoo: t('Filter'), 
+  filterOoo: t("Filter"),
+  loadingOoo: t("Loading"),
+  noRowsToShow: t("No rows to show"),
 });
 
 const DataTable = ({
-  data = [],
   defaultHiddenColumns = [],
   defaultColumns,
   changeFormType,
@@ -86,8 +64,12 @@ const DataTable = ({
   showdelete = true,
   showEditButtonIf = (e) => true,
   showDeleteButtonIf = (e) => true,
+  // Server-side pagination props
+  reloadKey,
+  serverSidePagination = false,
+  onFetchData,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const [gridApi, setGridApi] = useState(null);
   const [columnApi, setColumnApi] = useState(null);
@@ -96,11 +78,50 @@ const DataTable = ({
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const columnSelectorRef = useRef(null);
   const filterButtonRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const [showSearch, setShowSearch] = useState(false);
 
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalRows, setTotalRows] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+
+  const loadData = useCallback(
+    async (pageNumber, pageSize) => {
+      if (!serverSidePagination || !onFetchData) return;
+
+      setLoading(true);
+      try {
+        const result = await onFetchData({
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        });
+
+        if (result?.isSuccess) {
+          setData(result.result.items || []);
+          setTotalCount(result.result.totalCount || 0);
+          setTotalPages(result.result.totalPages || 0);
+          setHasNextPage(result.result.hasNextPage || false);
+          setHasPreviousPage(result.result.hasPreviousPage || false);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [serverSidePagination, onFetchData],
+  );
+
+  useEffect(() => {
+    if (serverSidePagination && onFetchData) {
+      loadData(page, pageSize);
+    }
+  }, [serverSidePagination, onFetchData, page, pageSize, reloadKey]);
 
   const ActionsRenderer = (params) => {
     return (
@@ -110,7 +131,7 @@ const DataTable = ({
         {showedit && showEditButtonIf(params.data) && (
           <ThemedTooltip title={t("Edit")}>
             <IconButton
-              size="small"
+              size='small'
               onClick={() => {
                 changeFormType(FormTypes.Edit);
                 handleSelectId(params.data.id);
@@ -121,14 +142,14 @@ const DataTable = ({
                 "&:hover": { color: theme.palette.info.main },
               }}
             >
-              <FaRegEdit fontSize="medium" />
+              <FaRegEdit fontSize='medium' />
             </IconButton>
           </ThemedTooltip>
         )}
 
         <ThemedTooltip title={t("View")}>
           <IconButton
-            size="small"
+            size='small'
             onClick={() => {
               changeFormType(FormTypes.Details);
               handleSelectId(params.data.id);
@@ -139,14 +160,14 @@ const DataTable = ({
               "&:hover": { color: theme.palette.primary.main },
             }}
           >
-            <FaInfo fontSize="medium" />
+            <FaInfo fontSize='medium' />
           </IconButton>
         </ThemedTooltip>
 
         {showdelete && showDeleteButtonIf(params.data) && (
           <ThemedTooltip title={t("Delete")}>
             <IconButton
-              size="small"
+              size='small'
               onClick={() => {
                 changeFormType(FormTypes.Delete);
                 handleSelectId(params.data.id);
@@ -157,7 +178,7 @@ const DataTable = ({
                 "&:hover": { color: theme.palette.error.main },
               }}
             >
-              <RiDeleteBin6Line fontSize="medium" />
+              <RiDeleteBin6Line fontSize='medium' />
             </IconButton>
           </ThemedTooltip>
         )}
@@ -171,7 +192,7 @@ const DataTable = ({
       .split(".")
       .reduce(
         (acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined),
-        obj
+        obj,
       );
   };
 
@@ -183,9 +204,9 @@ const DataTable = ({
         defaultColumns && defaultColumns.length > 0
           ? defaultColumns
           : Object.keys(data[0] || {}).map((key) => ({
-            field: key,
-            headerName: key,
-          }));
+              field: key,
+              headerName: key,
+            }));
 
       initialColumns = sourceColumns.map((col) => {
         const field = col.accessor || col.field;
@@ -239,6 +260,7 @@ const DataTable = ({
         filter: false,
         resizable: false,
         suppressSizeToFit: true,
+        headerClass: "actions-header",
         cellStyle: {
           display: "flex",
           justifyContent: "center",
@@ -253,17 +275,18 @@ const DataTable = ({
   const onGridReady = (params) => {
     setGridApi(params.api);
     setColumnApi(params.columnApi);
-    setTotalRows(params.api.getDisplayedRowCount());
-    setTotalPages(params.api.paginationGetTotalPages());
   };
 
   const onPaginationChanged = useCallback(() => {
+    if (serverSidePagination) return;
+
     if (gridApi) {
-      setPage(gridApi.paginationGetCurrentPage() + 1);
+      const currentPage = gridApi.paginationGetCurrentPage() + 1;
+      setPage(currentPage);
       setTotalPages(gridApi.paginationGetTotalPages());
-      setTotalRows(gridApi.getDisplayedRowCount());
+      setTotalCount(gridApi.getDisplayedRowCount());
     }
-  }, [gridApi]);
+  }, [gridApi, serverSidePagination]);
 
   const toggleColumnVisibility = useCallback(
     (columnField) => {
@@ -274,12 +297,12 @@ const DataTable = ({
       const newHide = !col.hide;
 
       const newColDefs = colDefs.map((c) =>
-        c.field === columnField ? { ...c, hide: newHide } : c
+        c.field === columnField ? { ...c, hide: newHide } : c,
       );
 
       setColDefs(newColDefs);
     },
-    [gridApi, colDefs]
+    [gridApi, colDefs],
   );
 
   const onBtnExport = () => {
@@ -289,13 +312,16 @@ const DataTable = ({
       fileName: `${domainName}_${new Date().toLocaleDateString()}.csv`,
       onlySelected: selectedRows.length > 0,
       columnKeys: colDefs
-        .filter(col => col.field !== 'operations')
-        .map(col => col.field),
+        .filter((col) => col.field !== "operations")
+        .map((col) => col.field),
     });
   };
 
-  // TODO:: Implement sync data functionality
-  const onSyncData = async () => { };
+  const onSyncData = async () => {
+    if (serverSidePagination && onFetchData) {
+      await loadData(page, pageSize);
+    }
+  };
 
   const CustomToolbar = () => {
     return (
@@ -303,18 +329,20 @@ const DataTable = ({
         sx={{
           p: 2,
           display: "flex",
+          flexWrap: "wrap",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: 2,
           borderBottom: `1px solid ${theme.palette.divider}`,
           bgcolor: theme.palette.background.paper,
         }}
       >
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           <Box ref={columnSelectorRef} sx={{ position: "relative" }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<TbLayoutColumns />}
-              size="medium"
+              size='medium'
               sx={{
                 color: theme.palette.text.primary,
                 borderColor: theme.palette.divider,
@@ -339,9 +367,9 @@ const DataTable = ({
           </Box>
           <Box ref={filterButtonRef} sx={{ position: "relative" }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<FiFilter />}
-              size="medium"
+              size='medium'
               sx={{
                 color: theme.palette.text.primary,
                 borderColor: theme.palette.divider,
@@ -365,9 +393,9 @@ const DataTable = ({
             )}
           </Box>
           <Button
-            variant="outlined"
+            variant='outlined'
             startIcon={<FileDownloadOutlinedIcon />}
-            size="medium"
+            size='medium'
             onClick={onBtnExport}
             sx={{
               color: "success.main",
@@ -386,24 +414,103 @@ const DataTable = ({
             {t("Export")}
           </Button>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton size="small" onClick={onSyncData}>
-            <SyncIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="caption" color="text.secondary">
-            Updated just now
-          </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            flex: 1,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: showSearch
+                  ? theme.palette.action.hover
+                  : "transparent",
+                borderRadius: 1,
+                pl: showSearch ? 1 : 0,
+                transition: "all 0.3s ease",
+                width: showSearch ? 200 : 32,
+                overflow: "hidden",
+              }}
+            >
+              <InputBase
+                inputRef={searchInputRef}
+                placeholder={`${t("Search")}...`}
+                sx={{
+                  flex: 1,
+                  minWidth: 0,
+                  fontSize: "0.875rem",
+                  opacity: showSearch ? 1 : 0,
+                  transform: showSearch ? "translateX(0)" : "translateX(-8px)",
+                  transition: "opacity 0.2s ease, transform 0.2s ease",
+                  pointerEvents: showSearch ? "auto" : "none",
+                  "& input": {
+                    p: 0.5,
+                  },
+                }}
+              />
+
+              <IconButton
+                size='small'
+                onClick={() => {
+                  setShowSearch((prev) => !prev);
+                  setTimeout(() => {
+                    searchInputRef.current?.focus();
+                  }, 100);
+                }}
+              >
+                <Search fontSize='small' />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <ThemedTooltip title={t("Sync data")}>
+              <span>
+                <IconButton
+                  size='small'
+                  onClick={onSyncData}
+                  disabled={loading}
+                >
+                  <SyncIcon
+                    fontSize='small'
+                    sx={{
+                      animation: loading ? "spin 2s linear infinite" : "none",
+                      "@keyframes spin": {
+                        "0%": {
+                          transform: "rotate(0deg)",
+                        },
+                        "100%": {
+                          transform: "rotate(360deg)",
+                        },
+                      },
+                    }}
+                  />
+                </IconButton>
+              </span>
+            </ThemedTooltip>
+            {/* <Typography variant="caption" color="text.secondary">
+              {t("Updated")} {timeAgo}
+            </Typography> */}
+          </Box>
         </Box>
       </Box>
     );
   };
 
   const CustomPagination = () => {
-    const startRow = (page - 1) * pageSize + 1;
-    const endRow = Math.min(page * pageSize, totalRows);
+    const startRow = totalCount > 0 ? (page - 1) * pageSize + 1 : 0;
+    const endRow = Math.min(page * pageSize, totalCount);
 
     const handlePageChange = (event, value) => {
-      if (gridApi) {
+      if (serverSidePagination && onFetchData) {
+        setPage(value);
+        loadData(value, pageSize);
+      } else if (gridApi) {
         gridApi.paginationGoToPage(value - 1);
       }
     };
@@ -411,7 +518,10 @@ const DataTable = ({
     const handlePageSizeChange = (event) => {
       const newSize = Number(event.target.value);
       setPageSize(newSize);
-      if (gridApi) {
+      if (serverSidePagination && onFetchData) {
+        setPage(1);
+        loadData(1, newSize);
+      } else if (gridApi) {
         gridApi.paginationSetPageSize(newSize);
       }
     };
@@ -421,8 +531,14 @@ const DataTable = ({
         sx={{
           p: 2,
           display: "flex",
-          justifyContent: "space-between",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "center",
+            sm: "center",
+            md: "space-between",
+          },
           alignItems: "center",
+          gap: 2,
           bgcolor: theme.palette.background.paper,
           boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.08)",
           zIndex: 1,
@@ -431,13 +547,13 @@ const DataTable = ({
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant='body2' color='text.secondary'>
               {t("Rows per page:")}
             </Typography>
             <Select
               value={pageSize}
               onChange={handlePageSizeChange}
-              size="small"
+              size='small'
               sx={{
                 height: 32,
                 "& .MuiSelect-select": { py: 0.5, px: 1.5 },
@@ -452,9 +568,9 @@ const DataTable = ({
               ))}
             </Select>
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            {t("Showing")} {totalRows > 0 ? startRow : 0}-{endRow} {t("of")}{" "}
-            {totalRows}
+          <Typography variant='body2' color='text.secondary'>
+            {t("Showing")} {totalCount > 0 ? startRow : 0} - {endRow} {t("of")}{" "}
+            {totalCount}
           </Typography>
         </Box>
 
@@ -462,8 +578,8 @@ const DataTable = ({
           count={totalPages}
           page={page}
           onChange={handlePageChange}
-          shape="rounded"
-          color="primary"
+          shape='rounded'
+          color='primary'
           showFirstButton
           showLastButton
           renderItem={(item) => (
@@ -475,6 +591,14 @@ const DataTable = ({
                 next: KeyboardArrowRight,
               }}
               {...item}
+              disabled={
+                item.disabled ||
+                (serverSidePagination &&
+                  ((item.type === "next" && !hasNextPage) ||
+                    (item.type === "previous" && !hasPreviousPage) ||
+                    (item.type === "first" && !hasPreviousPage) ||
+                    (item.type === "last" && !hasNextPage)))
+              }
             />
           )}
           sx={{
@@ -536,7 +660,6 @@ const DataTable = ({
         width: "100%",
         bgcolor: theme.palette.background.paper,
         borderRadius: 2,
-        boxShadow: theme.shadows[1],
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -544,7 +667,7 @@ const DataTable = ({
     >
       <CustomToolbar />
       <Box
-        className="ag-theme-quartz"
+        className='ag-theme-quartz'
         sx={{
           flex: 1,
           width: "100%",
@@ -595,6 +718,9 @@ const DataTable = ({
                 ? "4px 0 20px rgba(0, 0, 0, 0.08)"
                 : "none",
             zIndex: 1,
+          },
+          "& .actions-header .ag-header-cell-label": {
+            justifyContent: "center",
           },
           "& .ag-header-cell-label": {
             color: theme.palette.text.secondary,
@@ -652,10 +778,30 @@ const DataTable = ({
           "& .ag-body": {
             backgroundColor: theme.palette.background.paper,
           },
+          "& .ag-overlay-loading-wrapper": {
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "color-mix(in srgb, transparent, #000 66%)"
+                : "color-mix(in srgb, transparent, #fff 66%)",
+          },
+          "& .ag-overlay-loading-center": {
+            backgroundColor: theme.palette.mode === "dark" ? "#000" : "#fff",
+            color: theme.palette.text.primary,
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "0 0 10px rgba(0, 0, 0, 0.1)"
+                : "0 0 10px rgba(0, 0, 0, 0.1)",
+          },
+          "& .ag-icon-loading": {
+            color: theme.palette.primary.main,
+          },
+          "& .ag-overlay-no-matching-rows-center": {
+            color: theme.palette.text.primary,
+          },
         }}
       >
         <AgGridReact
-          theme="legacy"
+          theme='legacy'
           columnDefs={colDefs}
           rowData={data}
           defaultColDef={defaultColDef}
@@ -666,34 +812,34 @@ const DataTable = ({
           icons={{
             filter: ReactDOMServer.renderToString(
               <FiFilter
-                fontSize="medium"
+                fontSize='medium'
                 color={theme.palette.text.secondary}
-              />
+              />,
             ),
             sortAscending: ReactDOMServer.renderToString(
               <RxCaretUp
                 style={{
                   fontSize: "1.1rem",
                 }}
-              />
+              />,
             ),
             sortDescending: ReactDOMServer.renderToString(
               <RxCaretDown
                 style={{
                   fontSize: "1.1rem",
                 }}
-              />
+              />,
             ),
             sortUnSort: ReactDOMServer.renderToString(
               <RxCaretSort
                 style={{
                   fontSize: "1.1rem",
                 }}
-              />
+              />,
             ),
           }}
           onGridReady={onGridReady}
-          pagination={true}
+          pagination={!serverSidePagination}
           paginationPageSize={pageSize}
           suppressPaginationPanel={true}
           onPaginationChanged={onPaginationChanged}
@@ -701,6 +847,7 @@ const DataTable = ({
           multiSortKey={"ctrl"}
           localeText={useMemo(() => getAgGridLocaleText(t), [t])}
           enableRtl={theme.direction === "rtl" ? true : false}
+          loading={loading}
         />
       </Box>
       <CustomPagination />

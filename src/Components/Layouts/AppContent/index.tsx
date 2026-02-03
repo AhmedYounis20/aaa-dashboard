@@ -1,12 +1,12 @@
-import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
-import DataTreeTable from "../../Tables/DataTreeTable";
-import DataTable from "../../Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add";
+import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import DataTable from "../../Tables/DataTable";
+import DataTreeTable from "../../Tables/DataTreeTable";
 
 type AppContentProps = {
   tableType: "tree" | "table";
-  data: any;
+  data?: any[];
   title: string;
   btnName?: string;
   btn?: boolean;
@@ -27,6 +27,10 @@ type AppContentProps = {
   showEditButtonIf?: (e: any) => boolean;
   showDeleteButtonIf?: (e: any) => boolean;
   showAddButtonIf?: (e: any) => boolean;
+  // Server-side pagination props
+  reloadKey?: number;
+  serverSidePagination?: boolean;
+  onFetchData?: (params: any) => Promise<any>;
 };
 
 export default function AppContent({
@@ -48,6 +52,9 @@ export default function AppContent({
   showDeleteButtonIf,
   showAddButtonIf,
   btn = false,
+  reloadKey,
+  serverSidePagination = false,
+  onFetchData,
 }: AppContentProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -67,8 +74,6 @@ export default function AppContent({
         display: "flex",
         flexDirection: "column",
         gap: 3,
-        p: 3,
-        minHeight: "100vh",
         transition: "all 0.3s ease",
       }}
     >
@@ -80,13 +85,9 @@ export default function AppContent({
         sx={{
           p: 3,
           backgroundColor: theme.palette.background.paper,
-          borderRadius: 3,
-          boxShadow: theme.shadows[2],
-          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 1.25,
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
           transition: "all 0.3s ease",
-          "&:hover": {
-            boxShadow: theme.shadows[4],
-          },
         }}
       >
         <Box>
@@ -161,14 +162,10 @@ export default function AppContent({
       <Box
         sx={{
           backgroundColor: theme.palette.background.paper,
-          borderRadius: 3,
+          borderRadius: 1.25,
           overflow: "hidden",
-          boxShadow: theme.shadows[2],
-          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
           transition: "all 0.3s ease",
-          "&:hover": {
-            boxShadow: theme.shadows[4],
-          },
         }}
       >
         {tableType === "tree" ? (
@@ -190,7 +187,6 @@ export default function AppContent({
           <DataTable
             showdelete={showdelete}
             showedit={showedit}
-            data={data}
             handleSelectId={handleSelectId}
             changeFormType={changeFormType}
             handleShowForm={handleShowForm}
@@ -198,6 +194,9 @@ export default function AppContent({
             defaultColumns={columns}
             showEditButtonIf={showEditButtonIf}
             showDeleteButtonIf={showDeleteButtonIf}
+            reloadKey={reloadKey}
+            serverSidePagination={serverSidePagination}
+            onFetchData={onFetchData}
           />
         )}
       </Box>
