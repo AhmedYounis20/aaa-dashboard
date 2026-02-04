@@ -1,7 +1,7 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { AppHeader } from "../Components";
 import { withAuth } from "../Hoc";
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import AppSidebar from "../Components/Layouts/Sidebar";
 import { appProps } from "../interfaces/Components/appProps";
@@ -14,8 +14,12 @@ export const appContext = createContext<appProps>({
 });
 
 const DefaultLayout = () => {
-  const isMobile = useMediaQuery("(max-width: 991px)");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  const isMobile = useMediaQuery("(max-width: 992px)");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    setIsSidebarOpen(!isMobile);
+  }, [isMobile]);
 
   return (
     <appContext.Provider
@@ -35,7 +39,7 @@ const DefaultLayout = () => {
           component='main'
           flexGrow={1}
           display='flex'
-          sx={{ marginTop: "64px" }}
+          sx={{ marginTop: "55px" }}
         >
           <AppSidebar items={sidebarItemsData} />
           <Box
@@ -44,8 +48,12 @@ const DefaultLayout = () => {
             p={3}
             overflow='auto'
             sx={{
-              marginLeft: isSidebarOpen ? "230px" : "80px",
-              transition: "margin-left 0.3s ease",
+              marginInlineStart: isMobile
+                ? 0
+                : isSidebarOpen
+                ? "230px"
+                : "80px",
+              transition: "margin 0.3s ease",
               height: "100%",
             }}
           >
