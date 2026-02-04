@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
-import { AppContent } from '../../../../Components';
-import { FormTypes } from '../../../../interfaces/Components';
-import SellingPricesForm from './SellingPricesForm';
-import { Box } from '@mui/material';
-import Loader from '../../../../Components/Loader';
+import { useEffect, useState } from "react";
+import { AppContent } from "../../../../Components";
+import { FormTypes } from "../../../../interfaces/Components";
+import SellingPricesForm from "./SellingPricesForm";
+import { Box } from "@mui/material";
 import { getSellingPrices } from "../../../../Apis/Inventory/SellingPricesApi";
-import  SellingPriceModel  from "../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
-import { useTranslation } from 'react-i18next';
+import SellingPriceModel from "../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import { useTranslation } from "react-i18next";
 
 const SellingPricesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -15,8 +14,9 @@ const SellingPricesRoot = () => {
   const [data, setData] = useState<SellingPriceModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { t } = useTranslation();
-  
+
   const fetchData = async () => {
+    setIsLoading(true);
     const result = await getSellingPrices();
     if (result && result.isSuccess) {
       setData(result.result);
@@ -36,56 +36,52 @@ const SellingPricesRoot = () => {
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
   const columns = [
-    { Header: t('Name'), accessor: 'name' },
-    { Header: t('NameSecondLanguage'), accessor: 'nameSecondLanguage' },
+    { Header: t("Name"), accessor: "name" },
+    { Header: t("NameSecondLanguage"), accessor: "nameSecondLanguage" },
   ];
 
   return (
-    <div className="w-full">
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <Box>
-          {showForm && (
-            <SellingPricesForm
-              id={selectedId}
-              handleCloseForm={handleCloseForm}
-              formType={formType}
-              afterAction={()=> fetchData()}
-            />
-          )}
+    <div className='w-full'>
+      <Box>
+        {showForm && (
+          <SellingPricesForm
+            id={selectedId}
+            handleCloseForm={handleCloseForm}
+            formType={formType}
+            afterAction={() => fetchData()}
+          />
+        )}
 
-          {!isLoading && (
-            <AppContent
-              tableType="table"
-              data={data}
-              title={t("SellingPrices")}
-              columns={columns}
-              btnName={t("AddNew")}
-              addBtn
-              btn
-              startIcon
-              showDeleteButtonIf={(e : SellingPriceModel)=> e.isDeletable ?? false}
-              actionBtn={() => {
-                setFormType(FormTypes.Add);
-                handleShowForm();
-              }}
-              handleSelectId={handleSelectId}
-              changeFormType={setFormType}
-              handleShowForm={handleShowForm}
-              defaultHiddenCols={[
-                "id",
-                "createdAt",
-                "createdBy",
-                "modifiedAt",
-                "modifiedBy",
-              ]}
-            />
-          )}
-        </Box>
-      )}
+        <AppContent
+          tableType='table'
+          data={data}
+          loading={isLoading}
+          onRefresh={() => fetchData()}
+          title={t("SellingPrices")}
+          columns={columns}
+          btnName={t("AddNew")}
+          addBtn
+          btn
+          startIcon
+          showDeleteButtonIf={(e: SellingPriceModel) => e.isDeletable ?? false}
+          actionBtn={() => {
+            setFormType(FormTypes.Add);
+            handleShowForm();
+          }}
+          handleSelectId={handleSelectId}
+          changeFormType={setFormType}
+          handleShowForm={handleShowForm}
+          defaultHiddenCols={[
+            "id",
+            "createdAt",
+            "createdBy",
+            "modifiedAt",
+            "modifiedBy",
+          ]}
+        />
+      </Box>
     </div>
   );
-}
+};
 
-export default SellingPricesRoot
+export default SellingPricesRoot;
