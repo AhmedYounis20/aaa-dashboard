@@ -188,610 +188,608 @@ const ItemsForm: React.FC<{
       : ItemNodeTypeOptions.filter((opt) => opt.value !== ItemNodeType.SubDomain);
 
   return (
-    <div className="container h-full">
-      <BaseForm
-        formType={formType}
-        handleCloseForm={handleCloseForm}
-        handleAdd={handleAdd}
-        handleUpdate={handleUpdate}
-        handleDelete={handleDelete}
-        isModal={false}
-      >
-        <div>
-          {isLoading ? (
-            <div
-              className="d-flex flex-row align-items-center justify-content-center"
-              style={{ height: "100px" }}
-            >
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
-          ) : (
-            <>
-              {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
-              ) : (
-                <>
-                  <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h5 className="mb-0 fw-semibold text-dark-emphasis">
-                        📝 {handleTranslate("ItemBasicInfo")}
-                      </h5>
+    <BaseForm
+      formType={formType}
+      handleCloseForm={handleCloseForm}
+      handleAdd={handleAdd}
+      handleUpdate={handleUpdate}
+      handleDelete={handleDelete}
+      isModal={false}
+    >
+      <div>
+        {isLoading ? (
+          <div
+            className="d-flex flex-row align-items-center justify-content-center"
+            style={{ height: "100px" }}
+          >
+            <div className="spinner-border text-primary" role="status"></div>
+          </div>
+        ) : (
+          <>
+            {formType === FormTypes.Delete ? (
+              <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+            ) : (
+              <>
+                <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <h5 className="mb-0 fw-semibold text-dark-emphasis">
+                      📝 {handleTranslate("ItemBasicInfo")}
+                    </h5>
+                  </div>
+
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <InputText
+                        type="text"
+                        className="form-input form-control"
+                        label={handleTranslate("Name")}
+                        variant="outlined"
+                        fullWidth
+                        isRquired
+                        disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
+                        value={model?.name}
+                        onChange={(value) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, name: value } : prev
+                          )
+                        }
+                        error={!!errors.name}
+                        helperText={handleTranslate(errors.name)}
+                      />
                     </div>
 
-                    <div className="row g-3 mb-3">
-                      <div className="col-md-6">
-                        <InputText
-                          type="text"
-                          className="form-input form-control"
-                          label={handleTranslate("Name")}
-                          variant="outlined"
-                          fullWidth
-                          isRquired
-                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
-                          value={model?.name}
-                          onChange={(value) =>
-                            setModel((prev) =>
-                              prev ? { ...prev, name: value } : prev
-                            )
-                          }
-                          error={!!errors.name}
-                          helperText={handleTranslate(errors.name)}
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <InputText
-                          type="text"
-                          className="form-input form-control"
-                          label={handleTranslate("NameSecondLanguage")}
-                          variant="outlined"
-                          fullWidth
-                          isRquired
-                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
-                          value={model?.nameSecondLanguage}
-                          onChange={(value) =>
-                            setModel((prev) =>
-                              prev
-                                ? { ...prev, nameSecondLanguage: value }
-                                : prev
-                            )
-                          }
-                          error={!!errors.nameSecondLanguage}
-                          helperText={handleTranslate(
-                            errors.nameSecondLanguage
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <InputText
-                          type="text"
-                          className="form-input form-control"
-                          label={handleTranslate("Code")}
-                          isRquired
-                          variant="outlined"
-                          fullWidth
-                          disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
-                          value={model?.code}
-                          onChange={(value) =>
-                            setModel((prev) =>
-                              prev ? { ...prev, code: value } : prev
-                            )
-                          }
-                          error={!!errors.code}
-                          helperText={handleTranslate(errors.code)}
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <InputSelect
-                          options={filteredNodeTypeOptions.map((e) => ({
-                            ...e,
-                            label: handleTranslate(e.label),
-                          }))}
-                          label={handleTranslate("NodeType")}
-                          defaultValue={model?.nodeType}
-                          disabled={formType !== FormTypes.Add || model.nodeType === ItemNodeType.SubDomain}
-                          multiple={false}
-                          onChange={({
-                            target,
-                          }: {
-                            target: { value: ItemNodeType };
-                          }) => updateModel(setModel, "nodeType", target.value)}
-                          name="NodeType"
-                          onBlur={null}
-                          error={undefined}
-                        />
-                      </div>
+                    <div className="col-md-6">
+                      <InputText
+                        type="text"
+                        className="form-input form-control"
+                        label={handleTranslate("NameSecondLanguage")}
+                        variant="outlined"
+                        fullWidth
+                        isRquired
+                        disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
+                        value={model?.nameSecondLanguage}
+                        onChange={(value) =>
+                          setModel((prev) =>
+                            prev
+                              ? { ...prev, nameSecondLanguage: value }
+                              : prev
+                          )
+                        }
+                        error={!!errors.nameSecondLanguage}
+                        helperText={handleTranslate(
+                          errors.nameSecondLanguage
+                        )}
+                      />
                     </div>
                   </div>
 
-                  {/* Special SubDomain Settings Card */}
-                  {model.nodeType == ItemNodeType.SubDomain && (
-                    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-                      <div className="d-flex align-items-center justify-content-between mb-3">
-                        <h5 className="mb-0 fw-semibold text-dark-emphasis">
-                          ⚙️ {handleTranslate("SubDomainSettings")}
-                        </h5>
-                      </div>
-                      
-                      <div className="row g-3">
-                        <div className="col-md-6">
-                          <FormControlLabel
-                            control={
-                              <Switch
-                                checked={model?.applyDomainChanges ?? false}
-                                onChange={({
-                                  target,
-                                }: {
-                                  target: { checked: boolean };
-                                }) => {
-                                  console.log("Switch changed to:", target.checked);
-                                  setModel((prevModel) =>
-                                    prevModel
-                                      ? {
-                                          ...prevModel,
-                                          applyDomainChanges: target.checked,
-                                        }
-                                      : prevModel
-                                  );
-                                }}
-                                disabled={formType === FormTypes.Details}
-                              />
-                            }
-                            label={handleTranslate("ApplyDomainChanges")}
-                            disabled={formType === FormTypes.Details}
-                          />
-                        </div>
-                        <div className="col-md-6">
-                          <small className="text-muted">
-                            Current value: {model?.applyDomainChanges ? 'true' : 'false'}
-                          </small>
-                        </div>
-                      </div>
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <InputText
+                        type="text"
+                        className="form-input form-control"
+                        label={handleTranslate("Code")}
+                        isRquired
+                        variant="outlined"
+                        fullWidth
+                        disabled={formType === FormTypes.Details || model.nodeType === ItemNodeType.SubDomain}
+                        value={model?.code}
+                        onChange={(value) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, code: value } : prev
+                          )
+                        }
+                        error={!!errors.code}
+                        helperText={handleTranslate(errors.code)}
+                      />
                     </div>
-                  )}
 
-                  {(model.nodeType == ItemNodeType.Domain || model.nodeType == ItemNodeType.SubDomain) && (
-                    <>
-                      <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-                        <div className="d-flex align-items-center justify-content-between mb-3">
-                          <h5 className="mb-0 fw-semibold text-dark-emphasis">
-                            🧾 {handleTranslate("ItemCodesAndType")}
-                          </h5>
-                        </div>
+                    <div className="col-md-6">
+                      <InputSelect
+                        options={filteredNodeTypeOptions.map((e) => ({
+                          ...e,
+                          label: handleTranslate(e.label),
+                        }))}
+                        label={handleTranslate("NodeType")}
+                        defaultValue={model?.nodeType}
+                        disabled={formType !== FormTypes.Add || model.nodeType === ItemNodeType.SubDomain}
+                        multiple={false}
+                        onChange={({
+                          target,
+                        }: {
+                          target: { value: ItemNodeType };
+                        }) => updateModel(setModel, "nodeType", target.value)}
+                        name="NodeType"
+                        onBlur={null}
+                        error={undefined}
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                        <div className="row g-3">
-                          <div className="col-md-3">
-                            <InputSelect
-                              options={ItemTypeOptions.map((e) => ({
-                                ...e,
-                                label: handleTranslate(e.label),
-                              }))}
-                              label={handleTranslate("ItemType")}
-                              defaultValue={model?.itemType}
-                              disabled={formType === FormTypes.Details}
-                              multiple={false}
+                {/* Special SubDomain Settings Card */}
+                {model.nodeType == ItemNodeType.SubDomain && (
+                  <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <h5 className="mb-0 fw-semibold text-dark-emphasis">
+                        ⚙️ {handleTranslate("SubDomainSettings")}
+                      </h5>
+                    </div>
+                    
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={model?.applyDomainChanges ?? false}
                               onChange={({
                                 target,
                               }: {
-                                target: { value: ItemType };
-                              }) =>
-                                updateModel(setModel, "itemType", target.value)
-                              }
-                              name="ItemType"
-                              onBlur={null}
-                              error={undefined}
-                            />
-                          </div>
-
-                          <div className="col-md-3">
-                            <InputText
-                              type="text"
-                              className="form-input form-control"
-                              label={handleTranslate("GS1Code")}
-                              variant="outlined"
-                              fullWidth
-                              disabled={
-                                formType === FormTypes.Details ||
-                                (model?.egsCode !== null &&
-                                  model?.egsCode !== "")
-                              }
-                              value={model?.gs1Code}
-                              onChange={(value) =>
-                                setModel((prev) =>
-                                  prev ? { ...prev, gs1Code: value } : prev
-                                )
-                              }
-                              error={!!errors.gs1Code}
-                              helperText={errors.gs1Code ? handleTranslate(errors.gs1Code) : undefined}
-                            />
-                          </div>
-
-                          <div className="col-md-3">
-                            <InputText
-                              type="text"
-                              className="form-input form-control"
-                              label={handleTranslate("EGSCode")}
-                              variant="outlined"
-                              fullWidth
-                              disabled={
-                                formType === FormTypes.Details ||
-                                (model?.gs1Code !== null &&
-                                  model?.gs1Code !== "")
-                              }
-                              value={model?.egsCode}
-                              onChange={(value) =>
-                                setModel((prev) =>
-                                  prev ? { ...prev, egsCode: value } : prev
-                                )
-                              }
-                              error={!!errors.egsCode}
-                              helperText={errors.egsCode ? handleTranslate(errors.egsCode) : undefined}
-                            />
-                          </div>
-
-                          <div className="col-md-3">
-                            <BarCodesInput
-                              barCodes={model.barCodes}
-                              formType={formType}
-                              handleTranslate={(key) => handleTranslate(key)}
-                              handleUpdate={(barCodes: string[]) =>
-                                setModel((prev) =>
-                                  prev ? { ...prev, barCodes } : prev
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-                        <div className="row">
-                          <div className="col col-md-6">
-                            <div className="card card-body">
-                              <h5 className="mb-4">{handleTranslate("ItemDetails")}</h5>
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <InputText
-                                    type="text"
-                                    className="form-input form-control"
-                                    label={handleTranslate("Model")}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={formType === FormTypes.Details}
-                                    value={model?.model}
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              model: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="col col-md-6">
-                                  <InputText
-                                    type="text"
-                                    className="form-input form-control"
-                                    label={handleTranslate("Version")}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={formType === FormTypes.Details}
-                                    value={model?.version}
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              version: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </div>
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <InputText
-                                    type="text"
-                                    className="form-input form-control"
-                                    label={handleTranslate("CountryOfOrigin")}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={formType === FormTypes.Details}
-                                    value={model?.countryOfOrigin}
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              countryOfOrigin: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="col col-md-6">
-                                  <InputAutoComplete
-                                    options={suppliers?.map(
-                                      (item: { name: string; id: string }) => {
-                                        return {
-                                          label: item.name,
-                                          value: item.id,
-                                        };
+                                target: { checked: boolean };
+                              }) => {
+                                console.log("Switch changed to:", target.checked);
+                                setModel((prevModel) =>
+                                  prevModel
+                                    ? {
+                                        ...prevModel,
+                                        applyDomainChanges: target.checked,
                                       }
-                                    )}
-                                    label={handleTranslate("Suppliers")}
-                                    value={model.suppliersIds}
-                                    disabled={formType === FormTypes.Details}
-                                    onChange={(value: string[] | null) => {
-                                      setModel((prevModel) => {
-                                        console.log("prevModel:", prevModel);
-                                        console.log("value:", value);
-                                        return prevModel
-                                          ? {
-                                              ...prevModel,
-                                              suppliersIds: value ?? [],
-                                            }
-                                          : prevModel;
-                                      });
-                                    }}
-                                    multiple={true}
-                                    handleBlur={null}
-                                    // error={!!errors.chartOfAccounts}
-                                    // helperText={errors.chartOfAccounts}
-                                  />
-                                </div>
-                              </div>
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <InputAutoComplete
-                                    options={companies?.map(
-                                      (item: { name: string; id: string }) => {
-                                        return {
-                                          label: item.name,
-                                          value: item.id,
-                                        };
-                                      }
-                                    )}
-                                    label={handleTranslate(
-                                      "ManufacturerCompanies"
-                                    )}
-                                    value={model.manufacturerCompaniesIds}
-                                    disabled={formType === FormTypes.Details}
-                                    onChange={(value: string[] | null) => {
-                                      setModel((prevModel) => {
-                                        console.log("prevModel:", prevModel);
-                                        console.log("value:", value);
-                                        return prevModel
-                                          ? {
-                                              ...prevModel,
-                                              manufacturerCompaniesIds: value ?? [],
-                                            }
-                                          : prevModel;
-                                      });
-                                    }}
-                                    multiple={true}
-                                    handleBlur={null}
-                                    // error={!!errors.chartOfAccounts}
-                                    // helperText={errors.chartOfAccounts}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col col-md-6">
-                            <div className="card card-body">
-                              <h5 className="mb-4">{handleTranslate("DiscountDetails")}</h5>
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <InputNumber
-                                    className="form-input form-control"
-                                    label={handleTranslate("MaxDiscount")}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={formType === FormTypes.Details}
-                                    value={model?.maxDiscount ?? null} // make sure value is number or null
-                                    inputType="percent" // treat as percent, shows % sign inside
-                                    precision={2} // two decimals precision
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              maxDiscount: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="col col-md-6">
-                                  <InputNumber
-                                    className="form-input form-control"
-                                    label={handleTranslate(
-                                      "ConditionalDiscount"
-                                    )}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={formType === FormTypes.Details}
-                                    value={model?.conditionalDiscount ?? null} // make sure value is number or null
-                                    inputType="percent" // treat as percent, shows % sign inside
-                                    precision={2} // two decimals precision
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              conditionalDiscount: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <InputNumber
-                                    className="form-input form-control"
-                                    label={handleTranslate("DefaultDiscount")}
-                                    variant="outlined"
-                                    fullWidth
-                                    disabled={
-                                      formType === FormTypes.Details ||
-                                      model.isDiscountBasedOnSellingPrice
-                                    }
-                                    value={model?.defaultDiscount ?? null} // make sure value is number or null
-                                    inputType={
-                                      model.defaultDiscountType ==
-                                      DiscountType.Percent
-                                        ? "percent"
-                                        : "number"
-                                    } // treat as percent, shows % sign inside
-                                    onChange={(value) =>
-                                      setModel((prevModel) =>
-                                        prevModel
-                                          ? {
-                                              ...prevModel,
-                                              defaultDiscount: value,
-                                            }
-                                          : prevModel
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div className="col col-md-6">
-                                  <InputSelect
-                                    options={DiscountTypeOptions.map((e) => ({
-                                      ...e,
-                                      label: handleTranslate(e.label),
-                                    }))}
-                                    label={handleTranslate("DiscountType")}
-                                    defaultValue={model?.defaultDiscountType}
-                                    disabled={formType === FormTypes.Details}
-                                    multiple={false}
-                                    onChange={({
-                                      target,
-                                    }: {
-                                      target: { value: DiscountType };
-                                    }) => {
-                                      updateModel(
-                                        setModel,
-                                        "defaultDiscountType",
-                                        target.value
-                                      );
-                                    }}
-                                    name={"DiscountType"}
-                                    onBlur={null}
-                                    error={undefined}
-                                  />
-                                </div>
-                              </div>
-                              <div className="row mb-3">
-                                <div className="col col-md-6">
-                                  <FormControlLabel
-                                    control={
-                                      <Switch
-                                        checked={
-                                          model?.isDiscountBasedOnSellingPrice
-                                        }
-                                        onChange={({
-                                          target,
-                                        }: {
-                                          target: { checked: boolean };
-                                        }) =>
-                                          setModel((prevModel) =>
-                                            prevModel
-                                              ? {
-                                                  ...prevModel,
-                                                  isDiscountBasedOnSellingPrice:
-                                                    target.checked,
-                                                  defaultDiscount:
-                                                    target.checked
-                                                      ? 0
-                                                      : prevModel.defaultDiscount,
-                                                }
-                                              : prevModel
-                                          )
-                                        }
-                                      />
-                                    }
-                                    label={handleTranslate(
-                                      "IsDiscountBasedOnSellingPrice"
-                                    )}
-                                    disabled={
-                                      formType === FormTypes.Details}
-                                  />
-                                </div>
-                                <div className="col col-md-6">
-                                  {model.isDiscountBasedOnSellingPrice && (
-                                    <DiscountPircesInput
-                                      formType={formType}
-                                      itemSellingPriceDiscounts={
-                                        model.sellingPriceDiscounts
-                                      }
-                                      handleUpdate={(
-                                        items: ItemSellingPriceDiscountModel[]
-                                      ) => {
-                                        setModel((prevModel) => ({
-                                          ...(prevModel ?? {}),
-                                          sellingPriceDiscounts: items,
-                                        }));
-                                      }}
-                                      handleTranslate={(key)=>handleTranslate(key)}
-                                    />
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-                        <ItemPackingUnitsInput
-                          itemPackingUnits={model.packingUnits}
-                          handleTranslate={(key)=>handleTranslate(key)}
-                          formType={formType}
-                          handleUpdate={(items) =>
-                            setModel((prev) =>
-                              prev ? { ...prev, packingUnits: items } : prev
-                            )
+                                    : prevModel
+                                );
+                              }}
+                              disabled={formType === FormTypes.Details}
+                            />
                           }
-                          errors={errors}
+                          label={handleTranslate("ApplyDomainChanges")}
+                          disabled={formType === FormTypes.Details}
                         />
                       </div>
-                    </>
-                  )}
-                    {model.nodeType === ItemNodeType.Domain  && (
-                  <SubDomainCombinationBuilder
-                    combinations={model.subDomainCombinations || []}
-                    onChange={combinations => setModel(prev => prev ? { ...prev, subDomainCombinations: combinations } : prev)}
-                    onItemApplyChanges={(val : boolean) => {
-                      setModel(prev => prev ? { ...prev, applyDomainChanges: val } : prev)}}
-                    itemApplyChanges={model.applyDomainChanges ?? false}
-                    handleTranslate={handleTranslate}
-                    formType={formType}
-                  />
-              )}
-                </>
-              )}
-              {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
-            
-            </>
-          )}
-        </div>
-      </BaseForm>
-    </div>
+                      <div className="col-md-6">
+                        <small className="text-muted">
+                          Current value: {model?.applyDomainChanges ? 'true' : 'false'}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(model.nodeType == ItemNodeType.Domain || model.nodeType == ItemNodeType.SubDomain) && (
+                  <>
+                    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                      <div className="d-flex align-items-center justify-content-between mb-3">
+                        <h5 className="mb-0 fw-semibold text-dark-emphasis">
+                          🧾 {handleTranslate("ItemCodesAndType")}
+                        </h5>
+                      </div>
+
+                      <div className="row g-3">
+                        <div className="col-md-3">
+                          <InputSelect
+                            options={ItemTypeOptions.map((e) => ({
+                              ...e,
+                              label: handleTranslate(e.label),
+                            }))}
+                            label={handleTranslate("ItemType")}
+                            defaultValue={model?.itemType}
+                            disabled={formType === FormTypes.Details}
+                            multiple={false}
+                            onChange={({
+                              target,
+                            }: {
+                              target: { value: ItemType };
+                            }) =>
+                              updateModel(setModel, "itemType", target.value)
+                            }
+                            name="ItemType"
+                            onBlur={null}
+                            error={undefined}
+                          />
+                        </div>
+
+                        <div className="col-md-3">
+                          <InputText
+                            type="text"
+                            className="form-input form-control"
+                            label={handleTranslate("GS1Code")}
+                            variant="outlined"
+                            fullWidth
+                            disabled={
+                              formType === FormTypes.Details ||
+                              (model?.egsCode !== null &&
+                                model?.egsCode !== "")
+                            }
+                            value={model?.gs1Code}
+                            onChange={(value) =>
+                              setModel((prev) =>
+                                prev ? { ...prev, gs1Code: value } : prev
+                              )
+                            }
+                            error={!!errors.gs1Code}
+                            helperText={errors.gs1Code ? handleTranslate(errors.gs1Code) : undefined}
+                          />
+                        </div>
+
+                        <div className="col-md-3">
+                          <InputText
+                            type="text"
+                            className="form-input form-control"
+                            label={handleTranslate("EGSCode")}
+                            variant="outlined"
+                            fullWidth
+                            disabled={
+                              formType === FormTypes.Details ||
+                              (model?.gs1Code !== null &&
+                                model?.gs1Code !== "")
+                            }
+                            value={model?.egsCode}
+                            onChange={(value) =>
+                              setModel((prev) =>
+                                prev ? { ...prev, egsCode: value } : prev
+                              )
+                            }
+                            error={!!errors.egsCode}
+                            helperText={errors.egsCode ? handleTranslate(errors.egsCode) : undefined}
+                          />
+                        </div>
+
+                        <div className="col-md-3">
+                          <BarCodesInput
+                            barCodes={model.barCodes}
+                            formType={formType}
+                            handleTranslate={(key) => handleTranslate(key)}
+                            handleUpdate={(barCodes: string[]) =>
+                              setModel((prev) =>
+                                prev ? { ...prev, barCodes } : prev
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                      <div className="row">
+                        <div className="col col-md-6">
+                          <div className="card card-body">
+                            <h5 className="mb-4">{handleTranslate("ItemDetails")}</h5>
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <InputText
+                                  type="text"
+                                  className="form-input form-control"
+                                  label={handleTranslate("Model")}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={formType === FormTypes.Details}
+                                  value={model?.model}
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            model: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                <InputText
+                                  type="text"
+                                  className="form-input form-control"
+                                  label={handleTranslate("Version")}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={formType === FormTypes.Details}
+                                  value={model?.version}
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            version: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <InputText
+                                  type="text"
+                                  className="form-input form-control"
+                                  label={handleTranslate("CountryOfOrigin")}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={formType === FormTypes.Details}
+                                  value={model?.countryOfOrigin}
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            countryOfOrigin: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                <InputAutoComplete
+                                  options={suppliers?.map(
+                                    (item: { name: string; id: string }) => {
+                                      return {
+                                        label: item.name,
+                                        value: item.id,
+                                      };
+                                    }
+                                  )}
+                                  label={handleTranslate("Suppliers")}
+                                  value={model.suppliersIds}
+                                  disabled={formType === FormTypes.Details}
+                                  onChange={(value: string[] | null) => {
+                                    setModel((prevModel) => {
+                                      console.log("prevModel:", prevModel);
+                                      console.log("value:", value);
+                                      return prevModel
+                                        ? {
+                                            ...prevModel,
+                                            suppliersIds: value ?? [],
+                                          }
+                                        : prevModel;
+                                    });
+                                  }}
+                                  multiple={true}
+                                  handleBlur={null}
+                                  // error={!!errors.chartOfAccounts}
+                                  // helperText={errors.chartOfAccounts}
+                                />
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <InputAutoComplete
+                                  options={companies?.map(
+                                    (item: { name: string; id: string }) => {
+                                      return {
+                                        label: item.name,
+                                        value: item.id,
+                                      };
+                                    }
+                                  )}
+                                  label={handleTranslate(
+                                    "ManufacturerCompanies"
+                                  )}
+                                  value={model.manufacturerCompaniesIds}
+                                  disabled={formType === FormTypes.Details}
+                                  onChange={(value: string[] | null) => {
+                                    setModel((prevModel) => {
+                                      console.log("prevModel:", prevModel);
+                                      console.log("value:", value);
+                                      return prevModel
+                                        ? {
+                                            ...prevModel,
+                                            manufacturerCompaniesIds: value ?? [],
+                                          }
+                                        : prevModel;
+                                    });
+                                  }}
+                                  multiple={true}
+                                  handleBlur={null}
+                                  // error={!!errors.chartOfAccounts}
+                                  // helperText={errors.chartOfAccounts}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col col-md-6">
+                          <div className="card card-body">
+                            <h5 className="mb-4">{handleTranslate("DiscountDetails")}</h5>
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <InputNumber
+                                  className="form-input form-control"
+                                  label={handleTranslate("MaxDiscount")}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={formType === FormTypes.Details}
+                                  value={model?.maxDiscount ?? null} // make sure value is number or null
+                                  inputType="percent" // treat as percent, shows % sign inside
+                                  precision={2} // two decimals precision
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            maxDiscount: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                <InputNumber
+                                  className="form-input form-control"
+                                  label={handleTranslate(
+                                    "ConditionalDiscount"
+                                  )}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={formType === FormTypes.Details}
+                                  value={model?.conditionalDiscount ?? null} // make sure value is number or null
+                                  inputType="percent" // treat as percent, shows % sign inside
+                                  precision={2} // two decimals precision
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            conditionalDiscount: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <InputNumber
+                                  className="form-input form-control"
+                                  label={handleTranslate("DefaultDiscount")}
+                                  variant="outlined"
+                                  fullWidth
+                                  disabled={
+                                    formType === FormTypes.Details ||
+                                    model.isDiscountBasedOnSellingPrice
+                                  }
+                                  value={model?.defaultDiscount ?? null} // make sure value is number or null
+                                  inputType={
+                                    model.defaultDiscountType ==
+                                    DiscountType.Percent
+                                      ? "percent"
+                                      : "number"
+                                  } // treat as percent, shows % sign inside
+                                  onChange={(value) =>
+                                    setModel((prevModel) =>
+                                      prevModel
+                                        ? {
+                                            ...prevModel,
+                                            defaultDiscount: value,
+                                          }
+                                        : prevModel
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                <InputSelect
+                                  options={DiscountTypeOptions.map((e) => ({
+                                    ...e,
+                                    label: handleTranslate(e.label),
+                                  }))}
+                                  label={handleTranslate("DiscountType")}
+                                  defaultValue={model?.defaultDiscountType}
+                                  disabled={formType === FormTypes.Details}
+                                  multiple={false}
+                                  onChange={({
+                                    target,
+                                  }: {
+                                    target: { value: DiscountType };
+                                  }) => {
+                                    updateModel(
+                                      setModel,
+                                      "defaultDiscountType",
+                                      target.value
+                                    );
+                                  }}
+                                  name={"DiscountType"}
+                                  onBlur={null}
+                                  error={undefined}
+                                />
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col col-md-6">
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={
+                                        model?.isDiscountBasedOnSellingPrice
+                                      }
+                                      onChange={({
+                                        target,
+                                      }: {
+                                        target: { checked: boolean };
+                                      }) =>
+                                        setModel((prevModel) =>
+                                          prevModel
+                                            ? {
+                                                ...prevModel,
+                                                isDiscountBasedOnSellingPrice:
+                                                  target.checked,
+                                                defaultDiscount:
+                                                  target.checked
+                                                    ? 0
+                                                    : prevModel.defaultDiscount,
+                                              }
+                                            : prevModel
+                                        )
+                                      }
+                                    />
+                                  }
+                                  label={handleTranslate(
+                                    "IsDiscountBasedOnSellingPrice"
+                                  )}
+                                  disabled={
+                                    formType === FormTypes.Details}
+                                />
+                              </div>
+                              <div className="col col-md-6">
+                                {model.isDiscountBasedOnSellingPrice && (
+                                  <DiscountPircesInput
+                                    formType={formType}
+                                    itemSellingPriceDiscounts={
+                                      model.sellingPriceDiscounts
+                                    }
+                                    handleUpdate={(
+                                      items: ItemSellingPriceDiscountModel[]
+                                    ) => {
+                                      setModel((prevModel) => ({
+                                        ...(prevModel ?? {}),
+                                        sellingPriceDiscounts: items,
+                                      }));
+                                    }}
+                                    handleTranslate={(key)=>handleTranslate(key)}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
+                      <ItemPackingUnitsInput
+                        itemPackingUnits={model.packingUnits}
+                        handleTranslate={(key)=>handleTranslate(key)}
+                        formType={formType}
+                        handleUpdate={(items) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, packingUnits: items } : prev
+                          )
+                        }
+                        errors={errors}
+                      />
+                    </div>
+                  </>
+                )}
+                  {model.nodeType === ItemNodeType.Domain  && (
+                <SubDomainCombinationBuilder
+                  combinations={model.subDomainCombinations || []}
+                  onChange={combinations => setModel(prev => prev ? { ...prev, subDomainCombinations: combinations } : prev)}
+                  onItemApplyChanges={(val : boolean) => {
+                    setModel(prev => prev ? { ...prev, applyDomainChanges: val } : prev)}}
+                  itemApplyChanges={model.applyDomainChanges ?? false}
+                  handleTranslate={handleTranslate}
+                  formType={formType}
+                />
+            )}
+              </>
+            )}
+            {/* At the end of the form, show SubDomainCombinationBuilder if Domain */}
+          
+          </>
+        )}
+      </div>
+    </BaseForm>
   );
 };
 
