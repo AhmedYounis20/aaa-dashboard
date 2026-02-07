@@ -17,6 +17,7 @@ import {
   Menu,
   MenuItem,
   Divider,
+  useMediaQuery,
 } from "@mui/material";
 import FlexBetween from "../../FlexBetween";
 import {
@@ -49,6 +50,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
     null
   );
+  const isMobile = useMediaQuery("(max-width: 992px)");
 
   const changeLanguage = (lng: "en" | "ar") => {
     i18n.changeLanguage(lng);
@@ -88,7 +90,6 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
             : "0 2px 10px rgba(0,0,0,0.1)",
         backdropFilter: "blur(5px)",
         WebkitBackdropFilter: "blur(5px)",
-        zIndex: 1,
         width: "100%",
         transition: theme.transitions.create(
           ["left", "width", "background-color"],
@@ -113,8 +114,10 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
           >
             <DashboardIcon sx={{ width: 28, height: 28 }} color='info' />
             <Typography
-              variant='body1'
-              sx={{ color: theme.palette.text.primary }}
+              sx={{
+                color: theme.palette.text.primary,
+                fontSize: isMobile ? 16 : 20,
+              }}
             >
               ERP System
             </Typography>
