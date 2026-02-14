@@ -5,12 +5,27 @@ import ProductPackingUnitModel from "../../../../../interfaces/ProjectInterfaces
 import { getPackingUnits } from "../../../../../Apis/Inventory/PackingUnitsApi";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import PackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
-import { Add, Settings, Delete } from "@mui/icons-material";
-import { FormControlLabel, Switch } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Typography,
+  useTheme,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  alpha,
+  Radio,
+  IconButton,
+} from "@mui/material";
 import { getSellingPrices } from "../../../../../Apis/Inventory/SellingPricesApi";
 import SellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
 import ProductPackingUnitSellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitSellingPriceModel";
-import InputText from "../../../../../Components/Inputs/InputText";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const ProductPackingUnitsInput: React.FC<{
   formType: FormTypes;
@@ -25,6 +40,7 @@ const ProductPackingUnitsInput: React.FC<{
   errors = {},
   handleTranslate,
 }) => {
+  const theme = useTheme();
   const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [sellingPrices, setSellingPrices] = useState<SellingPriceModel[]>([]);
 
@@ -168,49 +184,215 @@ const ProductPackingUnitsInput: React.FC<{
   };
 
   return (
-    <div className="container p-1">
-      <div className="table-responsive rounded-3 overflow-auto border mb-2">
-        <table className="table table-bordered table-striped align-middle text-center mb-2">
-          <thead className="table-light">
-            <tr>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("PackingUnits")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("PartsCount")}
-              </th>
-              <th style={{ minWidth: "200px" }}>{handleTranslate("Equals")}</th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("IsDefaultSales")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("IsDefaultPurchases")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("LastCostPrice")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("AverageCostPrice")}
-              </th>
+    <Box className='mt-4'>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          mb: 1,
+        }}
+      >
+        <Box>
+          <Typography
+            variant='h6'
+            sx={{
+              fontWeight: "bold",
+              color: "text.primary",
+              opacity: 0.75,
+              fontSize: "0.875rem",
+            }}
+          >
+            {handleTranslate("Units")}
+          </Typography>
+          <Typography
+            variant='body2'
+            sx={{
+              color: "text.secondary",
+              fontSize: ".75rem",
+            }}
+          >
+            {handleTranslate("AddMultipleUnitsAndTheirPrices")}
+          </Typography>
+        </Box>
+        {formType !== FormTypes.Details && (
+          <Button
+            variant='outlined'
+            startIcon={<Add />}
+            onClick={handleAddNewItemPackingUnit}
+            sx={{
+              borderRadius: "0.5rem",
+              textTransform: "none",
+              color: "text.primary",
+              borderColor: "divider",
+              px: "0.625rem",
+              py: "0.175rem",
+              "&:hover": {
+                borderColor: "divider",
+                boxShadow: "none",
+                backgroundColor: theme.palette.background.default,
+              },
+            }}
+          >
+            {handleTranslate("AddUnits")}
+          </Button>
+        )}
+      </Box>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{
+          borderRadius: "1rem",
+          border: `1px solid ${theme.palette.divider}`,
+          overflow: "hidden",
+          backgroundColor: "transparent",
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "rgba(0,0,0,0.01)" }}>
+              <TableCell
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("Packing")}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("Parts")}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("DefaultSales")}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("DefaultPurchases")}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("LastCost")}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("AvgCost")}
+              </TableCell>
               {sellingPrices
                 .sort((a, b) => a.id.localeCompare(b.id))
                 .map((sp) => (
-                  <th key={sp.id} style={{ minWidth: "150px" }}>
-                    <div className="fw-semibold text-primary">{sp.name}</div>
-                    <div className="text-muted small">
-                      {sp.nameSecondLanguage}
-                    </div>
-                  </th>
+                  <TableCell
+                    key={sp.id}
+                    align='center'
+                    sx={{
+                      lineHeight: "normal",
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      color: "text.secondary",
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      fontFamily: "'Cairo', sans-serif",
+                      py: 1.5,
+                    }}
+                  >
+                    {handleTranslate(sp.name)}
+                  </TableCell>
                 ))}
-              <th>
-                <Settings />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              <TableCell
+                align='center'
+                sx={{
+                  lineHeight: "normal",
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  color: "text.secondary",
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  py: 1.5,
+                }}
+              >
+                {handleTranslate("Operations")}
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {productPackingUnits.map((unit, rowIndex) => (
-              <tr key={rowIndex}>
-                <td>
+              <TableRow
+                key={rowIndex}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  "& .MuiTextField-root, & .MuiAutocomplete-root": {
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "rgba(0,0,0,0.03)",
+                      borderRadius: "0.625rem",
+                      "& fieldset": { border: "none" },
+                      "&:hover fieldset": { border: "none" },
+                      "&.Mui-focused fieldset": { border: "none" },
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: "0.875rem",
+                      color: "text.primary",
+                      py: 1,
+                    },
+                  },
+                }}
+              >
+                <TableCell sx={{ minWidth: 200 }}>
                   <InputAutoComplete
                     options={packingUnits
                       .filter(
@@ -224,7 +406,7 @@ const ProductPackingUnitsInput: React.FC<{
                         label: pu.name,
                         value: pu.id,
                       }))}
-                    label={handleTranslate("PackingUnits")}
+                    label=''
                     value={unit.packingUnitId}
                     disabled={formType === FormTypes.Details}
                     onChange={(value: string) => {
@@ -239,11 +421,10 @@ const ProductPackingUnitsInput: React.FC<{
                       errors[`packingUnits[${rowIndex}].packingUnitId`],
                     )}
                   />
-                </td>
-                <td>
+                </TableCell>
+                <TableCell sx={{ minWidth: 100 }}>
                   <InputNumber
-                    className="form-control"
-                    variant="outlined"
+                    variant='outlined'
                     fullWidth
                     disabled={
                       formType === FormTypes.Details ||
@@ -256,67 +437,42 @@ const ProductPackingUnitsInput: React.FC<{
                       errors[`packingUnits[${rowIndex}].partsCount`],
                     )}
                   />
-                </td>
-                <td>
-                  <InputText
-                    className="form-control"
-                    variant="outlined"
-                    fullWidth
-                    value={
-                      " ( " +
-                      (packingUnits.find((e) => e.id == unit.packingUnitId)
-                        ?.name ?? "") +
-                      " ) " +
-                      " = " +
-                      unit.partsCount.toString() +
-                      " x " +
-                      (packingUnits.find(
-                        (e) =>
-                          e.id ==
-                          productPackingUnits.find(
-                            (e) => e.isDefaultPackingUnit,
-                          )?.packingUnitId,
-                      )?.name ?? "")
+                </TableCell>
+                <TableCell align='center'>
+                  <Radio
+                    size='small'
+                    checked={unit.isDefaultSales}
+                    onChange={(e) =>
+                      handleUpdateIsDefaultSales(rowIndex, e.target.checked)
                     }
-                    disabled
-                    label=""
+                    disabled={formType === FormTypes.Details}
+                    sx={{
+                      color: alpha(theme.palette.primary.main, 0.4),
+                      "&.Mui-checked": {
+                        color: theme.palette.primary.main,
+                      },
+                    }}
                   />
-                </td>
-                <td>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        disabled={formType === FormTypes.Details}
-                        checked={unit.isDefaultSales}
-                        onChange={({ target }) =>
-                          handleUpdateIsDefaultSales(rowIndex, target.checked)
-                        }
-                      />
+                </TableCell>
+                <TableCell align='center'>
+                  <Radio
+                    size='small'
+                    checked={unit.isDefaultPurchases}
+                    onChange={(e) =>
+                      handleUpdateIsDefaultPurchase(rowIndex, e.target.checked)
                     }
-                    label=""
+                    disabled={formType === FormTypes.Details}
+                    sx={{
+                      color: alpha(theme.palette.primary.main, 0.4),
+                      "&.Mui-checked": {
+                        color: theme.palette.primary.main,
+                      },
+                    }}
                   />
-                </td>
-                <td>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        disabled={formType === FormTypes.Details}
-                        checked={unit.isDefaultPurchases}
-                        onChange={({ target }) =>
-                          handleUpdateIsDefaultPurchase(
-                            rowIndex,
-                            target.checked,
-                          )
-                        }
-                      />
-                    }
-                    label=""
-                  />
-                </td>
-                <td>
+                </TableCell>
+                <TableCell sx={{ minWidth: 120 }}>
                   <InputNumber
-                    className="form-control"
-                    variant="outlined"
+                    variant='outlined'
                     fullWidth
                     disabled={formType === FormTypes.Details}
                     value={unit.lastCostPrice ?? 0}
@@ -347,11 +503,10 @@ const ProductPackingUnitsInput: React.FC<{
                       errors[`packingUnits[${rowIndex}].lastCostPrice`],
                     )}
                   />
-                </td>
-                <td>
+                </TableCell>
+                <TableCell sx={{ minWidth: 120 }}>
                   <InputNumber
-                    className="form-control"
-                    variant="outlined"
+                    variant='outlined'
                     fullWidth
                     disabled={formType === FormTypes.Details}
                     value={unit.averageCostPrice ?? 0}
@@ -384,12 +539,14 @@ const ProductPackingUnitsInput: React.FC<{
                       errors[`packingUnits[${rowIndex}].averageCostPrice`],
                     )}
                   />
-                </td>
+                </TableCell>
                 {unit.sellingPrices?.map((sellingPrice, sellidx) => (
-                  <td key={sellingPrice.sellingPriceId} className="min-w-250">
+                  <TableCell
+                    key={sellingPrice.sellingPriceId}
+                    sx={{ minWidth: 120 }}
+                  >
                     <InputNumber
-                      className="form-control"
-                      variant="outlined"
+                      variant='outlined'
                       fullWidth
                       disabled={formType === FormTypes.Details}
                       value={sellingPrice.amount ?? 0}
@@ -411,32 +568,30 @@ const ProductPackingUnitsInput: React.FC<{
                         ],
                       )}
                     />
-                  </td>
+                  </TableCell>
                 ))}
-                <td>
+                <TableCell align='center'>
                   {!unit.isDefaultPackingUnit && (
-                    <button
-                      className="btn btn-danger btn-sm"
+                    <IconButton
+                      size='small'
                       onClick={() => handleDeleteRow(rowIndex)}
                       disabled={formType === FormTypes.Details}
+                      sx={{
+                        borderRadius: ".325rem",
+                        color: theme.palette.error.main,
+                        "&:hover": { color: theme.palette.error.main },
+                      }}
                     >
-                      <Delete fontSize="small" />
-                    </button>
+                      <RiDeleteBin6Line fontSize='medium' />
+                    </IconButton>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-      <button
-        className="btn btn-secondary mt-2"
-        onClick={handleAddNewItemPackingUnit}
-        disabled={formType === FormTypes.Details}
-      >
-        <Add fontSize="small" />
-      </button>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 

@@ -12,6 +12,7 @@ import { ExpiryLevelModel } from "../ExpiryLevelModel";
 import VariantModel from "../Variants/VariantModel";
 import VariantCombinationModel from "./VariantCombinationModel";
 import AttachmentModel from "../../../BaseModels/AttachmentModel";
+import { TrackedBy } from "./TrackedBy";
 
 export interface ProductStockBalanceModel {
   branchId: string;
@@ -21,10 +22,13 @@ export interface ProductStockBalanceModel {
 
 interface ProductModel {
   id: string;
+  notes?: string;
   parentId?: string | null;
   code: string;
   gs1Code: string;
   egsCode: string;
+  isSales: boolean;
+  isPurchases: boolean;
   model: string;
   version: string;
   countryOfOrigin: string;
@@ -34,6 +38,7 @@ interface ProductModel {
   defaultDiscountType: DiscountType;
   isDiscountBasedOnSellingPrice: boolean;
   productType: ProductType;
+  trackedBy?: TrackedBy;
   name: string;
   nameSecondLanguage: string;
   nodeType: ItemNodeType;
@@ -68,12 +73,3 @@ interface ProductModel {
 }
 
 export default ProductModel;
-
-
-
-
-
-
-
-
-

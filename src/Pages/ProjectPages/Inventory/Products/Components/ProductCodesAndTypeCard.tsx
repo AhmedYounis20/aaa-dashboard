@@ -1,7 +1,4 @@
 import React from "react";
-import InputSelect from "../../../../../Components/Inputs/InputSelect";
-import InputText from "../../../../../Components/Inputs/InputText";
-import BarCodesInput from "./BarCodes";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import {
   ProductType,
@@ -9,10 +6,26 @@ import {
 } from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
 import updateModel from "../../../../../Helper/updateModelHelper";
 import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
+import {
+  Box,
+  Typography,
+  Radio,
+  Paper,
+  useTheme,
+  TextareaAutosize,
+} from "@mui/material";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import { TaxModel } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
+import InputSelect from "../../../../../Components/Inputs/InputSelect";
+import {
+  TrackedBy,
+  TrackedByOptions,
+} from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/TrackedBy";
 
 interface ProductCodesAndTypeCardProps {
   formType: FormTypes;
   model: ProductInputModel;
+  taxes: TaxModel[];
   setModel: React.Dispatch<React.SetStateAction<ProductInputModel>>;
   errors: Record<string, string>;
   handleTranslate: (key: string) => string;
@@ -21,98 +34,340 @@ interface ProductCodesAndTypeCardProps {
 const ProductCodesAndTypeCard: React.FC<ProductCodesAndTypeCardProps> = ({
   formType,
   model,
+  taxes,
   setModel,
-  errors,
   handleTranslate,
 }) => {
+  const theme = useTheme();
   return (
-    <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <h5 className="mb-0 fw-semibold text-dark-emphasis">
-          🧾 {handleTranslate("ProductCodesAndType")}
-        </h5>
-      </div>
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
+      <Box className='row g-4'>
+        <Box className='col-md-12'>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              color: "text.primary",
+              opacity: 0.75,
+              mb: 2,
+              fontSize: "0.875rem",
+            }}
+          >
+            {handleTranslate("ProductType")}
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {ProductTypeOptions.map((option) => {
+              const isSelected = model.productType === option.value;
 
-      <div className="row g-3">
-        <div className="col-md-3">
-          <InputSelect
-            options={ProductTypeOptions.map((e) => ({
-              ...e,
-              label: handleTranslate(e.label),
-            }))}
-            label={handleTranslate("ProductType")}
-            defaultValue={model?.productType}
+              return (
+                <Paper
+                  key={option.value}
+                  onClick={() =>
+                    formType !== FormTypes.Details &&
+                    updateModel(setModel, "productType", option.value)
+                  }
+                  elevation={isSelected ? 3 : 0}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: 2.5,
+                    py: 1.5,
+                    borderRadius: "1rem",
+                    cursor:
+                      formType === FormTypes.Details ? "default" : "pointer",
+                    border: isSelected
+                      ? "2px solid #3b82f6"
+                      : `2px solid ${theme.palette.divider}`,
+                    backgroundColor: isSelected
+                      ? theme.palette.background.default
+                      : theme.palette.background.paper,
+                    minWidth: "150px",
+                    maxWidth: "175px",
+                    flex: "1 1 0px",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      backgroundColor:
+                        formType !== FormTypes.Details && !isSelected
+                          ? theme.palette.background.default
+                          : undefined,
+                    },
+                    boxShadow: "none",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      color: isSelected
+                        ? theme.palette.text.primary
+                        : theme.palette.text.secondary,
+                      fontSize: ".875rem",
+                    }}
+                  >
+                    {handleTranslate(option.label)}
+                  </Typography>
+                  <Radio
+                    checked={isSelected}
+                    size='small'
+                    sx={{
+                      color: theme.palette.divider,
+                      "&.Mui-checked": {
+                        color: "#3b82f6",
+                      },
+                      p: 0.5,
+                    }}
+                  />
+                </Paper>
+              );
+            })}
+          </Box>
+        </Box>
+
+        {model.productType === ProductType.Stock && (
+          <Box className='col-md-12'>
+            <InputSelect
+              options={TrackedByOptions.map((e) => ({
+                ...e,
+                label: handleTranslate(e.label),
+              }))}
+              label={handleTranslate("TrackedBy")}
+              defaultValue={model?.trackedBy}
+              disabled={formType === FormTypes.Details}
+              multiple={false}
+              onChange={({ target }: { target: { value: TrackedBy } }) => {
+                updateModel(setModel, "trackedBy", target.value);
+              }}
+              name={"TrackedBy"}
+              onBlur={null}
+              error={undefined}
+            />
+          </Box>
+        )}
+
+        <Box className='col-md-6'>
+          <InputAutoComplete
+            options={taxes?.map((item: { name: string; id: string }) => {
+              return {
+                label: item.name,
+                value: item.id,
+              };
+            })}
+            label={handleTranslate("SalesTaxes")}
+            value={model.salesTaxIds ?? []}
             disabled={formType === FormTypes.Details}
-            multiple={false}
-            onChange={({
-              target,
-            }: {
-              target: { value: ProductType };
-            }) => updateModel(setModel, "productType", target.value)}
-            name="ProductType"
-            onBlur={null}
-            error={undefined}
+            onChange={(value: string[] | null) => {
+              setModel((prevModel) => {
+                return prevModel
+                  ? {
+                      ...prevModel,
+                      salesTaxIds: value ?? [],
+                    }
+                  : prevModel;
+              });
+            }}
+            multiple={true}
+            handleBlur={null}
           />
-        </div>
+        </Box>
 
-        <div className="col-md-3">
-          <InputText
-            type="text"
-            className="form-input form-control"
-            label={handleTranslate("GS1Code")}
-            variant="outlined"
-            fullWidth
-            disabled={
-              formType === FormTypes.Details ||
-              (model?.egsCode !== null && model?.egsCode !== "")
-            }
-            value={model?.gs1Code ?? null}
-            onChange={(value) =>
-              setModel((prev) => (prev ? { ...prev, gs1Code: value } : prev))
-            }
-            error={!!errors.gs1Code}
-            helperText={
-              errors.gs1Code ? handleTranslate(errors.gs1Code) : undefined
-            }
+        <Box className='col-md-6'>
+          <InputAutoComplete
+            options={taxes?.map((item: { name: string; id: string }) => {
+              return {
+                label: item.name,
+                value: item.id,
+              };
+            })}
+            label={handleTranslate("PurchaseTaxes")}
+            value={model.purchaseTaxIds ?? []}
+            disabled={formType === FormTypes.Details}
+            onChange={(value: string[] | null) => {
+              setModel((prevModel) => {
+                return prevModel
+                  ? {
+                      ...prevModel,
+                      purchaseTaxIds: value ?? [],
+                    }
+                  : prevModel;
+              });
+            }}
+            multiple={true}
+            handleBlur={null}
           />
-        </div>
+        </Box>
 
-        <div className="col-md-3">
-          <InputText
-            type="text"
-            className="form-input form-control"
-            label={handleTranslate("EGSCode")}
-            variant="outlined"
-            fullWidth
-            disabled={
-              formType === FormTypes.Details ||
-              (model?.gs1Code !== null && model?.gs1Code !== "")
+        <Box className='col-md-12'>
+          <Box
+            component={TextareaAutosize}
+            minRows={3}
+            maxRows={6}
+            value={model?.notes ?? ""}
+            onChange={(e) =>
+              setModel((prev) =>
+                prev ? { ...prev, notes: e.target.value } : prev,
+              )
             }
-            value={model?.egsCode ?? null}
-            onChange={(value) =>
-              setModel((prev) => (prev ? { ...prev, egsCode: value } : prev))
-            }
-            error={!!errors.egsCode}
-            helperText={
-              errors.egsCode ? handleTranslate(errors.egsCode) : undefined
-            }
+            disabled={formType === FormTypes.Details}
+            placeholder={handleTranslate("Notes")}
+            sx={{
+              width: "100%",
+              padding: "12px",
+              borderRadius: "8px",
+              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              resize: "vertical",
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              "&:focus": {
+                outline: "none",
+                border: `1px solid ${theme.palette.primary.main}`,
+              },
+            }}
           />
-        </div>
+        </Box>
 
-        <div className="col-md-3">
-          <BarCodesInput
-            barCodes={model.barCodes}
-            formType={formType}
-            handleTranslate={(key) => handleTranslate(key)}
-            handleUpdate={(barCodes: string[]) =>
-              setModel((prev) => (prev ? { ...prev, barCodes } : prev))
+        <Box className='col-md-6'>
+          <Paper
+            elevation={0}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2,
+              py: 1,
+              borderRadius: "0.5rem",
+              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: "none",
+              cursor: formType === FormTypes.Details ? "default" : "pointer",
+              transition: "all 0.2s ease-in-out",
+              "&:hover": {
+                backgroundColor:
+                  formType !== FormTypes.Details
+                    ? theme.palette.action.hover
+                    : undefined,
+              },
+            }}
+            onClick={() =>
+              formType !== FormTypes.Details &&
+              setModel((prev) =>
+                prev ? { ...prev, isSales: !prev.isSales } : prev,
+              )
             }
-          />
-        </div>
-      </div>
-    </div>
+          >
+            <Typography
+              sx={{
+                fontWeight: 500,
+                color: theme.palette.text.primary,
+                fontSize: "0.875rem",
+              }}
+            >
+              {handleTranslate("Sales")}
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+                width: "32px",
+                height: "18px",
+                borderRadius: "12px",
+                backgroundColor: model.isSales
+                  ? "#3b82f6"
+                  : theme.palette.action.disabled,
+                transition: "background-color 0.3s ease",
+                cursor: formType === FormTypes.Details ? "default" : "pointer",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "1px",
+                  left: model.isSales ? "14px" : "1px",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "50%",
+                  backgroundColor: "#ffffff",
+                  transition: "left 0.3s ease",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                }}
+              />
+            </Box>
+          </Paper>
+        </Box>
+
+        <Box className='col-md-6'>
+          <Paper
+            elevation={0}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2,
+              py: 1,
+              borderRadius: "0.5rem",
+              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: "none",
+              cursor: formType === FormTypes.Details ? "default" : "pointer",
+              transition: "all 0.2s ease-in-out",
+              "&:hover": {
+                backgroundColor:
+                  formType !== FormTypes.Details
+                    ? theme.palette.action.hover
+                    : undefined,
+              },
+            }}
+            onClick={() =>
+              formType !== FormTypes.Details &&
+              setModel((prev) =>
+                prev ? { ...prev, isPurchases: !prev.isPurchases } : prev,
+              )
+            }
+          >
+            <Typography
+              sx={{
+                fontWeight: 500,
+                color: theme.palette.text.primary,
+                fontSize: "0.875rem",
+              }}
+            >
+              {handleTranslate("Purchases")}
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+                width: "32px",
+                height: "18px",
+                borderRadius: "12px",
+                backgroundColor: model.isPurchases
+                  ? "#3b82f6"
+                  : theme.palette.action.disabled,
+                transition: "background-color 0.3s ease",
+                cursor: formType === FormTypes.Details ? "default" : "pointer",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "1px",
+                  left: model.isPurchases ? "14px" : "1px",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "50%",
+                  backgroundColor: "#ffffff",
+                  transition: "left 0.3s ease",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                }}
+              />
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
 export default ProductCodesAndTypeCard;
-
