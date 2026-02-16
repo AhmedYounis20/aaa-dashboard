@@ -35,7 +35,7 @@ const ProductBasicInfoCard: React.FC<ProductBasicInfoCardProps> = ({
     <Box
       sx={{
         p: 3,
-        mb: 3,
+        mb: 1.5,
         backgroundColor: theme.palette.background.paper,
         borderRadius: "12px",
         border: `1px solid ${theme.palette.divider}`,

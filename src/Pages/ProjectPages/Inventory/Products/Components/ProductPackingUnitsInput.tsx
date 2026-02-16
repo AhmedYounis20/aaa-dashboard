@@ -1,31 +1,31 @@
-import { useEffect, useState } from "react";
-import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import InputNumber from "../../../../../Components/Inputs/InputNumber";
-import ProductPackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
-import { getPackingUnits } from "../../../../../Apis/Inventory/PackingUnitsApi";
-import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
-import PackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
 import { Add } from "@mui/icons-material";
 import {
+  alpha,
   Box,
   Button,
-  Typography,
-  useTheme,
+  IconButton,
   Paper,
+  Radio,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  alpha,
-  Radio,
-  IconButton,
+  Typography,
+  useTheme,
 } from "@mui/material";
-import { getSellingPrices } from "../../../../../Apis/Inventory/SellingPricesApi";
-import SellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
-import ProductPackingUnitSellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitSellingPriceModel";
+import { useEffect, useState } from "react";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { getPackingUnits } from "../../../../../Apis/Inventory/PackingUnitsApi";
+import { getSellingPrices } from "../../../../../Apis/Inventory/SellingPricesApi";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import PackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import ProductPackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
+import ProductPackingUnitSellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitSellingPriceModel";
+import SellingPriceModel from "../../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
 
 const ProductPackingUnitsInput: React.FC<{
   formType: FormTypes;
@@ -242,15 +242,28 @@ const ProductPackingUnitsInput: React.FC<{
         component={Paper}
         elevation={0}
         sx={{
-          borderRadius: "1rem",
+          borderRadius: 1.5,
+          boxShadow: "none",
           border: `1px solid ${theme.palette.divider}`,
           overflow: "hidden",
           backgroundColor: "transparent",
+          maxHeight: "500px",
+          overflowX: "auto",
+          overflowY: "auto",
         }}
       >
         <Table sx={{ minWidth: 650 }}>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "rgba(0,0,0,0.01)" }}>
+          <TableHead
+            sx={{
+              position: "sticky",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 100,
+              backgroundColor: theme.palette.background.default,
+            }}
+          >
+            <TableRow>
               <TableCell
                 sx={{
                   lineHeight: "normal",
@@ -422,7 +435,7 @@ const ProductPackingUnitsInput: React.FC<{
                     )}
                   />
                 </TableCell>
-                <TableCell sx={{ minWidth: 100 }}>
+                <TableCell sx={{ minWidth: 120 }}>
                   <InputNumber
                     variant='outlined'
                     fullWidth
@@ -437,6 +450,25 @@ const ProductPackingUnitsInput: React.FC<{
                       errors[`packingUnits[${rowIndex}].partsCount`],
                     )}
                   />
+                  {rowIndex !== 0 && (
+                    <Typography
+                      sx={{
+                        fontSize: 10,
+                        textAlign: "center",
+                        color: theme.palette.text.disabled,
+                        marginTop: 0.2,
+                      }}
+                    >
+                      {unit.partsCount || "0"} ×{" "}
+                      {packingUnits.find(
+                        (e) =>
+                          e.id ==
+                          productPackingUnits.find(
+                            (e) => e.isDefaultPackingUnit,
+                          )?.packingUnitId,
+                      )?.name || "unit"}
+                    </Typography>
+                  )}
                 </TableCell>
                 <TableCell align='center'>
                   <Radio
