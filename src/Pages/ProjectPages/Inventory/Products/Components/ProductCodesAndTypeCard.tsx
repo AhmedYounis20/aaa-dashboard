@@ -1,22 +1,22 @@
+import {
+  Box,
+  Paper,
+  Radio,
+  TextareaAutosize,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import React from "react";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import InputSelect from "../../../../../Components/Inputs/InputSelect";
+import updateModel from "../../../../../Helper/updateModelHelper";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { TaxModel } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
+import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
 import {
   ProductType,
   ProductTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
-import updateModel from "../../../../../Helper/updateModelHelper";
-import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
-import {
-  Box,
-  Typography,
-  Radio,
-  Paper,
-  useTheme,
-  TextareaAutosize,
-} from "@mui/material";
-import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
-import { TaxModel } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
-import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import {
   TrackedBy,
   TrackedByOptions,
@@ -39,6 +39,7 @@ const ProductCodesAndTypeCard: React.FC<ProductCodesAndTypeCardProps> = ({
   handleTranslate,
 }) => {
   const theme = useTheme();
+
   return (
     <Box
       sx={{

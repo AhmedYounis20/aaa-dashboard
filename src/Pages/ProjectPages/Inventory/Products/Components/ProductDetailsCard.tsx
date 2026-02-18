@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import React from "react";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
 import InputText from "../../../../../Components/Inputs/InputText";
@@ -25,118 +26,116 @@ const ProductDetailsCard: React.FC<ProductDetailsCardProps> = ({
   handleTranslate,
 }) => {
   return (
-    <div className='card card-body'>
-      <h5 className='mb-4'>{handleTranslate("ProductDetails")}</h5>
-      <div className='row mb-3'>
-        <div className='col col-md-6'>
-          <InputText
-            type='text'
-            className='form-input form-control'
-            label={handleTranslate("Model")}
-            variant='outlined'
-            fullWidth
-            disabled={formType === FormTypes.Details}
-            value={model?.model ?? null}
-            onChange={(value) =>
-              setModel((prevModel) =>
-                prevModel ? { ...prevModel, model: value } : prevModel,
-              )
-            }
-          />
-        </div>
-        <div className='col col-md-6'>
-          <InputText
-            type='text'
-            className='form-input form-control'
-            label={handleTranslate("Version")}
-            variant='outlined'
-            fullWidth
-            disabled={formType === FormTypes.Details}
-            value={model.version ?? null}
-            onChange={(value) =>
-              setModel((prevModel) =>
-                prevModel ? { ...prevModel, version: value } : prevModel,
-              )
-            }
-          />
-        </div>
-      </div>
-      <div className='row mb-3'>
-        <div className='col col-md-6'>
-          <InputText
-            type='text'
-            className='form-input form-control'
-            label={handleTranslate("CountryOfOrigin")}
-            variant='outlined'
-            fullWidth
-            disabled={formType === FormTypes.Details}
-            value={model.countryOfOrigin ?? null}
-            onChange={(value) =>
-              setModel((prevModel) =>
-                prevModel
-                  ? { ...prevModel, countryOfOrigin: value }
-                  : prevModel,
-              )
-            }
-          />
-        </div>
-        <div className='col col-md-6'>
-          <InputAutoComplete
-            options={suppliers?.map((item: { name: string; id: string }) => {
+    <Box
+      className='row g-4'
+      sx={{
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        pb: 3,
+        mb: 4,
+      }}
+    >
+      <Box className='col col-md-6'>
+        <InputText
+          type='text'
+          className='form-input form-control'
+          label={handleTranslate("Model")}
+          variant='outlined'
+          fullWidth
+          disabled={formType === FormTypes.Details}
+          value={model?.model ?? null}
+          onChange={(value) =>
+            setModel((prevModel) =>
+              prevModel ? { ...prevModel, model: value } : prevModel,
+            )
+          }
+        />
+      </Box>
+      <Box className='col col-md-6'>
+        <InputText
+          type='text'
+          className='form-input form-control'
+          label={handleTranslate("Version")}
+          variant='outlined'
+          fullWidth
+          disabled={formType === FormTypes.Details}
+          value={model.version ?? null}
+          onChange={(value) =>
+            setModel((prevModel) =>
+              prevModel ? { ...prevModel, version: value } : prevModel,
+            )
+          }
+        />
+      </Box>
+      <Box className='col col-md-6'>
+        <InputText
+          type='text'
+          className='form-input form-control'
+          label={handleTranslate("CountryOfOrigin")}
+          variant='outlined'
+          fullWidth
+          disabled={formType === FormTypes.Details}
+          value={model.countryOfOrigin ?? null}
+          onChange={(value) =>
+            setModel((prevModel) =>
+              prevModel ? { ...prevModel, countryOfOrigin: value } : prevModel,
+            )
+          }
+        />
+      </Box>
+      <Box className='col col-md-6'>
+        <InputAutoComplete
+          options={suppliers?.map((item: { name: string; id: string }) => {
+            return {
+              label: item.name,
+              value: item.id,
+            };
+          })}
+          label={handleTranslate("Suppliers")}
+          value={model.suppliersIds}
+          disabled={formType === FormTypes.Details}
+          onChange={(value: string[] | null) => {
+            setModel((prevModel) => {
+              return prevModel
+                ? {
+                    ...prevModel,
+                    suppliersIds: value ?? [],
+                  }
+                : prevModel;
+            });
+          }}
+          multiple={true}
+          handleBlur={null}
+        />
+      </Box>
+      <Box className='col col-md-6'>
+        <InputAutoComplete
+          options={manufacturerCompanies?.map(
+            (item: { name: string; id: string }) => {
               return {
                 label: item.name,
                 value: item.id,
               };
-            })}
-            label={handleTranslate("Suppliers")}
-            value={model.suppliersIds}
-            disabled={formType === FormTypes.Details}
-            onChange={(value: string[] | null) => {
-              setModel((prevModel) => {
-                return prevModel
-                  ? {
-                      ...prevModel,
-                      suppliersIds: value ?? [],
-                    }
-                  : prevModel;
-              });
-            }}
-            multiple={true}
-            handleBlur={null}
-          />
-        </div>
-      </div>
-      <div className='row mb-3'>
-        <div className='col col-md-6'>
-          <InputAutoComplete
-            options={manufacturerCompanies?.map(
-              (item: { name: string; id: string }) => {
-                return {
-                  label: item.name,
-                  value: item.id,
-                };
-              },
-            )}
-            label={handleTranslate("ManufacturerCompanies")}
-            value={model.manufacturerCompaniesIds}
-            disabled={formType === FormTypes.Details}
-            onChange={(value: string[] | null) => {
-              setModel((prevModel) => {
-                return prevModel
-                  ? {
-                      ...prevModel,
-                      manufacturerCompaniesIds: value ?? [],
-                    }
-                  : prevModel;
-              });
-            }}
-            multiple={true}
-            handleBlur={null}
-          />
-        </div>
-        <div className='col col-md-6'></div>
-      </div>
-    </div>
+            },
+          )}
+          label={handleTranslate("ManufacturerCompanies")}
+          value={model.manufacturerCompaniesIds}
+          disabled={formType === FormTypes.Details}
+          onChange={(value: string[] | null) => {
+            setModel((prevModel) => {
+              return prevModel
+                ? {
+                    ...prevModel,
+                    manufacturerCompaniesIds: value ?? [],
+                  }
+                : prevModel;
+            });
+          }}
+          multiple={true}
+          handleBlur={null}
+        />
+      </Box>
+    </Box>
   );
 };
 

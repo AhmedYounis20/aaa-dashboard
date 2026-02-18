@@ -10,46 +10,46 @@ import {
 import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 // import ProductModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductModel';
-import { ProductType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
-import { DiscountType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
-import SupplierModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel";
+import { getBranches } from "../../../../Apis/Account/BranchesApi";
 import { getSuppliers } from "../../../../Apis/Account/SuppliersApi";
 import { getTaxes } from "../../../../Apis/Account/TaxesApi";
+import { getManufacturerCompanies } from "../../../../Apis/Inventory/ManufacturerCompaniesApi";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import SupplierModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel";
 import { TaxModel } from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
 import ManufacturerCompanyModel from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
-import { getManufacturerCompanies } from "../../../../Apis/Inventory/ManufacturerCompaniesApi";
-import { getBranches } from "../../../../Apis/Account/BranchesApi";
-import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import { DiscountType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
+import { ProductType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
 // Removed imports for properties that belong to Variants, not Products
-import { EMPTY_UUID } from "../../../../Utilities/SD";
-import { InventoryThresholdScope } from "../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
-import InventoryThresholdsInput from "./Components/InventoryThresholdsInput";
-import ExpiryLevelsInput from "./Components/ExpiryLevelsInput";
+import { InfoOutlined, LayersOutlined } from "@mui/icons-material";
+import { Box, Typography, useTheme } from "@mui/material";
+import { FiPackage } from "react-icons/fi";
+import { LuLayers } from "react-icons/lu";
+import { RiBarcodeFill } from "react-icons/ri";
 import { v4 as uuid } from "uuid";
-import { ItemNodeType } from "../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType";
-import { NodeType } from "../../../../interfaces/Components/NodeType";
-import ProductPictureUpload from "./Components/ProductPictureUpload";
-import VariantCombinationBuilder from "./Components/VariantCombinationBuilder";
-import ProductAttributeDefinitionsSelector from "./Components/ProductAttributeDefinitionsSelector";
-import ProductPackingUnitsInput from "./Components/ProductPackingUnitsInput";
-import ProductBasicInfoCard from "./Components/ProductBasicInfoCard";
-import ProductCodesAndTypeCard from "./Components/ProductCodesAndTypeCard";
 import type { ValidationError } from "yup";
-import ProductPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
+import TabsComponent from "../../../../Components/UI/TabsComponent";
+import { EMPTY_UUID } from "../../../../Utilities/SD";
+import { NodeType } from "../../../../interfaces/Components/NodeType";
+import { InventoryThresholdScope } from "../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
+import { ItemNodeType } from "../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType";
 import ProductInputModel, {
   buildProductValidationSchema,
 } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
-import TabsComponent from "./Components/TabsComponent";
-import { LuLayers } from "react-icons/lu";
+import ProductPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
+import { TrackedBy } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/TrackedBy";
+import BarCodesInput from "./Components/BarCodes";
+import ExpiryLevelsInput from "./Components/ExpiryLevelsInput";
+import InventoryThresholdsInput from "./Components/InventoryThresholdsInput";
+import ProductAttributeDefinitionsSelector from "./Components/ProductAttributeDefinitionsSelector";
+import ProductBasicInfoCard from "./Components/ProductBasicInfoCard";
+import ProductCodesAndTypeCard from "./Components/ProductCodesAndTypeCard";
+import ProductCostCentersInput from "./Components/ProductCostCentersInput";
 import ProductDetailsCard from "./Components/ProductDetailsCard";
 import ProductDiscountCard from "./Components/ProductDiscountCard";
-import { FiPackage } from "react-icons/fi";
-import { RiBarcodeFill } from "react-icons/ri";
-import { InfoOutlined, LayersOutlined } from "@mui/icons-material";
-import { Box, Typography, useTheme } from "@mui/material";
-import { TrackedBy } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/TrackedBy";
-import ProductCostCentersInput from "./Components/ProductCostCentersInput";
-import BarCodesInput from "./Components/BarCodes";
+import ProductPackingUnitsInput from "./Components/ProductPackingUnitsInput";
+import ProductPictureUpload from "./Components/ProductPictureUpload";
+import VariantCombinationBuilder from "./Components/VariantCombinationBuilder";
 
 const ProductsForm: React.FC<{
   formType: FormTypes;
@@ -442,12 +442,31 @@ const ProductsForm: React.FC<{
                         icon: <RiBarcodeFill />,
                         isActive: true,
                         content: (
-                          <ProductDiscountCard
-                            formType={formType}
-                            model={model}
-                            setModel={setModel}
-                            handleTranslate={handleTranslate}
-                          />
+                          <>
+                            <Box sx={{ mb: 3 }}>
+                              <Typography
+                                variant='h6'
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "text.primary",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                {handleTranslate("DiscountDetails")}
+                              </Typography>
+                            </Box>
+                            <Box>
+                              <ProductDiscountCard
+                                formType={formType}
+                                model={model}
+                                setModel={setModel}
+                                handleTranslate={handleTranslate}
+                              />
+                            </Box>
+                          </>
                         ),
                       },
                       {
@@ -508,68 +527,22 @@ const ProductsForm: React.FC<{
                         icon: <InfoOutlined />,
                         isActive: true,
                         content: (
-                          <div className='d-flex flex-column gap-3'>
-                            <div className='card card-body shadow-sm rounded-3 border border-light-subtle'>
-                              <InventoryThresholdsInput
-                                formType={formType}
-                                scope={model.inventoryThresholdScope}
-                                branchId={model.inventoryThresholdBranchId}
-                                thresholds={model.inventoryThresholds ?? []}
-                                onScopeChange={(scope) =>
-                                  setModel((prev) =>
-                                    prev
-                                      ? {
-                                          ...prev,
-                                          inventoryThresholdScope: scope,
-                                        }
-                                      : prev,
-                                  )
-                                }
-                                onBranchChange={(branchId) =>
-                                  setModel((prev) =>
-                                    prev
-                                      ? {
-                                          ...prev,
-                                          inventoryThresholdBranchId: branchId,
-                                        }
-                                      : prev,
-                                  )
-                                }
-                                onThresholdsChange={(inventoryThresholds) =>
-                                  setModel((prev) =>
-                                    prev
-                                      ? { ...prev, inventoryThresholds }
-                                      : prev,
-                                  )
-                                }
-                                branches={branches}
-                                handleTranslate={handleTranslate}
-                                errors={errors}
-                              />
-                            </div>
-                            <div className='card card-body shadow-sm rounded-3 border border-light-subtle'>
-                              <ExpiryLevelsInput
-                                formType={formType}
-                                levels={model.expiryLevels ?? []}
-                                onLevelsChange={(expiryLevels) =>
-                                  setModel((prev) =>
-                                    prev ? { ...prev, expiryLevels } : prev,
-                                  )
-                                }
-                                handleTranslate={handleTranslate}
-                                errors={errors}
-                              />
-                            </div>
-                            <div className='card card-body shadow-sm rounded-3 border border-light-subtle'></div>
-                          </div>
-                        ),
-                      },
-                      {
-                        label: handleTranslate("Compo"),
-                        icon: <LayersOutlined />,
-                        isActive: true,
-                        content: (
-                          <div className='card card-body shadow-sm rounded-3 border border-light-subtle'>
+                          <>
+                            <Box sx={{ mb: 3 }}>
+                              <Typography
+                                variant='h6'
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "text.primary",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                {handleTranslate("AdditionalInformation")}
+                              </Typography>
+                            </Box>
                             <ProductDetailsCard
                               formType={formType}
                               model={model}
@@ -579,7 +552,62 @@ const ProductsForm: React.FC<{
                               handleTranslate={handleTranslate}
                               errors={errors}
                             />
-                          </div>
+                            <InventoryThresholdsInput
+                              formType={formType}
+                              scope={model.inventoryThresholdScope}
+                              branchId={model.inventoryThresholdBranchId}
+                              thresholds={model.inventoryThresholds ?? []}
+                              onScopeChange={(scope) =>
+                                setModel((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        inventoryThresholdScope: scope,
+                                      }
+                                    : prev,
+                                )
+                              }
+                              onBranchChange={(branchId) =>
+                                setModel((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        inventoryThresholdBranchId: branchId,
+                                      }
+                                    : prev,
+                                )
+                              }
+                              onThresholdsChange={(inventoryThresholds) =>
+                                setModel((prev) =>
+                                  prev
+                                    ? { ...prev, inventoryThresholds }
+                                    : prev,
+                                )
+                              }
+                              branches={branches}
+                              handleTranslate={handleTranslate}
+                              errors={errors}
+                            />
+                            <ExpiryLevelsInput
+                              formType={formType}
+                              levels={model.expiryLevels ?? []}
+                              onLevelsChange={(expiryLevels) =>
+                                setModel((prev) =>
+                                  prev ? { ...prev, expiryLevels } : prev,
+                                )
+                              }
+                              handleTranslate={handleTranslate}
+                              errors={errors}
+                            />
+                          </>
+                        ),
+                      },
+                      {
+                        label: handleTranslate("Compo"),
+                        icon: <LayersOutlined />,
+                        isActive: true,
+                        content: (
+                          <div className='card card-body shadow-sm rounded-3 border border-light-subtle'></div>
                         ),
                       },
                     ]}

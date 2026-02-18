@@ -367,20 +367,22 @@ const ProductPackingUnitsInput: React.FC<{
                     {handleTranslate(sp.name)}
                   </TableCell>
                 ))}
-              <TableCell
-                align='center'
-                sx={{
-                  lineHeight: "normal",
-                  fontSize: "0.65rem",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  color: "text.secondary",
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  py: 1.5,
-                }}
-              >
-                {handleTranslate("Operations")}
-              </TableCell>
+              {formType !== FormTypes.Details && (
+                <TableCell
+                  align='center'
+                  sx={{
+                    lineHeight: "normal",
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 1.5,
+                  }}
+                >
+                  {handleTranslate("Operations")}
+                </TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -388,21 +390,8 @@ const ProductPackingUnitsInput: React.FC<{
               <TableRow
                 key={rowIndex}
                 sx={{
+                  verticalAlign: "top",
                   "&:last-child td, &:last-child th": { border: 0 },
-                  "& .MuiTextField-root, & .MuiAutocomplete-root": {
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "rgba(0,0,0,0.03)",
-                      borderRadius: "0.625rem",
-                      "& fieldset": { border: "none" },
-                      "&:hover fieldset": { border: "none" },
-                      "&.Mui-focused fieldset": { border: "none" },
-                    },
-                    "& .MuiInputBase-input": {
-                      fontSize: "0.875rem",
-                      color: "text.primary",
-                      py: 1,
-                    },
-                  },
                 }}
               >
                 <TableCell sx={{ minWidth: 200 }}>
@@ -602,22 +591,23 @@ const ProductPackingUnitsInput: React.FC<{
                     />
                   </TableCell>
                 ))}
-                <TableCell align='center'>
-                  {!unit.isDefaultPackingUnit && (
-                    <IconButton
-                      size='small'
-                      onClick={() => handleDeleteRow(rowIndex)}
-                      disabled={formType === FormTypes.Details}
-                      sx={{
-                        borderRadius: ".325rem",
-                        color: theme.palette.error.main,
-                        "&:hover": { color: theme.palette.error.main },
-                      }}
-                    >
-                      <RiDeleteBin6Line fontSize='medium' />
-                    </IconButton>
-                  )}
-                </TableCell>
+                {formType !== FormTypes.Details && (
+                  <TableCell align='center'>
+                    {!unit.isDefaultPackingUnit && (
+                      <IconButton
+                        size='small'
+                        onClick={() => handleDeleteRow(rowIndex)}
+                        sx={{
+                          borderRadius: ".325rem",
+                          color: theme.palette.error.main,
+                          "&:hover": { color: theme.palette.error.main },
+                        }}
+                      >
+                        <RiDeleteBin6Line fontSize='medium' />
+                      </IconButton>
+                    )}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

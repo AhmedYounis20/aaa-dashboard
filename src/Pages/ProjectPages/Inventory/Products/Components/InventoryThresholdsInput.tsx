@@ -1,14 +1,40 @@
+import { Add } from "@mui/icons-material";
+import {
+  alpha,
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  Paper,
+  Radio,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { IconButton, Button, FormControl, InputLabel, Select, MenuItem, Checkbox, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
-import { FormTypes } from "../../../../../interfaces/Components/FormType";
-import { InventoryThresholdScope } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
-import { InventoryThresholdModel } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdModel";
-import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
-import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
-import { Add, Delete } from "@mui/icons-material";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import InputSelect from "../../../../../Components/Inputs/InputSelect";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import { InventoryThresholdModel } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdModel";
+import { InventoryThresholdScope } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
 
 const MAX_THRESHOLD_ROWS = 5;
+
+const levelColors: Record<number, string> = {
+  1: "!bg-green-100 !text-green-800",
+  2: "!bg-blue-100 !text-blue-800",
+  3: "!bg-yellow-100 !text-yellow-800",
+  4: "!bg-orange-100 !text-orange-800",
+  5: "!bg-red-100 !text-red-800",
+};
 
 const InventoryThresholdsInput: React.FC<{
   formType: FormTypes;
@@ -33,12 +59,15 @@ const InventoryThresholdsInput: React.FC<{
   handleTranslate,
   errors = {},
 }) => {
-  const [branchesOptions, setBranchesOptions] = useState<{ label: string; value: string }[]>([]);
+  const theme = useTheme();
+  const [branchesOptions, setBranchesOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   useEffect(() => {
     if (branches?.length) {
       setBranchesOptions(
-        branches.map((b) => ({ label: b.name ?? b.id, value: b.id }))
+        branches.map((b) => ({ label: b.name ?? b.id, value: b.id })),
       );
     }
   }, [branches]);
@@ -48,7 +77,9 @@ const InventoryThresholdsInput: React.FC<{
     { value: InventoryThresholdScope.Branch, label: handleTranslate("Branch") },
   ];
 
-  const sortedThresholds = [...(thresholds ?? [])].sort((a, b) => a.level - b.level);
+  const sortedThresholds = [...(thresholds ?? [])].sort(
+    (a, b) => a.level - b.level,
+  );
 
   const canAddRow = sortedThresholds.length < MAX_THRESHOLD_ROWS;
 
@@ -57,9 +88,15 @@ const InventoryThresholdsInput: React.FC<{
     const nextLevel = sortedThresholds.length + 1;
     const newRow: InventoryThresholdModel = {
       level: nextLevel,
-      minQuantity: 0,
-      maxQuantity: 0,
-      enableNotification: false,
+      minQuantity:
+        sortedThresholds.length > 0
+          ? (sortedThresholds[sortedThresholds.length - 1].maxQuantity ?? 0) + 1
+          : 0,
+      maxQuantity:
+        sortedThresholds.length > 0
+          ? (sortedThresholds[sortedThresholds.length - 1].maxQuantity ?? 0) + 1
+          : 0,
+      enableNotification: sortedThresholds.length === 0,
     };
     onThresholdsChange([...sortedThresholds, newRow]);
   };
@@ -71,128 +108,313 @@ const InventoryThresholdsInput: React.FC<{
     onThresholdsChange(releveled);
   };
 
+  const normalizeDaysFrom = (rows: InventoryThresholdModel[]) =>
+    rows.map((row, i) =>
+      i === 0
+        ? row
+        : { ...row, minQuantity: (rows[i - 1].maxQuantity ?? 0) + 1 },
+    );
+
   const handleThresholdChange = (
     index: number,
     field: keyof InventoryThresholdModel,
-    value: number | boolean
+    value: number | boolean,
   ) => {
+    if (field === "enableNotification" && value === true) {
+      const updated = sortedThresholds.map((row, i) => ({
+        ...row,
+        enableNotification: i === index,
+      }));
+      onThresholdsChange(updated);
+      return;
+    }
     const updated = sortedThresholds.map((row, i) =>
-      i === index ? { ...row, [field]: value } : row
+      i === index ? { ...row, [field]: value } : row,
     );
-    onThresholdsChange(updated);
+    onThresholdsChange(normalizeDaysFrom(updated));
   };
 
   return (
-    <div className="card card-body">
-      <h6 className="mb-3">{handleTranslate("Inventory Thresholds")}</h6>
+    <Box className='row g-4'>
+      <Box className='col-md-6'>
+        <InputSelect
+          options={scopeOptions}
+          label={handleTranslate("Inventory Threshold Scope")}
+          defaultValue={scope ?? InventoryThresholdScope.All}
+          onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
+            onScopeChange(Number(e.target.value) as InventoryThresholdScope)
+          }
+          disabled={formType === FormTypes.Details}
+          name='inventoryThresholdScope'
+          onBlur={() => {}}
+          error={!!errors.inventoryThresholdScope}
+        />
+      </Box>
+      {scope === InventoryThresholdScope.Branch && (
+        <Box className='col-md-6'>
+          <InputAutoComplete
+            size='small'
+            options={branchesOptions}
+            label={handleTranslate("Branch")}
+            value={branchId ?? null}
+            disabled={formType === FormTypes.Details}
+            onChange={(value: string | null) => onBranchChange(value)}
+            multiple={false}
+            handleBlur={null}
+            error={!!errors.inventoryThresholdBranchId}
+            helperText={handleTranslate(
+              errors.inventoryThresholdBranchId ?? "",
+            )}
+          />
+        </Box>
+      )}
 
-      <div className="row mb-3">
-        <div className="col col-md-6">
-          <FormControl fullWidth size="small">
-            <InputLabel>{handleTranslate("Inventory Threshold Scope")}</InputLabel>
-            <Select
-              value={scope ?? InventoryThresholdScope.All}
-              label={handleTranslate("Inventory Threshold Scope")}
-              onChange={(e) => onScopeChange(Number(e.target.value) as InventoryThresholdScope)}
-              disabled={formType === FormTypes.Details}
+      <Box className='col-md-12'>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 1,
+          }}
+        >
+          <Box>
+            <Typography
+              variant='h6'
+              sx={{
+                fontWeight: "bold",
+                color: "text.primary",
+                opacity: 0.75,
+                fontSize: "0.875rem",
+              }}
             >
-              {scopeOptions.map((opt) => (
-                <MenuItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        {scope === InventoryThresholdScope.Branch && (
-          <div className="col col-md-6">
-            <InputAutoComplete
-              size="small"
-              options={branchesOptions}
-              label={handleTranslate("Branch")}
-              value={branchId ?? null}
-              disabled={formType === FormTypes.Details}
-              onChange={(value: string | null) => onBranchChange(value)}
-              multiple={false}
-              handleBlur={null}
-              error={!!errors.inventoryThresholdBranchId}
-              helperText={handleTranslate(errors.inventoryThresholdBranchId ?? "")}
-            />
-          </div>
-        )}
-      </div>
+              {handleTranslate("Inventory Thresholds")}
+            </Typography>
+          </Box>
+          {formType !== FormTypes.Details && (
+            <Button
+              variant='outlined'
+              startIcon={<Add />}
+              onClick={handleAddRow}
+              disabled={!canAddRow}
+              sx={{
+                borderRadius: "0.5rem",
+                textTransform: "none",
+                color: "text.primary",
+                borderColor: "divider",
+                px: "0.625rem",
+                py: "0.175rem",
+                "&:hover": {
+                  borderColor: "divider",
+                  boxShadow: "none",
+                  backgroundColor: theme.palette.background.default,
+                },
+              }}
+            >
+              {handleTranslate("Add Row")}
+            </Button>
+          )}
+        </Box>
 
-      <TableContainer component={Paper} variant="outlined" className="mb-2">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>{handleTranslate("Level")}</TableCell>
-              <TableCell>{handleTranslate("Quantity From")}</TableCell>
-              <TableCell>{handleTranslate("Quantity To")}</TableCell>
-              <TableCell>{handleTranslate("Enable Notification")}</TableCell>
-              {formType !== FormTypes.Details && (
-                <TableCell align="right">{handleTranslate("Actions")}</TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedThresholds.map((row, index) => (
-              <TableRow key={`${row.level}-${index}`}>
-                <TableCell>{row.level}</TableCell>
-                <TableCell>
-                  <InputNumber
-                    size="small"
-                    value={row.minQuantity ?? 0}
-                    onChange={(v) => handleThresholdChange(index, "minQuantity", v)}
-                    disabled={formType === FormTypes.Details}
-                    error={!!errors[`inventoryThresholds[${index}].minQuantity`]}
-                    helperText={handleTranslate(errors[`inventoryThresholds[${index}].minQuantity`] ?? "")}
-                  />
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{
+            borderRadius: 1.5,
+            boxShadow: "none",
+            border: `1px solid ${theme.palette.divider}`,
+            overflow: "hidden",
+            backgroundColor: "transparent",
+            maxHeight: "500px",
+            overflowX: "auto",
+            overflowY: "auto",
+          }}
+        >
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead
+              sx={{
+                position: "sticky",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 100,
+                backgroundColor: theme.palette.background.default,
+              }}
+            >
+              <TableRow>
+                <TableCell
+                  sx={{
+                    lineHeight: "normal",
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 1.5,
+                  }}
+                >
+                  {handleTranslate("Level")}
                 </TableCell>
-                <TableCell>
-                  <InputNumber
-                    size="small"
-                    value={row.maxQuantity ?? 0}
-                    onChange={(v) => handleThresholdChange(index, "maxQuantity", v)}
-                    disabled={formType === FormTypes.Details}
-                    error={!!errors[`inventoryThresholds[${index}].maxQuantity`]}
-                    helperText={handleTranslate(errors[`inventoryThresholds[${index}].maxQuantity`] ?? "")}
-                  />
+                <TableCell
+                  sx={{
+                    lineHeight: "normal",
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 1.5,
+                  }}
+                >
+                  {handleTranslate("Quantity From")}
                 </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={!!row.enableNotification}
-                    onChange={(e) =>
-                      handleThresholdChange(index, "enableNotification", e.target.checked)
-                    }
-                    disabled={formType === FormTypes.Details}
-                  />
+                <TableCell
+                  sx={{
+                    lineHeight: "normal",
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 1.5,
+                  }}
+                >
+                  {handleTranslate("Quantity To")}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    lineHeight: "normal",
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    color: "text.secondary",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    py: 1.5,
+                  }}
+                >
+                  {handleTranslate("Notifications")}
                 </TableCell>
                 {formType !== FormTypes.Details && (
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleDeleteRow(index)}>
-                      <Delete />
-                    </IconButton>
+                  <TableCell
+                    align='center'
+                    sx={{
+                      lineHeight: "normal",
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      color: "text.secondary",
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      py: 1.5,
+                    }}
+                  >
+                    {handleTranslate("Actions")}
                   </TableCell>
                 )}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {formType !== FormTypes.Details && (
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<Add />}
-          onClick={handleAddRow}
-          disabled={!canAddRow}
-        >
-          {handleTranslate("Add Row")}
-        </Button>
-      )}
-    </div>
+            </TableHead>
+            <TableBody>
+              {sortedThresholds.map((row, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    verticalAlign: "top",
+                    "&:last-child td, &:last-child th": { border: 0 },
+                  }}
+                >
+                  <TableCell sx={{ minWidth: 200, verticalAlign: "middle" }}>
+                    <Chip
+                      label={row.level}
+                      className={levelColors[row.level] ?? ""}
+                      size='small'
+                      variant='filled'
+                      sx={{ borderRadius: "0.225rem" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ minWidth: 200 }}>
+                    <InputNumber
+                      size='small'
+                      value={row.minQuantity ?? 0}
+                      onChange={(v) =>
+                        handleThresholdChange(index, "minQuantity", v)
+                      }
+                      disabled={formType === FormTypes.Details || index > 0}
+                      error={
+                        !!errors[`inventoryThresholds[${index}].minQuantity`]
+                      }
+                      helperText={handleTranslate(
+                        errors[`inventoryThresholds[${index}].minQuantity`] ??
+                          "",
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ minWidth: 200 }}>
+                    <InputNumber
+                      size='small'
+                      value={row.maxQuantity ?? 0}
+                      onChange={(v) =>
+                        handleThresholdChange(index, "maxQuantity", v)
+                      }
+                      disabled={formType === FormTypes.Details}
+                      error={
+                        !!errors[`inventoryThresholds[${index}].maxQuantity`]
+                      }
+                      helperText={handleTranslate(
+                        errors[`inventoryThresholds[${index}].maxQuantity`] ??
+                          "",
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ minWidth: 200 }}>
+                    <Radio
+                      size='small'
+                      checked={row.enableNotification}
+                      onChange={(e) =>
+                        handleThresholdChange(
+                          index,
+                          "enableNotification",
+                          e.target.checked,
+                        )
+                      }
+                      disabled={formType === FormTypes.Details}
+                      sx={{
+                        color: alpha(theme.palette.primary.main, 0.4),
+                        "&.Mui-checked": {
+                          color: theme.palette.primary.main,
+                        },
+                      }}
+                    />
+                  </TableCell>
+                  {formType !== FormTypes.Details && (
+                    <TableCell align='center' sx={{ minWidth: 200 }}>
+                      <IconButton
+                        size='small'
+                        onClick={() => handleDeleteRow(index)}
+                        sx={{
+                          borderRadius: ".325rem",
+                          color: theme.palette.error.main,
+                          "&:hover": { color: theme.palette.error.main },
+                        }}
+                      >
+                        <RiDeleteBin6Line fontSize='medium' />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+              {sortedThresholds.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} align='center'>
+                    <Typography variant='body2' color='text.secondary'>
+                      {handleTranslate("No inventory thresholds added")}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 };
 

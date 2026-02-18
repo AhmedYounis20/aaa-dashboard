@@ -1,16 +1,16 @@
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import React from "react";
-import { FormControlLabel, Switch } from "@mui/material";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
-import ProductSellingPriceDiscountsInput from "./ProductSellingPriceDiscountsInput";
+import updateModel from "../../../../../Helper/updateModelHelper";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import {
   DiscountType,
   DiscountTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
-import ProductSellingPriceDiscountModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductSellingPriceDiscountModel";
-import updateModel from "../../../../../Helper/updateModelHelper";
 import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
+import ProductSellingPriceDiscountModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductSellingPriceDiscountModel";
+import ProductSellingPriceDiscountsInput from "./ProductSellingPriceDiscountsInput";
 
 interface ProductDiscountCardProps {
   formType: FormTypes;
@@ -25,52 +25,54 @@ const ProductDiscountCard: React.FC<ProductDiscountCardProps> = ({
   setModel,
   handleTranslate,
 }) => {
+  const theme = useTheme();
+
   return (
-    <div className="card card-body">
-      <h5 className="mb-4">{handleTranslate("DiscountDetails")}</h5>
-      <div className="row mb-3">
-        <div className="col col-md-6">
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
+      <Box className='row g-4'>
+        <Box className='col-md-3'>
           <InputNumber
-            className="form-input form-control"
+            className='form-input form-control'
             label={handleTranslate("MaxDiscount")}
-            variant="outlined"
+            variant='outlined'
             fullWidth
             disabled={formType === FormTypes.Details}
             value={model?.maxDiscount ?? null}
-            inputType="percent"
+            inputType='percent'
             onChange={(value) =>
               setModel((prevModel) =>
-                prevModel ? { ...prevModel, maxDiscount: value } : prevModel
+                prevModel ? { ...prevModel, maxDiscount: value } : prevModel,
               )
             }
           />
-        </div>
-        <div className="col col-md-6">
+        </Box>
+        <Box className='col-md-3'>
           <InputNumber
-            className="form-input form-control"
+            className='form-input form-control'
             label={handleTranslate("ConditionalDiscount")}
-            variant="outlined"
+            variant='outlined'
             fullWidth
             disabled={formType === FormTypes.Details}
             value={model?.conditionalDiscount ?? null}
-            inputType="percent"
+            inputType='percent'
             onChange={(value) =>
               setModel((prevModel) =>
                 prevModel
                   ? { ...prevModel, conditionalDiscount: value }
-                  : prevModel
+                  : prevModel,
               )
             }
           />
-        </div>
-      </div>
-
-      <div className="row mb-3">
-        <div className="col col-md-6">
+        </Box>
+        <Box className='col-md-3'>
           <InputNumber
-            className="form-input form-control"
+            className='form-input form-control'
             label={handleTranslate("DefaultDiscount")}
-            variant="outlined"
+            variant='outlined'
             fullWidth
             disabled={
               formType === FormTypes.Details ||
@@ -84,12 +86,14 @@ const ProductDiscountCard: React.FC<ProductDiscountCardProps> = ({
             }
             onChange={(value) =>
               setModel((prevModel) =>
-                prevModel ? { ...prevModel, defaultDiscount: value } : prevModel
+                prevModel
+                  ? { ...prevModel, defaultDiscount: value }
+                  : prevModel,
               )
             }
           />
-        </div>
-        <div className="col col-md-6">
+        </Box>
+        <Box className='col-md-3'>
           <InputSelect
             options={DiscountTypeOptions.map((e) => ({
               ...e,
@@ -99,56 +103,96 @@ const ProductDiscountCard: React.FC<ProductDiscountCardProps> = ({
             defaultValue={model?.defaultDiscountType}
             disabled={formType === FormTypes.Details}
             multiple={false}
-            onChange={({
-              target,
-            }: {
-              target: { value: DiscountType };
-            }) => {
+            onChange={({ target }: { target: { value: DiscountType } }) => {
               updateModel(setModel, "defaultDiscountType", target.value);
             }}
             name={"DiscountType"}
             onBlur={null}
             error={undefined}
           />
-        </div>
-      </div>
-      <div className="row mb-3">
-        <div className="col col-md-6">
-          <FormControlLabel
-            control={
-              <Switch
-                checked={model?.isDiscountBasedOnSellingPrice}
-                onChange={({
-                  target,
-                }: {
-                  target: { checked: boolean };
-                }) =>
-                  setModel((prevModel) =>
-                    prevModel
-                      ? {
-                          ...prevModel,
-                          isDiscountBasedOnSellingPrice: target.checked,
-                          defaultDiscount: target.checked
-                            ? 0
-                            : prevModel.defaultDiscount,
-                        }
-                      : prevModel
-                  )
-                }
-              />
+        </Box>
+
+        <Box className='col-md-6'>
+          <Paper
+            elevation={0}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2,
+              py: 1,
+              borderRadius: "0.5rem",
+              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: "none",
+              cursor: formType === FormTypes.Details ? "default" : "pointer",
+              transition: "all 0.2s ease-in-out",
+              "&:hover": {
+                backgroundColor:
+                  formType !== FormTypes.Details
+                    ? theme.palette.action.hover
+                    : undefined,
+              },
+            }}
+            onClick={() =>
+              setModel((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      isDiscountBasedOnSellingPrice:
+                        !prev.isDiscountBasedOnSellingPrice,
+                      defaultDiscount: !prev.isDiscountBasedOnSellingPrice
+                        ? 0
+                        : prev.defaultDiscount,
+                    }
+                  : prev,
+              )
             }
-            label={handleTranslate("IsDiscountBasedOnSellingPrice")}
-            disabled={formType === FormTypes.Details}
-          />
-        </div>
-        <div className="col col-md-6">
+          >
+            <Typography
+              sx={{
+                fontWeight: 500,
+                color: theme.palette.text.primary,
+                fontSize: "0.875rem",
+              }}
+            >
+              {handleTranslate("IsDiscountBasedOnSellingPrice")}
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+                width: "32px",
+                height: "18px",
+                borderRadius: "12px",
+                backgroundColor: model.isDiscountBasedOnSellingPrice
+                  ? "#3b82f6"
+                  : theme.palette.action.disabled,
+                transition: "background-color 0.3s ease",
+                cursor: formType === FormTypes.Details ? "default" : "pointer",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "1px",
+                  left: model.isDiscountBasedOnSellingPrice ? "14px" : "1px",
+                  width: "16px",
+                  height: "16px",
+                  borderRadius: "50%",
+                  backgroundColor: "#ffffff",
+                  transition: "left 0.3s ease",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                }}
+              />
+            </Box>
+          </Paper>
+        </Box>
+        <Box className='col-md-12'>
           {model.isDiscountBasedOnSellingPrice && (
             <ProductSellingPriceDiscountsInput
               formType={formType}
               productSellingPriceDiscounts={model.sellingPriceDiscounts || []}
-              handleUpdate={(
-                items: ProductSellingPriceDiscountModel[]
-              ) => {
+              handleUpdate={(items: ProductSellingPriceDiscountModel[]) => {
                 setModel((prevModel) => ({
                   ...(prevModel ?? {}),
                   sellingPriceDiscounts: items,
@@ -157,11 +201,10 @@ const ProductDiscountCard: React.FC<ProductDiscountCardProps> = ({
               handleTranslate={(key) => handleTranslate(key)}
             />
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
 export default ProductDiscountCard;
-

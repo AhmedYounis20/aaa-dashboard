@@ -536,5 +536,7 @@
   "DefaultSales": "المبيعات الافتراضية",
   "DefaultPurchases": "المشتريات الافتراضية",
   "LastCost": "آخر تكلفة",
-  "AvgCost": "متوسط التكلفة"
+  "AvgCost": "متوسط التكلفة",
+  "No inventory thresholds added": "لم يتم إضافة مستويات المخزون والتنبيهات",
+  "No expiry levels added": "لم يتم إضافة مستويات انتهاء الصلاحية"
 }
