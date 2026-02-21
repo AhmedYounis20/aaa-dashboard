@@ -536,5 +536,14 @@
   "LastCost": "Last Cost",
   "AvgCost": "Avg Cost",
   "No inventory thresholds added": "No inventory thresholds added",
-  "No expiry levels added": "No expiry levels added"
+  "No expiry levels added": "No expiry levels added",
+  "Attribute": "Attribute",
+  "Variant": "Variant",
+  "AttributeCombinations": "Attribute Combinations",
+  "Generated": "Generated",
+  "variant(s)": "variant(s)",
+  "NoAttributesAndVariantsAdded": "No attributes and variants added",
+  "NoVariantAttributesConfigured": "No variant attributes configured",
+  "SelectAtLeastOneValuePerVariantAttributeToGenerateCombinations": "Select at least one value per variant attribute to generate combinations",
+  "SelectAttributeValuesToGenerateVariantCombinations": "Select attribute values in the table above to generate variant combinations"
 }

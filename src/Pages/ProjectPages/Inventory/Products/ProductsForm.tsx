@@ -139,6 +139,9 @@ const ProductsForm: React.FC<{
   >([]);
   const [taxes, setTaxes] = useState<TaxModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
+  const [selectedAttributeValues, setSelectedAttributeValues] = useState<
+    Record<string, string[]>
+  >({});
 
   const validationSchema = buildProductValidationSchema(t);
 
@@ -474,7 +477,7 @@ const ProductsForm: React.FC<{
                         icon: <LuLayers />,
                         isActive: true,
                         content: (
-                          <div className='d-flex flex-column gap-3'>
+                          <Box>
                             <ProductAttributeDefinitionsSelector
                               productAttributeDefinitions={
                                 model.productAttributeDefinitions || []
@@ -491,6 +494,10 @@ const ProductsForm: React.FC<{
                               }
                               handleTranslate={handleTranslate}
                               formType={formType}
+                              selectedAttributeValues={selectedAttributeValues}
+                              onSelectedAttributeValuesChange={
+                                setSelectedAttributeValues
+                              }
                             />
                             <VariantCombinationBuilder
                               combinations={model.variantCombinations || []}
@@ -518,8 +525,12 @@ const ProductsForm: React.FC<{
                               productAttributeDefinitions={
                                 model.productAttributeDefinitions || []
                               }
+                              selectedAttributeValues={selectedAttributeValues}
+                              onSelectedAttributeValuesChange={
+                                setSelectedAttributeValues
+                              }
                             />
-                          </div>
+                          </Box>
                         ),
                       },
                       {

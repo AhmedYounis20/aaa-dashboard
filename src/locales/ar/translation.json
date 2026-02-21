@@ -538,5 +538,14 @@
   "LastCost": "آخر تكلفة",
   "AvgCost": "متوسط التكلفة",
   "No inventory thresholds added": "لم يتم إضافة مستويات المخزون والتنبيهات",
-  "No expiry levels added": "لم يتم إضافة مستويات انتهاء الصلاحية"
+  "No expiry levels added": "لم يتم إضافة مستويات انتهاء الصلاحية",
+  "Attribute": "السمة",
+  "Variant": "المتغير",
+  "AttributeCombinations": "تركيبات السمات",
+  "Generated": "مُنشأ",
+  "variant(s)": "متغير(ات)",
+  "NoAttributesAndVariantsAdded": "لم يتم إضافة السمات والقيم",
+  "NoVariantAttributesConfigured": "لم يتم تكوين خصائص المتغير",
+  "SelectAtLeastOneValuePerVariantAttributeToGenerateCombinations": "اختر قيمة واحدة على الأقل لكل خاصية متغير لإنشاء تركيبات",
+  "SelectAttributeValuesToGenerateVariantCombinations": "اختر قيم الخصائص أعلاه لإنشاء تركيبات المتغيرات"
 }

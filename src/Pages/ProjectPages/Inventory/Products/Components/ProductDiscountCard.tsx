@@ -135,6 +135,7 @@ const ProductDiscountCard: React.FC<ProductDiscountCardProps> = ({
               },
             }}
             onClick={() =>
+              formType !== FormTypes.Details &&
               setModel((prev) =>
                 prev
                   ? {
