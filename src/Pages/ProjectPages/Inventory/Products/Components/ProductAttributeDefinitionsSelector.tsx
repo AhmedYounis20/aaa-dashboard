@@ -121,14 +121,9 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
     }
   };
 
-  const handleIsVariantChange = (
-    attributeDefinitionId: string,
-    isVariant: boolean,
-  ) => {
-    const updated = productAttributeDefinitions.map((pad) =>
-      pad.attributeDefinitionId === attributeDefinitionId
-        ? { ...pad, isVariant }
-        : pad,
+  const handleIsVariantChange = (rowIndex: number, isVariant: boolean) => {
+    const updated = productAttributeDefinitions.map((pad, i) =>
+      i === rowIndex ? { ...pad, isVariant } : pad,
     );
     onChange(updated);
   };
@@ -287,7 +282,6 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
                     {handleTranslate("Attribute")}
                   </TableCell>
                   <TableCell
-                    align='center'
                     sx={{
                       lineHeight: "normal",
                       fontSize: "0.65rem",
@@ -406,10 +400,7 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
                           size='small'
                           checked={!!pad.isVariant}
                           onChange={(e) =>
-                            handleIsVariantChange(
-                              pad.attributeDefinitionId,
-                              e.target.checked,
-                            )
+                            handleIsVariantChange(index, e.target.checked)
                           }
                           disabled={formType === FormTypes.Details}
                           color='primary'

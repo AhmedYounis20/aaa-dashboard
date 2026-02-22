@@ -681,7 +681,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
                             </TableCell>
                             <TableCell
                               sx={{
-                                minWidth: 500,
+                                minWidth: 850,
                                 verticalAlign: "top",
                                 height: ROW_HEIGHT_PX,
                               }}

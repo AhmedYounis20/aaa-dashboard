@@ -22,7 +22,6 @@ import { DiscountType } from "../../../../interfaces/ProjectInterfaces/Inventory
 import { ProductType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
 // Removed imports for properties that belong to Variants, not Products
 import { InfoOutlined, LayersOutlined } from "@mui/icons-material";
-import { Box, Typography, useTheme } from "@mui/material";
 import { FiPackage } from "react-icons/fi";
 import { LuLayers } from "react-icons/lu";
 import { RiBarcodeFill } from "react-icons/ri";
@@ -38,18 +37,14 @@ import ProductInputModel, {
 } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
 import ProductPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
 import { TrackedBy } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/TrackedBy";
-import BarCodesInput from "./Components/BarCodes";
-import ExpiryLevelsInput from "./Components/ExpiryLevelsInput";
-import InventoryThresholdsInput from "./Components/InventoryThresholdsInput";
-import ProductAttributeDefinitionsSelector from "./Components/ProductAttributeDefinitionsSelector";
 import ProductBasicInfoCard from "./Components/ProductBasicInfoCard";
-import ProductCodesAndTypeCard from "./Components/ProductCodesAndTypeCard";
-import ProductCostCentersInput from "./Components/ProductCostCentersInput";
-import ProductDetailsCard from "./Components/ProductDetailsCard";
-import ProductDiscountCard from "./Components/ProductDiscountCard";
-import ProductPackingUnitsInput from "./Components/ProductPackingUnitsInput";
-import ProductPictureUpload from "./Components/ProductPictureUpload";
-import VariantCombinationBuilder from "./Components/VariantCombinationBuilder";
+import {
+  AdditionalInformationTab,
+  AttributesAndVariantsTab,
+  CompoTab,
+  DiscountTab,
+  GeneralInformationTab,
+} from "./Components/Tabs";
 
 const ProductsForm: React.FC<{
   formType: FormTypes;
@@ -66,7 +61,6 @@ const ProductsForm: React.FC<{
   afterAction,
   handleTranslate,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   const createProductPackingUnit: (
@@ -346,98 +340,15 @@ const ProductsForm: React.FC<{
                         icon: <FiPackage className='w-4 h-4' />,
                         isActive: true,
                         content: (
-                          <>
-                            <Box sx={{ mb: 3 }}>
-                              <Typography
-                                variant='h6'
-                                sx={{
-                                  fontWeight: 600,
-                                  color: "text.primary",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  fontSize: "1rem",
-                                }}
-                              >
-                                {handleTranslate("GeneralInformation")}
-                              </Typography>
-                            </Box>
-                            <Box
-                              className='grid grid-cols-1 md:grid-cols-2 gap-4'
-                              sx={{
-                                borderBottom: `1px solid ${theme.palette.divider}`,
-                                pb: 2,
-                              }}
-                            >
-                              <ProductCodesAndTypeCard
-                                formType={formType}
-                                model={model}
-                                taxes={taxes}
-                                setModel={setModel}
-                                errors={errors}
-                                handleTranslate={handleTranslate}
-                              />
-                              <Box>
-                                <ProductPictureUpload
-                                  productId={id}
-                                  formType={formType}
-                                  handleTranslate={handleTranslate}
-                                  attachments={model.productAttachments || []}
-                                  onAttachmentsChange={(attachments) =>
-                                    setModel((prev) =>
-                                      prev
-                                        ? {
-                                            ...prev,
-                                            productAttachments: attachments,
-                                          }
-                                        : prev,
-                                    )
-                                  }
-                                />
-                                <ProductCostCentersInput
-                                  formType={formType}
-                                  productCostCenters={model.costCenters ?? []}
-                                  handleUpdate={(items) => {
-                                    setModel((prevModel) =>
-                                      prevModel
-                                        ? { ...prevModel, costCenters: items }
-                                        : prevModel,
-                                    );
-                                  }}
-                                  handleTranslate={(key) =>
-                                    handleTranslate(key)
-                                  }
-                                  errors={errors}
-                                />
-
-                                <BarCodesInput
-                                  barCodes={model.barCodes}
-                                  formType={formType}
-                                  handleTranslate={(key) =>
-                                    handleTranslate(key)
-                                  }
-                                  handleUpdate={(barCodes: string[]) =>
-                                    setModel((prev) =>
-                                      prev ? { ...prev, barCodes } : prev,
-                                    )
-                                  }
-                                />
-                              </Box>
-                            </Box>
-                            <ProductPackingUnitsInput
-                              productPackingUnits={model.packingUnits || []}
-                              handleTranslate={(key) => handleTranslate(key)}
-                              formType={formType}
-                              handleUpdate={(items) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? { ...prev, packingUnits: items }
-                                    : prev,
-                                )
-                              }
-                              errors={errors}
-                            />
-                          </>
+                          <GeneralInformationTab
+                            formType={formType}
+                            productId={id}
+                            model={model}
+                            setModel={setModel}
+                            taxes={taxes}
+                            errors={errors}
+                            handleTranslate={handleTranslate}
+                          />
                         ),
                       },
                       {
@@ -445,31 +356,12 @@ const ProductsForm: React.FC<{
                         icon: <RiBarcodeFill />,
                         isActive: true,
                         content: (
-                          <>
-                            <Box sx={{ mb: 3 }}>
-                              <Typography
-                                variant='h6'
-                                sx={{
-                                  fontWeight: 600,
-                                  color: "text.primary",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  fontSize: "1rem",
-                                }}
-                              >
-                                {handleTranslate("DiscountDetails")}
-                              </Typography>
-                            </Box>
-                            <Box>
-                              <ProductDiscountCard
-                                formType={formType}
-                                model={model}
-                                setModel={setModel}
-                                handleTranslate={handleTranslate}
-                              />
-                            </Box>
-                          </>
+                          <DiscountTab
+                            formType={formType}
+                            model={model}
+                            setModel={setModel}
+                            handleTranslate={handleTranslate}
+                          />
                         ),
                       },
                       {
@@ -477,60 +369,16 @@ const ProductsForm: React.FC<{
                         icon: <LuLayers />,
                         isActive: true,
                         content: (
-                          <Box>
-                            <ProductAttributeDefinitionsSelector
-                              productAttributeDefinitions={
-                                model.productAttributeDefinitions || []
-                              }
-                              onChange={(productAttributeDefinitions) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        productAttributeDefinitions,
-                                      }
-                                    : prev,
-                                )
-                              }
-                              handleTranslate={handleTranslate}
-                              formType={formType}
-                              selectedAttributeValues={selectedAttributeValues}
-                              onSelectedAttributeValuesChange={
-                                setSelectedAttributeValues
-                              }
-                            />
-                            <VariantCombinationBuilder
-                              combinations={model.variantCombinations || []}
-                              onChange={(combinations) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        variantCombinations: combinations,
-                                      }
-                                    : prev,
-                                )
-                              }
-                              onProductApplyChanges={(val: boolean) => {
-                                setModel((prev) =>
-                                  prev
-                                    ? { ...prev, applyDomainChanges: val }
-                                    : prev,
-                                );
-                              }}
-                              productApplyChanges={true}
-                              handleTranslate={handleTranslate}
-                              formType={formType}
-                              productName={model.name || ""}
-                              productAttributeDefinitions={
-                                model.productAttributeDefinitions || []
-                              }
-                              selectedAttributeValues={selectedAttributeValues}
-                              onSelectedAttributeValuesChange={
-                                setSelectedAttributeValues
-                              }
-                            />
-                          </Box>
+                          <AttributesAndVariantsTab
+                            formType={formType}
+                            model={model}
+                            setModel={setModel}
+                            selectedAttributeValues={selectedAttributeValues}
+                            setSelectedAttributeValues={
+                              setSelectedAttributeValues
+                            }
+                            handleTranslate={handleTranslate}
+                          />
                         ),
                       },
                       {
@@ -538,88 +386,23 @@ const ProductsForm: React.FC<{
                         icon: <InfoOutlined />,
                         isActive: true,
                         content: (
-                          <>
-                            <Box sx={{ mb: 3 }}>
-                              <Typography
-                                variant='h6'
-                                sx={{
-                                  fontWeight: 600,
-                                  color: "text.primary",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  fontSize: "1rem",
-                                }}
-                              >
-                                {handleTranslate("AdditionalInformation")}
-                              </Typography>
-                            </Box>
-                            <ProductDetailsCard
-                              formType={formType}
-                              model={model}
-                              setModel={setModel}
-                              suppliers={suppliers}
-                              manufacturerCompanies={manufacturerCompanies}
-                              handleTranslate={handleTranslate}
-                              errors={errors}
-                            />
-                            <InventoryThresholdsInput
-                              formType={formType}
-                              scope={model.inventoryThresholdScope}
-                              branchId={model.inventoryThresholdBranchId}
-                              thresholds={model.inventoryThresholds ?? []}
-                              onScopeChange={(scope) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        inventoryThresholdScope: scope,
-                                      }
-                                    : prev,
-                                )
-                              }
-                              onBranchChange={(branchId) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        inventoryThresholdBranchId: branchId,
-                                      }
-                                    : prev,
-                                )
-                              }
-                              onThresholdsChange={(inventoryThresholds) =>
-                                setModel((prev) =>
-                                  prev
-                                    ? { ...prev, inventoryThresholds }
-                                    : prev,
-                                )
-                              }
-                              branches={branches}
-                              handleTranslate={handleTranslate}
-                              errors={errors}
-                            />
-                            <ExpiryLevelsInput
-                              formType={formType}
-                              levels={model.expiryLevels ?? []}
-                              onLevelsChange={(expiryLevels) =>
-                                setModel((prev) =>
-                                  prev ? { ...prev, expiryLevels } : prev,
-                                )
-                              }
-                              handleTranslate={handleTranslate}
-                              errors={errors}
-                            />
-                          </>
+                          <AdditionalInformationTab
+                            formType={formType}
+                            model={model}
+                            setModel={setModel}
+                            suppliers={suppliers}
+                            manufacturerCompanies={manufacturerCompanies}
+                            branches={branches}
+                            errors={errors}
+                            handleTranslate={handleTranslate}
+                          />
                         ),
                       },
                       {
                         label: handleTranslate("Compo"),
                         icon: <LayersOutlined />,
                         isActive: true,
-                        content: (
-                          <div className='card card-body shadow-sm rounded-3 border border-light-subtle'></div>
-                        ),
+                        content: <CompoTab />,
                       },
                     ]}
                   />

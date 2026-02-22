@@ -1,3 +1,4 @@
+import { Box, Typography, useTheme } from "@mui/material";
 import React from "react";
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import InputText from "../../../../../Components/Inputs/InputText";
@@ -8,7 +9,6 @@ import {
   ItemNodeTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType";
 import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
-import { Box, Typography, useTheme } from "@mui/material";
 
 interface ProductBasicInfoCardProps {
   formType: FormTypes;
@@ -58,6 +58,7 @@ const ProductBasicInfoCard: React.FC<ProductBasicInfoCardProps> = ({
             display: "flex",
             alignItems: "center",
             gap: 1,
+            fontSize: "1rem",
           }}
         >
           {handleTranslate("ProductBasicInfo")}
