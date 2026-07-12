@@ -12,21 +12,18 @@ import { IconButton, TextareaAutosize } from '@mui/material';
 import updateModel from '../../../../Helper/updateModelHelper';
 import { v4 as uuid } from 'uuid';
 
-// API imports
 import { createExportTransaction, getExportTransactionNumber, getExportTransactionById } from '../../../../Apis/Inventory/ExportTransactionsApi';
-import { getItemsVariants, getItemById } from '../../../../Apis/Inventory/ItemsApi';
+import { getVariants, getVariantById } from '../../../../Apis/Inventory/VariantsApi';
 import { getPackingUnits } from '../../../../Apis/Inventory/PackingUnitsApi';
 import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
 
-// Model imports
-import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
+import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import PackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel';
 import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
 import ChartOfAccountModel from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/ChartOfAccountModel';
 import { NodeType } from '../../../../interfaces/Components/NodeType';
 
-// Local interfaces for form state
 interface ExportTransactionFormModel {
   id: string;
   transactionNumber: string;
@@ -42,11 +39,14 @@ interface ExportTransactionFormModel {
 
 interface ExportTransactionItemFormModel {
   id: string;
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   quantity: number;
   totalCost: number;
 }
+
+const resolveVariantId = (item: { variantId?: string; itemId?: string }) =>
+  item.variantId ?? item.itemId ?? '';
 
 const ExportTransactionForm: React.FC<{
   formType: FormTypes;
@@ -57,23 +57,21 @@ const ExportTransactionForm: React.FC<{
   const { t } = useTranslation();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(formType !== FormTypes.Add);
-  
-  // Data states
-  const [items, setItems] = useState<ItemModel[]>([]);
+
+  const [variants, setVariants] = useState<VariantModel[]>([]);
   const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
-  const [itemDetails, setItemDetails] = useState<Record<string, ItemModel>>({});
-  
+  const [variantDetails, setVariantDetails] = useState<Record<string, VariantModel>>({});
+
   const createTransactionItem = (): ExportTransactionItemFormModel => ({
     id: uuid(),
-    itemId: '',
+    variantId: '',
     packingUnitId: '',
     quantity: 0,
-    totalCost: 0
+    totalCost: 0,
   });
-  
-  // Model state
+
   const [model, setModel] = useState<ExportTransactionFormModel>({
     id: id,
     transactionNumber: '',
@@ -84,22 +82,21 @@ const ExportTransactionForm: React.FC<{
     transactionPartyId: '',
     branchId: '',
     notes: '',
-    items: [createTransactionItem()]
+    items: [createTransactionItem()],
   });
 
-  // Load data
   useEffect(() => {
     const loadData = async () => {
       if (formType !== FormTypes.Delete) {
         try {
-          const [itemsRes, packingUnitsRes, branchesRes, chartOfAccountsRes] = await Promise.all([
-            getItemsVariants(),
+          const [variantsRes, packingUnitsRes, branchesRes, chartOfAccountsRes] = await Promise.all([
+            getVariants(),
             getPackingUnits(),
             getBranches(),
-            getChartOfAccounts()
+            getChartOfAccounts(),
           ]);
 
-          if (itemsRes.isSuccess) setItems(itemsRes.result || []);
+          if (variantsRes.isSuccess) setVariants(variantsRes.result || []);
           if (packingUnitsRes.isSuccess) setPackingUnits(packingUnitsRes.result || []);
           if (branchesRes.isSuccess) {
             setBranches((branchesRes.result || []).filter((b: BranchModel) => b.nodeType === NodeType.Domain));
@@ -115,7 +112,6 @@ const ExportTransactionForm: React.FC<{
     loadData();
   }, [formType]);
 
-  // Get transaction number and financial period when date changes
   useEffect(() => {
     if (formType === FormTypes.Add && model.transactionDate) {
       getExportTransactionNumber(model.transactionDate).then((e) => {
@@ -125,14 +121,13 @@ const ExportTransactionForm: React.FC<{
           prevModel
             ? {
                 ...prevModel,
-                transactionNumber: result.transactionNumber ?? "",
-                financialPeriodId: result.financialPeriodId ?? "",
-                financialPeriodNumber: result.financialPeriodNumber ?? "",
+                transactionNumber: result.transactionNumber ?? '',
+                financialPeriodId: result.financialPeriodId ?? '',
+                financialPeriodNumber: result.financialPeriodNumber ?? '',
                 documentNumber:
                   prevModel.documentNumber == null ||
-                  prevModel.documentNumber == "" ||
-                  prevModel.documentNumber ==
-                    `${result.financialPeriodNumber}\\${result.transactionNumber}`
+                  prevModel.documentNumber == '' ||
+                  prevModel.documentNumber == `${result.financialPeriodNumber}\\${result.transactionNumber}`
                     ? `${result.financialPeriodNumber}\\${result.transactionNumber}`
                     : prevModel.documentNumber,
               }
@@ -145,8 +140,8 @@ const ExportTransactionForm: React.FC<{
   useEffect(() => {
     if ((formType === FormTypes.Details || formType === FormTypes.Edit) && id) {
       setIsLoading(true);
-      var fetchData = async () => {
-        var res = await getExportTransactionById(id);
+      const fetchData = async () => {
+        const res = await getExportTransactionById(id);
 
         if (res.isSuccess && res.result) {
           setModel({
@@ -159,15 +154,16 @@ const ExportTransactionForm: React.FC<{
             transactionPartyId: res.result.transactionPartyId ?? '',
             branchId: res.result.branchId ?? '',
             notes: res.result.notes ?? '',
-            items: res.result.items && res.result.items.length > 0
-              ? res.result.items.map(item => ({ 
-                  id: item.id || uuid(),
-                  itemId: item.itemId,
-                  packingUnitId: item.packingUnitId,
-                  quantity: item.quantity,
-                  totalCost: item.totalCost
-                }))
-              : [createTransactionItem()]
+            items:
+              res.result.items && res.result.items.length > 0
+                ? res.result.items.map((item) => ({
+                    id: item.id || uuid(),
+                    variantId: resolveVariantId(item),
+                    packingUnitId: item.packingUnitId,
+                    quantity: item.quantity,
+                    totalCost: item.totalCost,
+                  }))
+                : [createTransactionItem()],
           });
         } else {
           toastify('Failed to load transaction details', 'error');
@@ -179,95 +175,84 @@ const ExportTransactionForm: React.FC<{
   }, [formType, id]);
 
   const addItem = () => {
-    setModel(prev => ({
+    setModel((prev) => ({
       ...prev,
-      items: [...prev.items, createTransactionItem()]
+      items: [...prev.items, createTransactionItem()],
     }));
   };
 
-  const removeItem = (itemId: string) => {
-    setModel(prev => ({
+  const removeItem = (lineId: string) => {
+    setModel((prev) => ({
       ...prev,
-      items: prev.items.filter(item => item.id !== itemId)
+      items: prev.items.filter((item) => item.id !== lineId),
     }));
   };
 
-  const updateItem = (itemId: string, field: string, value: any) => {
-    setModel(prev => ({
+  const updateItem = (lineId: string, field: keyof ExportTransactionItemFormModel, value: string | number) => {
+    setModel((prev) => ({
       ...prev,
-      items: prev.items.map(item => 
-        item.id === itemId ? { ...item, [field]: value } : item
-      )
+      items: prev.items.map((item) => (item.id === lineId ? { ...item, [field]: value } : item)),
     }));
 
-    // If item is selected, fetch its packing units
-    if (field === 'itemId' && value) {
-      getItemById(value).then((response) => {
+    if (field === 'variantId' && typeof value === 'string' && value) {
+      getVariantById(value).then((response) => {
         if (response.isSuccess && response.result) {
-          const selectedItem = response.result;
-          // Store the item details
-          setItemDetails(prev => ({
+          const selectedVariant = response.result;
+          setVariantDetails((prev) => ({
             ...prev,
-            [value]: selectedItem
+            [value]: selectedVariant,
           }));
-          // Update the packing units for this specific item
-          setModel(prev => ({
+          setModel((prev) => ({
             ...prev,
-            items: prev.items.map(item => 
-              item.id === itemId ? { 
-                ...item, 
-                [field]: value,
-                packingUnitId: '', // Reset packing unit when item changes
-                totalCost: 0 // Reset total cost when item changes
-              } : item
-            )
+            items: prev.items.map((item) =>
+              item.id === lineId
+                ? {
+                    ...item,
+                    variantId: value,
+                    packingUnitId: '',
+                    totalCost: 0,
+                  }
+                : item
+            ),
           }));
         }
       });
     }
 
-    // If packing unit is selected, calculate total cost
-    if (field === 'packingUnitId' && value) {
-      const currentItem = model.items.find(item => item.id === itemId);
-      if (currentItem && currentItem.itemId) {
-        const selectedItem = itemDetails[currentItem.itemId];
-        if (selectedItem) {
-          const packingUnit = selectedItem.packingUnits.find(pu => pu.packingUnitId === value);
+    if (field === 'packingUnitId' && typeof value === 'string' && value) {
+      const currentItem = model.items.find((item) => item.id === lineId);
+      if (currentItem?.variantId) {
+        const selectedVariant = variantDetails[currentItem.variantId];
+        if (selectedVariant) {
+          const packingUnit = selectedVariant.packingUnits.find((pu) => pu.packingUnitId === value);
           if (packingUnit && currentItem.quantity > 0) {
             const totalCost = packingUnit.averageCostPrice * currentItem.quantity;
-            setModel(prev => ({
+            setModel((prev) => ({
               ...prev,
-              items: prev.items.map(item => 
-                item.id === itemId ? { 
-                  ...item, 
-                  [field]: value,
-                  totalCost: totalCost
-                } : item
-              )
+              items: prev.items.map((item) =>
+                item.id === lineId ? { ...item, packingUnitId: value, totalCost } : item
+              ),
             }));
           }
         }
       }
     }
 
-    // If quantity is changed, recalculate total cost
-    if (field === 'quantity' && value > 0) {
-      const currentItem = model.items.find(item => item.id === itemId);
-      if (currentItem && currentItem.itemId && currentItem.packingUnitId) {
-        const selectedItem = itemDetails[currentItem.itemId];
-        if (selectedItem) {
-          const packingUnit = selectedItem.packingUnits.find(pu => pu.packingUnitId === currentItem.packingUnitId);
+    if (field === 'quantity' && typeof value === 'number' && value > 0) {
+      const currentItem = model.items.find((item) => item.id === lineId);
+      if (currentItem?.variantId && currentItem.packingUnitId) {
+        const selectedVariant = variantDetails[currentItem.variantId];
+        if (selectedVariant) {
+          const packingUnit = selectedVariant.packingUnits.find(
+            (pu) => pu.packingUnitId === currentItem.packingUnitId
+          );
           if (packingUnit) {
             const totalCost = packingUnit.averageCostPrice * value;
-            setModel(prev => ({
+            setModel((prev) => ({
               ...prev,
-              items: prev.items.map(item => 
-                item.id === itemId ? { 
-                  ...item, 
-                  [field]: value,
-                  totalCost: totalCost
-                } : item
-              )
+              items: prev.items.map((item) =>
+                item.id === lineId ? { ...item, quantity: value, totalCost } : item
+              ),
             }));
           }
         }
@@ -275,26 +260,26 @@ const ExportTransactionForm: React.FC<{
     }
   };
 
-  // Get packing units for a specific item
-  const getItemPackingUnits = (itemId: string): PackingUnitModel[] => {
-    if (!itemId) return [];
-    
-    // First try to get from itemDetails (fetched items)
-    const fetchedItem = itemDetails[itemId];
-    if (fetchedItem && fetchedItem.packingUnits) {
-      return packingUnits.filter(pu => 
-        fetchedItem.packingUnits.some(itemPu => itemPu.packingUnitId === pu.id)
+  const getVariantPackingUnits = (variantId: string): PackingUnitModel[] => {
+    if (!variantId) return [];
+
+    const fetchedVariant = variantDetails[variantId];
+    if (fetchedVariant?.packingUnits) {
+      return packingUnits.filter((pu) =>
+        fetchedVariant.packingUnits.some((variantPu) => variantPu.packingUnitId === pu.id)
       );
     }
-    
-    // Fallback to items array
-    const selectedItem = items.find(item => item.id === itemId);
-    if (!selectedItem || !selectedItem.packingUnits) return [];
-    
-    return packingUnits.filter(pu => 
-      selectedItem.packingUnits.some(itemPu => itemPu.packingUnitId === pu.id)
+
+    const selectedVariant = variants.find((variant) => variant.id === variantId);
+    if (!selectedVariant?.packingUnits) return [];
+
+    return packingUnits.filter((pu) =>
+      selectedVariant.packingUnits.some((variantPu) => variantPu.packingUnitId === pu.id)
     );
   };
+
+  const getVariantLabel = (variant: VariantModel) =>
+    variant.productName ? `${variant.productName} / ${variant.code}` : `${variant.code} - ${variant.name}`;
 
   const validate = async () => {
     const newErrors: Record<string, string> = {};
@@ -308,15 +293,18 @@ const ExportTransactionForm: React.FC<{
     }
 
     if (model.items.length === 0) {
-      newErrors.items = 'At least one item is required';
-    } else if (model.items.every(item => !item.itemId && !item.packingUnitId && item.quantity === 0 && item.totalCost === 0)) {
-      newErrors.items = 'At least one item must be filled';
+      newErrors.items = 'At least one variant is required';
+    } else if (
+      model.items.every(
+        (item) => !item.variantId && !item.packingUnitId && item.quantity === 0 && item.totalCost === 0
+      )
+    ) {
+      newErrors.items = 'At least one variant line must be filled';
     }
 
-    // Validate each item
     model.items.forEach((item, index) => {
-      if (!item.itemId) {
-        newErrors[`items[${index}].itemId`] = 'Item is required';
+      if (!item.variantId) {
+        newErrors[`items[${index}].variantId`] = 'Variant is required';
       }
       if (!item.packingUnitId) {
         newErrors[`items[${index}].packingUnitId`] = 'Packing unit is required';
@@ -343,16 +331,20 @@ const ExportTransactionForm: React.FC<{
         transactionPartyId: model.transactionPartyId,
         branchId: model.branchId,
         notes: model.notes,
-        items: model.items
+        items: model.items.map(({ variantId, packingUnitId, quantity, totalCost }) => ({
+          variantId,
+          packingUnitId,
+          quantity,
+          totalCost,
+        })),
       });
 
       if (response.isSuccess) {
-        if(response.successMessage == null || response.successMessage === "") 
-          toastify('Export transaction created successfully');
+        if (response.successMessage == null || response.successMessage === '')
+          toastify(response.successMessage || 'Export transaction created successfully');
         afterAction();
         return true;
-      } 
-      
+      }
       return false;
     } catch (error) {
       console.error('Error creating export transaction:', error);
@@ -361,15 +353,8 @@ const ExportTransactionForm: React.FC<{
     }
   };
 
-  const handleUpdate = async () => {
-    // TODO: Implement update functionality
-    return false;
-  };
-
-  const handleDelete = async () => {
-    // TODO: Implement delete functionality
-    return false;
-  };
+  const handleUpdate = async () => false;
+  const handleDelete = async () => false;
 
   return (
     <div className="h-full">
@@ -383,13 +368,15 @@ const ExportTransactionForm: React.FC<{
       >
         <div>
           {isLoading ? (
-            <div className="d-flex flex-row align-items-center justify-content-center" style={{ height: "100px" }}>
+            <div className="d-flex flex-row align-items-center justify-content-center" style={{ height: '100px' }}>
               <div className="spinner-border text-primary" role="status"></div>
             </div>
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t('AreYouSureDelete')} export transaction with transaction number {model?.transactionNumber}</p>
+                <p>
+                  {t('AreYouSureDelete')} export transaction with transaction number {model?.transactionNumber}
+                </p>
               ) : (
                 <>
                   <div className="row">
@@ -401,7 +388,7 @@ const ExportTransactionForm: React.FC<{
                               <InputText
                                 type="text"
                                 className="form-input form-control"
-                                label={t("FinancialPeriodNumber")}
+                                label={t('FinancialPeriodNumber')}
                                 variant="outlined"
                                 fullWidth
                                 size="small"
@@ -416,7 +403,7 @@ const ExportTransactionForm: React.FC<{
                                 type="text"
                                 size="small"
                                 className="form-input form-control"
-                                label={t("TransactionNumber")}
+                                label={t('TransactionNumber')}
                                 variant="outlined"
                                 fullWidth
                                 disabled={true}
@@ -433,13 +420,13 @@ const ExportTransactionForm: React.FC<{
                           <InputText
                             type="text"
                             className="form-input form-control"
-                            label={t("DocumentNumber")}
+                            label={t('DocumentNumber')}
                             variant="outlined"
                             size="small"
                             fullWidth
                             disabled={formType === FormTypes.Details}
                             value={model?.documentNumber}
-                            onChange={(value) => updateModel(setModel, "documentNumber", value)}
+                            onChange={(value) => updateModel(setModel, 'documentNumber', value)}
                             error={!!errors.documentNumber}
                             helperText={errors.documentNumber ? t(errors.documentNumber) : undefined}
                           />
@@ -448,10 +435,10 @@ const ExportTransactionForm: React.FC<{
                       <div className="row mb-3">
                         <div className="col col-md-12">
                           <InputDateTime
-                            label={t("TransactionDate")}
+                            label={t('TransactionDate')}
                             type="datetime"
                             value={model?.transactionDate}
-                            onChange={(value) => updateModel(setModel, "transactionDate", value)}
+                            onChange={(value) => updateModel(setModel, 'transactionDate', value)}
                             disabled={formType === FormTypes.Details}
                           />
                         </div>
@@ -461,24 +448,20 @@ const ExportTransactionForm: React.FC<{
                       <div className="row mb-3">
                         <div className="col col-md-12">
                           <InputAutoComplete
-                            size={"small"}
+                            size={'small'}
                             error={!!errors.branchId}
                             helperText={errors.branchId ? t(errors.branchId) : undefined}
-                            options={branches?.map(
-                              (item: { name: string; id: string }) => ({
-                                ...item,
-                                label: item.name,
-                                value: item.id,
-                              })
-                            )}
-                            label={t("Branch")}
+                            options={branches?.map((item: { name: string; id: string }) => ({
+                              ...item,
+                              label: item.name,
+                              value: item.id,
+                            }))}
+                            label={t('Branch')}
                             value={model?.branchId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "branchId", value)
-                            }
+                            onChange={(value: string) => updateModel(setModel, 'branchId', value)}
                             multiple={false}
-                            name={"Branches"}
+                            name={'Branches'}
                             handleBlur={null}
                             defaultSelect={true}
                           />
@@ -487,46 +470,38 @@ const ExportTransactionForm: React.FC<{
                       <div className="row mb-3">
                         <div className="col col-md-5">
                           <InputAutoComplete
-                            size={"small"}
-                            options={chartOfAccounts?.map(
-                              (item: { code: string; id: string }) => ({
-                                ...item,
-                                label: item.code,
-                                value: item.id,
-                              })
-                            )}
-                            label={t("Party")}
+                            size={'small'}
+                            options={chartOfAccounts?.map((item: { code: string; id: string }) => ({
+                              ...item,
+                              label: item.code,
+                              value: item.id,
+                            }))}
+                            label={t('Party')}
                             value={model?.transactionPartyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "transactionPartyId", value)
-                            }
+                            onChange={(value: string) => updateModel(setModel, 'transactionPartyId', value)}
                             defaultSelect={false}
                             multiple={false}
-                            name={"DebtAccount"}
-                            handleBlur={null}                                   
+                            name={'DebtAccount'}
+                            handleBlur={null}
                           />
                         </div>
                         <div className="col col-md-7">
                           <InputAutoComplete
-                            size={"small"}
+                            size={'small'}
                             error={!!errors.transactionPartyId}
                             helperText={errors.transactionPartyId ? t(errors.transactionPartyId) : undefined}
-                            options={chartOfAccounts?.map(
-                              (item: { name: string; id: string }) => ({
-                                ...item,
-                                label: item.name,
-                                value: item.id,
-                              })
-                            )}
-                            label={t("Party")}
+                            options={chartOfAccounts?.map((item: { name: string; id: string }) => ({
+                              ...item,
+                              label: item.name,
+                              value: item.id,
+                            }))}
+                            label={t('Party')}
                             value={model?.transactionPartyId}
                             disabled={formType === FormTypes.Details}
-                            onChange={(value: any) =>
-                              updateModel(setModel, "transactionPartyId", value)
-                            }
+                            onChange={(value: string) => updateModel(setModel, 'transactionPartyId', value)}
                             multiple={false}
-                            name={"Party"}
+                            name={'Party'}
                             handleBlur={null}
                             defaultSelect={true}
                           />
@@ -538,10 +513,10 @@ const ExportTransactionForm: React.FC<{
                             className="form-input form-control"
                             disabled={formType === FormTypes.Details}
                             value={model?.notes}
-                            aria-label={t("Notes")}
-                            placeholder={t("Notes")}
+                            aria-label={t('Notes')}
+                            placeholder={t('Notes')}
                             onChange={(event: { target: { value: string } }) =>
-                              updateModel(setModel, "notes", event.target.value)
+                              updateModel(setModel, 'notes', event.target.value)
                             }
                           />
                         </div>
@@ -551,48 +526,34 @@ const ExportTransactionForm: React.FC<{
 
                   <div className="row mb-2">
                     <div className="col col-md-12">
-                      <h6 className="mb-2">{t('Items')}</h6>
-                          
+                      <h6 className="mb-2">{t('Variants')}</h6>
+
                       {model.items.map((item, index) => (
                         <div key={item.id} className="card card-body mb-2">
                           <div className="row">
-                            <div className="col col-md-2">
+                            <div className="col col-md-4">
                               <InputAutoComplete
-                                label={t('Item')}
-                                options={items.map(itemOption => ({
-                                  label: itemOption.code,
-                                  value: itemOption.id
+                                label={t('Variant')}
+                                options={variants.map((variantOption) => ({
+                                  label: getVariantLabel(variantOption),
+                                  value: variantOption.id,
                                 }))}
-                                value={item.itemId}
-                                onChange={(value: any) => updateItem(item.id, 'itemId', value)}
+                                value={item.variantId}
+                                onChange={(value: string) => updateItem(item.id, 'variantId', value)}
                                 disabled={formType === FormTypes.Details}
-                                error={!!errors[`items[${index}].itemId`]}
-                                helperText={errors[`items[${index}].itemId`]}
-                              />
-                            </div>
-                            <div className="col col-md-3">
-                              <InputAutoComplete
-                                label={t('Item')}
-                                options={items.map(itemOption => ({
-                                  label: itemOption.name,
-                                  value: itemOption.id
-                                }))}
-                                value={item.itemId}
-                                onChange={(value: any) => updateItem(item.id, 'itemId', value)}
-                                disabled={formType === FormTypes.Details}
-                                error={!!errors[`items[${index}].itemId`]}
-                                helperText={errors[`items[${index}].itemId`]}
+                                error={!!errors[`items[${index}].variantId`]}
+                                helperText={errors[`items[${index}].variantId`]}
                               />
                             </div>
                             <div className="col col-md-2">
                               <InputAutoComplete
                                 label={t('PackingUnit')}
-                                options={getItemPackingUnits(item.itemId).map(unit => ({
+                                options={getVariantPackingUnits(item.variantId).map((unit) => ({
                                   label: unit.name,
-                                  value: unit.id
+                                  value: unit.id,
                                 }))}
                                 value={item.packingUnitId}
-                                onChange={(value: any) => updateItem(item.id, 'packingUnitId', value)}
+                                onChange={(value: string) => updateItem(item.id, 'packingUnitId', value)}
                                 disabled={formType === FormTypes.Details}
                                 error={!!errors[`items[${index}].packingUnitId`]}
                                 helperText={errors[`items[${index}].packingUnitId`]}
@@ -638,13 +599,11 @@ const ExportTransactionForm: React.FC<{
                           onClick={addItem}
                           disabled={formType === FormTypes.Details}
                         >
-                          <Add /> {t('AddItem')}
+                          <Add /> {t('AddVariant')}
                         </button>
                       </div>
-                      
-                      {errors.items && (
-                        <div className="text-danger small">{errors.items}</div>
-                      )}
+
+                      {errors.items && <div className="text-danger small">{errors.items}</div>}
                     </div>
                   </div>
                 </>
@@ -657,4 +616,4 @@ const ExportTransactionForm: React.FC<{
   );
 };
 
-export default ExportTransactionForm; 
+export default ExportTransactionForm;

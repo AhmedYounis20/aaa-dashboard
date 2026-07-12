@@ -1,20 +1,29 @@
-export enum InventoryTransferType{
-  Conditional,
-  Direct 
-} 
+import VariantModel from './Variants/VariantModel';
+import VariantPackingUnitModel from './Variants/VariantPackingUnitModel';
+
+export enum InventoryTransferStatus {
+  Pending = 0,
+  Approved = 1,
+  Rejected = 2,
+}
+
+export enum InventoryTransferType {
+  Conditional = 0,
+  Direct = 1,
+}
 
 export const InventoryTransferTypeOptions = Object.entries(InventoryTransferType)
-  .filter(([, value]) => typeof value === "number")
+  .filter(([, value]) => typeof value === 'number')
   .map(([key, value]) => ({ label: key, value }));
 
 export interface InventoryTransferItemModel {
   id?: string;
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   quantity: number;
   notes?: string;
-  item?: any;
-  packingUnit?: any;
+  variant?: VariantModel;
+  packingUnit?: VariantPackingUnitModel;
 }
 
 export interface InventoryTransferModel {
@@ -22,11 +31,13 @@ export interface InventoryTransferModel {
   sourceBranchId: string;
   destinationBranchId: string;
   transferType: InventoryTransferType;
-  status?: string;
+  status?: InventoryTransferStatus | string | number;
   notes?: string;
   approvedBy?: string;
   approvedAt?: string;
+  sourceBranchName?: string;
+  destinationBranchName?: string;
   items: InventoryTransferItemModel[];
-  sourceBranch?: any;
-  destinationBranch?: any;
-} 
+  sourceBranch?: { id: string; name: string };
+  destinationBranch?: { id: string; name: string };
+}

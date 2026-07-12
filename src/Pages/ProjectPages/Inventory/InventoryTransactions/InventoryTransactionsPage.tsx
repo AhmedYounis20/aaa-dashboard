@@ -52,11 +52,11 @@ import {
   getExportTransactions, 
   ExportTransactionOutputDtoModel,
 } from '../../../../Apis/Inventory/ExportTransactionsApi';
-import { getItems } from '../../../../Apis/Inventory/ItemsApi';
+import { getVariants } from '../../../../Apis/Inventory/VariantsApi';
 import { getPackingUnits } from '../../../../Apis/Inventory/PackingUnitsApi';
 import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
-import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
+import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import PackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel';
 import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
 import ChartOfAccountModel from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/ChartOfAccountModel';
@@ -113,7 +113,7 @@ const InventoryTransactionsPage: React.FC = () => {
   const [stockBalances, setStockBalances] = useState<StockBalanceModel[]>([]);
   const [importTransactions, setImportTransactions] = useState<ImportTransactionOutputDtoModel[]>([]);
   const [exportTransactions, setExportTransactions] = useState<ExportTransactionOutputDtoModel[]>([]);
-  const [items, setItems] = useState<ItemModel[]>([]);
+  const [variants, setVariants] = useState<VariantModel[]>([]);
   const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [parties, setParties] = useState<ChartOfAccountModel[]>([]);
@@ -141,7 +141,7 @@ const InventoryTransactionsPage: React.FC = () => {
         stockBalancesRes,
         importTransactionsRes,
         exportTransactionsRes,
-        itemsRes,
+        variantsRes,
         packingUnitsRes,
         branchesRes,
         partiesRes
@@ -149,39 +149,19 @@ const InventoryTransactionsPage: React.FC = () => {
         getStockBalances(),
         getImportTransactions(),
         getExportTransactions(),
-        getItems(),
+        getVariants(),
         getPackingUnits(),
         getBranches(),
         getChartOfAccounts()
       ]);
 
-      console.log('API Responses:', {
-        stockBalances: stockBalancesRes,
-        importTransactions: importTransactionsRes,
-        exportTransactions: exportTransactionsRes,
-        items: itemsRes,
-        packingUnits: packingUnitsRes,
-        branches: branchesRes,
-        parties: partiesRes
-      });
-
       if (stockBalancesRes.isSuccess) setStockBalances(stockBalancesRes.result || []);
       if (importTransactionsRes.isSuccess) setImportTransactions(importTransactionsRes.result || []);
       if (exportTransactionsRes.isSuccess) setExportTransactions(exportTransactionsRes.result || []);
-      if (itemsRes.isSuccess) setItems(itemsRes.result || []);
+      if (variantsRes.isSuccess) setVariants(variantsRes.result || []);
       if (packingUnitsRes.isSuccess) setPackingUnits(packingUnitsRes.result || []);
       if (branchesRes.isSuccess) setBranches(branchesRes.result || []);
       if (partiesRes.isSuccess) setParties(partiesRes.result || []);
-
-      console.log('Data loaded:', {
-        stockBalances: stockBalancesRes.result?.length || 0,
-        importTransactions: importTransactionsRes.result?.length || 0,
-        exportTransactions: exportTransactionsRes.result?.length || 0,
-        items: itemsRes.result?.length || 0,
-        packingUnits: packingUnitsRes.result?.length || 0,
-        branches: branchesRes.result?.length || 0,
-        parties: partiesRes.result?.length || 0
-      });
     } catch (err) {
       console.error('Error loading data:', err);
       setError('Failed to load data');
@@ -257,7 +237,7 @@ const InventoryTransactionsPage: React.FC = () => {
           <TabPanel value={tabValue} index={0}>
             <StockBalanceView 
               stockBalances={stockBalances}
-              items={items}
+              variants={variants}
               packingUnits={packingUnits}
               branches={branches}
             />
@@ -276,8 +256,6 @@ const InventoryTransactionsPage: React.FC = () => {
           <TabPanel value={tabValue} index={2}>
             <ExportTransactionsView 
               transactions={exportTransactions}
-              items={items}
-              packingUnits={packingUnits}
               branches={branches}
               parties={parties}
               onCreateNew={() => handleShowExportForm(FormTypes.Add)}
@@ -313,24 +291,36 @@ const InventoryTransactionsPage: React.FC = () => {
 // Stock Balance View Component
 const StockBalanceView: React.FC<{
   stockBalances: StockBalanceModel[];
-  items: ItemModel[];
+  variants: VariantModel[];
   packingUnits: PackingUnitModel[];
   branches: BranchModel[];
-}> = ({ stockBalances, items, packingUnits, branches }) => {
+}> = ({ stockBalances, variants, packingUnits, branches }) => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
 
-  const filteredBalances = stockBalances.filter(balance => {
-    const item = items.find(i => i.id === balance.itemId);
+  const getVariantForBalance = (balance: StockBalanceModel) => {
+    if (balance.variantName || balance.variantCode) {
+      return {
+        name: balance.variantName ?? '',
+        code: balance.variantCode ?? '',
+        productName: balance.productName,
+      };
+    }
+    const variant = variants.find((v) => v.id === balance.variantId);
+    return variant
+      ? { name: variant.name, code: variant.code, productName: variant.productName }
+      : undefined;
+  };
 
-    
-    const matchesSearch = !searchTerm || 
-      item?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.code.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredBalances = stockBalances.filter((balance) => {
+    const variant = getVariantForBalance(balance);
+    const matchesSearch =
+      !searchTerm ||
+      variant?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      variant?.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      variant?.productName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBranch = !selectedBranch || balance.branchId === selectedBranch;
-    
     return matchesSearch && matchesBranch;
   });
 
@@ -340,7 +330,7 @@ const StockBalanceView: React.FC<{
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label={t('Search Items')}
+            label={t('Search Variants')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -370,7 +360,8 @@ const StockBalanceView: React.FC<{
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t('Item')}</TableCell>
+              <TableCell>{t('Variant')}</TableCell>
+              <TableCell>{t('Product')}</TableCell>
               <TableCell>{t('Code')}</TableCell>
               <TableCell>{t('Branch')}</TableCell>
               <TableCell>{t('Packing Unit')}</TableCell>
@@ -384,8 +375,8 @@ const StockBalanceView: React.FC<{
           </TableHead>
           <TableBody>
             {filteredBalances.map((balance) => {
-              const item = items.find(i => i.id === balance.itemId);
-              const branch = branches.find(b => b.id === balance.branchId);
+              const variant = getVariantForBalance(balance);
+              const branch = branches.find(b => b.id === balance.branchId) ?? (balance.branchName ? { name: balance.branchName } : undefined);
               const packingUnit = packingUnits.find(p => p.id === balance.packingUnitId);
               
               const getStatus = () => {
@@ -396,9 +387,10 @@ const StockBalanceView: React.FC<{
 
               return (
                 <TableRow key={balance.id}>
-                  <TableCell>{item?.name}</TableCell>
-                  <TableCell>{item?.code}</TableCell>
-                  <TableCell>{branch?.name}</TableCell>
+                  <TableCell>{variant?.name}</TableCell>
+                  <TableCell>{variant?.productName}</TableCell>
+                  <TableCell>{variant?.code}</TableCell>
+                  <TableCell>{branch?.name ?? balance.branchName}</TableCell>
                   <TableCell>{packingUnit?.name}</TableCell>
                   <TableCell align="right">{balance.currentBalance}</TableCell>
                   <TableCell align="right">{balance.minimumBalance}</TableCell>
@@ -459,9 +451,9 @@ const ImportTransactionsView: React.FC<{
                       {transaction.documentNumber || 'No Number'}
                     </Typography>
                     <Chip
-                      icon={getStatusIcon(transaction.status)}
-                      label={t(transaction.status)}
-                      color={getStatusColor(transaction.status) as any}
+                      icon={getStatusIcon(transaction.status ?? 'draft')}
+                      label={t(transaction.status ?? 'draft')}
+                      color={getStatusColor(transaction.status ?? 'draft') as 'default' | 'warning' | 'info' | 'success' | 'error'}
                       size="small"
                     />
                   </Box>
@@ -508,8 +500,6 @@ const ImportTransactionsView: React.FC<{
 // Export Transactions View Component
 const ExportTransactionsView: React.FC<{
   transactions: ExportTransactionOutputDtoModel[];
-  items: ItemModel[];
-  packingUnits: PackingUnitModel[];
   branches: BranchModel[];
   parties: ChartOfAccountModel[];
   onCreateNew: () => void;
@@ -544,9 +534,9 @@ const ExportTransactionsView: React.FC<{
                       {transaction.documentNumber || 'No Number'}
                     </Typography>
                     <Chip
-                      icon={getStatusIcon(transaction.status)}
-                      label={t(transaction.status)}
-                      color={getStatusColor(transaction.status) as any}
+                      icon={getStatusIcon(transaction.status ?? 'draft')}
+                      label={t(transaction.status ?? 'draft')}
+                      color={getStatusColor(transaction.status ?? 'draft') as 'default' | 'warning' | 'info' | 'success' | 'error'}
                       size="small"
                     />
                   </Box>

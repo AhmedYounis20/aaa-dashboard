@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Paper } from '@mui/material';
-import { getItemsVariants } from '../../../../Apis/Inventory/ItemsApi';
-import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
+import { getVariants } from '../../../../Apis/Inventory/VariantsApi';
+import { getStockBalancesByBranch, StockBalanceModel } from '../../../../Apis/Inventory/StockBalanceApi';
+import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import { useTranslation } from 'react-i18next';
 
 interface SelectItemsModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (items: ItemModel[]) => void;
+  onConfirm: (variants: VariantModel[]) => void;
   sourceBranchId: string;
   alreadySelectedIds: string[];
 }
 
 const style = {
-  position: 'absolute' as 'absolute',
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
@@ -25,55 +26,71 @@ const style = {
   p: 4,
 };
 
-
-const SelectItemsModal: React.FC<SelectItemsModalProps> = ({ open, onClose, onConfirm, sourceBranchId, alreadySelectedIds }) => {
+const SelectItemsModal: React.FC<SelectItemsModalProps> = ({
+  open,
+  onClose,
+  onConfirm,
+  sourceBranchId,
+  alreadySelectedIds,
+}) => {
   const { t } = useTranslation();
-  const [items, setItems] = useState<ItemModel[]>([]);
+  const [variants, setVariants] = useState<VariantModel[]>([]);
+  const [branchBalances, setBranchBalances] = useState<StockBalanceModel[]>([]);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) return;
-    getItemsVariants().then(res => {
+    getVariants().then((res) => {
       if (res.isSuccess) {
-        setItems(res.result);
+        setVariants(res.result || []);
       }
     });
   }, [open]);
 
-  const getAvailableBalance = (item: ItemModel) => {
-    if (!item.stockBalances) return 0;
-    return item.stockBalances
-      .filter(sb => sb.branchId === sourceBranchId)
-      .reduce((sum, sb) => sum + (sb.currentBalance || 0), 0);
-  };
+  useEffect(() => {
+    if (!open || !sourceBranchId) {
+      setBranchBalances([]);
+      return;
+    }
+    getStockBalancesByBranch(sourceBranchId).then((res) => {
+      if (res.isSuccess) {
+        setBranchBalances(res.result || []);
+      }
+    });
+  }, [open, sourceBranchId]);
 
-  const filteredItems = items.filter(i =>
-    (i.name.toLowerCase().includes(search.toLowerCase()) ||
-      i.code.toLowerCase().includes(search.toLowerCase())) &&
-    !alreadySelectedIds.includes(i.id)
+  const getAvailableBalance = (variantId: string) =>
+    branchBalances
+      .filter((sb) => sb.variantId === variantId)
+      .reduce((sum, sb) => sum + (sb.currentBalance || 0), 0);
+
+  const filteredVariants = variants.filter(
+    (variant) =>
+      (variant.name.toLowerCase().includes(search.toLowerCase()) ||
+        variant.code.toLowerCase().includes(search.toLowerCase()) ||
+        variant.productName?.toLowerCase().includes(search.toLowerCase())) &&
+      !alreadySelectedIds.includes(variant.id)
   );
 
-  const areAllFilteredSelected = filteredItems.every(item => selected.includes(item.id)) && filteredItems.length > 0;
+  const areAllFilteredSelected =
+    filteredVariants.every((variant) => selected.includes(variant.id)) && filteredVariants.length > 0;
 
   const handleSelect = (id: string) => {
-    setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleSelectAll = () => {
     if (areAllFilteredSelected) {
-      // Unselect all filtered
-      setSelected(prev => prev.filter(id => !filteredItems.some(item => item.id === id)));
+      setSelected((prev) => prev.filter((id) => !filteredVariants.some((variant) => variant.id === id)));
     } else {
-      // Add all filtered that aren't already selected
-      const newSelected = [...new Set([...selected, ...filteredItems.map(item => item.id)])];
-      setSelected(newSelected);
+      setSelected((prev) => [...new Set([...prev, ...filteredVariants.map((variant) => variant.id)])]);
     }
   };
 
   const handleConfirm = () => {
-    const selectedItems = items.filter(i => selected.includes(i.id));
-    onConfirm(selectedItems);
+    const selectedVariants = variants.filter((variant) => selected.includes(variant.id));
+    onConfirm(selectedVariants);
     setSelected([]);
     onClose();
   };
@@ -81,11 +98,18 @@ const SelectItemsModal: React.FC<SelectItemsModalProps> = ({ open, onClose, onCo
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
-        <Typography variant="h6" mb={2}>{t('Select Items')}</Typography>
+        <Typography variant="h6" mb={2}>
+          {t('Select Variants')}
+        </Typography>
+        {!sourceBranchId && (
+          <Typography color="warning.main" variant="body2" mb={2}>
+            {t('Select source branch first to see available stock')}
+          </Typography>
+        )}
         <TextField
           label={t('Search')}
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           fullWidth
           size="small"
           sx={{ mb: 2 }}
@@ -98,34 +122,39 @@ const SelectItemsModal: React.FC<SelectItemsModalProps> = ({ open, onClose, onCo
                   <Checkbox
                     checked={areAllFilteredSelected}
                     onChange={handleSelectAll}
-                    indeterminate={!areAllFilteredSelected && filteredItems.some(item => selected.includes(item.id))}
+                    indeterminate={
+                      !areAllFilteredSelected && filteredVariants.some((variant) => selected.includes(variant.id))
+                    }
                   />
                 </TableCell>
-                <TableCell>{t('Name')}</TableCell>
+                <TableCell>{t('Variant')}</TableCell>
+                <TableCell>{t('Product')}</TableCell>
                 <TableCell>{t('Code')}</TableCell>
                 <TableCell>{t('Available Balance')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredItems.map(item => (
-                <TableRow key={item.id} hover>
+              {filteredVariants.map((variant) => (
+                <TableRow key={variant.id} hover>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selected.includes(item.id)}
-                      onChange={() => handleSelect(item.id)}
-                    />
+                    <Checkbox checked={selected.includes(variant.id)} onChange={() => handleSelect(variant.id)} />
                   </TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.code}</TableCell>
-                  <TableCell>{getAvailableBalance(item)}</TableCell>
+                  <TableCell>{variant.name}</TableCell>
+                  <TableCell>{variant.productName}</TableCell>
+                  <TableCell>{variant.code}</TableCell>
+                  <TableCell>{sourceBranchId ? getAvailableBalance(variant.id) : '-'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
         <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="outlined" onClick={onClose}>{t('Cancel')}</Button>
-          <Button variant="contained" onClick={handleConfirm} disabled={selected.length === 0}>{t('Confirm')}</Button>
+          <Button variant="outlined" onClick={onClose}>
+            {t('Cancel')}
+          </Button>
+          <Button variant="contained" onClick={handleConfirm} disabled={selected.length === 0}>
+            {t('Confirm')}
+          </Button>
         </Box>
       </Box>
     </Modal>

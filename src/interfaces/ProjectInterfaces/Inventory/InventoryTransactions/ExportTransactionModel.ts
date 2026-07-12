@@ -2,7 +2,7 @@ import FinancialPeriodModel from '../../Account/FinancialPeriods/FinancialPeriod
 
 export interface ExportTransactionItemModel {
   id: string;
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   quantity: number;
   totalCost: number;
@@ -20,4 +20,4 @@ export interface ExportTransactionModel {
   notes: string;
   financialPeriod?: FinancialPeriodModel;
   items: ExportTransactionItemModel[];
-} 
+}
