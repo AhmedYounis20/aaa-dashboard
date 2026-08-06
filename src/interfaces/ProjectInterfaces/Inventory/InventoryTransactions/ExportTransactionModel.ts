@@ -1,6 +1,6 @@
 import FinancialPeriodModel from '../../Account/FinancialPeriods/FinancialPeriodModel';
 
-export interface ExportTransactionItemModel {
+export interface ExportTransactionLineModel {
   id: string;
   variantId: string;
   packingUnitId: string;
@@ -19,5 +19,5 @@ export interface ExportTransactionModel {
   branchId: string;
   notes: string;
   financialPeriod?: FinancialPeriodModel;
-  items: ExportTransactionItemModel[];
+  items: ExportTransactionLineModel[];
 }

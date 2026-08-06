@@ -45,8 +45,7 @@ interface ImportTransactionItemFormModel {
   totalCost: number;
 }
 
-const resolveVariantId = (item: { variantId?: string; itemId?: string }) =>
-  item.variantId ?? item.itemId ?? '';
+const resolveVariantId = (line: { variantId?: string }) => line.variantId ?? '';
 
 const ImportTransactionForm: React.FC<{
   formType: FormTypes;

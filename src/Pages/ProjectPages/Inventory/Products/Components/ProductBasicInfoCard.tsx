@@ -4,9 +4,9 @@ import InputText from "../../../../../Components/Inputs/InputText";
 import updateModel from "../../../../../Helper/updateModelHelper";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import {
-  ItemNodeType,
-  ItemNodeTypeOptions,
-} from "../../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType";
+  ProductNodeType,
+  ProductNodeTypeOptions,
+} from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType";
 import ProductInputModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
 
 interface ProductBasicInfoCardProps {
@@ -24,8 +24,8 @@ const ProductBasicInfoCard: React.FC<ProductBasicInfoCardProps> = ({
   errors,
   handleTranslate,
 }) => {
-  const filteredNodeTypeOptions = ItemNodeTypeOptions.filter(
-    (opt) => opt.value !== ItemNodeType.SubDomain
+  const filteredNodeTypeOptions = ProductNodeTypeOptions.filter(
+    (opt) => opt.value !== ProductNodeType.SubDomain
   );
 
   return (
@@ -108,7 +108,7 @@ const ProductBasicInfoCard: React.FC<ProductBasicInfoCardProps> = ({
             onChange={({
               target,
             }: {
-              target: { value: ItemNodeType };
+              target: { value: ProductNodeType };
             }) => updateModel(setModel, "nodeType", target.value)}
             name="NodeType"
             onBlur={null}

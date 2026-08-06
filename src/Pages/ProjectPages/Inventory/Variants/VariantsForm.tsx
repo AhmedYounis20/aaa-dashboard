@@ -23,7 +23,7 @@ import { InventoryThresholdScope } from "../../../../interfaces/ProjectInterface
 import InventoryThresholdsInput from "../Products/Components/InventoryThresholdsInput";
 import ExpiryLevelsInput from "../Products/Components/ExpiryLevelsInput";
 import { v4 as uuid } from "uuid";
-import { ItemNodeType } from "../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType";
+import { ProductNodeType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType";
 import { NodeType } from "../../../../interfaces/Components/NodeType";
 import VariantPictureUpload from "./Components/VariantPictureUpload";
 import VariantPackingUnitsInput from "./Components/VariantPackingUnitsInput";
@@ -123,7 +123,7 @@ const VariantsForm: React.FC<{
         const result = await getSuppliers();
         if (result) {
           setSuppliers(
-            result.result.filter((e) => e.nodeType == ItemNodeType.Domain),
+            result.result.filter((e) => e.nodeType == ProductNodeType.Domain),
           );
         }
         const companiesResult = await getManufacturerCompanies();

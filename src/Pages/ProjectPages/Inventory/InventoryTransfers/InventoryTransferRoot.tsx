@@ -160,7 +160,7 @@ const InventoryTransferRoot = () => {
               <th>{t('Destination Branch')}</th>
               <th>{t('Transfer Type')}</th>
               <th>{t('Status')}</th>
-              <th>{t('Items')}</th>
+              <th>{t('LineItems')}</th>
               <th>{t('Approved At')}</th>
               <th>{t('Actions')}</th>
             </tr>

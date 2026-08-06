@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { DiscountType } from "./DiscountType";
-import { ItemNodeType } from "../Items/ItemNodeType";
+import { ProductNodeType } from "./ProductNodeType";
 import { ProductType } from "./ProductType";
 import ProductAttachmentModel from "./ProductAttachmentModel";
 import ProductAttributeDefinitionModel from "./ProductAttributeDefinitionModel";
@@ -30,7 +30,7 @@ interface ProductInputModel {
   productType?: ProductType;
   name: string;
   nameSecondLanguage: string;
-  nodeType: ItemNodeType;
+  nodeType: ProductNodeType;
   suppliersIds: string[];
   manufacturerCompaniesIds: string[];
   salesTaxIds?: string[];
@@ -62,7 +62,7 @@ export const buildProductValidationSchema = (
       otherwise: (schema) => schema.min(0),
     }),
     packingUnits: yup.array().when("nodeType", {
-      is: ItemNodeType.Domain,
+      is: ProductNodeType.Domain,
       then: (schema) =>
         schema.of(
           yup.object().shape({
@@ -87,7 +87,7 @@ export const buildProductValidationSchema = (
       otherwise: (schema) => schema.notRequired(),
     }),
     sellingPriceDiscounts: yup.array().when("nodeType", {
-      is: ItemNodeType.Domain,
+      is: ProductNodeType.Domain,
       then: (schema) =>
         schema.of(
           yup.object().shape({
@@ -107,7 +107,7 @@ export const buildProductValidationSchema = (
       otherwise: (schema) => schema.notRequired(),
     }),
     costCenters: yup.array().when("nodeType", {
-      is: ItemNodeType.Domain,
+      is: ProductNodeType.Domain,
       then: (schema) =>
         schema.of(
           yup.object().shape({

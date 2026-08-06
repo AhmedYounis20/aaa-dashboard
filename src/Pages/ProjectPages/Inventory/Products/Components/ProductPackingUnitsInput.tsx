@@ -134,7 +134,7 @@ const ProductPackingUnitsInput: React.FC<{
     modifiedAt: "",
   });
 
-  const handleAddNewItemPackingUnit = () => {
+  const handleAddNewPackingUnit = () => {
     handleUpdate([...productPackingUnits, createProductPackingUnit()]);
   };
 
@@ -431,7 +431,7 @@ const ProductPackingUnitsInput: React.FC<{
       </div>
       <button
         className="btn btn-secondary mt-2"
-        onClick={handleAddNewItemPackingUnit}
+        onClick={handleAddNewPackingUnit}
         disabled={formType === FormTypes.Details}
       >
         <Add fontSize="small" />

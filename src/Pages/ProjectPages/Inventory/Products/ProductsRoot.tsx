@@ -7,7 +7,7 @@ import { AppContent } from '../../../../Components';
 import ProductModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductModel';
 import { useTranslation } from 'react-i18next';
 import { ProductType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType';
-import { ItemNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType';
+import { ProductNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType';
 import { getEnumString } from '../../../../Helper/enumHelper';
 import { getProductPicture } from '../../../../Helper/productAttachmentHelper';
 // import ProductAttachmentModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel';
@@ -64,7 +64,7 @@ const ProductsRoot = () => {
       Header: t("Node Type"),
       accessor: "nodeType",
       renderCell: (row : {value:any} ) => {
-        return getEnumString(ItemNodeType, row.value);
+        return getEnumString(ProductNodeType, row.value);
       },
     }
   ];

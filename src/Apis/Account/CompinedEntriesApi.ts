@@ -2,7 +2,7 @@ import { ApiResult } from "../../interfaces/ApiResponse";
 import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
 import ComplexEntryModel from "../../interfaces/ProjectInterfaces/Account/Entries/ComplexEntry";
 
-const apiEndPoint = "compinedEntries";
+const apiEndPoint = "combinedEntries";
 // GET all currencies
 const getCompinedEntries = async (): Promise<ApiResult<
   ComplexEntryModel[]

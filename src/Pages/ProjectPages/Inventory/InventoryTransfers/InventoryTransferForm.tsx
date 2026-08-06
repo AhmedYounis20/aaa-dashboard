@@ -15,7 +15,7 @@ import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
 import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import VariantPackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantPackingUnitModel';
-import SelectItemsModal from './SelectItemsModal';
+import SelectVariantsModal from './SelectVariantsModal';
 import ThemedTooltip from '../../../../Components/UI/ThemedTooltip';
 import InputNumber from '../../../../Components/Inputs/InputNumber';
 import { getCurrentBalance } from '../../../../Apis/Inventory/StockBalanceApi';
@@ -221,7 +221,7 @@ const InventoryTransferForm: React.FC<{
             <div className="card-header d-flex justify-content-between align-items-center">
               <span>{t('Variants')}</span>
               <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowSelectVariants(true)}>
-                {t('Select Variants')}
+                {t('SelectVariants')}
               </button>
             </div>
             <div className="card-body">
@@ -306,7 +306,7 @@ const InventoryTransferForm: React.FC<{
           </div>
         </div>
       </BaseForm>
-      <SelectItemsModal
+      <SelectVariantsModal
         open={showSelectVariants}
         onClose={() => setShowSelectVariants(false)}
         onConfirm={handleAddSelectedVariants}

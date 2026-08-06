@@ -16,7 +16,7 @@ export const InventoryTransferTypeOptions = Object.entries(InventoryTransferType
   .filter(([, value]) => typeof value === 'number')
   .map(([key, value]) => ({ label: key, value }));
 
-export interface InventoryTransferItemModel {
+export interface InventoryTransferLineModel {
   id?: string;
   variantId: string;
   packingUnitId: string;
@@ -37,7 +37,7 @@ export interface InventoryTransferModel {
   approvedAt?: string;
   sourceBranchName?: string;
   destinationBranchName?: string;
-  items: InventoryTransferItemModel[];
+  items: InventoryTransferLineModel[];
   sourceBranch?: { id: string; name: string };
   destinationBranch?: { id: string; name: string };
 }

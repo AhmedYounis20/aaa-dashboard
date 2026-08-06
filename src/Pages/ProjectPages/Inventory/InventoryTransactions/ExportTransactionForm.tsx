@@ -45,8 +45,7 @@ interface ExportTransactionItemFormModel {
   totalCost: number;
 }
 
-const resolveVariantId = (item: { variantId?: string; itemId?: string }) =>
-  item.variantId ?? item.itemId ?? '';
+const resolveVariantId = (line: { variantId?: string }) => line.variantId ?? '';
 
 const ExportTransactionForm: React.FC<{
   formType: FormTypes;

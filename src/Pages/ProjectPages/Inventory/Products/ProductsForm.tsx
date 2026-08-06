@@ -20,7 +20,7 @@ import { InventoryThresholdScope } from '../../../../interfaces/ProjectInterface
 import InventoryThresholdsInput from './Components/InventoryThresholdsInput';
 import ExpiryLevelsInput from './Components/ExpiryLevelsInput';
 import { v4 as uuid } from "uuid";
-import { ItemNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemNodeType';
+import { ProductNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType';
 import { NodeType } from '../../../../interfaces/Components/NodeType';
 import ProductPictureUpload from './Components/ProductPictureUpload';
 import VariantCombinationBuilder from './Components/VariantCombinationBuilder';
@@ -74,7 +74,7 @@ const ProductsForm: React.FC<{
     code: "",
     name: "",
     nameSecondLanguage: "",
-    nodeType: ItemNodeType.Domain,
+    nodeType: ProductNodeType.Domain,
     defaultDiscountType: DiscountType.Percent,
     barCodes: [],
     suppliersIds: [],
@@ -117,7 +117,7 @@ const ProductsForm: React.FC<{
         const result = await getSuppliers();
         if (result) {
           setSuppliers(
-            result.result.filter((e) => e.nodeType == ItemNodeType.Domain)
+            result.result.filter((e) => e.nodeType == ProductNodeType.Domain)
           );
         }
         const companiesResult = await getManufacturerCompanies();
@@ -216,7 +216,7 @@ const ProductsForm: React.FC<{
       ) ?? [],
     };
     const payload =
-      model.nodeType === ItemNodeType.Category
+      model.nodeType === ProductNodeType.Category
         ? { ...basePayload, packingUnits: [] }
         : basePayload;
     const response = await updateProduct(id, payload);
@@ -239,7 +239,7 @@ const ProductsForm: React.FC<{
       ) ?? [],
     };
     const payload =
-      model.nodeType === ItemNodeType.Category
+      model.nodeType === ProductNodeType.Category
         ? { ...basePayload, packingUnits: [] }
         : basePayload;
     const response = await createProduct(payload);
@@ -284,7 +284,7 @@ const ProductsForm: React.FC<{
                   />
 
                   {/* Product Picture Card - Only for Domain products */}
-                  {model.nodeType === ItemNodeType.Domain && (
+                  {model.nodeType === ProductNodeType.Domain && (
                     <ProductPictureUpload
                       productId={id}
                       formType={formType}
@@ -298,7 +298,7 @@ const ProductsForm: React.FC<{
                   )}
 
                   {/* Detailed sections - Only for Domain products */}
-                  {model.nodeType === ItemNodeType.Domain && (
+                  {model.nodeType === ProductNodeType.Domain && (
                     <>
                       <ProductCodesAndTypeCard
                         formType={formType}
@@ -366,7 +366,7 @@ const ProductsForm: React.FC<{
                   )}
 
                   {/* Product Attribute Definitions Selector - Only for Domain products */}
-                  {model.nodeType === ItemNodeType.Domain && (
+                  {model.nodeType === ProductNodeType.Domain && (
                     <ProductAttributeDefinitionsSelector
                       productAttributeDefinitions={model.productAttributeDefinitions || []}
                       onChange={(productAttributeDefinitions) => setModel(prev => prev ? { ...prev, productAttributeDefinitions } : prev)}
@@ -376,7 +376,7 @@ const ProductsForm: React.FC<{
                   )}
 
                   {/* Variant Combination Builder - Only for Domain products */}
-                  {model.nodeType === ItemNodeType.Domain && (
+                  {model.nodeType === ProductNodeType.Domain && (
                     <VariantCombinationBuilder
                       combinations={model.variantCombinations || []}
                       onChange={(combinations) => setModel(prev => prev ? { ...prev, variantCombinations: combinations } : prev)}

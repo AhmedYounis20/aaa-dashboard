@@ -5,7 +5,7 @@ import { getStockBalancesByBranch, StockBalanceModel } from '../../../../Apis/In
 import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import { useTranslation } from 'react-i18next';
 
-interface SelectItemsModalProps {
+interface SelectVariantsModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (variants: VariantModel[]) => void;
@@ -26,7 +26,7 @@ const style = {
   p: 4,
 };
 
-const SelectItemsModal: React.FC<SelectItemsModalProps> = ({
+const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
   open,
   onClose,
   onConfirm,
@@ -99,11 +99,11 @@ const SelectItemsModal: React.FC<SelectItemsModalProps> = ({
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" mb={2}>
-          {t('Select Variants')}
+          {t('SelectVariants')}
         </Typography>
         {!sourceBranchId && (
           <Typography color="warning.main" variant="body2" mb={2}>
-            {t('Select source branch first to see available stock')}
+            {t('SelectSourceBranchForStock')}
           </Typography>
         )}
         <TextField
@@ -161,4 +161,4 @@ const SelectItemsModal: React.FC<SelectItemsModalProps> = ({
   );
 };
 
-export default SelectItemsModal;
+export default SelectVariantsModal;

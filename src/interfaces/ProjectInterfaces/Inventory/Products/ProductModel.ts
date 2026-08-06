@@ -1,5 +1,5 @@
 import { DiscountType } from "./DiscountType";
-import { ItemNodeType } from "../Items/ItemNodeType";
+import { ProductNodeType } from "./ProductNodeType";
 import { ProductType } from "./ProductType";
 import ProductAttachmentModel from "./ProductAttachmentModel";
 import ProductAttributeDefinitionModel from "./ProductAttributeDefinitionModel";
@@ -36,7 +36,7 @@ interface ProductModel {
   productType: ProductType;
   name: string;
   nameSecondLanguage: string;
-  nodeType: ItemNodeType;
+  nodeType: ProductNodeType;
   barCodes: string[];
   suppliersIds: string[];
   manufacturerCompaniesIds: string[];

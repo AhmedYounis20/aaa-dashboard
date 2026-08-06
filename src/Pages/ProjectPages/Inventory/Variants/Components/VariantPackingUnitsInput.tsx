@@ -134,7 +134,7 @@ const VariantPackingUnitsInput: React.FC<{
     modifiedAt: "",
   });
 
-  const handleAddNewItemPackingUnit = () => {
+  const handleAddNewPackingUnit = () => {
     handleUpdate([...variantPackingUnits, createVariantPackingUnit()]);
   };
 
@@ -431,7 +431,7 @@ const VariantPackingUnitsInput: React.FC<{
       </div>
       <button
         className="btn btn-secondary mt-2"
-        onClick={handleAddNewItemPackingUnit}
+        onClick={handleAddNewPackingUnit}
         disabled={formType === FormTypes.Details}
       >
         <Add fontSize="small" />
