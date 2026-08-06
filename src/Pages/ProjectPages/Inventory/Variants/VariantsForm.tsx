@@ -185,8 +185,6 @@ const VariantsForm: React.FC<{
         }
       };
       fetchData();
-    } else {
-
     }
   }, [formType, id]);
 

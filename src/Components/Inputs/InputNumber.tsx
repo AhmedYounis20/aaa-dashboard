@@ -110,7 +110,7 @@ const InputNumber: React.FC<InputNumberProps> = ({
 
     // Normalize input value before converting
     const normalizedInput = inputValue.replace(",", ".");
-    let num = Number(normalizedInput);
+    const num = Number(normalizedInput);
     if (isNaN(num)) return;
 
     const formatted = formatValue(num);

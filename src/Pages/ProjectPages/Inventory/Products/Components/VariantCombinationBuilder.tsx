@@ -142,7 +142,6 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       prevAttributesRef.current = usedAttributes;
       didInit.current = true;
     }
-    // eslint-disable-next-line
   }, [combinations]);
 
   useEffect(() => {

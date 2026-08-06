@@ -38,7 +38,6 @@ const getAttributeDefinitionByIdWithValues = async (
     id: string,
     data: AttributeDefinitionModel
   ): Promise<ApiResult<AttributeDefinitionModel>> => {
-    debugger;
     return await httpPut<AttributeDefinitionModel>(`${apiEndPoint}/${id}`, data);
   };
 

@@ -78,7 +78,6 @@ const AttributesForm: React.FC<{
   };
 
   const handleUpdate = async () => {
-    debugger;
     if ((await validate()) === false) return false;
     const response = await updateAttributeDefinition(model.id, model);
     if (response && response.isSuccess) {

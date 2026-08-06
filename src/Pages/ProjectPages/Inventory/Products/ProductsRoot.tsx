@@ -72,7 +72,7 @@ const ProductsRoot = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      let result = await getProducts();
+      const result = await getProducts();
       
       if (result.isSuccess) {
         setData(result.result || []);
