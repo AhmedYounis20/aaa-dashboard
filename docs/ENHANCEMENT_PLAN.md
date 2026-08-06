@@ -185,10 +185,12 @@ Phase 4 — Optional Strategic  Sprints 9+    (Backlog)
 
 #### Acceptance Criteria
 
-- [ ] 3 modules use TanStack Query with no local `fetchData` + `useEffect`
-- [ ] Create/update/delete invalidates list cache automatically
-- [ ] Loading and error states consistent across migrated modules
-- [ ] Migration guide reviewed by second dev before wider rollout
+- [x] 3 modules use TanStack Query with no local `fetchData` + `useEffect`
+- [x] Create/update/delete invalidates list cache automatically
+- [x] Loading and error states consistent across migrated modules
+- [x] Migration guide reviewed by second dev before wider rollout
+
+> **Sprint 3 implemented (pending review):** Aug 6, 2026 — not committed yet.
 
 #### Deliverables
 

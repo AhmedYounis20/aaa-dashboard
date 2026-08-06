@@ -1,47 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import BaseForm from '../../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { FormControl, FormControlLabel, FormHelperText, Switch } from '@mui/material';
-import CurrencyModel from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel';
-import { CurrencySchema } from '../../../../../interfaces/ProjectInterfaces/Account/Currencies/currency-validation';
-import InputText from '../../../../../Components/Inputs/InputText';
-import InputNumber from '../../../../../Components/Inputs/InputNumber';
-import { getCurrencyById, createCurrency, updateCurrency, deleteCurrency } from '../../../../../Apis/Account/CurrenciesApi';
+import BaseForm from "../../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { FormControl, FormControlLabel, FormHelperText, Switch } from "@mui/material";
+import CurrencyModel from "../../../../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
+import { CurrencySchema } from "../../../../../interfaces/ProjectInterfaces/Account/Currencies/currency-validation";
+import InputText from "../../../../../Components/Inputs/InputText";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import Loader from "../../../../../Components/Loader";
+import {
+  useCurrencyDetail,
+  useCurrencyMutations,
+} from "../../../../../hooks/queries";
+
+const defaultModel: CurrencyModel = {
+  id: "",
+  name: "",
+  nameSecondLanguage: "",
+  exchangeRate: 0,
+  isActive: true,
+  isDefault: false,
+  symbol: "",
+};
 
 const CurrenciesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-  afterAction?: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
+}> = ({ formType, id, handleCloseForm }) => {
   const { t } = useTranslation();
-  const [model, setModel] = useState<CurrencyModel>({
-    id: id,
-    name: "",
-    nameSecondLanguage: "",
-    exchangeRate: 0,
-    isActive: true,
-    isDefault: false,
-    symbol: ""
-  });
+  const [model, setModel] = useState<CurrencyModel>({ ...defaultModel, id });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
-  const [isUpdated] = useState<boolean>(false);
+
+  const { data: fetchedModel, isLoading: isDetailLoading } = useCurrencyDetail(id, formType);
+  const { createMutation, updateMutation, deleteMutation } = useCurrencyMutations();
 
   useEffect(() => {
-    if (formType !== FormTypes.Add && !isUpdated) {
-      const fetchData = async () => {
-        setIsLoading(true);
-        const result = await getCurrencyById(id);
-        if (result && result.result) {
-          setModel(result.result);
-        }
-        setIsLoading(false);
-      };
-      fetchData();
+    if (fetchedModel) {
+      setModel(fetchedModel);
     }
-  }, [formType, id, isUpdated]);
+  }, [fetchedModel]);
+
+  useEffect(() => {
+    if (formType === FormTypes.Add) {
+      setModel({ ...defaultModel });
+    }
+  }, [formType]);
+
+  const isLoading = formType !== FormTypes.Add && isDetailLoading;
 
   const validate = async () => {
     try {
@@ -50,9 +56,11 @@ const CurrenciesForm: React.FC<{
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as any).inner.forEach((error: any) => {
-        if (error.path) validationErrorsMap[error.path] = error.message;
-      });
+      (validationErrors as { inner: { path?: string; message: string }[] }).inner.forEach(
+        (error) => {
+          if (error.path) validationErrorsMap[error.path] = error.message;
+        }
+      );
       setErrors(validationErrorsMap);
       return false;
     }
@@ -60,29 +68,31 @@ const CurrenciesForm: React.FC<{
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-    const response = await updateCurrency(model.id, model);
-    if (response && response.isSuccess) {
-      if (afterAction) afterAction();
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
+
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createCurrency(model);
-    if (response && response.isSuccess) {
-      if (afterAction) afterAction();
+    try {
+      await createMutation.mutateAsync(model);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
+
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteCurrency(id);
-    if (response && response.isSuccess) {
-      if (afterAction) afterAction();
+    try {
+      await deleteMutation.mutateAsync(id);
       return true;
-    } 
-    return false;
+    } catch {
+      return false;
+    }
   };
 
   return (
@@ -90,18 +100,20 @@ const CurrenciesForm: React.FC<{
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
-        handleDelete={async () => await handleDelete()}
+        handleDelete={handleDelete}
         handleUpdate={handleUpdate}
         handleAdd={handleAdd}
         isModal
       >
         <div>
           {isLoading ? (
-            <div className="spinner-border text-primary" role="status"></div>
+            <Loader />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+                <p>
+                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+                </p>
               ) : (
                 <>
                   <div className="row mb-4">
@@ -115,7 +127,9 @@ const CurrenciesForm: React.FC<{
                         isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, name: value }))}
+                        onChange={(value) =>
+                          setModel((prevModel) => ({ ...prevModel, name: value }))
+                        }
                         error={!!errors.name}
                         helperText={errors.name ? t(errors.name) : undefined}
                       />
@@ -130,9 +144,13 @@ const CurrenciesForm: React.FC<{
                         isRquired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
-                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, nameSecondLanguage: value }))}
+                        onChange={(value) =>
+                          setModel((prevModel) => ({ ...prevModel, nameSecondLanguage: value }))
+                        }
                         error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
+                        helperText={
+                          errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
+                        }
                       />
                     </div>
                   </div>
@@ -146,7 +164,9 @@ const CurrenciesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.symbol}
-                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, symbol: value }))}
+                        onChange={(value) =>
+                          setModel((prevModel) => ({ ...prevModel, symbol: value }))
+                        }
                         error={!!errors.symbol}
                         helperText={errors.symbol ? t(errors.symbol) : undefined}
                       />
@@ -160,7 +180,9 @@ const CurrenciesForm: React.FC<{
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.exchangeRate}
-                        onChange={(value) => setModel((prevModel) => ({ ...prevModel, exchangeRate: value }))}
+                        onChange={(value) =>
+                          setModel((prevModel) => ({ ...prevModel, exchangeRate: value }))
+                        }
                         error={!!errors.exchangeRate}
                         helperText={errors.exchangeRate ? t(errors.exchangeRate) : undefined}
                       />
@@ -173,7 +195,7 @@ const CurrenciesForm: React.FC<{
                           control={
                             <Switch
                               checked={model?.isDefault}
-                              disabled={formType == FormTypes.Details}
+                              disabled={formType === FormTypes.Details}
                               onChange={({ target }) =>
                                 setModel({
                                   ...model,
@@ -184,7 +206,9 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsDefault")}
                         />
-                        {errors.isDefault && <FormHelperText>{t(errors.isDefault)}</FormHelperText>}
+                        {errors.isDefault && (
+                          <FormHelperText>{t(errors.isDefault)}</FormHelperText>
+                        )}
                       </FormControl>
                     </div>
                     <div className="col col-md-6">
@@ -193,7 +217,7 @@ const CurrenciesForm: React.FC<{
                           control={
                             <Switch
                               checked={model?.isActive}
-                              disabled={formType == FormTypes.Details}
+                              disabled={formType === FormTypes.Details}
                               onChange={({ target }) =>
                                 setModel({
                                   ...model,
@@ -204,7 +228,9 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsActive")}
                         />
-                        {errors.isActive && <FormHelperText>{t(errors.isActive)}</FormHelperText>}
+                        {errors.isActive && (
+                          <FormHelperText>{t(errors.isActive)}</FormHelperText>
+                        )}
                       </FormControl>
                     </div>
                   </div>
