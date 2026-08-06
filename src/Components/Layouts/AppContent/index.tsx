@@ -3,6 +3,14 @@ import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import DataTable from "../../Tables/DataTable";
 import DataTreeTable from "../../Tables/DataTreeTable";
+import { FormTypes } from "@/interfaces/Components/FormType";
+
+export interface TableColumn {
+  Header: string;
+  accessor?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  renderCell?: (row: any) => React.ReactNode;
+}
 
 type AppContentProps = {
   tableType: "tree" | "table";
@@ -10,29 +18,34 @@ type AppContentProps = {
   btnName?: string;
   btn?: boolean;
   addBtn?: boolean;
-  actionBtn?: any;
-  btnColor?: any;
-  endIcon?: any;
-  startIcon?: any;
-  columns?: any[];
-  handleShowForm?: any;
-  changeFormType?: any;
-  handleSelectId?: any;
-  handleSelectParentId?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actionBtn?: (...args: any[]) => void;
+  btnColor?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
+  endIcon?: React.ReactNode;
+  startIcon?: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns?: TableColumn[] | any[];
+  handleShowForm?: () => void;
+  changeFormType?: (formType: FormTypes) => void;
+  handleSelectId?: (id: string) => void;
+  handleSelectParentId?: (id: string) => void;
   defaultHiddenCols?: string[];
   showdelete?: boolean;
   showedit?: boolean;
   showadd?: boolean;
-  showEditButtonIf?: (e: any) => boolean;
-  showDeleteButtonIf?: (e: any) => boolean;
-  showAddButtonIf?: (e: any) => boolean;
-  // Client-side pagination props
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  showEditButtonIf?: (row: any) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  showDeleteButtonIf?: (row: any) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  showAddButtonIf?: (row: any) => boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any[];
   loading?: boolean;
   onRefresh?: () => void;
-  // Server-side pagination props
   reloadKey?: number;
   serverSidePagination?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onFetchData?: (params: any) => Promise<any>;
 };
 

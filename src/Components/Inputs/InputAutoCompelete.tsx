@@ -1,37 +1,61 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import { FormControl, TextField } from "@mui/material";
 
-const InputAutoComplete = (props) => {
-  const {
-    options = [],
-    label,
-    onChange,
-    disabled = false,
-    multiple = false,
-    name = "",
-    value = multiple ? [] : null,
-    handleBlur = () => {},
-    error = false,
-    helperText = "",
-    size = "small",
-    defaultSelect = false,
-    defaultSelectCondition = (option) => !!option,
-  } = props;
+export interface AutoCompleteOption {
+  label: string;
+  value?: string | number;
+  [key: string]: unknown;
+}
 
+interface InputAutoCompleteProps {
+  options?: AutoCompleteOption[];
+  label?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
+  disabled?: boolean;
+  multiple?: boolean;
+  name?: string;
+  value?: unknown;
+  handleBlur?: React.FocusEventHandler | null;
+  error?: boolean | null;
+  helperText?: string | null;
+  size?: "small" | "medium";
+  defaultSelect?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  defaultSelectCondition?: (option: any) => boolean;
+}
+
+const InputAutoComplete: React.FC<InputAutoCompleteProps> = ({
+  options = [],
+  label,
+  onChange,
+  disabled = false,
+  multiple = false,
+  name = "",
+  value = multiple ? [] : null,
+  handleBlur = () => {},
+  error = false,
+  helperText = "",
+  size = "small",
+  defaultSelect = false,
+  defaultSelectCondition = (option) => !!option,
+}) => {
   const [dropDownOptions, setDropDownOptions] = useState(options);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const userClearedRef = useRef(false);
   const lastOptionsRef = useRef(JSON.stringify(options));
 
-  const mapValuesToObjects = (val, opts) => {
+  const mapValuesToObjects = (val: unknown, opts: AutoCompleteOption[]) => {
     if (multiple) {
       return Array.isArray(val)
-        ? opts.filter((option) => val.includes(option.value))
+        ? opts.filter((option) =>
+            option.value !== undefined &&
+            (val as (string | number)[]).includes(option.value)
+          )
         : [];
-    } else {
-      return val ? opts.find((option) => option.value === val) || null : null;
     }
+    return val ? opts.find((option) => option.value === val) || null : null;
   };
 
   useEffect(() => {
@@ -42,7 +66,6 @@ const InputAutoComplete = (props) => {
       userClearedRef.current = false;
       lastOptionsRef.current = optionsString;
     }
-    // else, options did not change, do not reset flags
   }, [options]);
 
   const selectedValue = mapValuesToObjects(value, dropDownOptions);
@@ -75,16 +98,20 @@ const InputAutoComplete = (props) => {
     selectedValue,
   ]);
 
-  const OnSelect = (event, val) => {
+  const onSelect = (
+    _event: React.SyntheticEvent,
+    val: AutoCompleteOption | AutoCompleteOption[] | null
+  ) => {
     if (multiple) {
-      const selectedValues = val.map((e) => e.value);
+      const selectedValues = (val as AutoCompleteOption[]).map((e) => e.value);
       onChange(selectedValues);
       if (selectedValues.length === 0) userClearedRef.current = true;
       setHasAutoSelected(true);
     } else {
-      const selectedValue = val ? val.value : null;
-      onChange(selectedValue);
-      if (selectedValue === null) userClearedRef.current = true;
+      const selected = val as AutoCompleteOption | null;
+      const selectedVal = selected ? selected.value : null;
+      onChange(selectedVal);
+      if (selectedVal === null) userClearedRef.current = true;
       setHasAutoSelected(true);
     }
   };
@@ -101,8 +128,8 @@ const InputAutoComplete = (props) => {
         filterSelectedOptions
         value={selectedValue}
         disabled={disabled}
-        onChange={OnSelect}
-        onBlur={handleBlur}
+        onChange={onSelect}
+        onBlur={handleBlur ?? undefined}
         selectOnFocus
         clearOnEscape
         renderInput={(params) => (
@@ -110,8 +137,8 @@ const InputAutoComplete = (props) => {
             {...params}
             variant="outlined"
             label={label}
-            helperText={helperText}
-            error={error}
+            helperText={helperText ?? undefined}
+            error={Boolean(error)}
             name={name}
           />
         )}

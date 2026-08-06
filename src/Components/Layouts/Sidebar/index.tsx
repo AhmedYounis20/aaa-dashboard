@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
-import { ISidebarItem } from "../../../Utilities/routes";
+import { ISidebarItem } from "@/config/sidebar.config";
 import ThemedTooltip from "../../UI/ThemedTooltip";
 import { Typography, useTheme, styled, useMediaQuery } from "@mui/material";
 import { appContext } from "../../../layout/DefaultLayout";

@@ -1,20 +1,20 @@
 import { CacheProvider } from "@emotion/react";
-import { rtlCache } from "../Utilities/rtlCache"; // 👈
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
-import { themeSettings } from "../Utilities/theme";
 import { useSelector } from "react-redux";
-import { RootState } from "../Storage/Redux/store";
 import { useTranslation } from "react-i18next";
-import { AuthProvider, ProtectedRoute } from "../features/auth";
-
-import Login from "../Pages/Auth/login/Login";
-import Register from "../Pages/Auth/register/Register";
-import Page404 from "../Pages/ErrorPages/page404/Page404";
-import DefaultLayout from "../layout/DefaultLayout";
-import Dashboard from "../Pages/Dashboard";
-import sidebarItemsData, { ISidebarItem } from "../Utilities/routes";
+import { rtlCache } from "@/Utilities/rtlCache";
+import { themeSettings } from "@/Utilities/theme";
+import { RootState } from "@/Storage/Redux/store";
+import { AuthProvider, ProtectedRoute } from "@/features/auth";
+import { AppRoutes } from "@/routes/AppRoutes";
+import RouteLoadingFallback from "@/routes/RouteLoadingFallback";
+import Login from "@/Pages/Auth/login/Login";
+import Register from "@/Pages/Auth/register/Register";
+import Page404 from "@/Pages/ErrorPages/page404/Page404";
+import DefaultLayout from "@/layout/DefaultLayout";
+import Dashboard from "@/Pages/Dashboard";
 
 function App() {
   const mode = useSelector((state: RootState) => state.global.mode);
@@ -29,63 +29,42 @@ function App() {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 
-  const theme = useMemo(
-    () => createTheme(themeSettings(mode, dir)),
-    [mode, dir]
+  const theme = useMemo(() => createTheme(themeSettings(mode, dir)), [mode, dir]);
+
+  const router = (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<DefaultLayout />}>
+              <Route index element={<Dashboard />} />
+              <AppRoutes />
+            </Route>
+          </Route>
+          <Route path="*" element={<Page404 />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 
   return (
-    <>
+    <Suspense fallback={<RouteLoadingFallback />}>
       {dir === "rtl" ? (
         <CacheProvider value={rtlCache}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            {renderRouter()}
+            {router}
           </ThemeProvider>
         </CacheProvider>
       ) : (
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          {renderRouter()}
+          {router}
         </ThemeProvider>
       )}
-    </>
-  );
-}
-
-  function renderRouter() {
-    return (
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<DefaultLayout />}>
-                <Route index element={<Dashboard />} />
-                {sidebarItemsData?.map((item, idx) =>
-                  item?.submenu ? AddRoute(item, idx) : null
-                )}
-              </Route>
-            </Route>
-            <Route path="*" element={<Page404 />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    );
-  }
-
-function AddRoute(item: ISidebarItem, idx: number) {
-  return (
-    <Route
-      key={idx}
-      path={item.path ?? "/"}
-      element={item.page ? <item.page /> : null}
-    >
-      {item.submenu
-        ? item.submenu.map((subItem, idx) => AddRoute(subItem, idx))
-        : null}
-    </Route>
+    </Suspense>
   );
 }
 

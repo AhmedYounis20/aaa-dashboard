@@ -1,19 +1,18 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserModel } from "../../interfaces/Auth/UserModel";
 
-export const initialuserState : UserModel  = {
-    fullName: "",
-    email : "",
-    id :"",
-    role :""
+export const initialuserState: UserModel = {
+  fullName: "",
+  email: "",
+  id: "",
+  role: "",
 };
-
 
 export const userAuthSlice = createSlice({
   name: "authUser",
   initialState: initialuserState,
   reducers: {
-    setLoggedInUser: (state, action) => {
+    setLoggedInUser: (state, action: PayloadAction<UserModel>) => {
       state.fullName = action.payload.fullName;
       state.email = action.payload.email;
       state.id = action.payload.id;
