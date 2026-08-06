@@ -1,109 +1,129 @@
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useState } from "react";
-import { UserLoginModel } from "../../../interfaces/Auth/UserLoginModel";
-import { UserModel } from "../../../interfaces/Auth/UserModel";
-import { inputHelper } from "../../../Helper";
-import { jwtDecode } from "jwt-decode";
-import { setLoggedInUser } from "../../../Storage/Redux/userAuthSlice";
-import { toastify } from "../../../Helper/toastify";
-import { loginRequest } from "../../../Apis/Identity/authApi";
+import { useEffect, useState } from "react";
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { UserLoginModel } from "../../../interfaces/Auth/UserLoginModel";
+import { toastify } from "../../../Helper/toastify";
+import { useAuth } from "../../../features/auth";
 
 const Login: React.FC = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, isLoading, login } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
   const [userInput, setUserInput] = useState<UserLoginModel>({
     username: "",
     password: "",
   });
 
-  const handleUserInput = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setLoading(true);
-    const tempData = inputHelper(e, userInput);
-    setUserInput(tempData);
-    setLoading(false);
-  };
+  const redirectPath =
+    (location.state as { from?: string } | null)?.from ?? "/";
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const response = await loginRequest(userInput);
-    if (response && response.isSuccess) {
-      const { accessToken, refreshToken } = response.result;
-      const userData: UserModel = jwtDecode(accessToken);
-      dispatch(setLoggedInUser(userData));
-      navigate("/");
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-    } else if (response) {
-      response.errorMessages?.map((e: string) =>
-        toastify(e, "error")
-      );
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate(redirectPath, { replace: true });
     }
-    setLoading(false);
+  }, [isAuthenticated, isLoading, navigate, redirectPath]);
+
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const result = await login(userInput);
+
+      if (result.success) {
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+
+      result.errorMessages?.forEach((message) => toastify(message, "error"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div
-      className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center"
-      style={{ width: "100vw" }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.default",
+        px: 2,
+      }}
     >
-      <div className="container">
-        <div className="row justify-content-center">
-          {loading ? (
-            <div className="spinner-border text-primary" role="status"></div>
-          ) : (
-            <div className="col-md-4">
-              <div className="card-group">
-                <div className="card p-4">
-                  <div className="card-body">
-                    <form method="post" onSubmit={handleSubmit}>
-                      <h1>{t("Login")}</h1>
-                      <p className="text-body-secondary">
-                        {t("SignInToAccount")}
-                      </p>
-                      <div className="input-group mb-3">
-                        <input
-                          className="form-control"
-                          placeholder={t("Username")}
-                          autoComplete="username"
-                          name="username"
-                          onChange={handleUserInput}
-                          required
-                        />
-                      </div>
-                      <div className="input-group mb-4">
-                        <input
-                          type="password"
-                          className="form-control"
-                          placeholder={t("Password")}
-                          name="password"
-                          autoComplete="current-password"
-                          onChange={handleUserInput}
-                          required
-                        />
-                      </div>
-                      <button
-                        className="btn btn-primary px-2 form-control"
-                        type="submit"
-                      >
-                        {t("Login")}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+      <Container maxWidth="xs">
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            {t("Login")}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            {t("SignInToAccount")}
+          </Typography>
+
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <TextField
+              fullWidth
+              required
+              margin="normal"
+              label={t("Username")}
+              name="username"
+              autoComplete="username"
+              value={userInput.username}
+              onChange={(event) =>
+                setUserInput((prev) => ({ ...prev, username: event.target.value }))
+              }
+            />
+            <TextField
+              fullWidth
+              required
+              margin="normal"
+              label={t("Password")}
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={userInput.password}
+              onChange={(event) =>
+                setUserInput((prev) => ({ ...prev, password: event.target.value }))
+              }
+            />
+
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={submitting}
+              sx={{ mt: 3 }}
+            >
+              {submitting ? <CircularProgress size={24} color="inherit" /> : t("Login")}
+            </Button>
+          </Box>
+
+          <Typography variant="body2" sx={{ mt: 3, textAlign: "center" }}>
+            <Link component={RouterLink} to="/register" underline="hover">
+              {t("Register")}
+            </Link>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

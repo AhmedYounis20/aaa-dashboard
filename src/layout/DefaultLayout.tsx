@@ -1,6 +1,5 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { AppHeader } from "../Components";
-import { withAuth } from "../Hoc";
 import { createContext, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import AppSidebar from "../Components/Layouts/Sidebar";
@@ -65,4 +64,4 @@ const DefaultLayout = () => {
   );
 };
 
-export default withAuth(DefaultLayout);
+export default DefaultLayout;

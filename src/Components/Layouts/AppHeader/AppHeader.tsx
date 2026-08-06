@@ -1,11 +1,6 @@
 import "./AppHeader.css";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import {
-  initialuserState,
-  setLoggedInUser,
-} from "../../../Storage/Redux/userAuthSlice";
 import {
   AppBar,
   IconButton,
@@ -34,6 +29,7 @@ import { setMode } from "../../../Storage/Redux/global";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useTranslation } from "react-i18next";
 import ThemedTooltip from "../../UI/ThemedTooltip";
+import { useAuth } from "../../../features/auth";
 
 type AppHeaderProps = {
   isSidebarOpen: boolean;
@@ -42,7 +38,7 @@ type AppHeaderProps = {
 
 function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { logout } = useAuth();
   const theme = useTheme();
   const { i18n, t } = useTranslation();
   const [languageMenuAnchor, setLanguageMenuAnchor] =
@@ -59,10 +55,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
   };
 
   const handleLogout = () => {
-    localStorage.getItem("accessToken") &&
-      localStorage.removeItem("accessToken");
-    dispatch(setLoggedInUser(initialuserState));
-    navigate("/login");
+    logout();
     setUserMenuAnchor(null);
   };
 

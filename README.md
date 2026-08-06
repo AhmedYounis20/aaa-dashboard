@@ -74,7 +74,7 @@ src/
 ├── Components/        # Shared UI (forms, tables, layout)
 ├── Container/         # App root
 ├── Helper/            # Utilities (validation, toast, enums)
-├── Hoc/               # Higher-order components (auth)
+├── features/auth/     # Auth provider, route guard, token utils
 ├── interfaces/        # TypeScript models & validation schemas
 ├── layout/            # DefaultLayout shell
 ├── locales/           # i18n translations (en, ar)

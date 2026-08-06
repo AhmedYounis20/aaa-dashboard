@@ -7,6 +7,7 @@ import { themeSettings } from "../Utilities/theme";
 import { useSelector } from "react-redux";
 import { RootState } from "../Storage/Redux/store";
 import { useTranslation } from "react-i18next";
+import { AuthProvider, ProtectedRoute } from "../features/auth";
 
 import Login from "../Pages/Auth/login/Login";
 import Register from "../Pages/Auth/register/Register";
@@ -32,9 +33,6 @@ function App() {
     () => createTheme(themeSettings(mode, dir)),
     [mode, dir]
   );
-  const cache = useMemo(() => (dir === "rtl" ? rtlCache : null), [dir]);
-  console.log(theme);
-  console.log(cache);
 
   return (
     <>
@@ -58,17 +56,21 @@ function App() {
   function renderRouter() {
     return (
       <BrowserRouter>
-        <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<DefaultLayout />}>
-            <Route index element={<Dashboard />} />
-            {sidebarItemsData?.map((item, idx) =>
-              item?.submenu ? AddRoute(item, idx) : null
-            )}
-          </Route>
-        <Route path="*" element={<Page404 />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<DefaultLayout />}>
+                <Route index element={<Dashboard />} />
+                {sidebarItemsData?.map((item, idx) =>
+                  item?.submenu ? AddRoute(item, idx) : null
+                )}
+              </Route>
+            </Route>
+            <Route path="*" element={<Page404 />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     );
   }

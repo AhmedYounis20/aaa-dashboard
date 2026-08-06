@@ -142,11 +142,13 @@ Phase 4 — Optional Strategic  Sprints 9+    (Backlog)
 
 #### Acceptance Criteria
 
-- [ ] Expired token redirects to login before API call fails visibly
-- [ ] Language switch updates API `Accept-Language` on next request
-- [ ] No `console.log` in production build for API/auth code paths
-- [ ] `withAuth.jsx` deleted; all guards use `ProtectedRoute`
+- [x] Expired token redirects to login before API call fails visibly
+- [x] Language switch updates API `Accept-Language` on next request
+- [x] No `console.log` in production build for API/auth code paths
+- [x] `withAuth.jsx` deleted; all guards use `ProtectedRoute`
 - [ ] Manual test: login → navigate → wait for token refresh → API still works
+
+> **Sprint 2 completed:** Aug 6, 2026 — apiClient refactor + typed auth guard.
 
 #### Deliverables
 
