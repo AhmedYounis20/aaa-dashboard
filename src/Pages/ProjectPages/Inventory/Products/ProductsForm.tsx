@@ -259,6 +259,12 @@ const ProductsForm: React.FC<{
         handleAdd={handleAdd}
         handleUpdate={handleUpdate}
         handleDelete={handleDelete}
+
+
+
+
+
+        
         isModal={false}
       >
         <div>
