@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
@@ -11,6 +11,7 @@ import { Add, Delete } from '@mui/icons-material';
 import { IconButton, TextareaAutosize } from '@mui/material';
 import updateModel from '../../../../Helper/updateModelHelper';
 import { v4 as uuid } from 'uuid';
+import { useLatestAsync } from '../../../../hooks/useLatestAsync';
 
 import { createExportTransaction, getExportTransactionNumber, getExportTransactionById } from '../../../../Apis/Inventory/ExportTransactionsApi';
 import { getVariants, getVariantById } from '../../../../Apis/Inventory/VariantsApi';
@@ -54,6 +55,7 @@ const ExportTransactionForm: React.FC<{
   afterAction: () => void;
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
+  const { runLatest, invalidate } = useLatestAsync();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(formType !== FormTypes.Add);
 
@@ -62,6 +64,8 @@ const ExportTransactionForm: React.FC<{
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
   const [variantDetails, setVariantDetails] = useState<Record<string, VariantModel>>({});
+  const variantDetailsRef = useRef(variantDetails);
+  variantDetailsRef.current = variantDetails;
 
   const createTransactionItem = (): ExportTransactionItemFormModel => ({
     id: uuid(),
@@ -188,75 +192,62 @@ const ExportTransactionForm: React.FC<{
   };
 
   const updateItem = (lineId: string, field: keyof ExportTransactionItemFormModel, value: string | number) => {
-    setModel((prev) => ({
-      ...prev,
-      items: prev.items.map((item) => (item.id === lineId ? { ...item, [field]: value } : item)),
-    }));
+    if (field === 'variantId') {
+      invalidate(`export-line:${lineId}`);
+      setModel((prev) => ({
+        ...prev,
+        items: prev.items.map((item) =>
+          item.id === lineId
+            ? {
+                ...item,
+                variantId: typeof value === 'string' ? value : '',
+                packingUnitId: '',
+                totalCost: 0,
+              }
+            : item
+        ),
+      }));
 
-    if (field === 'variantId' && typeof value === 'string' && value) {
-      getVariantById(value).then((response) => {
-        if (response.isSuccess && response.result) {
-          const selectedVariant = response.result;
+      if (typeof value === 'string' && value) {
+        void runLatest(`export-line:${lineId}`, async ({ isCurrent }) => {
+          const response = await getVariantById(value);
+          if (!isCurrent() || !response.isSuccess || !response.result) return;
           setVariantDetails((prev) => ({
             ...prev,
-            [value]: selectedVariant,
+            [value]: response.result,
           }));
-          setModel((prev) => ({
-            ...prev,
-            items: prev.items.map((item) =>
-              item.id === lineId
-                ? {
-                    ...item,
-                    variantId: value,
-                    packingUnitId: '',
-                    totalCost: 0,
-                  }
-                : item
-            ),
-          }));
-        }
-      });
+        });
+      }
+      return;
     }
 
-    if (field === 'packingUnitId' && typeof value === 'string' && value) {
-      const currentItem = model.items.find((item) => item.id === lineId);
-      if (currentItem?.variantId) {
-        const selectedVariant = variantDetails[currentItem.variantId];
-        if (selectedVariant) {
+    setModel((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => {
+        if (item.id !== lineId) return item;
+        const next = { ...item, [field]: value } as ExportTransactionItemFormModel;
+        const selectedVariant = variantDetailsRef.current[next.variantId];
+        if (!selectedVariant) return next;
+
+        if (field === 'packingUnitId' && typeof value === 'string' && value && next.quantity > 0) {
           const packingUnit = selectedVariant.packingUnits.find((pu) => pu.packingUnitId === value);
-          if (packingUnit && currentItem.quantity > 0) {
-            const totalCost = packingUnit.averageCostPrice * currentItem.quantity;
-            setModel((prev) => ({
-              ...prev,
-              items: prev.items.map((item) =>
-                item.id === lineId ? { ...item, packingUnitId: value, totalCost } : item
-              ),
-            }));
+          if (packingUnit) {
+            next.totalCost = packingUnit.averageCostPrice * next.quantity;
           }
         }
-      }
-    }
 
-    if (field === 'quantity' && typeof value === 'number' && value > 0) {
-      const currentItem = model.items.find((item) => item.id === lineId);
-      if (currentItem?.variantId && currentItem.packingUnitId) {
-        const selectedVariant = variantDetails[currentItem.variantId];
-        if (selectedVariant) {
+        if (field === 'quantity' && typeof value === 'number' && value > 0 && next.packingUnitId) {
           const packingUnit = selectedVariant.packingUnits.find(
-            (pu) => pu.packingUnitId === currentItem.packingUnitId
+            (pu) => pu.packingUnitId === next.packingUnitId
           );
           if (packingUnit) {
-            const totalCost = packingUnit.averageCostPrice * value;
-            setModel((prev) => ({
-              ...prev,
-              items: prev.items.map((item) =>
-                item.id === lineId ? { ...item, quantity: value, totalCost } : item
-              ),
-            }));
+            next.totalCost = packingUnit.averageCostPrice * value;
           }
         }
-      }
-    }
+
+        return next;
+      }),
+    }));
   };
 
   const getVariantPackingUnits = (variantId: string): PackingUnitModel[] => {

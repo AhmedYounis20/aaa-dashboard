@@ -54,7 +54,6 @@ const ProductPackingUnitsInput: React.FC<{
         const match = existing.find((sp) => sp.sellingPriceId === price.id);
         return match ?? { sellingPriceId: price.id, amount: 0 };
       });
-      console.log(completedPrices);
       return { ...unit, sellingPrices: completedPrices };
     });
 

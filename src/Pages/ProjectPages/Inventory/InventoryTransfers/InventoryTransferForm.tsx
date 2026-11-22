@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import BaseForm from '../../../../Components/Forms/BaseForm';
 import { FormTypes } from '../../../../interfaces/Components/FormType';
@@ -19,18 +19,10 @@ import SelectVariantsModal from './SelectVariantsModal';
 import ThemedTooltip from '../../../../Components/UI/ThemedTooltip';
 import InputNumber from '../../../../Components/Inputs/InputNumber';
 import { getCurrentBalance } from '../../../../Apis/Inventory/StockBalanceApi';
+import { useLatestAsync } from '../../../../hooks/useLatestAsync';
 
-const lineSchema = yup.object().shape({
-  variantId: yup.string().required('Variant is required'),
-  packingUnitId: yup.string().required('Packing unit is required'),
-  quantity: yup.number().required('Quantity is required').min(1, 'Quantity must be at least 1'),
-});
-
-const transferSchema = yup.object().shape({
-  sourceBranchId: yup.string().required('Source branch is required'),
-  destinationBranchId: yup.string().required('Destination branch is required'),
-  items: yup.array().of(lineSchema).min(1, 'At least one variant is required'),
-});
+const lineBalanceKey = (variantId: string, packingUnitId: string) =>
+  `${variantId}|${packingUnitId}`;
 
 const InventoryTransferForm: React.FC<{
   formType: FormTypes;
@@ -40,6 +32,7 @@ const InventoryTransferForm: React.FC<{
   onSubmit: (data: InventoryTransferModel) => Promise<boolean>;
 }> = ({ formType, model, handleCloseForm, afterAction, onSubmit }) => {
   const { t } = useTranslation();
+  const { runLatest } = useLatestAsync();
   const [form, setForm] = useState<InventoryTransferModel>(
     model || {
       sourceBranchId: '',
@@ -52,7 +45,9 @@ const InventoryTransferForm: React.FC<{
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [showSelectVariants, setShowSelectVariants] = useState(false);
-  const [lineBalances, setLineBalances] = useState<Record<number, number>>({});
+  const [lineBalances, setLineBalances] = useState<Record<string, number>>({});
+  const formRef = useRef(form);
+  formRef.current = form;
 
   useEffect(() => {
     getBranches().then((res) => {
@@ -66,20 +61,32 @@ const InventoryTransferForm: React.FC<{
       return;
     }
 
-    const fetchBalances = async () => {
-      const balances: Record<number, number> = {};
-      await Promise.all(
-        form.items.map(async (item, idx) => {
-          if (!item.variantId || !item.packingUnitId) return;
-          const res = await getCurrentBalance(item.variantId, item.packingUnitId, form.sourceBranchId);
-          balances[idx] = res.isSuccess && res.result ? res.result.currentBalance : 0;
+    const requestKey = `balances:${form.sourceBranchId}`;
+    void runLatest(requestKey, async ({ isCurrent }) => {
+      const entries = await Promise.all(
+        form.items.map(async (item) => {
+          if (!item.variantId || !item.packingUnitId) return null;
+          const res = await getCurrentBalance(
+            item.variantId,
+            item.packingUnitId,
+            form.sourceBranchId
+          );
+          return [
+            lineBalanceKey(item.variantId, item.packingUnitId),
+            res.isSuccess && res.result ? res.result.currentBalance : 0,
+          ] as const;
         })
       );
-      setLineBalances(balances);
-    };
 
-    fetchBalances();
-  }, [form.sourceBranchId, form.items]);
+      if (!isCurrent()) return;
+
+      const balances: Record<string, number> = {};
+      entries.forEach((entry) => {
+        if (entry) balances[entry[0]] = entry[1];
+      });
+      setLineBalances(balances);
+    });
+  }, [form.sourceBranchId, form.items, runLatest]);
 
   const handleRemoveItem = (index: number) => {
     setForm((prev) => ({
@@ -89,15 +96,58 @@ const InventoryTransferForm: React.FC<{
   };
 
   const validate = async () => {
+    const lineSchema = yup.object().shape({
+      variantId: yup.string().required(t('Variant is required')),
+      packingUnitId: yup.string().required(t('Packing unit is required')),
+      quantity: yup
+        .number()
+        .required(t('Quantity is required'))
+        .min(1, t('Quantity must be at least 1')),
+    });
+
+    const transferSchema = yup.object().shape({
+      sourceBranchId: yup.string().required(t('Source branch is required')),
+      destinationBranchId: yup
+        .string()
+        .required(t('Destination branch is required'))
+        .test(
+          'distinct-branches',
+          t('Source and destination branches must be different'),
+          function (value) {
+            return value !== this.parent.sourceBranchId;
+          }
+        ),
+      items: yup.array().of(lineSchema).min(1, t('At least one variant is required')),
+    });
+
     try {
       await transferSchema.validate(form, { abortEarly: false });
+
+      const balanceErrors: Record<string, string> = {};
+      form.items.forEach((item, idx) => {
+        const balance =
+          lineBalances[lineBalanceKey(item.variantId, item.packingUnitId)] ?? 0;
+        if (item.quantity > balance) {
+          balanceErrors[`items[${idx}].quantity`] = t(
+            'Quantity exceeds available balance'
+          );
+        }
+      });
+
+      if (Object.keys(balanceErrors).length > 0) {
+        setErrors(balanceErrors);
+        return false;
+      }
+
       setErrors({});
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: yup.ValidationError) => {
-        if (error.path) validationErrorsMap[error.path] = error.message;
-      });
+      (validationErrors as yup.ValidationError).inner.forEach(
+        (error: yup.ValidationError) => {
+          if (error.path) validationErrorsMap[error.path] = error.message;
+        }
+      );
       setErrors(validationErrorsMap);
       return false;
     }
@@ -113,7 +163,9 @@ const InventoryTransferForm: React.FC<{
   const transferTypeOptions = InventoryTransferTypeOptions;
 
   const handleAddSelectedVariants = (selectedVariants: VariantModel[]) => {
-    const newVariants = selectedVariants.filter((sel) => !form.items.some((i) => i.variantId === sel.id));
+    const newVariants = selectedVariants.filter(
+      (sel) => !form.items.some((i) => i.variantId === sel.id)
+    );
     const updatedItems = [...form.items];
     for (const variant of newVariants) {
       const packingUnits = variant.packingUnits || [];
@@ -148,14 +200,21 @@ const InventoryTransferForm: React.FC<{
   };
 
   const handleQuantityChange = (idx: number, quantity: number) => {
-    const balance = lineBalances[idx] ?? 0;
+    const line = formRef.current.items[idx];
+    const balance =
+      lineBalances[lineBalanceKey(line?.variantId ?? '', line?.packingUnitId ?? '')] ?? 0;
     setForm((prev) => ({
       ...prev,
       items: prev.items.map((it, i) => (i === idx ? { ...it, quantity } : it)),
     }));
-    if (quantity > balance)
-      setErrors((prev) => ({ ...prev, [`items[${idx}].quantity`]: t('Quantity exceeds available balance') }));
-    else setErrors((prev) => ({ ...prev, [`items[${idx}].quantity`]: '' }));
+    if (quantity > balance) {
+      setErrors((prev) => ({
+        ...prev,
+        [`items[${idx}].quantity`]: t('Quantity exceeds available balance'),
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, [`items[${idx}].quantity`]: '' }));
+    }
   };
 
   return (
@@ -164,8 +223,8 @@ const InventoryTransferForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         isModal
-        handleAdd={handleSubmit}
-        handleUpdate={handleSubmit}
+        handleAdd={formType === FormTypes.Add ? handleSubmit : undefined}
+        handleUpdate={undefined}
         handleDelete={undefined}
       >
         <div>
@@ -177,7 +236,10 @@ const InventoryTransferForm: React.FC<{
                 options={transferTypeOptions}
                 defaultValue={form.transferType}
                 onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
-                  setForm((prev) => ({ ...prev, transferType: e.target.value as InventoryTransferType }))
+                  setForm((prev) => ({
+                    ...prev,
+                    transferType: e.target.value as InventoryTransferType,
+                  }))
                 }
                 name="transferType"
                 error={!!errors.transferType}
@@ -189,7 +251,9 @@ const InventoryTransferForm: React.FC<{
                 label={t('Source Branch')}
                 options={branches.map((b) => ({ value: b.id, label: b.name }))}
                 value={form.sourceBranchId || ''}
-                onChange={(value: string) => setForm((prev) => ({ ...prev, sourceBranchId: value }))}
+                onChange={(value: string) =>
+                  setForm((prev) => ({ ...prev, sourceBranchId: value }))
+                }
                 name="sourceBranchId"
                 error={!!errors.sourceBranchId}
                 helperText={errors.sourceBranchId ? t(errors.sourceBranchId) : undefined}
@@ -200,10 +264,14 @@ const InventoryTransferForm: React.FC<{
                 label={t('Destination Branch')}
                 options={branches.map((b) => ({ value: b.id, label: b.name }))}
                 value={form.destinationBranchId || ''}
-                onChange={(value: string) => setForm((prev) => ({ ...prev, destinationBranchId: value }))}
+                onChange={(value: string) =>
+                  setForm((prev) => ({ ...prev, destinationBranchId: value }))
+                }
                 name="destinationBranchId"
                 error={!!errors.destinationBranchId}
-                helperText={errors.destinationBranchId ? t(errors.destinationBranchId) : undefined}
+                helperText={
+                  errors.destinationBranchId ? t(errors.destinationBranchId) : undefined
+                }
               />
             </div>
           </div>
@@ -220,7 +288,11 @@ const InventoryTransferForm: React.FC<{
           <div className="card mb-3">
             <div className="card-header d-flex justify-content-between align-items-center">
               <span>{t('Variants')}</span>
-              <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowSelectVariants(true)}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setShowSelectVariants(true)}
+              >
                 {t('SelectVariants')}
               </button>
             </div>
@@ -236,22 +308,30 @@ const InventoryTransferForm: React.FC<{
               </div>
               {form.items.map((line, idx) => {
                 const packingUnits = line.variant?.packingUnits || [];
-                const balance = lineBalances[idx] ?? 0;
-                const packingUnit = packingUnits.find((pu) => pu.packingUnitId === line.packingUnitId);
+                const balance =
+                  lineBalances[lineBalanceKey(line.variantId, line.packingUnitId)] ?? 0;
+                const packingUnit = packingUnits.find(
+                  (pu) => pu.packingUnitId === line.packingUnitId
+                );
                 const isLowStock = balance === 0 || balance < (line.quantity || 1);
                 const packingUnitLabel = packingUnit?.name || packingUnit?.packingUnitId || '';
                 const availableStockStr = `${balance} ${packingUnitLabel}`.trim();
 
                 return (
                   <div
-                    key={idx}
-                    className={`row mb-2 align-items-end border-bottom pb-2 ${isLowStock ? 'bg-warning bg-opacity-10' : ''}`}
+                    key={`${line.variantId}-${line.packingUnitId}-${idx}`}
+                    className={`row mb-2 align-items-end border-bottom pb-2 ${
+                      isLowStock ? 'bg-warning bg-opacity-10' : ''
+                    }`}
                   >
                     <div className="col-md-3 d-flex align-items-center gap-2">
                       <span>{line.variant?.name || ''}</span>
                       {line.variant?.model && (
                         <ThemedTooltip title={t('Model') + ': ' + line.variant.model}>
-                          <i className="bi bi-info-circle text-secondary" style={{ fontSize: 16 }}></i>
+                          <i
+                            className="bi bi-info-circle text-secondary"
+                            style={{ fontSize: 16 }}
+                          ></i>
                         </ThemedTooltip>
                       )}
                     </div>
@@ -282,20 +362,31 @@ const InventoryTransferForm: React.FC<{
                         isRquired
                         error={!!errors[`items[${idx}].quantity`]}
                         helperText={
-                          errors[`items[${idx}].quantity`] ? t(errors[`items[${idx}].quantity`]) : undefined
+                          errors[`items[${idx}].quantity`]
+                            ? t(errors[`items[${idx}].quantity`])
+                            : undefined
                         }
                       />
                     </div>
                     <div className="col-md-1 d-flex align-items-center">
-                      <span className={isLowStock ? 'text-danger fw-bold' : ''}>{availableStockStr}</span>
+                      <span className={isLowStock ? 'text-danger fw-bold' : ''}>
+                        {availableStockStr}
+                      </span>
                       {isLowStock && (
                         <ThemedTooltip title={t('Stock is low or unavailable')}>
-                          <i className="bi bi-exclamation-triangle-fill text-danger ms-2" style={{ fontSize: 16 }}></i>
+                          <i
+                            className="bi bi-exclamation-triangle-fill text-danger ms-2"
+                            style={{ fontSize: 16 }}
+                          ></i>
                         </ThemedTooltip>
                       )}
                     </div>
                     <div className="col-md-1 d-flex align-items-center">
-                      <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveItem(idx)}>
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleRemoveItem(idx)}
+                      >
                         {t('Remove')}
                       </button>
                     </div>

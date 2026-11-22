@@ -309,10 +309,6 @@
   "SubLeadgerType": "Sub Leadger Type",
   "CashInBox": "Cash In Box",
   "Type": "Type",
-  "ColorValue": "Color Value",
-  "Colors": "Colors",
-  "Sizes": "Sizes",
-  "COLOR_IS_REQUIRED": "Color is required",
   "COLOR_INVALID": "Enter a valid color name or hex",
   "Register": "Register",
   "CreateYourAccount": "Create your account",
@@ -512,5 +508,14 @@
   "FailedToLoadVariant": "Failed to load variant.",
   "FailedToLoadProduct": "Failed to load product.",
   "FailedToLoadProductCode": "Failed to load next product code.",
-  "ClearVariantCombinationsConfirm": "Changing product type will clear variant combinations. Continue?"
+  "ClearVariantCombinationsConfirm": "Changing product type will clear variant combinations. Continue?",
+  "Source and destination branches must be different": "Source and destination branches must be different",
+  "Quantity exceeds available balance": "Quantity exceeds available balance",
+  "Variant is required": "Variant is required",
+  "Packing unit is required": "Packing unit is required",
+  "Quantity is required": "Quantity is required",
+  "Quantity must be at least 1": "Quantity must be at least 1",
+  "Source branch is required": "Source branch is required",
+  "Destination branch is required": "Destination branch is required",
+  "At least one variant is required": "At least one variant is required"
 }

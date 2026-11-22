@@ -1,6 +1,6 @@
 import { CacheProvider } from "@emotion/react";
 import { useMemo, useEffect, useState, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -40,6 +40,9 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<DefaultLayout />}>
               <Route index element={<Dashboard />} />
+              <Route path="items" element={<Navigate to="/products" replace />} />
+              <Route path="colors" element={<Navigate to="/products" replace />} />
+              <Route path="sizes" element={<Navigate to="/products" replace />} />
               {AppRoutes()}
             </Route>
           </Route>

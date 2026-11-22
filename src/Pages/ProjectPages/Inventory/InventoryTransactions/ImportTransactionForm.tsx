@@ -11,6 +11,7 @@ import { Add, Delete } from '@mui/icons-material';
 import { IconButton, TextareaAutosize } from '@mui/material';
 import updateModel from '../../../../Helper/updateModelHelper';
 import { v4 as uuid } from 'uuid';
+import { useLatestAsync } from '../../../../hooks/useLatestAsync';
 
 import { createImportTransaction, getImportTransactionNumber, getImportTransactionById } from '../../../../Apis/Inventory/ImportTransactionsApi';
 import { getVariants, getVariantById } from '../../../../Apis/Inventory/VariantsApi';
@@ -54,6 +55,7 @@ const ImportTransactionForm: React.FC<{
   afterAction: () => void;
 }> = ({ formType, id, handleCloseForm, afterAction }) => {
   const { t } = useTranslation();
+  const { runLatest, invalidate } = useLatestAsync();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(formType !== FormTypes.Add);
 
@@ -188,75 +190,47 @@ const ImportTransactionForm: React.FC<{
   };
 
   const updateItem = (lineId: string, field: keyof ImportTransactionItemFormModel, value: string | number) => {
-    setModel((prev) => ({
-      ...prev,
-      items: prev.items.map((item) => (item.id === lineId ? { ...item, [field]: value } : item)),
-    }));
+    if (field === 'variantId') {
+      invalidate(`import-line:${lineId}`);
+      setModel((prev) => ({
+        ...prev,
+        items: prev.items.map((item) =>
+          item.id === lineId
+            ? {
+                ...item,
+                variantId: typeof value === 'string' ? value : '',
+                packingUnitId: '',
+                // Keep manually entered purchase cost; only clear packing unit.
+              }
+            : item
+        ),
+      }));
 
-    if (field === 'variantId' && typeof value === 'string' && value) {
-      getVariantById(value).then((response) => {
-        if (response.isSuccess && response.result) {
-          const selectedVariant = response.result;
+      if (typeof value === 'string' && value) {
+        void runLatest(`import-line:${lineId}`, async ({ isCurrent }) => {
+          const response = await getVariantById(value);
+          if (!isCurrent() || !response.isSuccess || !response.result) return;
           setVariantDetails((prev) => ({
             ...prev,
-            [value]: selectedVariant,
+            [value]: response.result,
           }));
           setModel((prev) => ({
             ...prev,
             items: prev.items.map((item) =>
-              item.id === lineId
-                ? {
-                    ...item,
-                    variantId: value,
-                    packingUnitId: '',
-                    totalCost: 0,
-                  }
+              item.id === lineId && item.variantId === value
+                ? { ...item, packingUnitId: '' }
                 : item
             ),
           }));
-        }
-      });
+        });
+      }
+      return;
     }
 
-    if (field === 'packingUnitId' && typeof value === 'string' && value) {
-      const currentItem = model.items.find((item) => item.id === lineId);
-      if (currentItem?.variantId) {
-        const selectedVariant = variantDetails[currentItem.variantId];
-        if (selectedVariant) {
-          const packingUnit = selectedVariant.packingUnits.find((pu) => pu.packingUnitId === value);
-          if (packingUnit && currentItem.quantity > 0) {
-            const totalCost = packingUnit.averageCostPrice * currentItem.quantity;
-            setModel((prev) => ({
-              ...prev,
-              items: prev.items.map((item) =>
-                item.id === lineId ? { ...item, packingUnitId: value, totalCost } : item
-              ),
-            }));
-          }
-        }
-      }
-    }
-
-    if (field === 'quantity' && typeof value === 'number' && value > 0) {
-      const currentItem = model.items.find((item) => item.id === lineId);
-      if (currentItem?.variantId && currentItem.packingUnitId) {
-        const selectedVariant = variantDetails[currentItem.variantId];
-        if (selectedVariant) {
-          const packingUnit = selectedVariant.packingUnits.find(
-            (pu) => pu.packingUnitId === currentItem.packingUnitId
-          );
-          if (packingUnit) {
-            const totalCost = packingUnit.averageCostPrice * value;
-            setModel((prev) => ({
-              ...prev,
-              items: prev.items.map((item) =>
-                item.id === lineId ? { ...item, quantity: value, totalCost } : item
-              ),
-            }));
-          }
-        }
-      }
-    }
+    setModel((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => (item.id === lineId ? { ...item, [field]: value } : item)),
+    }));
   };
 
   const getVariantPackingUnits = (variantId: string): PackingUnitModel[] => {
@@ -573,7 +547,7 @@ const ImportTransactionForm: React.FC<{
                                 label={t('TotalCost')}
                                 value={item.totalCost}
                                 onChange={(value) => updateItem(item.id, 'totalCost', value)}
-                                disabled={true}
+                                disabled={formType === FormTypes.Details}
                                 error={!!errors[`items[${index}].totalCost`]}
                                 helperText={errors[`items[${index}].totalCost`]}
                               />

@@ -257,10 +257,6 @@
   "SubLeadgerType": "نوع الحساب الفرعي",
   "CashInBox": "صندوق النقد",
   "Type": "النوع",
-  "ColorValue": "لون",
-  "Colors": "الألوان",
-  "Sizes": "المقاسات",
-  "COLOR_IS_REQUIRED": "اللون مطلوب",
   "COLOR_INVALID": "أدخل اسم لون أو كود هكس صحيح",
   "Register": "تسجيل",
   "CreateYourAccount": "أنشئ حسابك",
@@ -514,5 +510,14 @@
   "FailedToLoadVariant": "فشل تحميل المتغير.",
   "FailedToLoadProduct": "فشل تحميل المنتج.",
   "FailedToLoadProductCode": "فشل تحميل كود المنتج التالي.",
-  "ClearVariantCombinationsConfirm": "تغيير نوع المنتج سيمسح تركيبات المتغيرات. هل تريد المتابعة؟"
+  "ClearVariantCombinationsConfirm": "تغيير نوع المنتج سيمسح تركيبات المتغيرات. هل تريد المتابعة؟",
+  "Source and destination branches must be different": "يجب أن يختلف فرع المصدر عن فرع الوجهة",
+  "Quantity exceeds available balance": "الكمية تتجاوز الرصيد المتاح",
+  "Variant is required": "المتغير مطلوب",
+  "Packing unit is required": "وحدة التعبئة مطلوبة",
+  "Quantity is required": "الكمية مطلوبة",
+  "Quantity must be at least 1": "يجب أن تكون الكمية 1 على الأقل",
+  "Source branch is required": "فرع المصدر مطلوب",
+  "Destination branch is required": "فرع الوجهة مطلوب",
+  "At least one variant is required": "يجب إضافة متغير واحد على الأقل"
 }
