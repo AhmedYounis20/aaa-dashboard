@@ -41,6 +41,7 @@ interface ProductInputModel {
   sellingPriceDiscounts?: ProductSellingPriceDiscountModel[];
   packingUnits?: ProductPackingUnitModel[];
   variantCombinations?: VariantCombinationModel[];
+  applyProductChanges?: boolean;
   inventoryThresholdScope?: InventoryThresholdScope;
   inventoryThresholdBranchId?: string | null;
   inventoryThresholds?: InventoryThresholdModel[];

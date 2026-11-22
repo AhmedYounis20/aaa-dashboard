@@ -6,7 +6,8 @@ import {
   Chip,
   IconButton,
   Box,
-  TextField
+  TextField,
+  FormControlLabel,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {
@@ -58,7 +59,7 @@ interface Props {
 const VariantCombinationBuilder: React.FC<Props> = ({
   combinations,
   onChange,
-  // onProductApplyChanges,
+  onProductApplyChanges,
   productApplyChanges,
   handleTranslate,
   formType,
@@ -534,8 +535,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
           <Grid item xs={12} md={6} key={attrDef.id}>
             <InputAutoComplete
               options={getAttributeValuesForDefinition(attrDef.id).map(av => ({
-                label: `${av.name} (${av.id?.slice(0, 8)})`,
-                // label: `${av.name} (${av.code || av.id.slice(0, 8)})`,
+                label: av.name,
                 value: av.id
               }))}
               label={attrDef.name}
@@ -549,17 +549,17 @@ const VariantCombinationBuilder: React.FC<Props> = ({
         ))}
       </Grid>
 
-      {/* <FormControlLabel
+      <FormControlLabel
         sx={{ mb: 2 }}
         control={
           <Switch
             checked={productApplyChanges ?? true}
-            onChange={e => onProductApplyChanges(e.target.checked)}
+            onChange={(e) => onProductApplyChanges(e.target.checked)}
             disabled={formType === FormTypes.Details}
           />
         }
         label={handleTranslate('Apply Product Changes to New Variants')}
-      /> */}
+      />
 
       {/* --- combinations table --- */}
       {combinations.length > 0 && (

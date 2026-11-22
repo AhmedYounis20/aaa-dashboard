@@ -517,5 +517,12 @@
   "Quantity must be at least 1": "Quantity must be at least 1",
   "Source branch is required": "Source branch is required",
   "Destination branch is required": "Destination branch is required",
-  "At least one variant is required": "At least one variant is required"
+  "At least one variant is required": "At least one variant is required",
+  "At least one variant line must be filled": "At least one variant line must be filled",
+  "Party is required": "Party is required",
+  "Branch is required": "Branch is required",
+  "Quantity must be greater than 0": "Quantity must be greater than 0",
+  "Total cost must be greater than 0": "Total cost must be greater than 0",
+  "Failed to load data": "Failed to load data",
+  "Apply Product Changes to New Variants": "Apply Product Changes to New Variants"
 }

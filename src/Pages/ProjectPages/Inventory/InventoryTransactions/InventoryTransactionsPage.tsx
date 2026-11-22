@@ -41,23 +41,17 @@ import ExportTransactionForm from './ExportTransactionForm';
 import { 
   getStockBalances, 
   StockBalanceModel,
-
 } from '../../../../Apis/Inventory/StockBalanceApi';
 import { 
   getImportTransactions, 
   ImportTransactionOutputDtoModel,
-
 } from '../../../../Apis/Inventory/ImportTransactionsApi';
 import { 
   getExportTransactions, 
   ExportTransactionOutputDtoModel,
 } from '../../../../Apis/Inventory/ExportTransactionsApi';
-import { getVariants } from '../../../../Apis/Inventory/VariantsApi';
-import { getPackingUnits } from '../../../../Apis/Inventory/PackingUnitsApi';
 import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
-import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
-import PackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel';
 import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
 import ChartOfAccountModel from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/ChartOfAccountModel';
 
@@ -113,10 +107,9 @@ const InventoryTransactionsPage: React.FC = () => {
   const [stockBalances, setStockBalances] = useState<StockBalanceModel[]>([]);
   const [importTransactions, setImportTransactions] = useState<ImportTransactionOutputDtoModel[]>([]);
   const [exportTransactions, setExportTransactions] = useState<ExportTransactionOutputDtoModel[]>([]);
-  const [variants, setVariants] = useState<VariantModel[]>([]);
-  const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [parties, setParties] = useState<ChartOfAccountModel[]>([]);
+  const [loadedTabs, setLoadedTabs] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -126,49 +119,55 @@ const InventoryTransactionsPage: React.FC = () => {
   const [selectedFormId, setSelectedFormId] = useState<string>('');
   const [selectedFormType, setSelectedFormType] = useState<FormTypes>(FormTypes.Add);
 
-  // Load data
-  useEffect(() => {
-    loadData();
-  }, []);
+  const ensureBranches = async () => {
+    if (branches.length > 0) return;
+    const res = await getBranches();
+    if (res.isSuccess) setBranches(res.result || []);
+  };
 
-  const loadData = async () => {
+  const ensureParties = async () => {
+    if (parties.length > 0) return;
+    const res = await getChartOfAccounts();
+    if (res?.isSuccess) setParties(res.result || []);
+  };
+
+  const loadTabData = async (tab: number, force = false) => {
+    if (!force && loadedTabs[tab]) return;
+
     setLoading(true);
     setError(null);
     try {
-      console.log('Loading data...');
-      
-      const [
-        stockBalancesRes,
-        importTransactionsRes,
-        exportTransactionsRes,
-        variantsRes,
-        packingUnitsRes,
-        branchesRes,
-        partiesRes
-      ] = await Promise.all([
-        getStockBalances(),
-        getImportTransactions(),
-        getExportTransactions(),
-        getVariants(),
-        getPackingUnits(),
-        getBranches(),
-        getChartOfAccounts()
-      ]);
+      await ensureBranches();
 
-      if (stockBalancesRes.isSuccess) setStockBalances(stockBalancesRes.result || []);
-      if (importTransactionsRes.isSuccess) setImportTransactions(importTransactionsRes.result || []);
-      if (exportTransactionsRes.isSuccess) setExportTransactions(exportTransactionsRes.result || []);
-      if (variantsRes.isSuccess) setVariants(variantsRes.result || []);
-      if (packingUnitsRes.isSuccess) setPackingUnits(packingUnitsRes.result || []);
-      if (branchesRes.isSuccess) setBranches(branchesRes.result || []);
-      if (partiesRes.isSuccess) setParties(partiesRes.result || []);
-    } catch (err) {
-      console.error('Error loading data:', err);
-      setError('Failed to load data');
+      if (tab === 0) {
+        const stockBalancesRes = await getStockBalances();
+        if (stockBalancesRes.isSuccess) setStockBalances(stockBalancesRes.result || []);
+      } else if (tab === 1) {
+        await ensureParties();
+        const importTransactionsRes = await getImportTransactions();
+        if (importTransactionsRes.isSuccess) {
+          setImportTransactions(importTransactionsRes.result || []);
+        }
+      } else if (tab === 2) {
+        await ensureParties();
+        const exportTransactionsRes = await getExportTransactions();
+        if (exportTransactionsRes.isSuccess) {
+          setExportTransactions(exportTransactionsRes.result || []);
+        }
+      }
+
+      setLoadedTabs((prev) => ({ ...prev, [tab]: true }));
+    } catch {
+      setError(t('Failed to load data'));
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    void loadTabData(tabValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabValue]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -197,7 +196,7 @@ const InventoryTransactionsPage: React.FC = () => {
   };
 
   const handleAfterAction = () => {
-    loadData();
+    void loadTabData(tabValue, true);
     handleCloseImportForm();
     handleCloseExportForm();
   };
@@ -237,8 +236,6 @@ const InventoryTransactionsPage: React.FC = () => {
           <TabPanel value={tabValue} index={0}>
             <StockBalanceView 
               stockBalances={stockBalances}
-              variants={variants}
-              packingUnits={packingUnits}
               branches={branches}
             />
           </TabPanel>
@@ -291,35 +288,18 @@ const InventoryTransactionsPage: React.FC = () => {
 // Stock Balance View Component
 const StockBalanceView: React.FC<{
   stockBalances: StockBalanceModel[];
-  variants: VariantModel[];
-  packingUnits: PackingUnitModel[];
   branches: BranchModel[];
-}> = ({ stockBalances, variants, packingUnits, branches }) => {
+}> = ({ stockBalances, branches }) => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
 
-  const getVariantForBalance = (balance: StockBalanceModel) => {
-    if (balance.variantName || balance.variantCode) {
-      return {
-        name: balance.variantName ?? '',
-        code: balance.variantCode ?? '',
-        productName: balance.productName,
-      };
-    }
-    const variant = variants.find((v) => v.id === balance.variantId);
-    return variant
-      ? { name: variant.name, code: variant.code, productName: variant.productName }
-      : undefined;
-  };
-
   const filteredBalances = stockBalances.filter((balance) => {
-    const variant = getVariantForBalance(balance);
     const matchesSearch =
       !searchTerm ||
-      variant?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      variant?.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      variant?.productName?.toLowerCase().includes(searchTerm.toLowerCase());
+      balance.variantName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      balance.variantCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      balance.productName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBranch = !selectedBranch || balance.branchId === selectedBranch;
     return matchesSearch && matchesBranch;
   });
@@ -375,10 +355,10 @@ const StockBalanceView: React.FC<{
           </TableHead>
           <TableBody>
             {filteredBalances.map((balance) => {
-              const variant = getVariantForBalance(balance);
-              const branch = branches.find(b => b.id === balance.branchId) ?? (balance.branchName ? { name: balance.branchName } : undefined);
-              const packingUnit = packingUnits.find(p => p.id === balance.packingUnitId);
-              
+              const branch =
+                branches.find((b) => b.id === balance.branchId) ??
+                (balance.branchName ? { name: balance.branchName } : undefined);
+
               const getStatus = () => {
                 if (balance.currentBalance <= balance.minimumBalance) return 'low';
                 if (balance.currentBalance >= balance.maximumBalance) return 'overstock';
@@ -387,11 +367,11 @@ const StockBalanceView: React.FC<{
 
               return (
                 <TableRow key={balance.id}>
-                  <TableCell>{variant?.name}</TableCell>
-                  <TableCell>{variant?.productName}</TableCell>
-                  <TableCell>{variant?.code}</TableCell>
+                  <TableCell>{balance.variantName}</TableCell>
+                  <TableCell>{balance.productName}</TableCell>
+                  <TableCell>{balance.variantCode}</TableCell>
                   <TableCell>{branch?.name ?? balance.branchName}</TableCell>
-                  <TableCell>{packingUnit?.name}</TableCell>
+                  <TableCell>{balance.packingUnitName}</TableCell>
                   <TableCell align="right">{balance.currentBalance}</TableCell>
                   <TableCell align="right">{balance.minimumBalance}</TableCell>
                   <TableCell align="right">{balance.maximumBalance}</TableCell>

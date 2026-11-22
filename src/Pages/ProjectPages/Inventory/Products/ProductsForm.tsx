@@ -97,6 +97,7 @@ const ProductsForm: React.FC<{
     costCenters: [],
     packingUnits: [createProductPackingUnit(true, 0)],
     variantCombinations: [],
+    applyProductChanges: true,
     inventoryThresholdScope: InventoryThresholdScope.All,
     inventoryThresholdBranchId: null,
     inventoryThresholds: [],
@@ -429,9 +430,9 @@ const ProductsForm: React.FC<{
                       combinations={model.variantCombinations || []}
                       onChange={(combinations) => setModel(prev => prev ? { ...prev, variantCombinations: combinations } : prev)}
                       onProductApplyChanges={(val: boolean) => {
-                        setModel(prev => prev ? { ...prev, applyDomainChanges: val } : prev);
+                        setModel(prev => prev ? { ...prev, applyProductChanges: val } : prev);
                       }}
-                      productApplyChanges={true}
+                      productApplyChanges={model.applyProductChanges ?? true}
                       handleTranslate={handleTranslate}
                       formType={formType}
                       productName={model.name || ''}

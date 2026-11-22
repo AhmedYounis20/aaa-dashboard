@@ -519,5 +519,12 @@
   "Quantity must be at least 1": "يجب أن تكون الكمية 1 على الأقل",
   "Source branch is required": "فرع المصدر مطلوب",
   "Destination branch is required": "فرع الوجهة مطلوب",
-  "At least one variant is required": "يجب إضافة متغير واحد على الأقل"
+  "At least one variant is required": "يجب إضافة متغير واحد على الأقل",
+  "At least one variant line must be filled": "يجب تعبئة بند متغير واحد على الأقل",
+  "Party is required": "الطرف مطلوب",
+  "Branch is required": "الفرع مطلوب",
+  "Quantity must be greater than 0": "يجب أن تكون الكمية أكبر من صفر",
+  "Total cost must be greater than 0": "يجب أن تكون التكلفة الإجمالية أكبر من صفر",
+  "Failed to load data": "فشل تحميل البيانات",
+  "Apply Product Changes to New Variants": "تطبيق تغييرات المنتج على المتغيرات الجديدة"
 }

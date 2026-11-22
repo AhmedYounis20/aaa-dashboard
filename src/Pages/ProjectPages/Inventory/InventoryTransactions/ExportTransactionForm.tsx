@@ -18,6 +18,7 @@ import { getVariants, getVariantById } from '../../../../Apis/Inventory/Variants
 import { getPackingUnits } from '../../../../Apis/Inventory/PackingUnitsApi';
 import { getBranches } from '../../../../Apis/Account/BranchesApi';
 import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
+import { getCurrentBalance } from '../../../../Apis/Inventory/StockBalanceApi';
 
 import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
 import PackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel';
@@ -64,8 +65,12 @@ const ExportTransactionForm: React.FC<{
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
   const [variantDetails, setVariantDetails] = useState<Record<string, VariantModel>>({});
+  const [lineBalances, setLineBalances] = useState<Record<string, number>>({});
   const variantDetailsRef = useRef(variantDetails);
   variantDetailsRef.current = variantDetails;
+
+  const lineBalanceKey = (variantId: string, packingUnitId: string) =>
+    `${variantId}|${packingUnitId}`;
 
   const createTransactionItem = (): ExportTransactionItemFormModel => ({
     id: uuid(),
@@ -268,6 +273,38 @@ const ExportTransactionForm: React.FC<{
     );
   };
 
+  useEffect(() => {
+    if (!model.branchId) {
+      setLineBalances({});
+      return;
+    }
+
+    void runLatest(`export-balances:${model.branchId}`, async ({ isCurrent }) => {
+      const entries = await Promise.all(
+        model.items.map(async (item) => {
+          if (!item.variantId || !item.packingUnitId) return null;
+          const res = await getCurrentBalance(
+            item.variantId,
+            item.packingUnitId,
+            model.branchId
+          );
+          return [
+            lineBalanceKey(item.variantId, item.packingUnitId),
+            res.isSuccess && res.result ? res.result.currentBalance : 0,
+          ] as const;
+        })
+      );
+
+      if (!isCurrent()) return;
+
+      const balances: Record<string, number> = {};
+      entries.forEach((entry) => {
+        if (entry) balances[entry[0]] = entry[1];
+      });
+      setLineBalances(balances);
+    });
+  }, [model.branchId, model.items, runLatest]);
+
   const getVariantLabel = (variant: VariantModel) =>
     variant.productName ? `${variant.productName} / ${variant.code}` : `${variant.code} - ${variant.name}`;
 
@@ -275,35 +312,45 @@ const ExportTransactionForm: React.FC<{
     const newErrors: Record<string, string> = {};
 
     if (!model.transactionPartyId) {
-      newErrors.transactionPartyId = 'Party is required';
+      newErrors.transactionPartyId = t('Party is required');
     }
 
     if (!model.branchId) {
-      newErrors.branchId = 'Branch is required';
+      newErrors.branchId = t('Branch is required');
     }
 
     if (model.items.length === 0) {
-      newErrors.items = 'At least one variant is required';
+      newErrors.items = t('At least one variant is required');
     } else if (
       model.items.every(
         (item) => !item.variantId && !item.packingUnitId && item.quantity === 0 && item.totalCost === 0
       )
     ) {
-      newErrors.items = 'At least one variant line must be filled';
+      newErrors.items = t('At least one variant line must be filled');
     }
 
     model.items.forEach((item, index) => {
       if (!item.variantId) {
-        newErrors[`items[${index}].variantId`] = 'Variant is required';
+        newErrors[`items[${index}].variantId`] = t('Variant is required');
       }
       if (!item.packingUnitId) {
-        newErrors[`items[${index}].packingUnitId`] = 'Packing unit is required';
+        newErrors[`items[${index}].packingUnitId`] = t('Packing unit is required');
       }
       if (item.quantity <= 0) {
-        newErrors[`items[${index}].quantity`] = 'Quantity must be greater than 0';
+        newErrors[`items[${index}].quantity`] = t('Quantity must be greater than 0');
       }
       if (item.totalCost <= 0) {
-        newErrors[`items[${index}].totalCost`] = 'Total cost must be greater than 0';
+        newErrors[`items[${index}].totalCost`] = t('Total cost must be greater than 0');
+      }
+
+      if (item.variantId && item.packingUnitId && item.quantity > 0) {
+        const balance =
+          lineBalances[lineBalanceKey(item.variantId, item.packingUnitId)] ?? 0;
+        if (item.quantity > balance) {
+          newErrors[`items[${index}].quantity`] = t(
+            'Quantity exceeds available balance'
+          );
+        }
       }
     });
 

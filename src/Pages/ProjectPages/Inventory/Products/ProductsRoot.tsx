@@ -10,7 +10,6 @@ import { ProductType } from '../../../../interfaces/ProjectInterfaces/Inventory/
 import { ProductNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType';
 import { getEnumString } from '../../../../Helper/enumHelper';
 import { getProductPicture } from '../../../../Helper/productAttachmentHelper';
-// import ProductAttachmentModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel';
 import ImagePreview from '../../../../Components/Images/ImagePreview';
 import { NodeType } from '../../../../interfaces/Components/NodeType';
 
@@ -21,7 +20,7 @@ const ProductsRoot = () => {
   const [parentId, setParentId] = useState<string | null>(null);
   const [data, setData] = useState<ProductModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [filterType] = useState<string>('all');
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const columns = [
@@ -55,38 +54,36 @@ const ProductsRoot = () => {
     {
       Header: t("Type"),
       accessor: "productType",
-      renderCell: (row:{value:any}) => {
-        return getEnumString(ProductType, row.value);
-        return row.value;
-      },
+      renderCell: (row:{value:any}) => getEnumString(ProductType, row.value),
     },
     {
       Header: t("Node Type"),
       accessor: "nodeType",
-      renderCell: (row : {value:any} ) => {
-        return getEnumString(ProductNodeType, row.value);
-      },
+      renderCell: (row : {value:any} ) => getEnumString(ProductNodeType, row.value),
     }
   ];
 
   const fetchData = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
+      // Products are a category tree; backend exposes GetAll (no paginated tree endpoint).
       const result = await getProducts();
-      
       if (result.isSuccess) {
         setData(result.result || []);
+      } else {
+        setLoadError(t("FailedToLoadProduct", "Failed to load products."));
       }
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } catch {
+      setLoadError(t("FailedToLoadProduct", "Failed to load products."));
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [filterType]);
+    void fetchData();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -108,17 +105,19 @@ const ProductsRoot = () => {
   };
 
   const handleAfterAction = () => {
-    fetchData();
+    void fetchData();
   };
-
 
   if (isLoading) {
     return <Loader />;
   }
 
+  if (loadError) {
+    return <div className="p-3 text-danger">{loadError}</div>;
+  }
+
   return (
     <>
-
       {showForm ? (
         <ProductsForm
           formType={formType}
@@ -128,29 +127,28 @@ const ProductsRoot = () => {
           afterAction={handleAfterAction}
           handleTranslate={t}
         />
-      ) :      <AppContent
-        tableType="tree"
-        title={t("Products Management")}
-        data={data}
-        columns={columns}
-        btnName={t("AddNew")}
-        addBtn
-        btn
-        startIcon
-        actionBtn={handleAdd}
-        handleShowForm={handleShowForm}
-        changeFormType={setFormType}
-        handleSelectId={handleSelectId}
-        handleSelectParentId={setParentId}
-        showedit={true}
-        showdelete={true}
-        showAddButtonIf={(data)=> data.nodeType === NodeType.Category}
-      /> }
+      ) : (
+        <AppContent
+          tableType="tree"
+          title={t("Products Management")}
+          data={data}
+          columns={columns}
+          btnName={t("AddNew")}
+          addBtn
+          btn
+          startIcon
+          actionBtn={handleAdd}
+          handleShowForm={handleShowForm}
+          changeFormType={setFormType}
+          handleSelectId={handleSelectId}
+          handleSelectParentId={setParentId}
+          showedit={true}
+          showdelete={true}
+          showAddButtonIf={(row) => row.nodeType === NodeType.Category}
+        />
+      )}
     </>
   );
 };
 
 export default ProductsRoot;
-
-
-
