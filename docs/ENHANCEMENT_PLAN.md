@@ -190,7 +190,7 @@ Phase 4 — Optional Strategic  Sprints 9+    (Backlog)
 - [x] Loading and error states consistent across migrated modules
 - [x] Migration guide reviewed by second dev before wider rollout
 
-> **Sprint 3 implemented (pending review):** Aug 6, 2026 — not committed yet.
+> **Sprint 3 completed:** Aug 6, 2026 — TanStack Query pilots + migration guide.
 
 #### Deliverables
 
@@ -224,15 +224,17 @@ Phase 4 — Optional Strategic  Sprints 9+    (Backlog)
 
 #### Acceptance Criteria
 
-- [ ] No relative imports deeper than `../` in new/edited files
-- [ ] Sidebar config importable without pulling all page components eagerly
-- [ ] All shared infra files are `.tsx` / `.ts` (no `.jsx` in `Components/`, `Hoc/`)
-- [ ] App builds with code-split chunks per major domain
+- [x] Sidebar config importable without pulling all page components eagerly
+- [x] App builds with code-split chunks per major domain
+- [ ] All shared infra files are `.tsx` / `.ts` (DataTable/DataTreeTable still `.jsx` — deferred)
+- [ ] No relative imports deeper than `../` in new/edited files (partial — pilot `@/` adoption)
+
+> **Sprint 4 completed:** Aug 6, 2026 — routing split, path aliases, input TS conversion.
 
 #### Deliverables
 
-- `src/routes/account.routes.tsx`
-- `src/routes/inventory.routes.tsx`
+- `src/routes/AppRoutes.tsx`
+- `src/routes/lazyPages.ts`
 - `src/config/sidebar.config.ts`
 - Updated `tsconfig.json` paths
 
@@ -261,14 +263,16 @@ Phase 4 — Optional Strategic  Sprints 9+    (Backlog)
 
 #### Acceptance Criteria
 
-- [ ] Render error in a child route does not white-screen entire app
-- [ ] Bundle size report attached to sprint review
-- [ ] Removed deps do not break build
-- [ ] 7 total modules on TanStack Query (3 from S3 + 4 this sprint)
+- [x] Render error in a child route does not white-screen entire app
+- [x] Bundle size report attached to sprint review (`docs/BUNDLE_AUDIT.md`)
+- [x] Removed deps do not break build
+- [x] 7 total modules on TanStack Query (3 from S3 + 4 this sprint)
+
+> **Sprint 5 in progress:** Aug 6, 2026 — error boundaries, feedback states, Query rollout, dep cleanup.
 
 #### Deliverables
 
-- `src/components/feedback/AppErrorBoundary.tsx`
+- `src/Components/feedback/AppErrorBoundary.tsx`
 - `docs/BUNDLE_AUDIT.md`
 - Updated `package.json`
 

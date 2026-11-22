@@ -1,25 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { FormTypes } from '../../../../../interfaces/Components';
-import TaxesForm from './TaxesForm';
-import Loader from '../../../../../Components/Loader';
-import { AppContent } from '../../../../../Components';
-import { getTaxes } from "../../../../../Apis/Account/TaxesApi";
-import { NodeType } from '../../../../../interfaces/Components/NodeType';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FormTypes } from "@/interfaces/Components";
+import TaxesForm from "./TaxesForm";
+import { AppContent } from "@/Components";
+import { NodeType } from "@/interfaces/Components/NodeType";
+import { TaxModel } from "@/interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
+import { useTaxesList } from "@/hooks/queries";
+import Loader from "@/Components/Loader";
 
 const columns = [
-  {
-    Header: "Code",
-    accessor: "chartOfAccount.code",
-  },
-  {
-    Header: "Name",
-    accessor: "name",
-  },
-  {
-    Header: "NameSecondLanguage",
-    accessor: "nameSecondLanguage",
-  },
+  { Header: "Code", accessor: "chartOfAccount.code" },
+  { Header: "Name", accessor: "name" },
+  { Header: "NameSecondLanguage", accessor: "nameSecondLanguage" },
 ];
 
 const TaxesRoot = () => {
@@ -28,68 +20,51 @@ const TaxesRoot = () => {
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
   const [parentId, setParentId] = useState<string | null>(null);
-  const [data, setData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchData = async () => {
-    const result = await getTaxes();
-    if (result && result.isSuccess) {
-      setData(result.result);
-      setIsLoading(false);
-    }
-  };
+  const { data = [], isLoading, isFetching, isError, refetch } = useTaxesList();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const handleShowForm = () => setShowForm(true);
+  const handleCloseForm = () => setShowForm(false);
+  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
-  const handleSelectId: (id: string) => void = (id) =>
-    setSelectedId(id);
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
     <div className="h-full">
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <>
-          {showForm && (
-            <TaxesForm
-              id={selectedId ?? ""}
-              handleCloseForm={handleCloseForm}
-              formType={formType}
-              parentId={parentId}
-              afterAction={() => fetchData()}
-            />
-          )}
-          {data && (
-            <AppContent
-              tableType="tree"
-              title={t("Taxes")}
-              btn
-              addBtn
-              actionBtn={() => {
-                setParentId(null);
-                setFormType(FormTypes.Add);
-                handleShowForm();
-              }}
-              columns={columns}
-              data={data}
-              handleShowForm={handleShowForm}
-              changeFormType={setFormType}
-              handleSelectId={handleSelectId}
-              handleSelectParentId={setParentId}
-              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
-            />
-          )}
-        </>
+      {showForm && (
+        <TaxesForm
+          id={selectedId ?? ""}
+          handleCloseForm={handleCloseForm}
+          formType={formType}
+          parentId={parentId}
+        />
       )}
+      <AppContent
+        tableType="tree"
+        title={t("Taxes")}
+        btn
+        addBtn
+        actionBtn={() => {
+          setParentId(null);
+          setFormType(FormTypes.Add);
+          handleShowForm();
+        }}
+        columns={columns}
+        data={data as TaxModel[]}
+        loading={isFetching}
+        isError={isError}
+        onRetry={() => void refetch()}
+        onRefresh={() => void refetch()}
+        handleShowForm={handleShowForm}
+        changeFormType={setFormType}
+        handleSelectId={handleSelectId}
+        handleSelectParentId={setParentId}
+        showAddButtonIf={(row) => row.nodeType === NodeType.Category}
+      />
     </div>
   );
-}
+};
 
 export default TaxesRoot;

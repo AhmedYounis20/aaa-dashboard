@@ -5,18 +5,18 @@ import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import { NodeType, NodeTypeOptions } from "../../../../../interfaces/Components/NodeType";
 import { TextareaAutosize } from "@mui/material";
 import BankModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/BankModel";
-import { getBankById, getDefaultBank, createBank, updateBank, deleteBank } from "../../../../../Apis/Account/BanksApi";
 import { BankSchema } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Banks/validation-bank";
 import { useTranslation } from "react-i18next";
 import InputText from "../../../../../Components/Inputs/InputText";
+import Loader from "../../../../../Components/Loader";
+import { useBankDetail, useBankMutations } from "../../../../../hooks/queries";
 
 const BanksForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-  afterAction?: () => void;
-}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
+}> = ({ formType, id, parentId, handleCloseForm }) => {
   const { t } = useTranslation();
   const [model, setModel] = useState<BankModel>({
     name: "",
@@ -31,37 +31,33 @@ const BanksForm: React.FC<{
     notes: "",
     phone: "",
   });
-  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { data: fetchedModel, defaultData, isLoading } = useBankDetail(
+    id,
+    formType,
+    parentId
+  );
+  const { createMutation, updateMutation, deleteMutation } = useBankMutations();
+
   useEffect(() => {
-    if (formType !== FormTypes.Add) {
-      const fetchData = async () => {
-        setIsLoading(true);
-        const result = await getBankById(id);
-        if (result && result.result) {
-          setModel({...result.result,
-            code: result.result.chartOfAccount?.code ?? result.result.code,
-           });
-        }
-        setIsLoading(false);
-      };
-      fetchData();
-    } else {
-      const fetchDefault = async () => {
-        setIsLoading(true);
-        const result = await getDefaultBank(parentId);
-        if (result && result.result) {
-          setModel((prevModel) => ({
-            ...prevModel,
-            code: result.result.code,
-          }));
-        }
-        setIsLoading(false);
-      };
-      fetchDefault();
+    if (fetchedModel) {
+      setModel(fetchedModel);
     }
-  }, [formType, id, parentId]);
+  }, [fetchedModel]);
+
+  useEffect(() => {
+    if (defaultData?.code) {
+      setModel((prevModel) => ({
+        ...prevModel,
+        code: defaultData.code,
+      }));
+    }
+  }, [defaultData]);
+
+  useEffect(() => {
+    setModel((prev) => ({ ...prev, parentId }));
+  }, [parentId]);
 
   const validate = async () => {
     try {
@@ -81,35 +77,29 @@ const BanksForm: React.FC<{
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-    const response = await updateBank(model.id, model);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createBank(model);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await createMutation.mutateAsync(model);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteBank(id);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await deleteMutation.mutateAsync(id);
       return true;
-    } 
-    return false;
+    } catch {
+      return false;
+    }
   };
 
   return (
@@ -124,7 +114,7 @@ const BanksForm: React.FC<{
       >
         <div>
           {isLoading ? (
-            <div className="spinner-border text-primary" role="status"></div>
+            <Loader />
           ) : (
             <>
               {formType === FormTypes.Delete ? (

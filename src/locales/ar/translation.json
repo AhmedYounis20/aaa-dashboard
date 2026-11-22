@@ -193,6 +193,8 @@
   "NotFound": "الصفحة غير موجودة",
   "InternalServerError": "خطأ داخلي في الخادم",
   "SomethingWentWrong": "حدث خطأ ما",
+  "NoDataFound": "لا توجد بيانات",
+  "Retry": "إعادة المحاولة",
   "TryAgain": "يرجى المحاولة مرة أخرى",
   "ContactSupport": "تواصل مع الدعم إذا استمرت المشكلة",
   "StartDate": "تاريخ البداية",
@@ -506,5 +508,11 @@
   "No attribute definitions selected": "لم يتم اختيار تعريفات خصائص",
   "Select attribute definitions above to configure them for this product": "اختر تعريفات الخصائص أعلاه لضبطها لهذا المنتج",
   "SalesTaxes": "ضرائب المبيعات",
-  "PurchaseTaxes": "ضرائب المشتريات"
+  "PurchaseTaxes": "ضرائب المشتريات",
+  "Products": "المنتجات",
+  "VariantsCreatedViaProducts": "يتم إنشاء المتغيرات من المنتجات.",
+  "FailedToLoadVariant": "فشل تحميل المتغير.",
+  "FailedToLoadProduct": "فشل تحميل المنتج.",
+  "FailedToLoadProductCode": "فشل تحميل كود المنتج التالي.",
+  "ClearVariantCombinationsConfirm": "تغيير نوع المنتج سيمسح تركيبات المتغيرات. هل تريد المتابعة؟"
 }

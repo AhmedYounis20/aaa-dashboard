@@ -93,21 +93,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession, navigate]);
 
   useEffect(() => {
-    const accessToken = authStorage.getAccessToken();
+    let cancelled = false;
 
-    if (accessToken && !isTokenExpired(accessToken)) {
-      try {
-        const userData = decodeUserFromToken(accessToken);
-        setUser(userData);
-        dispatch(setLoggedInUser(userData));
-      } catch {
+    const bootstrapSession = async () => {
+      const accessToken = authStorage.getAccessToken();
+      const refreshToken = authStorage.getRefreshToken();
+
+      if (accessToken && !isTokenExpired(accessToken)) {
+        try {
+          const userData = decodeUserFromToken(accessToken);
+          if (!cancelled) {
+            setUser(userData);
+            dispatch(setLoggedInUser(userData));
+          }
+        } catch {
+          clearSession();
+        }
+      } else if (refreshToken) {
+        const refreshed = await refreshTokens();
+        if (cancelled) return;
+
+        if (refreshed) {
+          const newAccessToken = authStorage.getAccessToken();
+          if (newAccessToken) {
+            try {
+              const userData = decodeUserFromToken(newAccessToken);
+              setUser(userData);
+              dispatch(setLoggedInUser(userData));
+            } catch {
+              clearSession();
+            }
+          } else {
+            clearSession();
+          }
+        } else {
+          clearSession();
+        }
+      } else if (accessToken) {
         clearSession();
       }
-    } else if (accessToken) {
-      clearSession();
-    }
 
-    setIsLoading(false);
+      if (!cancelled) {
+        setIsLoading(false);
+      }
+    };
+
+    void bootstrapSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, [clearSession, dispatch]);
 
   useEffect(() => {

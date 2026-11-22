@@ -1,38 +1,23 @@
-import { useEffect, useState } from "react";
-import { AppContent } from "../../../../Components";
-import { FormTypes } from "../../../../interfaces/Components";
+import { useState } from "react";
+import { AppContent } from "@/Components";
+import { FormTypes } from "@/interfaces/Components";
 import SellingPricesForm from "./SellingPricesForm";
 import { Box } from "@mui/material";
-import { getSellingPrices } from "../../../../Apis/Inventory/SellingPricesApi";
-import SellingPriceModel from "../../../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import SellingPriceModel from "@/interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
 import { useTranslation } from "react-i18next";
+import { useSellingPricesList } from "@/hooks/queries";
+import Loader from "@/Components/Loader";
 
 const SellingPricesRoot = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedId, setSelectedId] = useState<string>("");
-  const [data, setData] = useState<SellingPriceModel[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { t } = useTranslation();
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    const result = await getSellingPrices();
-    if (result && result.isSuccess) {
-      setData(result.result);
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data = [], isLoading, isFetching, isError, refetch } = useSellingPricesList();
 
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
+  const handleShowForm = () => setShowForm(true);
+  const handleCloseForm = () => setShowForm(false);
   const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
 
   const columns = [
@@ -40,23 +25,28 @@ const SellingPricesRoot = () => {
     { Header: t("NameSecondLanguage"), accessor: "nameSecondLanguage" },
   ];
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <div className='w-full'>
+    <div className="w-full">
       <Box>
         {showForm && (
           <SellingPricesForm
             id={selectedId}
             handleCloseForm={handleCloseForm}
             formType={formType}
-            afterAction={() => fetchData()}
           />
         )}
 
         <AppContent
-          tableType='table'
-          data={data}
-          loading={isLoading}
-          onRefresh={() => fetchData()}
+          tableType="table"
+          data={data as SellingPriceModel[]}
+          loading={isFetching}
+          isError={isError}
+          onRetry={() => void refetch()}
+          onRefresh={() => void refetch()}
           title={t("SellingPrices")}
           columns={columns}
           btnName={t("AddNew")}

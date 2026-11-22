@@ -46,12 +46,12 @@ const VariantsRoot = () => {
       Header: t("Attributes"),
       accessor: "variantAttributeValues",
       renderCell: (params: { value: VariantAttributeValueModel[] }) => {
-        console.log("paraps:", params);
         const attributes = params.value || [];
         return (
           <div>
             {attributes.map((attr) => (
               <SmartChip
+                key={`${attr.attributeDefinitionId}-${attr.attributeValueId}`}
                 value={`${attr.attributeDefinition?.name}: ${attr.attributeValue?.name}`}
               />
             ))}
@@ -96,11 +96,7 @@ const VariantsRoot = () => {
           tableType="table"
           title={t("Variants Management")}
           columns={columns}
-          startIcon
-          actionBtn={() => {
-            setFormType(FormTypes.Add);
-            handleShowForm();
-          }}
+          btn={false}
           handleShowForm={handleShowForm}
           changeFormType={setFormType}
           handleSelectId={handleSelectId}

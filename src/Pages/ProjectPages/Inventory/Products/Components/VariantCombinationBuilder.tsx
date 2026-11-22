@@ -75,6 +75,10 @@ const VariantCombinationBuilder: React.FC<Props> = ({
   const prevAttributesRef = useRef<{ [key: string]: string[] }>({});
   const didInit = useRef(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const combinationsRef = useRef(combinations);
+  const excludedComboKeysRef = useRef<Set<string>>(new Set());
+
+  combinationsRef.current = combinations;
 
   const attributeDefinitionNameMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -151,86 +155,11 @@ const VariantCombinationBuilder: React.FC<Props> = ({
     }
   }, [combinations.length, page, rowsPerPage]);
 
-  const handleAttributeSelectionChange = (attributeDefinitionId: string, newValueIds: string[]) => {
-    // Update selected attributes first
-    const updatedSelectedAttributes = {
-      ...selectedAttributes,
-      [attributeDefinitionId]: newValueIds
-    };
-    setSelectedAttributes(updatedSelectedAttributes);
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = setTimeout(() => {
-      const newCombinations = buildCombinations(updatedSelectedAttributes, combinations);
-      onChange(newCombinations);
-    }, 300);
-  };
-
   const getVariantAttributeDefinitionIds = () => {
     return productAttributeDefinitions
       .filter(pad => pad.isVariant)
       .map(pad => pad.attributeDefinitionId);
   };
-
-  useEffect(() => {
-    const variantIds = getVariantAttributeDefinitionIds();
-    const selectionsReady = Object.keys(selectedAttributes).length > 0;
-
-    // If combinations are already loaded (update flow) but selections aren't initialized yet,
-    // avoid rebuilding/clearing until the combinations-based init runs.
-    if (combinations.length > 0 && !selectionsReady) {
-      return;
-    }
-
-    // Remove selections for attribute definitions that are no longer variants
-    const nextSelectedAttributes: { [key: string]: string[] } = {};
-    Object.entries(selectedAttributes).forEach(([attrDefId, valueIds]) => {
-      if (variantIds.includes(attrDefId)) {
-        nextSelectedAttributes[attrDefId] = valueIds;
-      }
-    });
-
-    const selectionChanged =
-      Object.keys(nextSelectedAttributes).length !== Object.keys(selectedAttributes).length ||
-      Object.keys(nextSelectedAttributes).some(
-        key => (selectedAttributes[key] || []).length !== (nextSelectedAttributes[key] || []).length
-      );
-
-    if (selectionChanged) {
-      setSelectedAttributes(nextSelectedAttributes);
-    }
-
-    // Rebuild combinations based on current (filtered) selections
-    if (variantIds.length === 0) {
-      if (combinations.length > 0) {
-        // Avoid clearing existing combinations during initial load before variants are known.
-        if (!didInit.current) {
-          return;
-        }
-        onChange([]);
-      }
-      return;
-    }
-
-    const nextCombinations = buildCombinations(nextSelectedAttributes, combinations);
-    const shouldUpdate =
-      nextCombinations.length !== combinations.length ||
-      nextCombinations.some((combo, idx) => {
-        const existing = combinations[idx];
-        if (!existing) return true;
-        const existingKeys = Object.keys(existing.attributeValues);
-        const nextKeys = Object.keys(combo.attributeValues);
-        if (existingKeys.length !== nextKeys.length) return true;
-        return nextKeys.some(key => existing.attributeValues[key] !== combo.attributeValues[key]);
-      });
-
-    if (shouldUpdate) {
-      onChange(nextCombinations);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productAttributeDefinitions]);
 
   const getCombinationKey = useCallback((attributeValuesMap: { [key: string]: string }) => {
     const sortedKeys = Object.keys(attributeValuesMap).sort();
@@ -293,6 +222,107 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       return combo;
     });
   }, [generateAllCombinations, getCombinationKey]);
+
+  const applyBuiltCombinations = useCallback(
+    (attributes: { [key: string]: string[] }, existing: VariantCombination[]) => {
+      const generated = generateAllCombinations(attributes);
+      const generatedKeys = new Set(
+        generated.map((combo) => getCombinationKey(combo.attributeValues))
+      );
+      excludedComboKeysRef.current = new Set(
+        [...excludedComboKeysRef.current].filter((key) => generatedKeys.has(key))
+      );
+
+      const built = buildCombinations(attributes, existing).filter(
+        (combo) =>
+          !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
+      );
+      onChange(built);
+    },
+    [buildCombinations, generateAllCombinations, getCombinationKey, onChange]
+  );
+
+  const handleAttributeSelectionChange = (
+    attributeDefinitionId: string,
+    newValueIds: string[]
+  ) => {
+    const updatedSelectedAttributes = {
+      ...selectedAttributes,
+      [attributeDefinitionId]: newValueIds,
+    };
+    setSelectedAttributes(updatedSelectedAttributes);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      applyBuiltCombinations(updatedSelectedAttributes, combinationsRef.current);
+    }, 300);
+  };
+
+  useEffect(() => {
+    const variantIds = getVariantAttributeDefinitionIds();
+    const selectionsReady = Object.keys(selectedAttributes).length > 0;
+
+    if (combinations.length > 0 && !selectionsReady) {
+      return;
+    }
+
+    const nextSelectedAttributes: { [key: string]: string[] } = {};
+    Object.entries(selectedAttributes).forEach(([attrDefId, valueIds]) => {
+      if (variantIds.includes(attrDefId)) {
+        nextSelectedAttributes[attrDefId] = valueIds;
+      }
+    });
+
+    const selectionChanged =
+      Object.keys(nextSelectedAttributes).length !== Object.keys(selectedAttributes).length ||
+      Object.keys(nextSelectedAttributes).some(
+        (key) =>
+          (selectedAttributes[key] || []).length !==
+          (nextSelectedAttributes[key] || []).length
+      );
+
+    if (selectionChanged) {
+      setSelectedAttributes(nextSelectedAttributes);
+    }
+
+    if (variantIds.length === 0) {
+      if (combinations.length > 0) {
+        if (!didInit.current) {
+          return;
+        }
+        excludedComboKeysRef.current.clear();
+        onChange([]);
+      }
+      return;
+    }
+
+    const nextCombinations = buildCombinations(
+      nextSelectedAttributes,
+      combinations
+    ).filter(
+      (combo) =>
+        !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
+    );
+    const shouldUpdate =
+      nextCombinations.length !== combinations.length ||
+      nextCombinations.some((combo, idx) => {
+        const existing = combinations[idx];
+        if (!existing) return true;
+        const existingKeys = Object.keys(existing.attributeValues);
+        const nextKeys = Object.keys(combo.attributeValues);
+        if (existingKeys.length !== nextKeys.length) return true;
+        return nextKeys.some(
+          (key) => existing.attributeValues[key] !== combo.attributeValues[key]
+        );
+      });
+
+    if (shouldUpdate) {
+      onChange(nextCombinations);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productAttributeDefinitions]);
 
   const generateCartesianProduct = (attributeIds: string[], attributes: { [key: string]: string[] }) => {
     if (attributeIds.length === 0) return [{}];
@@ -380,7 +410,12 @@ const VariantCombinationBuilder: React.FC<Props> = ({
   }, [combinations, getCombinationKey, onChange]);
 
   const handleDeleteCombination = useCallback((comboKey: string) => {
-    onChange(combinations.filter(combo => getCombinationKey(combo.attributeValues) !== comboKey));
+    excludedComboKeysRef.current.add(comboKey);
+    onChange(
+      combinations.filter(
+        (combo) => getCombinationKey(combo.attributeValues) !== comboKey
+      )
+    );
   }, [combinations, getCombinationKey, onChange]);
 
   const rows = useMemo<VariantCombinationRow[]>(() => {

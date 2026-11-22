@@ -4,12 +4,6 @@ import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import AttributeDefinitionModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
 import AttributeValueModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValueModel";
-import {
-  createAttributeDefinition,
-  deleteAttributeDefinition,
-  getAttributeDefinitionByIdWithValues,
-  updateAttributeDefinition,
-} from "../../../../Apis/Inventory/AttributeDefinitionsApi";
 import InputText from "../../../../Components/Inputs/InputText";
 import {
   Box,
@@ -24,77 +18,80 @@ import EditableTable from "../../../../Components/Tables/EditableTable";
 import * as yup from "yup";
 import { AttributeValueSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValue-validation";
 
+import Loader from "@/Components/Loader";
+import {
+  useAttributeDetail,
+  useAttributeMutations,
+} from "@/hooks/queries";
+
+const defaultModel: AttributeDefinitionModel = {
+  id: "",
+  name: "",
+  nameSecondLanguage: "",
+  isActive: true,
+  predefinedValues: [],
+};
+
 const AttributesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-  afterAction: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
+}> = ({ formType, id, handleCloseForm }) => {
   const { t } = useTranslation();
-  const [model, setModel] = useState<AttributeDefinitionModel>({
-    id: "",
-    name: "",
-    nameSecondLanguage: "",
-    isActive: true,
-    predefinedValues: [],
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+  const [model, setModel] = useState<AttributeDefinitionModel>({ ...defaultModel });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [rowErrors, setRowErrors] = useState<
     Record<number, Record<string, string>>
   >({});
   const theme = useTheme();
 
-  useEffect(() => {
-    if (formType !== FormTypes.Add) {
-      const fetchData = async () => {
-        try {
-          const response = await getAttributeDefinitionByIdWithValues(id);
-          if (response && response.data) {
-            setModel(response.data.result);
-          }
-        } catch (error) {
-          console.error("Error fetching attribute definition:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  const { data: fetchedModel, isLoading: isDetailLoading } = useAttributeDetail(
+    id,
+    formType
+  );
+  const { createMutation, updateMutation, deleteMutation } = useAttributeMutations();
 
-      fetchData();
-    } else {
-      setIsLoading(false);
+  useEffect(() => {
+    if (fetchedModel) {
+      setModel(fetchedModel);
     }
-  }, [formType, id]);
+  }, [fetchedModel]);
+
+  useEffect(() => {
+    if (formType === FormTypes.Add) {
+      setModel({ ...defaultModel });
+    }
+  }, [formType]);
+
+  const isLoading = formType !== FormTypes.Add && isDetailLoading;
 
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteAttributeDefinition(id);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await deleteMutation.mutateAsync(id);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-    const response = await updateAttributeDefinition(model.id, model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createAttributeDefinition(model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await createMutation.mutateAsync(model);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const validate = async () => {
@@ -200,12 +197,7 @@ const AttributesForm: React.FC<{
       >
         <div>
           {isLoading ? (
-            <div
-              className='d-flex flex-row align-items-center justify-content-center'
-              style={{ height: "100px" }}
-            >
-              <div className='spinner-border text-primary' role='status'></div>
-            </div>
+            <Loader />
           ) : (
             <>
               {formType === FormTypes.Delete ? (

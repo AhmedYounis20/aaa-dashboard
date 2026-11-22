@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 import AppSidebar from "@/Components/Layouts/Sidebar";
 import { appProps } from "@/interfaces/Components/appProps";
 import sidebarItemsData from "@/config/sidebar.config";
+import { AppErrorBoundary } from "@/Components/feedback";
 
 export const appContext = createContext<appProps>({
   isMobile: false,
@@ -45,7 +46,9 @@ const DefaultLayout = () => {
               height: "100%",
             }}
           >
-            <Outlet />
+            <AppErrorBoundary>
+              <Outlet />
+            </AppErrorBoundary>
           </Box>
         </Box>
       </Box>

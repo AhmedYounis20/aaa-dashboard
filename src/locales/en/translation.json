@@ -180,6 +180,8 @@
   "NotFound": "Page not found",
   "InternalServerError": "Internal server error",
   "SomethingWentWrong": "Something went wrong",
+  "NoDataFound": "No data found",
+  "Retry": "Retry",
   "TryAgain": "Please try again",
   "ContactSupport": "Contact support if the problem persists",
   "StartDate": "Start Date",
@@ -504,5 +506,11 @@
   "No attribute definitions selected": "No attribute definitions selected",
   "Select attribute definitions above to configure them for this product": "Select attribute definitions above to configure them for this product",
   "SalesTaxes": "Sales Taxes",
-  "PurchaseTaxes": "Purchase Taxes"
+  "PurchaseTaxes": "Purchase Taxes",
+  "Products": "Products",
+  "VariantsCreatedViaProducts": "Variants are created from Products.",
+  "FailedToLoadVariant": "Failed to load variant.",
+  "FailedToLoadProduct": "Failed to load product.",
+  "FailedToLoadProductCode": "Failed to load next product code.",
+  "ClearVariantCombinationsConfirm": "Changing product type will clear variant combinations. Continue?"
 }

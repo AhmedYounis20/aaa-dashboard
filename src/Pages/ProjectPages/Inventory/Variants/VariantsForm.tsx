@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  createVariant,
   deleteVariant,
   getVariantById,
   updateVariant,
@@ -107,7 +106,8 @@ const VariantsForm: React.FC<{
     expiryLevels: [],
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(formType !== FormTypes.Add);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([]);
   const [manufacturerCompanies, setManufacturerCompanies] = useState<
     ManufacturerCompanyModel[]
@@ -161,10 +161,20 @@ const VariantsForm: React.FC<{
   };
 
   useEffect(() => {
-    if (formType != FormTypes.Add) {
-      const fetchData = async () => {
+    if (formType === FormTypes.Add) {
+      setIsLoading(false);
+      setLoadError(t("VariantsCreatedViaProducts", "Variants are created from Products."));
+      return;
+    }
+
+    let cancelled = false;
+    const fetchData = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
         const result = await getVariantById(id);
-        if (result) {
+        if (cancelled) return;
+        if (result?.isSuccess && result.result) {
           setModel({
             ...result.result,
             costCenters: (result.result.costCenters ?? []).map(
@@ -180,13 +190,24 @@ const VariantsForm: React.FC<{
               (a: { level: number }, b: { level: number }) => a.level - b.level
             ),
           });
-
+        } else {
+          setLoadError(t("FailedToLoadVariant", "Failed to load variant."));
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadError(t("FailedToLoadVariant", "Failed to load variant."));
+        }
+      } finally {
+        if (!cancelled) {
           setIsLoading(false);
         }
-      };
-      fetchData();
-    }
-  }, [formType, id]);
+      }
+    };
+    fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, [formType, id, t]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteVariant(id);
@@ -213,33 +234,13 @@ const VariantsForm: React.FC<{
     return false;
   };
 
-  const handleAdd = async () => {
-    console.log(model);
-    if ((await validate()) === false) return false;
-
-    const payload = {
-      ...model,
-      costCenters: model.costCenters?.filter(
-        (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
-      ) ?? [],
-    };
-    const response = await createVariant(payload);
-    if (response && response.isSuccess) {
-      console.log(response);
-      afterAction();
-      return true;
-    }
-    return false;
-  };
-
   return (
     <div className="container h-full">
       <BaseForm
-        formType={formType}
+        formType={formType === FormTypes.Add ? FormTypes.Details : formType}
         handleCloseForm={handleCloseForm}
-        handleAdd={handleAdd}
-        handleUpdate={handleUpdate}
-        handleDelete={handleDelete}
+        handleUpdate={formType === FormTypes.Edit ? handleUpdate : undefined}
+        handleDelete={formType === FormTypes.Delete ? handleDelete : undefined}
         isModal={false}
       >
         <div>
@@ -250,6 +251,8 @@ const VariantsForm: React.FC<{
             >
               <div className="spinner-border text-primary" role="status"></div>
             </div>
+          ) : loadError ? (
+            <p className="text-danger">{loadError}</p>
           ) : (
             <>
               {formType === FormTypes.Delete ? (

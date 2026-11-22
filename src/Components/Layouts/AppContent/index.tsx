@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import DataTable from "../../Tables/DataTable";
 import DataTreeTable from "../../Tables/DataTreeTable";
 import { FormTypes } from "@/interfaces/Components/FormType";
+import { EmptyState, ErrorState, LoadingState } from "@/Components/feedback";
 
 export interface TableColumn {
   Header: string;
@@ -42,6 +43,8 @@ type AppContentProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any[];
   loading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   onRefresh?: () => void;
   reloadKey?: number;
   serverSidePagination?: boolean;
@@ -69,6 +72,8 @@ export default function AppContent({
   btn = false,
   data,
   loading,
+  isError,
+  onRetry,
   onRefresh,
   reloadKey,
   serverSidePagination = false,
@@ -186,7 +191,16 @@ export default function AppContent({
           transition: "all 0.3s ease",
         }}
       >
-        {tableType === "tree" ? (
+        {isError ? (
+          <ErrorState onRetry={onRetry} />
+        ) : loading && (!data || data.length === 0) ? (
+          <LoadingState />
+        ) : !loading && data && data.length === 0 ? (
+          <EmptyState
+            actionLabel={btn ? `${t("Add")} ${t(title)}` : undefined}
+            onAction={btn ? actionBtn : undefined}
+          />
+        ) : tableType === "tree" ? (
           <DataTreeTable
             columns={columns}
             data={data}

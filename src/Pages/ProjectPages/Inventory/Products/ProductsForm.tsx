@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { useTranslation } from "react-i18next";
 import { createProduct, deleteProduct, getProductById, getProductNextCode, updateProduct } from "../../../../Apis/Inventory/ProductsApi";
 import BaseForm from '../../../../Components/Forms/BaseForm';
@@ -104,12 +104,38 @@ const ProductsForm: React.FC<{
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([]);
   const [manufacturerCompanies, setManufacturerCompanies] = useState<ManufacturerCompanyModel[]>([]);
   const [taxes, setTaxes] = useState<TaxModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
 
   const validationSchema = buildProductValidationSchema(t);
+
+  const setModelWithProductTypeGuard: Dispatch<SetStateAction<ProductInputModel>> = (
+    value
+  ) => {
+    setModel((prev) => {
+      const next = typeof value === "function" ? value(prev) : value;
+      if (
+        prev.productType === ProductType.Stock &&
+        next.productType !== ProductType.Stock &&
+        (next.variantCombinations?.length ?? 0) > 0
+      ) {
+        const confirmed = window.confirm(
+          t(
+            "ClearVariantCombinationsConfirm",
+            "Changing product type will clear variant combinations. Continue?"
+          )
+        );
+        if (!confirmed) {
+          return prev;
+        }
+        return { ...next, variantCombinations: [] };
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (formType != FormTypes.Delete) {
@@ -153,10 +179,16 @@ const ProductsForm: React.FC<{
   };
 
   useEffect(() => {
-    if (formType != FormTypes.Add) {
-      const fetchData = async () => {
-        const result = await getProductById(id);
-        if (result) {         
+    let cancelled = false;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
+        if (formType !== FormTypes.Add) {
+          const result = await getProductById(id);
+          if (cancelled) return;
+          if (result?.isSuccess && result.result) {
             setModel({
               ...result.result,
               sellingPriceDiscounts: result.result.sellingPriceDiscounts ?? [],
@@ -179,24 +211,36 @@ const ProductsForm: React.FC<{
                 (a: { level: number }, b: { level: number }) => a.level - b.level
               ),
             });
-
-            setIsLoading(false);
+          } else {
+            setLoadError(t("FailedToLoadProduct", "Failed to load product."));
+          }
+        } else {
+          const result = await getProductNextCode(parentId);
+          if (cancelled) return;
+          if (result?.isSuccess && result.result) {
+            setModel((prevModel) =>
+              prevModel ? { ...prevModel, code: result.result } : prevModel
+            );
+          } else {
+            setLoadError(t("FailedToLoadProductCode", "Failed to load next product code."));
+          }
         }
-      };
-      fetchData();
-    } else {
-      const fetchData = async () => {
-        const result = await getProductNextCode(parentId);
-        if (result.isSuccess && result.result) {
-          setModel((prevModel) =>
-            prevModel ? { ...prevModel, code: result.result } : prevModel
-          );
+      } catch {
+        if (!cancelled) {
+          setLoadError(t("FailedToLoadProduct", "Failed to load product."));
+        }
+      } finally {
+        if (!cancelled) {
           setIsLoading(false);
         }
-      };
-      fetchData();
-    }
-  }, [formType, id, parentId]);
+      }
+    };
+
+    void fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, [formType, id, parentId, t]);
 
   const handleDelete = async (): Promise<boolean> => {
     const response = await deleteProduct(id);
@@ -228,15 +272,17 @@ const ProductsForm: React.FC<{
   };
   
   const handleAdd = async () => {
-    console.log(model);
     if ((await validate()) === false) return false;
-    
-    // Send the full model with variantCombinations - let the backend handle variant creation
+
     const basePayload = {
       ...model,
       costCenters : model.costCenters?.filter(
         (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
       ) ?? [],
+      variantCombinations:
+        model.productType === ProductType.Stock
+          ? model.variantCombinations
+          : [],
     };
     const payload =
       model.nodeType === ProductNodeType.Category
@@ -244,7 +290,6 @@ const ProductsForm: React.FC<{
         : basePayload;
     const response = await createProduct(payload);
     if (response && response.isSuccess) {
-      console.log(response);
       afterAction();
       return true;
     }
@@ -269,6 +314,8 @@ const ProductsForm: React.FC<{
             >
               <div className="spinner-border text-primary" role="status"></div>
             </div>
+          ) : loadError ? (
+            <p className="text-danger">{loadError}</p>
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -278,7 +325,7 @@ const ProductsForm: React.FC<{
                   <ProductBasicInfoCard
                     formType={formType}
                     model={model}
-                    setModel={setModel}
+                    setModel={setModelWithProductTypeGuard}
                     errors={errors}
                     handleTranslate={handleTranslate}
                   />
@@ -303,7 +350,7 @@ const ProductsForm: React.FC<{
                       <ProductCodesAndTypeCard
                         formType={formType}
                         model={model}
-                        setModel={setModel}
+                        setModel={setModelWithProductTypeGuard}
                         errors={errors}
                         handleTranslate={handleTranslate}
                       />
@@ -311,7 +358,7 @@ const ProductsForm: React.FC<{
                       <ProductDetailsAndDiscountsCard
                         formType={formType}
                         model={model}
-                        setModel={setModel}
+                        setModel={setModelWithProductTypeGuard}
                         suppliers={suppliers}
                         manufacturerCompanies={manufacturerCompanies}
                         taxes={taxes}
@@ -375,8 +422,9 @@ const ProductsForm: React.FC<{
                     />
                   )}
 
-                  {/* Variant Combination Builder - Only for Domain products */}
-                  {model.nodeType === ProductNodeType.Domain && (
+                  {/* Variant Combination Builder - Stock domain products only */}
+                  {model.nodeType === ProductNodeType.Domain &&
+                    model.productType === ProductType.Stock && (
                     <VariantCombinationBuilder
                       combinations={model.variantCombinations || []}
                       onChange={(combinations) => setModel(prev => prev ? { ...prev, variantCombinations: combinations } : prev)}

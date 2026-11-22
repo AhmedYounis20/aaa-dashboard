@@ -8,13 +8,7 @@ import {
 } from "../../../../../interfaces/Components/NodeType";
 import { TextareaAutosize } from "@mui/material";
 import { TaxInputModel } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
-import {
-  getTaxById,
-  getDefaultTax,
-  createTax,
-  updateTax,
-  deleteTax,
-} from "../../../../../Apis/Account/TaxesApi";
+import { getDefaultTax } from "../../../../../Apis/Account/TaxesApi";
 import { TaxSchema } from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/validation-tax";
 import { useTranslation } from "react-i18next";
 import InputText from "../../../../../Components/Inputs/InputText";
@@ -22,14 +16,15 @@ import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompele
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
 import { ChartOfAccountModel } from "../../../../../interfaces/ProjectInterfaces";
+import Loader from "../../../../../Components/Loader";
+import { useTaxDetail, useTaxMutations } from "../../../../../hooks/queries";
 
 const TaxesForm: React.FC<{
   formType: FormTypes;
   id: string;
   parentId: string | null;
   handleCloseForm: () => void;
-  afterAction?: () => void;
-}> = ({ formType, id, parentId, handleCloseForm, afterAction }) => {
+}> = ({ formType, id, parentId, handleCloseForm }) => {
   const { t } = useTranslation();
   const [model, setModel] = useState<TaxInputModel>({
     name: "",
@@ -42,13 +37,31 @@ const TaxesForm: React.FC<{
     percent: 0,
     chartOfAccountId: undefined,
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add,
-  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
     [],
   );
+
+  const { data: fetchedModel, isLoading: isDetailLoading } = useTaxDetail(
+    id,
+    formType,
+    parentId
+  );
+  const { createMutation, updateMutation, deleteMutation } = useTaxMutations();
+
+  useEffect(() => {
+    if (fetchedModel) {
+      setModel({
+        ...fetchedModel,
+        chartOfAccountId:
+          fetchedModel.chartOfAccountId ?? fetchedModel.chartOfAccount?.id,
+      });
+    }
+  }, [fetchedModel]);
+
+  useEffect(() => {
+    setModel((prev) => ({ ...prev, parentId }));
+  }, [parentId]);
 
   useEffect(() => {
     const fetchChartOfAccounts = async () => {
@@ -60,25 +73,7 @@ const TaxesForm: React.FC<{
     fetchChartOfAccounts();
   }, []);
 
-  useEffect(() => {
-    if (formType !== FormTypes.Add) {
-      const fetchData = async () => {
-        setIsLoading(true);
-        const result = await getTaxById(id);
-        if (result && result.result) {
-          setModel({
-            ...result.result,
-            code: result.result.chartOfAccount?.code ?? result.result.code,
-            chartOfAccountId:
-              result.result.chartOfAccountId ??
-              result.result.chartOfAccount?.id,
-          });
-        }
-        setIsLoading(false);
-      };
-      fetchData();
-    }
-  }, [formType, id, parentId]);
+  const isFormLoading = formType !== FormTypes.Add && isDetailLoading;
 
   const handleChartOfAccountSelect = async (
     chartOfAccountId: string | null,
@@ -123,35 +118,29 @@ const TaxesForm: React.FC<{
 
   const handleUpdate = async () => {
     if ((await validate()) === false) return false;
-    const response = await updateTax(model.id, model);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createTax(model);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await createMutation.mutateAsync(model);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteTax(id);
-    if (response && response.isSuccess) {
-      if (afterAction) {
-        afterAction();
-      }
+    try {
+      await deleteMutation.mutateAsync(id);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   return (
@@ -165,8 +154,8 @@ const TaxesForm: React.FC<{
         isModal
       >
         <div>
-          {isLoading ? (
-            <div className="spinner-border text-primary" role="status"></div>
+          {isFormLoading ? (
+            <Loader />
           ) : (
             <>
               {formType === FormTypes.Delete ? (

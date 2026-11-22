@@ -40,7 +40,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<DefaultLayout />}>
               <Route index element={<Dashboard />} />
-              <AppRoutes />
+              {AppRoutes()}
             </Route>
           </Route>
           <Route path="*" element={<Page404 />} />
