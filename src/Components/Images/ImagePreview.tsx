@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import { isAttachmentContentUrl } from "@/shared/attachments/attachmentContent";
+import { useResolvedSrc } from "./useResolvedSrc";
 
 interface ImagePreviewProps {
   src: string;
@@ -8,81 +9,99 @@ interface ImagePreviewProps {
   alt: string | undefined;
 }
 
-const ImagePreview : React.FC<ImagePreviewProps> = ({src,height,width,alt} : ImagePreviewProps) => {
+const ImagePreview: React.FC<ImagePreviewProps> = ({
+  src,
+  height,
+  width,
+  alt,
+}: ImagePreviewProps) => {
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const resolvedSrc = useResolvedSrc(src);
+  const waitingForBlob = Boolean(src && !resolvedSrc && isAttachmentContentUrl(src));
 
-    const [showPreview,setShowPreview]  =  useState<boolean>(false);
+  if (!resolvedSrc && !waitingForBlob) return null;
+
+  if (waitingForBlob) {
     return (
-      <>
-        <img
-          src={src}
-          alt={alt}
-          height={height}
-          width={width}
-          className="!w-8 !h-8 aspect-square object-cover"
-          onClick={() => setShowPreview(true)}
-          style={{ borderRadius: 50 }}
-        />
+      <span
+        aria-hidden
+        className="inline-block !w-8 !h-8 shrink-0 rounded-full bg-gray-200"
+        style={{ width, height, borderRadius: 50 }}
+      />
+    );
+  }
 
-        {showPreview && (
+  return (
+    <>
+      <img
+        src={resolvedSrc}
+        alt={alt}
+        height={height}
+        width={width}
+        className="!w-8 !h-8 aspect-square object-cover"
+        onClick={() => setShowPreview(true)}
+        style={{ borderRadius: 50 }}
+      />
+
+      {showPreview && (
+        <div
+          className="modal fade show d-block"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)", // Dimmed background
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 1050,
+          }}
+          onClick={() => setShowPreview(false)}
+        >
           <div
-            className="modal fade show d-block"
+            className="modal-dialog"
             style={{
-              backgroundColor: "rgba(0, 0, 0, 0.5)", // Dimmed background
+              maxWidth: "none",
               display: "flex",
               justifyContent: "center",
-              alignItems: "center",
-              position: "fixed",
-              top: 0,
-              left: 0,
               width: "100%",
-              height: "100%",
-              zIndex: 1050,
+              height: "90%",
             }}
-            onClick={() => setShowPreview(false)}
           >
             <div
-              className="modal-dialog"
+              className="modal-content"
               style={{
-                maxWidth: "none",
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-                height: "90%",
+                background: "transparent",
+                border: "none",
+                position: "relative",
               }}
             >
               <div
-                className="modal-content"
+                className="modal-body"
                 style={{
-                  background: "transparent",
-                  border: "none",
-                  position: "relative",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-
-                <div
-                  className="modal-body"
+                <img
+                  src={resolvedSrc}
+                  alt={alt}
                   style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    maxWidth: "90vw",
+                    maxHeight: "90vh",
+                    objectFit: "contain",
                   }}
-                >
-                  <img
-                    src={src}
-                    alt={alt}
-                    style={{
-                      maxWidth: "90vw",
-                      maxHeight: "90vh",
-                      objectFit: "contain",
-                    }}
-                  />
-                </div>
+                />
               </div>
             </div>
           </div>
-        )}
-      </>
-    );
-}
+        </div>
+      )}
+    </>
+  );
+};
 
-export default ImagePreview
+export default ImagePreview;

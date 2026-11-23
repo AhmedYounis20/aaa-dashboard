@@ -1,49 +1,26 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import FinancialPeriodModel from "../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
+import FinancialPeriodModel from "@/interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
+import { httpDelete, httpPost, httpPut, legacyMutationNotify } from "@/Apis/Axios/axiosMethods";
+import { createCrudApi, httpGet } from "@/shared/api";
 
-const apiEndPoint = "FinancialPeriods";
+const endpoint = "FinancialPeriods";
+const crud = createCrudApi<FinancialPeriodModel>(endpoint);
 
-// GET all financial periods
-const getFinancialPeriods = async (): Promise<ApiResult<FinancialPeriodModel[]>> => {
-  return await httpGet<FinancialPeriodModel[]>(apiEndPoint, {});
-};
+const getFinancialPeriods = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single financial period by ID
-const getFinancialPeriodById = async (
-  id: string
-): Promise<ApiResult<FinancialPeriodModel>> => {
-  return await httpGet<FinancialPeriodModel>(`${apiEndPoint}/${id}`, {});
-};
+const getFinancialPeriodById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-const getDefaultFinancialPeriodData = async (
-): Promise<ApiResult<FinancialPeriodModel>> => {
-  return await httpGet<FinancialPeriodModel>(
-    `${apiEndPoint}/nextDefaultdata`,
-    {}
-  );
-};
-// POST (Create) a new financial period
-const createFinancialPeriod = async (
-  data: FinancialPeriodModel
-): Promise<ApiResult<FinancialPeriodModel>> => {
-  return await httpPost<FinancialPeriodModel>(apiEndPoint, data);
-};
+const getDefaultFinancialPeriodData = (signal?: AbortSignal) =>
+  httpGet<FinancialPeriodModel>(`${endpoint}/nextDefaultdata`, {}, { signal });
 
-// PUT (Update) a financial period
-const updateFinancialPeriod = async (
-  id: string,
-  data: FinancialPeriodModel
-): Promise<ApiResult<FinancialPeriodModel>> => {
-  return await httpPut<FinancialPeriodModel>(`${apiEndPoint}/${id}`, data);
-};
+/** Forms still call mutations directly; keep legacy toasts. */
+const createFinancialPeriod = (data: FinancialPeriodModel) =>
+  httpPost<FinancialPeriodModel>(endpoint, data, legacyMutationNotify);
 
-// DELETE a financial period by ID
-const deleteFinancialPeriod = async (
-  id: string
-): Promise<ApiResult<FinancialPeriodModel>> => {
-  return await httpDelete<FinancialPeriodModel>(`${apiEndPoint}/${id}`, { id });
-};
+const updateFinancialPeriod = (id: string, data: FinancialPeriodModel) =>
+  httpPut<FinancialPeriodModel>(`${endpoint}/${id}`, data, legacyMutationNotify);
+
+const deleteFinancialPeriod = (id: string) =>
+  httpDelete<FinancialPeriodModel>(`${endpoint}/${id}`, { id }, legacyMutationNotify);
 
 export {
   getFinancialPeriods,
@@ -51,5 +28,5 @@ export {
   createFinancialPeriod,
   updateFinancialPeriod,
   deleteFinancialPeriod,
-  getDefaultFinancialPeriodData
+  getDefaultFinancialPeriodData,
 };

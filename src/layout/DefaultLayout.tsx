@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { Box, useMediaQuery } from "@mui/material";
-import { AppHeader } from "../Components";
-import { withAuth } from "../Hoc";
-import { createContext, useState, useEffect } from "react";
+import { AppHeader } from "@/Components";
+import { createContext, useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import AppSidebar from "../Components/Layouts/Sidebar";
-import { appProps } from "../interfaces/Components/appProps";
-import sidebarItemsData from "../Utilities/routes";
+import AppSidebar from "@/Components/Layouts/Sidebar";
+import { appProps } from "@/interfaces/Components/appProps";
+import sidebarItemsData from "@/config/sidebar.config";
+import { AppErrorBoundary } from "@/Components/feedback";
 
 export const appContext = createContext<appProps>({
   isMobile: false,
@@ -30,34 +31,24 @@ const DefaultLayout = () => {
       }}
     >
       <Box>
-        <AppHeader
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
+        <AppHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-        <Box
-          component='main'
-          flexGrow={1}
-          display='flex'
-          sx={{ marginTop: "55px" }}
-        >
+        <Box component="main" flexGrow={1} display="flex" sx={{ marginTop: "55px" }}>
           <AppSidebar items={sidebarItemsData} />
           <Box
-            component='section'
+            component="section"
             flexGrow={1}
             p={3}
-            overflow='auto'
+            overflow="auto"
             sx={{
-              marginInlineStart: isMobile
-                ? 0
-                : isSidebarOpen
-                ? "230px"
-                : "80px",
+              marginInlineStart: isMobile ? 0 : isSidebarOpen ? "230px" : "80px",
               transition: "margin 0.3s ease",
               height: "100%",
             }}
           >
-            <Outlet />
+            <AppErrorBoundary>
+              <Outlet />
+            </AppErrorBoundary>
           </Box>
         </Box>
       </Box>
@@ -65,4 +56,4 @@ const DefaultLayout = () => {
   );
 };
 
-export default withAuth(DefaultLayout);
+export default DefaultLayout;

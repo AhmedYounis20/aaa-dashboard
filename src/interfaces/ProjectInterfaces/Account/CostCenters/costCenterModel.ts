@@ -23,9 +23,7 @@ export const costCenterMapper = (costCenterObject: any): CostCenterModel => {
     nodeType: costCenterObject.nodeType,
     percent: costCenterObject.percent,
     costCenterType: costCenterObject.costCenterType,
-    chartOfAccounts: costCenterObject.chartOfAccounts.map(
-      (e: any) => e.chartOfAccountId
-    ),
+    chartOfAccounts: costCenterObject.chartOfAccounts.map((e: any) => e.chartOfAccountId),
   };
   return result;
 };

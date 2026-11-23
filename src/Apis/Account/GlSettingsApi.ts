@@ -1,6 +1,6 @@
-import GlSettingsModel from "../../interfaces/ProjectInterfaces/Account/GlSettings/GlSettingsModel";
-import { httpGet, httpPut } from "../Axios/axiosMethods";
-import { ApiResult } from "../../interfaces/ApiResponse";
+import GlSettingsModel from "@/interfaces/ProjectInterfaces/Account/GlSettings/GlSettingsModel";
+import { httpGet, httpPut, legacyMutationNotify } from "../Axios/axiosMethods";
+import { ApiResult } from "@/interfaces/ApiResponse";
 
 const getGlSettings = async (): Promise<ApiResult<GlSettingsModel> | null> => {
   return await httpGet<GlSettingsModel>("glsettings", {});
@@ -10,6 +10,6 @@ const getGlSettings = async (): Promise<ApiResult<GlSettingsModel> | null> => {
 const updateGlSettings = async (
   data: GlSettingsModel
 ): Promise<ApiResult<GlSettingsModel> | null> => {
-  return await httpPut<GlSettingsModel>("glsettings", data);
+  return await httpPut<GlSettingsModel>("glsettings", data, legacyMutationNotify);
 };
-export { getGlSettings, updateGlSettings }; 
+export { getGlSettings, updateGlSettings };

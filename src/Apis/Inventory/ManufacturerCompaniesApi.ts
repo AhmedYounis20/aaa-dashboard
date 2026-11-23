@@ -1,42 +1,27 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import ManufacturerCompanyModel from "../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
+import ManufacturerCompanyModel from "@/interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
+import { createCrudApi } from "@/shared/api";
+import type { HttpTransportOptions } from "@/shared/api";
 
+const crud = createCrudApi<ManufacturerCompanyModel>("ManufacturerCompanies");
 
-const apiEndPoint = "ManufacturerCompanies";
-// GET all currencies
-const getManufacturerCompanies = async (): Promise<ApiResult<ManufacturerCompanyModel[]>> => {
-  return await httpGet<ManufacturerCompanyModel[]>(apiEndPoint, {});
-};
+const getManufacturerCompanies = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single currency by ID
-const getManufacturerCompanyById = async (
-  id: string
-): Promise<ApiResult<ManufacturerCompanyModel>> => {
-  return await httpGet<ManufacturerCompanyModel>(`${apiEndPoint}/${id}`, {});
-};
+const getManufacturerCompanyById = (id: string, signal?: AbortSignal) =>
+  crud.getById(id, { signal });
 
-// POST (Create) a new currency
-const createManufacturerCompany = async (
-  data: ManufacturerCompanyModel
-): Promise<ApiResult<ManufacturerCompanyModel>> => {
-  return await httpPost<ManufacturerCompanyModel>(apiEndPoint, data);
-};
+const createManufacturerCompany = (
+  data: ManufacturerCompanyModel,
+  options?: HttpTransportOptions
+) => crud.create(data, options);
 
-// PUT (Update) a currency
-const updateManufacturerCompany = async (
+const updateManufacturerCompany = (
   id: string,
-  data: ManufacturerCompanyModel
-): Promise<ApiResult<ManufacturerCompanyModel>> => {
-  return await httpPut<ManufacturerCompanyModel>(`${apiEndPoint}/${id}`, data);
-};
+  data: ManufacturerCompanyModel,
+  options?: HttpTransportOptions
+) => crud.update(id, data, options);
 
-// DELETE a currency by ID
-const deleteManufacturerCompany = async (
-  id: string
-): Promise<ApiResult<ManufacturerCompanyModel>> => {
-  return await httpDelete<ManufacturerCompanyModel>(`${apiEndPoint}/${id}`, { id });
-};
+const deleteManufacturerCompany = (id: string, options?: HttpTransportOptions) =>
+  crud.remove(id, options);
 
 export {
   getManufacturerCompanies,

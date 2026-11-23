@@ -1,6 +1,7 @@
-export enum NodeType{
+export enum NodeType {
   Domain,
-  Category}
+  Category,
+}
 
 export const NodeTypeOptions = Object.entries(NodeType)
   .filter(([, value]) => typeof value === "number")

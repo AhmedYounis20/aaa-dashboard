@@ -2,7 +2,19 @@ import { useMemo, useState, useCallback, useContext } from "react";
 import { FormTypes } from "../../interfaces/Components/FormType";
 import { useTranslation } from "react-i18next";
 import { appContext } from "../../layout/DefaultLayout";
-import { Box, Typography, useTheme, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, CircularProgress, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useTheme,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  CircularProgress,
+  useMediaQuery,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 type FormSize = "small" | "medium" | "large" | "xlarge";
@@ -89,16 +101,17 @@ const BaseForm: React.FC<BaseFormProps> = ({
     const showActionButton = formType !== FormTypes.Details;
 
     const closeButton = (
-      <button
+      <Button
         key="close"
         type="button"
-        className="btn btn-secondary"
+        variant="outlined"
+        color="inherit"
         onClick={handleCloseForm}
         disabled={isSubmitting}
-        style={{ height: 40, marginLeft: 10, marginRight: 10 }}
+        sx={{ height: 40, mx: 1.25 }}
       >
         {t("Cancel")}
-      </button>
+      </Button>
     );
 
     const actionButton = showActionButton ? (
@@ -113,11 +126,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
           fontWeight: 500,
         }}
       >
-        {isSubmitting ? (
-          <CircularProgress size={22} color="inherit" />
-        ) : (
-          getActionButtonText()
-        )}
+        {isSubmitting ? <CircularProgress size={22} color="inherit" /> : getActionButtonText()}
       </Button>
     ) : null;
 
@@ -129,7 +138,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
   if (!isModal && formType !== FormTypes.Delete) {
     return (
       <Box
-        className='base-form-inline'
+        className="base-form-inline"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -138,7 +147,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
         }}
       >
         <Box
-          className='form-header'
+          className="form-header"
           sx={{
             p: "0 0 20px",
             flexShrink: 0,
@@ -158,7 +167,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
         </Box>
 
         <Box
-          className='form-body'
+          className="form-body"
           sx={{
             pb: "90px",
             flex: 1,
@@ -169,7 +178,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
         </Box>
 
         <Box
-          className='form-footer'
+          className="form-footer"
           sx={{
             p: "16px 24px",
             bgcolor: theme.palette.background.paper,
@@ -177,11 +186,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
             justifyContent: "flex-end",
             position: "fixed",
             bottom: 0,
-            left: isMobile
-                ? 0
-                : isSidebarOpen
-                ? "230px"
-                : "80px",
+            left: isMobile ? 0 : isSidebarOpen ? "230px" : "80px",
             right: 0,
             zIndex: 1000,
             boxShadow: "5px -2px 10px rgba(0, 0, 0, 0.1)",
@@ -205,7 +210,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
           borderRadius: 1,
           boxShadow: "0 10px 40px rgba(0, 0, 0, 0.2)",
           overflow: "hidden",
-        }
+        },
       }}
     >
       <DialogTitle
@@ -216,7 +221,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
           alignItems: "center",
           backgroundColor: theme.palette.background.paper,
         }}
-      > 
+      >
         {formTitle}
         <IconButton
           aria-label={t("Close")}
@@ -224,7 +229,7 @@ const BaseForm: React.FC<BaseFormProps> = ({
           size="small"
           sx={{
             color: theme.palette.text.secondary,
-            '&:hover': {
+            "&:hover": {
               bgcolor: "rgba(0,0,0,0.05)",
             },
           }}

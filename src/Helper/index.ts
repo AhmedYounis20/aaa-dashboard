@@ -1,3 +1,3 @@
 import inputHelper from "./inputHelper";
 
-export {inputHelper}
+export { inputHelper };

@@ -1,53 +1,44 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import BranchModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import BranchModel from "@/interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
 
 const apiEndPoint = "branches";
 
-// GET all branches
-const getBranches = async (): Promise<ApiResult<BranchModel[]>> => {
-  return await httpGet<BranchModel[]>(apiEndPoint, {});
+const getBranches = async (signal?: AbortSignal): Promise<ApiResult<BranchModel[]>> => {
+  return await httpGet<BranchModel[]>(apiEndPoint, {}, { signal });
 };
 
-// GET a single branch by ID
-const getBranchById = async (
-  id: string
-): Promise<ApiResult<BranchModel>> => {
-  return await httpGet<BranchModel>(`${apiEndPoint}/${id}`, {});
+const getBranchById = async (id: string, signal?: AbortSignal): Promise<ApiResult<BranchModel>> => {
+  return await httpGet<BranchModel>(`${apiEndPoint}/${id}`, {}, { signal });
 };
 
-// GET default model data
 const getDefaultBranchData = async (
-  parentId: string | null
+  parentId: string | null,
+  signal?: AbortSignal
 ): Promise<ApiResult<BranchModel>> => {
   return await httpGet<BranchModel>(
-    `${apiEndPoint}/NextAccountDefaultData${
-      parentId == null ? "" : `?parentId=${parentId}`
-    }`,
-    {}
+    `${apiEndPoint}/NextAccountDefaultData${parentId == null ? "" : `?parentId=${parentId}`}`,
+    {},
+    { signal }
   );
 };
 
-// POST (Create) a new branch
-const createBranch = async (
-  model: BranchModel
-): Promise<ApiResult<BranchModel>> => {
-  return await httpPost<BranchModel>(apiEndPoint, model);
+const createBranch = async (model: BranchModel): Promise<ApiResult<BranchModel>> => {
+  return await httpPost<BranchModel>(apiEndPoint, model, legacyMutationNotify);
 };
 
-// PUT (Update) a branch
-const updateBranch = async (
-  id: string,
-  model: BranchModel
-): Promise<ApiResult<BranchModel>> => {
-  return await httpPut<BranchModel>(`${apiEndPoint}/${id}`, model);
+const updateBranch = async (id: string, model: BranchModel): Promise<ApiResult<BranchModel>> => {
+  return await httpPut<BranchModel>(`${apiEndPoint}/${id}`, model, legacyMutationNotify);
 };
 
-// DELETE a branch by ID
-const deleteBranch = async (
-  id: string
-): Promise<ApiResult<BranchModel>> => {
-  return await httpDelete<BranchModel>(`${apiEndPoint}/${id}`, {});
+const deleteBranch = async (id: string): Promise<ApiResult<BranchModel>> => {
+  return await httpDelete<BranchModel>(`${apiEndPoint}/${id}`, {}, legacyMutationNotify);
 };
 
 export {
@@ -56,5 +47,5 @@ export {
   getDefaultBranchData,
   createBranch,
   updateBranch,
-  deleteBranch
+  deleteBranch,
 };

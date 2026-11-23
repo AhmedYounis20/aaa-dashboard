@@ -1,31 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { InventoryTransferModel, InventoryTransferType, InventoryTransferTypeOptions } from '../../../../interfaces/ProjectInterfaces/Inventory/InventoryTransferModel';
-import InputText from '../../../../Components/Inputs/InputText';
-import InputAutoComplete from '../../../../Components/Inputs/InputAutoCompelete';
-import InputSelect from '../../../../Components/Inputs/InputSelect';
-import * as yup from 'yup';
-import { getBranches } from '../../../../Apis/Account/BranchesApi';
-import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
-import ItemModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemModel';
-import SelectItemsModal from './SelectItemsModal';
-import ThemedTooltip from '../../../../Components/UI/ThemedTooltip';
-import InputNumber from '../../../../Components/Inputs/InputNumber';
-import ItemPackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/Items/ItemPackingUnitModel';
+import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import {
+  InventoryTransferModel,
+  InventoryTransferType,
+  InventoryTransferTypeOptions,
+} from "../../../../interfaces/ProjectInterfaces/Inventory/InventoryTransferModel";
+import InputText from "../../../../Components/Inputs/InputText";
+import InputAutoComplete from "../../../../Components/Inputs/InputAutoComplete";
+import InputSelect from "../../../../Components/Inputs/InputSelect";
+import * as yup from "yup";
+import { getBranches } from "../../../../Apis/Account/BranchesApi";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
+import VariantModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel";
+import VariantPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantPackingUnitModel";
+import SelectVariantsModal from "./SelectVariantsModal";
+import ThemedTooltip from "../../../../Components/UI/ThemedTooltip";
+import InputNumber from "../../../../Components/Inputs/InputNumber";
+import {
+  getCurrentBalance,
+  readCurrentBalanceAmount,
+} from "../../../../Apis/Inventory/StockBalanceApi";
+import { getVariantById } from "../../../../Apis/Inventory/VariantsApi";
+import { useLatestAsync } from "../../../../hooks/useLatestAsync";
 
-const itemSchema = yup.object().shape({
-  itemId: yup.string().required('Item is required'),
-  packingUnitId: yup.string().required('Packing unit is required'),
-  quantity: yup.number().required('Quantity is required').min(1, 'Quantity must be at least 1'),
-});
-
-const transferSchema = yup.object().shape({
-  sourceBranchId: yup.string().required('Source branch is required'),
-  destinationBranchId: yup.string().required('Destination branch is required'),
-  items: yup.array().of(itemSchema).min(1, 'At least one item is required'),
-});
+const lineBalanceKey = (variantId: string, packingUnitId: string) =>
+  `${variantId}|${packingUnitId}`;
 
 const InventoryTransferForm: React.FC<{
   formType: FormTypes;
@@ -35,17 +36,61 @@ const InventoryTransferForm: React.FC<{
   onSubmit: (data: InventoryTransferModel) => Promise<boolean>;
 }> = ({ formType, model, handleCloseForm, afterAction, onSubmit }) => {
   const { t } = useTranslation();
+  const { runLatest } = useLatestAsync();
   const [form, setForm] = useState<InventoryTransferModel>(
-    model || { sourceBranchId: '', destinationBranchId: '', transferType: InventoryTransferType.Direct, notes: '', items: [] }
+    model || {
+      sourceBranchId: "",
+      destinationBranchId: "",
+      transferType: InventoryTransferType.Direct,
+      notes: "",
+      items: [],
+    }
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [branches, setBranches] = useState<BranchModel[]>([]);
-  const [showSelectItems, setShowSelectItems] = useState(false);
+  const [showSelectVariants, setShowSelectVariants] = useState(false);
+  const [lineBalances, setLineBalances] = useState<Record<string, number>>({});
+  const formRef = useRef(form);
+  formRef.current = form;
 
   useEffect(() => {
-    getBranches().then(res => { if (res.isSuccess) setBranches(res.result); });
+    getBranches().then((res) => {
+      if (res.isSuccess) setBranches(res.result || []);
+    });
   }, []);
 
+  useEffect(() => {
+    if (!form.sourceBranchId) {
+      setLineBalances({});
+      return;
+    }
+
+    const requestKey = `balances:${form.sourceBranchId}`;
+    void runLatest(requestKey, async ({ isCurrent }) => {
+      const entries = await Promise.all(
+        form.items.map(async (item) => {
+          if (!item.variantId || !item.packingUnitId) return null;
+          const res = await getCurrentBalance(
+            item.variantId,
+            item.packingUnitId,
+            form.sourceBranchId
+          );
+          return [
+            lineBalanceKey(item.variantId, item.packingUnitId),
+            res.isSuccess ? readCurrentBalanceAmount(res.result) : 0,
+          ] as const;
+        })
+      );
+
+      if (!isCurrent()) return;
+
+      const balances: Record<string, number> = {};
+      entries.forEach((entry) => {
+        if (entry) balances[entry[0]] = entry[1];
+      });
+      setLineBalances(balances);
+    });
+  }, [form.sourceBranchId, form.items, runLatest]);
 
   const handleRemoveItem = (index: number) => {
     setForm((prev) => ({
@@ -55,13 +100,51 @@ const InventoryTransferForm: React.FC<{
   };
 
   const validate = async () => {
+    const lineSchema = yup.object().shape({
+      variantId: yup.string().required(t("Variant is required")),
+      packingUnitId: yup.string().required(t("Packing unit is required")),
+      quantity: yup
+        .number()
+        .required(t("Quantity is required"))
+        .min(1, t("Quantity must be at least 1")),
+    });
+
+    const transferSchema = yup.object().shape({
+      sourceBranchId: yup.string().required(t("Source branch is required")),
+      destinationBranchId: yup
+        .string()
+        .required(t("Destination branch is required"))
+        .test(
+          "distinct-branches",
+          t("Source and destination branches must be different"),
+          function (value) {
+            return value !== this.parent.sourceBranchId;
+          }
+        ),
+      items: yup.array().of(lineSchema).min(1, t("At least one variant is required")),
+    });
+
     try {
       await transferSchema.validate(form, { abortEarly: false });
+
+      const balanceErrors: Record<string, string> = {};
+      form.items.forEach((item, idx) => {
+        const balance = lineBalances[lineBalanceKey(item.variantId, item.packingUnitId)] ?? 0;
+        if (item.quantity > balance) {
+          balanceErrors[`items[${idx}].quantity`] = t("Quantity exceeds available balance");
+        }
+      });
+
+      if (Object.keys(balanceErrors).length > 0) {
+        setErrors(balanceErrors);
+        return false;
+      }
+
       setErrors({});
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+      (validationErrors as yup.ValidationError).inner.forEach((error: yup.ValidationError) => {
         if (error.path) validationErrorsMap[error.path] = error.message;
       });
       setErrors(validationErrorsMap);
@@ -78,49 +161,73 @@ const InventoryTransferForm: React.FC<{
 
   const transferTypeOptions = InventoryTransferTypeOptions;
 
-  // Fetch packing units and default for each item when added
-   const handleAddSelectedItems = async (selectedItems: ItemModel[]) => {
-    const newItems = selectedItems.filter(sel => !form.items.some(i => i.itemId === sel.id));
+  const handleAddSelectedVariants = async (selectedVariants: VariantModel[]) => {
+    const newVariants = selectedVariants.filter(
+      (sel) => !form.items.some((i) => i.variantId === sel.id)
+    );
+    if (newVariants.length === 0) return;
+
+    // List API often omits packing unit names — hydrate from detail when missing.
+    const hydrated = await Promise.all(
+      newVariants.map(async (variant) => {
+        const units = variant.packingUnits || [];
+        const hasNamedUnits = units.length > 0 && units.every((pu) => Boolean(pu.name?.trim()));
+        if (hasNamedUnits) return variant;
+        const detail = await getVariantById(variant.id);
+        return detail?.isSuccess && detail.result
+          ? { ...variant, ...detail.result, packingUnits: detail.result.packingUnits ?? [] }
+          : variant;
+      })
+    );
+
     const updatedItems = [...form.items];
-    for (const item of newItems) {
-      // Use packingUnits from item
-      const packingUnits = item.packingUnits || [];
-      // Default packing unit
-      const defaultPU = (packingUnits as any[]).find((pu: any) => pu.isDefaultPurchases) || packingUnits[0];
+    for (const variant of hydrated) {
+      const packingUnits = variant.packingUnits || [];
+      const defaultPU = packingUnits.find((pu) => pu.isDefaultPurchases) || packingUnits[0];
       updatedItems.push({
-        itemId: item.id,
-        packingUnitId: defaultPU?.packingUnitId || '',
+        variantId: variant.id,
+        packingUnitId: defaultPU?.packingUnitId || "",
         quantity: 1,
-        notes: '',
-        item,
+        variant,
         packingUnit: defaultPU,
       });
     }
-    setForm(prev => ({ ...prev, items: updatedItems }));
+    setForm((prev) => ({ ...prev, items: updatedItems }));
   };
 
   const handlePackingUnitChange = (idx: number, packingUnitId: string) => {
-    const item = form.items[idx];
-    const packingUnits : ItemPackingUnitModel[]= item.item?.packingUnits || [];
-    setForm(prev => ({
+    const line = form.items[idx];
+    const packingUnits: VariantPackingUnitModel[] = line.variant?.packingUnits || [];
+    setForm((prev) => ({
       ...prev,
-      items: prev.items.map((it, i) => i === idx ? { ...it, packingUnitId, packingUnit: packingUnits.find(pu  => pu.packingUnitId === packingUnitId) } : it)
+      items: prev.items.map((it, i) =>
+        i === idx
+          ? {
+              ...it,
+              packingUnitId,
+              packingUnit: packingUnits.find((pu) => pu.packingUnitId === packingUnitId),
+            }
+          : it
+      ),
     }));
   };
 
   const handleQuantityChange = (idx: number, quantity: number) => {
-    const item = form.items[idx];
-    const balance = item.item?.stockBalances?.find(
-      (sb: any) => sb.branchId === form.sourceBranchId && sb.packingUnitId === item.packingUnitId
-    )?.currentBalance ?? 0;
-    setForm(prev => ({
+    const line = formRef.current.items[idx];
+    const balance =
+      lineBalances[lineBalanceKey(line?.variantId ?? "", line?.packingUnitId ?? "")] ?? 0;
+    setForm((prev) => ({
       ...prev,
-      items: prev.items.map((it, i) => i === idx ? { ...it, quantity } : it)
+      items: prev.items.map((it, i) => (i === idx ? { ...it, quantity } : it)),
     }));
-    if (quantity > balance) 
-      setErrors(prev => ({ ...prev, [`items[${idx}].quantity`]: t('Quantity exceeds available balance') }));
-    else
-      setErrors(prev => ({ ...prev, [`items[${idx}].quantity`]: '' }));
+    if (quantity > balance) {
+      setErrors((prev) => ({
+        ...prev,
+        [`items[${idx}].quantity`]: t("Quantity exceeds available balance"),
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, [`items[${idx}].quantity`]: "" }));
+    }
   };
 
   return (
@@ -129,19 +236,24 @@ const InventoryTransferForm: React.FC<{
         formType={formType}
         handleCloseForm={handleCloseForm}
         isModal
-        handleAdd={handleSubmit}
-        handleUpdate={handleSubmit}
+        handleAdd={formType === FormTypes.Add ? handleSubmit : undefined}
+        handleUpdate={undefined}
         handleDelete={undefined}
       >
         <div>
-          <h5 className="mb-3">{t('Transfer Details')}</h5>
+          <h5 className="mb-3">{t("Transfer Details")}</h5>
           <div className="row mb-3">
             <div className="col-md-4">
               <InputSelect
-                label={t('Transfer Type')}
+                label={t("Transfer Type")}
                 options={transferTypeOptions}
                 defaultValue={form.transferType}
-                onChange={(e: React.ChangeEvent<{ value: unknown }>) => setForm(prev => ({ ...prev, transferType: e.target.value as InventoryTransferType }))}
+                onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    transferType: e.target.value as InventoryTransferType,
+                  }))
+                }
                 name="transferType"
                 error={!!errors.transferType}
                 onBlur={() => {}}
@@ -149,10 +261,12 @@ const InventoryTransferForm: React.FC<{
             </div>
             <div className="col-md-4">
               <InputAutoComplete
-                label={t('Source Branch')}
-                options={branches.map(b => ({ value: b.id, label: b.name }))}
-                value={form.sourceBranchId || ''}
-                onChange={(value: string) => setForm(prev => ({ ...prev, sourceBranchId: value }))}
+                label={t("Source Branch")}
+                options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                value={form.sourceBranchId || ""}
+                onChange={(value: string) =>
+                  setForm((prev) => ({ ...prev, sourceBranchId: value }))
+                }
                 name="sourceBranchId"
                 error={!!errors.sourceBranchId}
                 helperText={errors.sourceBranchId ? t(errors.sourceBranchId) : undefined}
@@ -160,10 +274,12 @@ const InventoryTransferForm: React.FC<{
             </div>
             <div className="col-md-4">
               <InputAutoComplete
-                label={t('Destination Branch')}
-                options={branches.map(b => ({ value: b.id, label: b.name }))}
-                value={form.destinationBranchId || ''}
-                onChange={(value: string) => setForm(prev => ({ ...prev, destinationBranchId: value }))}
+                label={t("Destination Branch")}
+                options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                value={form.destinationBranchId || ""}
+                onChange={(value: string) =>
+                  setForm((prev) => ({ ...prev, destinationBranchId: value }))
+                }
                 name="destinationBranchId"
                 error={!!errors.destinationBranchId}
                 helperText={errors.destinationBranchId ? t(errors.destinationBranchId) : undefined}
@@ -174,81 +290,120 @@ const InventoryTransferForm: React.FC<{
             <InputText
               type="text"
               className="form-input form-control"
-              label={t('Notes')}
-              value={form.notes || ''}
-              onChange={value => setForm(prev => ({ ...prev, notes: value }))}
+              label={t("Notes")}
+              value={form.notes || ""}
+              onChange={(value) => setForm((prev) => ({ ...prev, notes: value }))}
               fullWidth
             />
           </div>
           <div className="card mb-3">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <span>{t('Items')}</span>
-              <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowSelectItems(true)}>
-                {t('Select Items')}
+              <span>{t("Variants")}</span>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setShowSelectVariants(true)}
+              >
+                {t("SelectVariants")}
               </button>
             </div>
             <div className="card-body">
               <div className="row fw-bold mb-2 border-bottom pb-2">
-                <div className="col-md-3">{t('Item')}</div>
-                <div className="col-md-2">{t('Code')}</div>
-                <div className="col-md-2">{t('Packing Unit')}</div>
-                <div className="col-md-2">{t('Quantity')}</div>
-                <div className="col-md-2">{t('Available Stock')}</div>
+                <div className="col-md-3">{t("Variant")}</div>
+                <div className="col-md-2">{t("Product")}</div>
+                <div className="col-md-2">{t("Code")}</div>
+                <div className="col-md-2">{t("Packing Unit")}</div>
+                <div className="col-md-1">{t("Quantity")}</div>
+                <div className="col-md-1">{t("Available Stock")}</div>
                 <div className="col-md-1"></div>
               </div>
-              {form.items.map((item, idx) => {
-                const packingUnits = item.item?.packingUnits || [];
-                const stockBalance = item.item?.stockBalances?.find(
-                  (sb: any) => sb.branchId === form.sourceBranchId);
-                const balance = stockBalance?.currentBalance ?? 0;
-                const stockpackingUnit = packingUnits.find((pu: any) => pu.packingUnitId === stockBalance?.packingUnitId);
-                const isLowStock = balance === 0 || balance < (item.quantity || 1);
-                const packingUnitLabel = stockpackingUnit?.name || stockpackingUnit?.packingUnitId || '';
-                const availableStockStr = `${balance} ${packingUnitLabel ? packingUnitLabel : ''}`.trim();
+              {form.items.map((line, idx) => {
+                const packingUnits = line.variant?.packingUnits || [];
+                const balance =
+                  lineBalances[lineBalanceKey(line.variantId, line.packingUnitId)] ?? 0;
+                const packingUnit = packingUnits.find(
+                  (pu) => pu.packingUnitId === line.packingUnitId
+                );
+                const isLowStock = balance === 0 || balance < (line.quantity || 1);
+                const packingUnitLabel = packingUnit?.name || line.packingUnit?.name || "";
+                const availableStockStr = `${balance} ${packingUnitLabel}`.trim();
+
                 return (
-                  <div key={idx} className={`row mb-2 align-items-end border-bottom pb-2 ${isLowStock ? 'bg-warning bg-opacity-10' : ''}`}>
+                  <div
+                    key={`${line.variantId}-${line.packingUnitId}-${idx}`}
+                    className={`row mb-2 align-items-end border-bottom pb-2 ${
+                      isLowStock ? "bg-warning bg-opacity-10" : ""
+                    }`}
+                  >
                     <div className="col-md-3 d-flex align-items-center gap-2">
-                      <span>{item.item?.name || ''}</span>
-                      {item.item?.model && (
-                        <ThemedTooltip title={t('Model') + ': ' + item.item.model}>
-                          <i className="bi bi-info-circle text-secondary" style={{ fontSize: 16 }}></i>
+                      <span>{line.variant?.name || ""}</span>
+                      {line.variant?.model && (
+                        <ThemedTooltip title={t("Model") + ": " + line.variant.model}>
+                          <i
+                            className="bi bi-info-circle text-secondary"
+                            style={{ fontSize: 16 }}
+                          ></i>
                         </ThemedTooltip>
                       )}
                     </div>
-                    <div className="col-md-2">{item.item?.code || ''}</div>
+                    <div className="col-md-2">{line.variant?.productName || ""}</div>
+                    <div className="col-md-2">{line.variant?.code || ""}</div>
                     <div className="col-md-2">
                       <InputSelect
-                        label={t('Packing Unit')}
-                        options={packingUnits.map((pu: any) => ({ value: pu.packingUnitId, label: pu.name || pu.packingUnitId }))}
-                        defaultValue={item.packingUnitId}
-                        onChange={(e: React.ChangeEvent<{ value: unknown }>) => handlePackingUnitChange(idx, e.target.value as string)}
+                        label={t("Packing Unit")}
+                        options={packingUnits.map((pu) => ({
+                          value: pu.packingUnitId,
+                          label:
+                            pu.name ||
+                            (pu.packingUnitId === line.packingUnitId
+                              ? line.packingUnit?.name
+                              : undefined) ||
+                            pu.packingUnitId,
+                        }))}
+                        defaultValue={line.packingUnitId}
+                        onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
+                          handlePackingUnitChange(idx, e.target.value as string)
+                        }
                         name={`items[${idx}].packingUnitId`}
                         error={!!errors[`items[${idx}].packingUnitId`]}
                         onBlur={() => {}}
                       />
                     </div>
-                    <div className="col-md-2">
+                    <div className="col-md-1">
                       <InputNumber
                         className="form-input form-control"
-                        label={t('Quantity')}
-                        value={item.quantity}
+                        label={t("Quantity")}
+                        value={line.quantity}
                         onChange={(value) => handleQuantityChange(idx, value)}
-                        isRquired
+                        isRequired
                         error={!!errors[`items[${idx}].quantity`]}
-                        helperText={errors[`items[${idx}].quantity`] ? t(errors[`items[${idx}].quantity`]) : undefined}
+                        helperText={
+                          errors[`items[${idx}].quantity`]
+                            ? t(errors[`items[${idx}].quantity`])
+                            : undefined
+                        }
                       />
                     </div>
-                    <div className="col-md-2 d-flex align-items-center">
-                      <span className={isLowStock ? 'text-danger fw-bold' : ''}>{availableStockStr}</span>
+                    <div className="col-md-1 d-flex align-items-center">
+                      <span className={isLowStock ? "text-danger fw-bold" : ""}>
+                        {availableStockStr}
+                      </span>
                       {isLowStock && (
-                        <ThemedTooltip title={t('Stock is low or unavailable')}>
-                          <i className="bi bi-exclamation-triangle-fill text-danger ms-2" style={{ fontSize: 16 }}></i>
+                        <ThemedTooltip title={t("Stock is low or unavailable")}>
+                          <i
+                            className="bi bi-exclamation-triangle-fill text-danger ms-2"
+                            style={{ fontSize: 16 }}
+                          ></i>
                         </ThemedTooltip>
                       )}
                     </div>
                     <div className="col-md-1 d-flex align-items-center">
-                      <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveItem(idx)}>
-                        {t('Remove')}
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleRemoveItem(idx)}
+                      >
+                        {t("Remove")}
                       </button>
                     </div>
                   </div>
@@ -258,15 +413,15 @@ const InventoryTransferForm: React.FC<{
           </div>
         </div>
       </BaseForm>
-      <SelectItemsModal
-        open={showSelectItems}
-        onClose={() => setShowSelectItems(false)}
-        onConfirm={handleAddSelectedItems}
+      <SelectVariantsModal
+        open={showSelectVariants}
+        onClose={() => setShowSelectVariants(false)}
+        onConfirm={handleAddSelectedVariants}
         sourceBranchId={form.sourceBranchId}
-        alreadySelectedIds={form.items.map(i => i.itemId)}
+        alreadySelectedIds={form.items.map((i) => i.variantId)}
       />
     </div>
   );
 };
 
-export default InventoryTransferForm; 
+export default InventoryTransferForm;

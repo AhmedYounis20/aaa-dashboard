@@ -4,98 +4,88 @@ import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import AttributeDefinitionModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
 import AttributeValueModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValueModel";
-import {
-  createAttributeDefinition,
-  deleteAttributeDefinition,
-  getAttributeDefinitionByIdWithValues,
-  updateAttributeDefinition,
-} from "../../../../Apis/Inventory/AttributeDefinitionsApi";
 import InputText from "../../../../Components/Inputs/InputText";
-import {
-  Box,
-  Switch,
-  FormControlLabel,
-  Divider,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Switch, FormControlLabel, Divider, Typography, useTheme } from "@mui/material";
 import { AttributeDefinitionSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinition-validation";
 import EditableTable from "../../../../Components/Tables/EditableTable";
 import * as yup from "yup";
 import { AttributeValueSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValue-validation";
 
+import Loader from "@/Components/Loader";
+import { ErrorState } from "@/Components/feedback";
+import { useAttributeDetail, useAttributeMutations } from "@/hooks/queries";
+
+const defaultModel: AttributeDefinitionModel = {
+  id: "",
+  name: "",
+  nameSecondLanguage: "",
+  isActive: true,
+  predefinedValues: [],
+};
+
 const AttributesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-  afterAction: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
+}> = ({ formType, id, handleCloseForm }) => {
   const { t } = useTranslation();
-  const [model, setModel] = useState<AttributeDefinitionModel>({
-    id: "",
-    name: "",
-    nameSecondLanguage: "",
-    isActive: true,
-    predefinedValues: [],
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+  const [model, setModel] = useState<AttributeDefinitionModel>({ ...defaultModel });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [rowErrors, setRowErrors] = useState<
-    Record<number, Record<string, string>>
-  >({});
+  const [rowErrors, setRowErrors] = useState<Record<number, Record<string, string>>>({});
   const theme = useTheme();
 
-  useEffect(() => {
-    if (formType !== FormTypes.Add) {
-      const fetchData = async () => {
-        try {
-          const response = await getAttributeDefinitionByIdWithValues(id);
-          if (response && response.data) {
-            setModel(response.data.result);
-          }
-        } catch (error) {
-          console.error("Error fetching attribute definition:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = useAttributeDetail(id, formType);
+  const { createMutation, updateMutation, deleteMutation } = useAttributeMutations();
 
-      fetchData();
-    } else {
-      setIsLoading(false);
+  useEffect(() => {
+    if (fetchedModel) {
+      setModel(fetchedModel);
     }
-  }, [formType, id]);
+  }, [fetchedModel]);
+
+  useEffect(() => {
+    if (formType === FormTypes.Add) {
+      setModel({ ...defaultModel });
+    }
+  }, [formType]);
+
+  const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const handleDelete = async (): Promise<boolean> => {
-    const response = await deleteAttributeDefinition(id);
-    if (response && response.isSuccess) {
-      afterAction();
+    if (isDetailError) return false;
+    try {
+      await deleteMutation.mutateAsync(id);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const handleUpdate = async () => {
-    debugger;
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
-    const response = await updateAttributeDefinition(model.id, model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createAttributeDefinition(model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await createMutation.mutateAsync(model);
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const validate = async () => {
@@ -113,11 +103,9 @@ const AttributesForm: React.FC<{
             await AttributeValueSchema.validate(value, { abortEarly: false });
           } catch (validationErrors) {
             const validationErrorsMap: Record<string, string> = {};
-            (validationErrors as yup.ValidationError).inner.forEach(
-              (error: any) => {
-                if (error.path) validationErrorsMap[error.path] = error.message;
-              }
-            );
+            (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+              if (error.path) validationErrorsMap[error.path] = error.message;
+            });
             newRowErrors[i] = validationErrorsMap;
             hasRowErrors = true;
           }
@@ -136,10 +124,7 @@ const AttributesForm: React.FC<{
     }
   };
 
-  const updateValueAt = (
-    index: number,
-    partial: Partial<AttributeValueModel>
-  ) => {
+  const updateValueAt = (index: number, partial: Partial<AttributeValueModel>) => {
     setModel((prev) => {
       const values = [...(prev.predefinedValues || [])];
       values[index] = { ...values[index], ...partial } as AttributeValueModel;
@@ -189,24 +174,21 @@ const AttributesForm: React.FC<{
   };
 
   return (
-    <div className='container h-full'>
+    <div className="container h-full">
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
         isModal
-        size='large'
+        size="large"
         handleAdd={handleAdd}
         handleUpdate={handleUpdate}
         handleDelete={handleDelete}
       >
         <div>
           {isLoading ? (
-            <div
-              className='d-flex flex-row align-items-center justify-content-center'
-              style={{ height: "100px" }}
-            >
-              <div className='spinner-border text-primary' role='status'></div>
-            </div>
+            <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -215,29 +197,27 @@ const AttributesForm: React.FC<{
                 </p>
               ) : (
                 <>
-                  <div className='row mb-3'>
-                    <div className='col col-md-6 mb-2'>
+                  <div className="row mb-3">
+                    <div className="col col-md-6 mb-2">
                       <InputText
-                        type='text'
-                        className='form-input form-control'
+                        type="text"
+                        className="form-input form-control"
                         label={t("Name")}
-                        variant='outlined'
+                        variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
-                          setModel((prev) => ({ ...prev, name: value }))
-                        }
+                        onChange={(value) => setModel((prev) => ({ ...prev, name: value }))}
                         error={Boolean(errors.name)}
                         helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
-                    <div className='col col-md-6 mb-2'>
+                    <div className="col col-md-6 mb-2">
                       <InputText
-                        type='text'
-                        className='form-input form-control'
+                        type="text"
+                        className="form-input form-control"
                         label={t("NameSecondLanguage")}
-                        variant='outlined'
+                        variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
@@ -249,16 +229,14 @@ const AttributesForm: React.FC<{
                         }
                         error={Boolean(errors.nameSecondLanguage)}
                         helperText={
-                          errors.nameSecondLanguage
-                            ? t(errors.nameSecondLanguage)
-                            : undefined
+                          errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
                         }
                       />
                     </div>
                   </div>
 
-                  <div className='row mb-3'>
-                    <div className='col col-md-3'>
+                  <div className="row mb-3">
+                    <div className="col col-md-3">
                       <FormControlLabel
                         control={
                           <Switch
@@ -289,7 +267,7 @@ const AttributesForm: React.FC<{
                       pl: 1,
                     }}
                   >
-                    <Typography variant='h6'>{t("Values")}</Typography>
+                    <Typography variant="h6">{t("Values")}</Typography>
                   </Box>
                   <EditableTable
                     rows={model.predefinedValues}
@@ -302,9 +280,7 @@ const AttributesForm: React.FC<{
                       },
                       { key: "isActive", label: t("IsActive"), type: "switch" },
                     ]}
-                    onChangeRow={(index, updated) =>
-                      updateValueAt(index, updated)
-                    }
+                    onChangeRow={(index, updated) => updateValueAt(index, updated)}
                     addText={t("AddValue")}
                     onAddRow={handleAddValueClick}
                     disabled={formType === FormTypes.Details}

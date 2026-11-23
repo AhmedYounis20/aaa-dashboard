@@ -1,7 +1,7 @@
-import { UserLoginModel } from "../../interfaces/Auth/UserLoginModel";
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { AccessTokenResponse } from "../../interfaces/Auth/AccessTokenResponse";
-import { httpPost } from "../Axios/axiosMethods";
+import { UserLoginModel } from "@/interfaces/Auth/UserLoginModel";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import { AccessTokenResponse } from "@/interfaces/Auth/AccessTokenResponse";
+import { httpPost } from "@/lib/apiClient";
 
 const loginRequest = async (
   data: UserLoginModel

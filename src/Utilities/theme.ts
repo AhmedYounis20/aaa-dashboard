@@ -1,110 +1,107 @@
 import { PaletteMode, ThemeOptions } from "@mui/material";
 
 type ColorTokens = {
-    [key: string]: {
-        [shade: string]: string;
-    };
+  [key: string]: {
+    [shade: string]: string;
+  };
 };
 
 export const tokensDark: ColorTokens = {
-    grey: {
-        0: "#ffffff", // manually adjusted
-        10: "#f6f6f6", // manually adjusted
-        50: "#f0f0f0", // manually adjusted
-        100: "#e0e0e0",
-        200: "#c2c2c2",
-        300: "#a3a3a3",
-        400: "#858585",
-        500: "#666666",
-        600: "#525252",
-        700: "#3d3d3d",
-        800: "#292929",
-        900: "#141414",
-        1000: "#000000", // manually adjusted
-    },
-    primary: {
-        // Modern blue palette
-        50: "#eff6ff",
-        100: "#dbeafe",
-        200: "#bfdbfe",
-        300: "#93c5fd",
-        400: "#60a5fa",
-        500: "#3b82f6",
-        600: "#2563eb",
-        700: "#1d4ed8",
-        800: "#1e40af",
-        900: "#1e3a8a",
-    },
-    secondary: {
-        // Modern teal palette
-        50: "#f0fdfa",
-        100: "#ccfbf1",
-        200: "#99f6e4",
-        300: "#5eead4",
-        400: "#2dd4bf",
-        500: "#14b8a6",
-        600: "#0d9488",
-        700: "#0f766e",
-        800: "#115e59",
-        900: "#134e4a",
-    },
-    accent: {
-        // Modern purple palette
-        50: "#faf5ff",
-        100: "#f3e8ff",
-        200: "#e9d5ff",
-        300: "#d8b4fe",
-        400: "#c084fc",
-        500: "#a855f7",
-        600: "#9333ea",
-        700: "#7c3aed",
-        800: "#6b21a8",
-        900: "#581c87",
-    },
-    success: {
-        main: "#10b981",
-        light: "#34d399",
-        dark: "#059669",
-    },
-    warning: {
-        main: "#f59e0b",
-        light: "#fbbf24",
-        dark: "#d97706",
-    },
-    error: {
-        main: "#ef4444",
-        light: "#f87171",
-        dark: "#dc2626",
-    },
-    info: {
-        main: "#3b82f6",
-        light: "#60a5fa",
-        dark: "#2563eb",
-    },
+  grey: {
+    0: "#ffffff", // manually adjusted
+    10: "#f6f6f6", // manually adjusted
+    50: "#f0f0f0", // manually adjusted
+    100: "#e0e0e0",
+    200: "#c2c2c2",
+    300: "#a3a3a3",
+    400: "#858585",
+    500: "#666666",
+    600: "#525252",
+    700: "#3d3d3d",
+    800: "#292929",
+    900: "#141414",
+    1000: "#000000", // manually adjusted
+  },
+  primary: {
+    // Modern blue palette
+    50: "#eff6ff",
+    100: "#dbeafe",
+    200: "#bfdbfe",
+    300: "#93c5fd",
+    400: "#60a5fa",
+    500: "#3b82f6",
+    600: "#2563eb",
+    700: "#1d4ed8",
+    800: "#1e40af",
+    900: "#1e3a8a",
+  },
+  secondary: {
+    // Modern teal palette
+    50: "#f0fdfa",
+    100: "#ccfbf1",
+    200: "#99f6e4",
+    300: "#5eead4",
+    400: "#2dd4bf",
+    500: "#14b8a6",
+    600: "#0d9488",
+    700: "#0f766e",
+    800: "#115e59",
+    900: "#134e4a",
+  },
+  accent: {
+    // Modern purple palette
+    50: "#faf5ff",
+    100: "#f3e8ff",
+    200: "#e9d5ff",
+    300: "#d8b4fe",
+    400: "#c084fc",
+    500: "#a855f7",
+    600: "#9333ea",
+    700: "#7c3aed",
+    800: "#6b21a8",
+    900: "#581c87",
+  },
+  success: {
+    main: "#10b981",
+    light: "#34d399",
+    dark: "#059669",
+  },
+  warning: {
+    main: "#f59e0b",
+    light: "#fbbf24",
+    dark: "#d97706",
+  },
+  error: {
+    main: "#ef4444",
+    light: "#f87171",
+    dark: "#dc2626",
+  },
+  info: {
+    main: "#3b82f6",
+    light: "#60a5fa",
+    dark: "#2563eb",
+  },
 };
 
 // function that reverses the color palette
 function reverseTokens(tokensDark: ColorTokens): ColorTokens {
-    const reversedTokens: ColorTokens = {};
-    Object.entries(tokensDark).forEach(([key, val]) => {
-        const keys = Object.keys(val);
-        const values = Object.values(val);
-        const length = keys.length;
-        const reversedObj: {[shade: string]: string} = {};
-        for (let i = 0; i < length; i++) {
-            reversedObj[keys[i]] = values[length - i - 1];
-        }
-        reversedTokens[key] = reversedObj;
-    });
-    return reversedTokens;
+  const reversedTokens: ColorTokens = {};
+  Object.entries(tokensDark).forEach(([key, val]) => {
+    const keys = Object.keys(val);
+    const values = Object.values(val);
+    const length = keys.length;
+    const reversedObj: { [shade: string]: string } = {};
+    for (let i = 0; i < length; i++) {
+      reversedObj[keys[i]] = values[length - i - 1];
+    }
+    reversedTokens[key] = reversedObj;
+  });
+  return reversedTokens;
 }
 export const tokensLight = reverseTokens(tokensDark);
 
 // mui theme settings
-export const themeSettings = (
-  mode: PaletteMode,
-  direction: "ltr" | "rtl"
-): ThemeOptions => {
+export const themeSettings = (mode: PaletteMode, direction: "ltr" | "rtl"): ThemeOptions => {
   return {
     direction,
     palette: {
@@ -190,34 +187,41 @@ export const themeSettings = (
           }),
     },
     typography: {
-      fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,      fontSize: 14,
+      fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+      fontSize: 14,
       h1: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 40,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 40,
         fontWeight: 700,
         lineHeight: 1.2,
       },
       h2: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 32,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 32,
         fontWeight: 600,
         lineHeight: 1.3,
       },
       h3: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 24,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 24,
         fontWeight: 600,
         lineHeight: 1.4,
       },
       h4: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 20,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 20,
         fontWeight: 600,
         lineHeight: 1.4,
       },
       h5: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 16,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 16,
         fontWeight: 600,
         lineHeight: 1.5,
       },
       h6: {
-        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,        fontSize: 14,
+        fontFamily: direction === "rtl" ? `"Cairo", sans-serif` : `"open-sans", sans-serif`,
+        fontSize: 14,
         fontWeight: 600,
         lineHeight: 1.5,
       },
@@ -275,7 +279,67 @@ export const themeSettings = (
           root: {
             "& .MuiOutlinedInput-root": {
               borderRadius: 8,
+              ...(mode === "dark" && {
+                backgroundColor: tokensDark.grey[800],
+                color: tokensDark.grey[100],
+                "& fieldset": {
+                  borderColor: tokensDark.grey[600],
+                },
+                "&:hover fieldset": {
+                  borderColor: tokensDark.grey[400],
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: tokensDark.primary[400],
+                },
+              }),
             },
+            ...(mode === "dark" && {
+              "& .MuiInputBase-input": {
+                color: tokensDark.grey[100],
+              },
+              "& .MuiInputLabel-root": {
+                color: tokensDark.grey[300],
+              },
+            }),
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            ...(mode === "dark" && {
+              backgroundColor: tokensDark.grey[800],
+              color: tokensDark.grey[100],
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: tokensDark.grey[600],
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: tokensDark.grey[400],
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: tokensDark.primary[400],
+              },
+            }),
+          },
+          input: {
+            ...(mode === "dark" && {
+              color: tokensDark.grey[100],
+            }),
+          },
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: {
+            ...(mode === "dark" && {
+              color: tokensDark.grey[100],
+            }),
+          },
+          input: {
+            ...(mode === "dark" && {
+              color: tokensDark.grey[100],
+              WebkitTextFillColor: tokensDark.grey[100],
+            }),
           },
         },
       },

@@ -62,7 +62,7 @@ function EditableTable<T extends Record<string, any>>({
         boxShadow: "none",
       }}
     >
-      <Table size='small'>
+      <Table size="small">
         <TableHead>
           <TableRow
             sx={{
@@ -84,9 +84,7 @@ function EditableTable<T extends Record<string, any>>({
               hover
               sx={{
                 backgroundColor:
-                  index % 2 !== 0
-                    ? theme.palette.action.hover
-                    : theme.palette.background.paper,
+                  index % 2 !== 0 ? theme.palette.action.hover : theme.palette.background.paper,
               }}
             >
               {columns.map((col) => (
@@ -103,12 +101,10 @@ function EditableTable<T extends Record<string, any>>({
                     />
                   ) : (
                     <InputText
-                      variant='standard'
+                      variant="standard"
                       disabled={disabled}
                       value={row[col.key] ?? ""}
-                      onChange={(v) =>
-                        onChangeRow(index, { [col.key]: v } as Partial<T>)
-                      }
+                      onChange={(v) => onChangeRow(index, { [col.key]: v } as Partial<T>)}
                       error={Boolean(errors[index]?.[String(col.key)])}
                       helperText={
                         errors[index]?.[String(col.key)]
@@ -122,10 +118,10 @@ function EditableTable<T extends Record<string, any>>({
 
               {!disabled && (
                 <TableCell>
-                  <ThemedTooltip title='Delete' placement='bottom'>
+                  <ThemedTooltip title="Delete" placement="bottom">
                     <IconButton
-                      size='small'
-                      color='error'
+                      size="small"
+                      color="error"
                       onClick={() => onDeleteRow && onDeleteRow(index)}
                       sx={{
                         padding: "3px",
@@ -139,7 +135,7 @@ function EditableTable<T extends Record<string, any>>({
                         },
                       }}
                     >
-                      <Delete fontSize='inherit' />
+                      <Delete fontSize="inherit" />
                     </IconButton>
                   </ThemedTooltip>
                 </TableCell>
@@ -151,7 +147,7 @@ function EditableTable<T extends Record<string, any>>({
             <TableRow>
               <TableCell colSpan={columns.length + 1}>
                 <Link
-                  component='button'
+                  component="button"
                   onClick={() => {
                     setIsAdding(true);
                     onAddRow && onAddRow();

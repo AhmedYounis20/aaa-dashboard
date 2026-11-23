@@ -7,5 +7,4 @@ const rtlCache = createCache({
   stylisPlugins: [rtlPlugin],
 });
 
-
-export  {rtlCache};
+export { rtlCache };

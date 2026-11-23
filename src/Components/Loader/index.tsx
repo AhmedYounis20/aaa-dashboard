@@ -1,16 +1,24 @@
+import { Box, CircularProgress } from "@mui/material";
+
 type LoaderProps = {
   height?: string | number;
-  color?: string;
+  /** MUI CircularProgress color; defaults to primary */
+  color?: "inherit" | "primary" | "secondary" | "error" | "info" | "success" | "warning";
 };
 
-function Loader({ height = "60vh", color = "text-primary" }: LoaderProps) {
+function Loader({ height = "60vh", color = "primary" }: LoaderProps) {
   return (
-    <div
-      className="d-flex flex-row align-items-center justify-content-center"
-      style={{ height }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        height,
+      }}
     >
-      <div className={`spinner-border ${color}`} role="status" />
-    </div>
+      <CircularProgress color={color} />
+    </Box>
   );
 }
 

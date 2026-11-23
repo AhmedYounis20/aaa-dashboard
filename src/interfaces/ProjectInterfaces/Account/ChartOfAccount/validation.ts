@@ -34,19 +34,19 @@
 //     isPostedAccount: yup
 //     .boolean()
 //     .default(false),
-    
+
 //     isActiveAccount: yup
 //     .boolean()
 //     .default(true),
-    
+
 //     isStopDealing: yup
 //     .boolean()
 //     .default(true),
-    
+
 //     isDepreciable: yup
 //     .boolean()
 //     .default(false),
-    
+
 //     accountNature: yup.number(),
 
 //     description: yup
@@ -54,6 +54,3 @@
 //     .optional()
 //     .max(1000, "Description Can't Exceed 1000 letters"),
 // });
-
-
-

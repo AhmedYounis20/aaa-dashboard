@@ -1,8 +1,8 @@
-import FinancialPeriodModel from '../../Account/FinancialPeriods/FinancialPeriodModel';
+import FinancialPeriodModel from "../../Account/FinancialPeriods/FinancialPeriodModel";
 
-export interface ImportTransactionItemModel {
+export interface ImportTransactionLineModel {
   id: string;
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   quantity: number;
   totalCost: number;
@@ -19,5 +19,5 @@ export interface ImportTransactionModel {
   branchId: string;
   notes: string;
   financialPeriod?: FinancialPeriodModel;
-  items: ImportTransactionItemModel[];
-} 
+  items: ImportTransactionLineModel[];
+}

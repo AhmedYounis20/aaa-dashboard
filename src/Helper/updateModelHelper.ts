@@ -35,4 +35,4 @@ const updateModel = <T extends object>(
   });
 };
 
-export default updateModel; 
+export default updateModel;

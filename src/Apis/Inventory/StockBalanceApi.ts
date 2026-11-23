@@ -1,11 +1,18 @@
-import { ApiResult } from '../../interfaces/ApiResponse';
-import { httpGet, httpPost, httpPut, httpDelete } from '../Axios/axiosMethods';
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpGet,
+  httpPost,
+  httpPut,
+  httpDelete,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
 
 export interface StockBalanceModel {
   id: string;
-  itemId: string;
-  itemName?: string;
-  itemCode?: string;
+  variantId: string;
+  variantName?: string;
+  variantCode?: string;
+  productName?: string;
   packingUnitId: string;
   packingUnitName?: string;
   branchId: string;
@@ -15,65 +22,11 @@ export interface StockBalanceModel {
   maximumBalance: number;
   unitCost: number;
   totalCost: number;
-  lastUpdated: Date;
-}
-
-export interface StoreIssueItemModel {
-  id: string;
-  itemId: string;
-  itemName: string;
-  itemCode: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-  location: string;
-}
-
-export interface StoreIssueModel {
-  id: string;
-  issueNumber: string;
-  date: Date;
-  departmentId: string;
-  departmentName: string;
-  warehouseId: string;
-  warehouseName: string;
-  items: StoreIssueItemModel[];
-  totalAmount: number;
-  status: 'draft' | 'pending' | 'approved' | 'issued' | 'cancelled';
-  notes: string;
-  requestedBy: string;
-  createdAt: Date;
-}
-
-export interface WarehouseReceiptItemModel {
-  id: string;
-  itemId: string;
-  itemName: string;
-  itemCode: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-  location: string;
-}
-
-export interface WarehouseReceiptModel {
-  id: string;
-  receiptNumber: string;
-  date: Date;
-  supplierId: string;
-  supplierName: string;
-  warehouseId: string;
-  warehouseName: string;
-  items: WarehouseReceiptItemModel[];
-  totalAmount: number;
-  status: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
-  notes: string;
-  receivedBy: string;
-  createdAt: Date;
+  lastUpdated?: Date;
 }
 
 export interface CreateStockBalanceRequest {
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   branchId: string;
   currentBalance: number;
@@ -84,7 +37,7 @@ export interface CreateStockBalanceRequest {
 }
 
 export interface UpdateStockBalanceRequest {
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   branchId: string;
   currentBalance: number;
@@ -95,65 +48,107 @@ export interface UpdateStockBalanceRequest {
 }
 
 export interface UpdateStockBalanceQuantityRequest {
-  itemId: string;
+  variantId: string;
   packingUnitId: string;
   branchId: string;
   quantity: number;
   unitCost: number;
   isReceipt: boolean;
 }
+
 const apiEndPoint = "StockBalances";
-// Get all stock balances
+
 export const getStockBalances = async (): Promise<ApiResult<StockBalanceModel[]>> => {
   return await httpGet<StockBalanceModel[]>(apiEndPoint, {});
 };
 
-// Get stock balance by ID
 export const getStockBalanceById = async (id: string): Promise<ApiResult<StockBalanceModel>> => {
   return await httpGet<StockBalanceModel>(`/${apiEndPoint}/${id}`, {});
 };
 
-// Create stock balance
-export const createStockBalance = async (data: CreateStockBalanceRequest): Promise<ApiResult<StockBalanceModel>> => {
-  return await httpPost<StockBalanceModel>(apiEndPoint, data);
+export const createStockBalance = async (
+  data: CreateStockBalanceRequest
+): Promise<ApiResult<StockBalanceModel>> => {
+  return await httpPost<StockBalanceModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
-// Update stock balance
-export const updateStockBalance = async (id: string, data: UpdateStockBalanceRequest): Promise<ApiResult<StockBalanceModel>> => {
-  return await httpPut<StockBalanceModel>(`/${apiEndPoint}/${id}`, data);
+export const updateStockBalance = async (
+  id: string,
+  data: UpdateStockBalanceRequest
+): Promise<ApiResult<StockBalanceModel>> => {
+  return await httpPut<StockBalanceModel>(`/${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
-// Delete stock balance
 export const deleteStockBalance = async (id: string): Promise<ApiResult<boolean>> => {
-  return await httpDelete<boolean>(`/${apiEndPoint}/${id}`, {});
+  return await httpDelete<boolean>(`/${apiEndPoint}/${id}`, {}, legacyMutationNotify);
 };
 
-// Get stock balance by item and branch
-export const getStockBalanceByItemAndBranch = async (itemId: string, branchId: string): Promise<ApiResult<StockBalanceModel[]>> => {
-  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byItemAndBranch`, { itemId, branchId });
+export const getStockBalanceByVariantAndBranch = async (
+  variantId: string,
+  branchId: string
+): Promise<ApiResult<StockBalanceModel[]>> => {
+  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byVariantAndBranch`, {
+    variantId,
+    branchId,
+  });
 };
 
-// Get stock balance by item, packing unit and branch
-export const getStockBalanceByItemPackingUnitAndBranch = async (itemId: string, packingUnitId: string, branchId: string): Promise<ApiResult<StockBalanceModel[]>> => {
-  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byItemPackingUnitAndBranch`, { itemId, packingUnitId, branchId });
+export const getStockBalanceByVariantPackingUnitAndBranch = async (
+  variantId: string,
+  packingUnitId: string,
+  branchId: string
+): Promise<ApiResult<StockBalanceModel[]>> => {
+  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byVariantPackingUnitAndBranch`, {
+    variantId,
+    packingUnitId,
+    branchId,
+  });
 };
 
-// Get stock balances by branch
-export const getStockBalancesByBranch = async (branchId: string): Promise<ApiResult<StockBalanceModel[]>> => {
+export const getStockBalancesByBranch = async (
+  branchId: string
+): Promise<ApiResult<StockBalanceModel[]>> => {
   return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byBranch/${branchId}`, {});
 };
 
-// Get stock balances by item
-export const getStockBalancesByItem = async (itemId: string): Promise<ApiResult<StockBalanceModel[]>> => {
-  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byItem/${itemId}`, {});
+export const getStockBalancesByVariant = async (
+  variantId: string
+): Promise<ApiResult<StockBalanceModel[]>> => {
+  return await httpGet<StockBalanceModel[]>(`/${apiEndPoint}/byVariant/${variantId}`, {});
 };
 
-// Get current balance
-export const getCurrentBalance = async (itemId: string, packingUnitId: string, branchId: string): Promise<ApiResult<StockBalanceModel>> => {
-  return await httpGet<StockBalanceModel>(`/${apiEndPoint}/currentBalance`, { itemId, packingUnitId, branchId });
+/** Backend returns ApiResponse&lt;decimal&gt; — result is a number, not a StockBalanceModel. */
+export const getCurrentBalance = async (
+  variantId: string,
+  packingUnitId: string,
+  branchId: string
+): Promise<ApiResult<number>> => {
+  return await httpGet<number>(`/${apiEndPoint}/currentBalance`, {
+    variantId,
+    packingUnitId,
+    branchId,
+  });
 };
 
-// Update stock balance quantity
-export const updateStockBalanceQuantity = async (data: UpdateStockBalanceQuantityRequest): Promise<ApiResult<StockBalanceModel>> => {
-  return await httpPost<StockBalanceModel>(`/${apiEndPoint}/updateStockBalance`, data);
-}; 
+/** Normalize current-balance API payloads (number or legacy object). */
+export function readCurrentBalanceAmount(
+  result: number | { currentBalance?: number } | null | undefined
+): number {
+  if (typeof result === "number" && Number.isFinite(result)) {
+    return result;
+  }
+  if (result && typeof result === "object" && typeof result.currentBalance === "number") {
+    return result.currentBalance;
+  }
+  return 0;
+}
+
+export const updateStockBalanceQuantity = async (
+  data: UpdateStockBalanceQuantityRequest
+): Promise<ApiResult<StockBalanceModel>> => {
+  return await httpPost<StockBalanceModel>(
+    `/${apiEndPoint}/updateStockBalance`,
+    data,
+    legacyMutationNotify
+  );
+};

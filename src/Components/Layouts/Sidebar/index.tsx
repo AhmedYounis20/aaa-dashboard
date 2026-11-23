@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
-import { ISidebarItem } from "../../../Utilities/routes";
+import { ISidebarItem } from "@/config/sidebar.config";
 import ThemedTooltip from "../../UI/ThemedTooltip";
 import { Typography, useTheme, styled, useMediaQuery } from "@mui/material";
 import { appContext } from "../../../layout/DefaultLayout";
@@ -45,9 +45,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
   };
 
   useEffect(() => {
-    const activeMenu = items.find((item) =>
-      item.submenu?.some((sub) => isActivePath(sub.path))
-    );
+    const activeMenu = items.find((item) => item.submenu?.some((sub) => isActivePath(sub.path)));
 
     if (activeMenu) {
       setOpenMenu(activeMenu.title);
@@ -59,11 +57,11 @@ export default function AppSidebar({ items }: ISidebarProps) {
       rtl={theme.direction === "rtl"}
       backgroundColor={theme.palette.background.paper}
       collapsed={isMobile ? false : !isSidebarOpen}
-      breakPoint='lg'
+      breakPoint="lg"
       toggled={isSidebarOpen}
       transitionDuration={300}
-      width='230px'
-      collapsedWidth='80px'
+      width="230px"
+      collapsedWidth="80px"
       rootStyles={{
         position: "fixed",
         top: "55px",
@@ -86,29 +84,10 @@ export default function AppSidebar({ items }: ISidebarProps) {
             borderRadius: "8px",
             padding: "5px 10px 5px 5px",
             ":hover": {
-              backgroundColor: "transparent",
-              transition: "all 0.2s ease-in-out",
-              transform: "translateX(4px)",
+              backgroundColor: theme.palette.action.hover,
+              transition: "background-color 0.15s ease",
             },
-            position: "relative",
-            overflow: "hidden",
-            transition: "all 0.2s ease-in-out",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: "-100%",
-              width: "100%",
-              height: "100%",
-              background:
-                theme.palette.mode === "dark"
-                  ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
-                  : "linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent)",
-              transition: "left 0.5s",
-            },
-            "&:hover::before": {
-              left: "100%",
-            },
+            transition: "background-color 0.15s ease",
           },
           subMenuContent: {
             borderRadius: "8px",
@@ -116,15 +95,11 @@ export default function AppSidebar({ items }: ISidebarProps) {
           },
           SubMenuExpandIcon: {
             "& span": {
-              borderRightWidth:
-                theme.direction === "rtl" ? "0 !important" : "auto",
-              borderBottomWidth:
-                theme.direction === "rtl" ? "0 !important" : "auto",
+              borderRightWidth: theme.direction === "rtl" ? "0 !important" : "auto",
+              borderBottomWidth: theme.direction === "rtl" ? "0 !important" : "auto",
 
-              borderLeftWidth:
-                theme.direction === "rtl" ? "1px !important" : "auto",
-              borderTopWidth:
-                theme.direction === "rtl" ? "1px !important" : "auto",
+              borderLeftWidth: theme.direction === "rtl" ? "1px !important" : "auto",
+              borderTopWidth: theme.direction === "rtl" ? "1px !important" : "auto",
             },
           },
         }}
@@ -155,9 +130,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                 paddingBlock: 0,
               }}
               open={openMenu === item.title}
-              onOpenChange={(isOpen: boolean) =>
-                setOpenMenu(isOpen ? item.title : null)
-              }
+              onOpenChange={(isOpen: boolean) => setOpenMenu(isOpen ? item.title : null)}
             >
               {item?.submenu.map((subItem, subIndex) => (
                 <ThemedTooltip
@@ -172,9 +145,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                         React.cloneElement(subItem.icon, {
                           sx: {
                             fontSize: "1.18rem",
-                            transition: isSidebarOpen
-                              ? "all 0.3s ease"
-                              : "none",
+                            transition: isSidebarOpen ? "all 0.3s ease" : "none",
                           },
                         })
                       }
@@ -187,28 +158,18 @@ export default function AppSidebar({ items }: ISidebarProps) {
                           ? theme.palette.primary.contrastText
                           : theme.palette.text.primary,
                         borderRadius: "10px",
-                        transition: isSidebarOpen
-                          ? "all 0.15s ease-out"
-                          : "none",
+                        transition: isSidebarOpen ? "all 0.15s ease-out" : "none",
                         position: "relative",
                         overflow: "hidden",
                         height: "45px",
                         paddingBlock: 0,
-                        paddingLeft:
-                          theme.direction === "rtl"
-                            ? "auto"
-                            : theme.spacing(2.25),
-                        paddingRight:
-                          theme.direction === "rtl"
-                            ? theme.spacing(2.25)
-                            : "auto",
-                        pointerEvents: isActivePath(subItem?.path)
-                          ? "none"
-                          : "auto",
+                        paddingLeft: theme.direction === "rtl" ? "auto" : theme.spacing(2.25),
+                        paddingRight: theme.direction === "rtl" ? theme.spacing(2.25) : "auto",
+                        pointerEvents: isActivePath(subItem?.path) ? "none" : "auto",
                       }}
                     >
                       <Typography
-                        variant='body2'
+                        variant="body2"
                         sx={{
                           textShadow: isActivePath(subItem?.path)
                             ? "0 1px 2px rgba(0,0,0,0.3)"
@@ -256,7 +217,7 @@ export default function AppSidebar({ items }: ISidebarProps) {
                   onClick={() => setOpenMenu(null)}
                 >
                   <Typography
-                    variant='body2'
+                    variant="body2"
                     sx={{
                       transition: "all 0.3s ease",
                     }}

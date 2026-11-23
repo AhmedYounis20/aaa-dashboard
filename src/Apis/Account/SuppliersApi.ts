@@ -1,6 +1,12 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import SupplierModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
+import SupplierModel from "@/interfaces/ProjectInterfaces/Account/SubLedgers/Suppliers/SupplierModel";
 
 const apiEndPoint = "Suppliers";
 
@@ -10,28 +16,20 @@ const getSuppliers = async (): Promise<ApiResult<SupplierModel[]>> => {
 };
 
 // GET a single supplier by ID
-const getSupplierById = async (
-  id: string
-): Promise<ApiResult<SupplierModel>> => {
+const getSupplierById = async (id: string): Promise<ApiResult<SupplierModel>> => {
   return await httpGet<SupplierModel>(`${apiEndPoint}/${id}`, {});
 };
 
-const getDefaultSupplier = async (
-  parentId: string | null
-): Promise<ApiResult<SupplierModel>> => {
+const getDefaultSupplier = async (parentId: string | null): Promise<ApiResult<SupplierModel>> => {
   return await httpGet<SupplierModel>(
-    `${apiEndPoint}/NextAccountDefaultData${
-      parentId == null ? "" : `?parentId=${parentId}`
-    }`,
+    `${apiEndPoint}/NextAccountDefaultData${parentId == null ? "" : `?parentId=${parentId}`}`,
     {}
   );
 };
 
 // POST (Create) a new supplier
-const createSupplier = async (
-  data: SupplierModel
-): Promise<ApiResult<SupplierModel>> => {
-  return await httpPost<SupplierModel>(apiEndPoint, data);
+const createSupplier = async (data: SupplierModel): Promise<ApiResult<SupplierModel>> => {
+  return await httpPost<SupplierModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
 // PUT (Update) a supplier
@@ -39,14 +37,12 @@ const updateSupplier = async (
   id: string,
   data: SupplierModel
 ): Promise<ApiResult<SupplierModel>> => {
-  return await httpPut<SupplierModel>(`${apiEndPoint}/${id}`, data);
+  return await httpPut<SupplierModel>(`${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
 // DELETE a supplier by ID
-const deleteSupplier = async (
-  id: string
-): Promise<ApiResult<SupplierModel>> => {
-  return await httpDelete<SupplierModel>(`${apiEndPoint}/${id}`, { id });
+const deleteSupplier = async (id: string): Promise<ApiResult<SupplierModel>> => {
+  return await httpDelete<SupplierModel>(`${apiEndPoint}/${id}`, { id }, legacyMutationNotify);
 };
 
 export {
@@ -55,5 +51,5 @@ export {
   createSupplier,
   updateSupplier,
   deleteSupplier,
-  getDefaultSupplier
+  getDefaultSupplier,
 };

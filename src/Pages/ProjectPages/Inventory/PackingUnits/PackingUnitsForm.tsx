@@ -1,92 +1,94 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import  PackingUnitModel  from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
-import {
-  createPackingUnit,
-  deletePackingUnit,
-  getPackingUnitById,
-  updatePackingUnit,
-} from "../../../../Apis/Inventory/PackingUnitsApi";
-import InputText from '../../../../Components/Inputs/InputText';
-import { PackingUnitSchema } from '../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/validation-packingUnit';
-import * as yup from 'yup';
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import PackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import InputText from "../../../../Components/Inputs/InputText";
+import { PackingUnitSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/validation-packingUnit";
+import Loader from "../../../../Components/Loader";
+import { ErrorState } from "../../../../Components/feedback";
+import { handleValidationErrors } from "../../../../Helper/validationHelper";
+import { usePackingUnitDetail, usePackingUnitMutations } from "../../../../hooks/queries";
+import { localizedEntityName } from "../../../../Helper/localizedEntityName";
+
+const defaultModel: PackingUnitModel = {
+  id: "",
+  name: "",
+  nameSecondLanguage: "",
+};
 
 const PackingUnitsForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-  afterAction: () => void;
-}> = ({ formType, id, handleCloseForm, afterAction }) => {
-const { t } = useTranslation();
-  const [model, setModel] = useState<PackingUnitModel>({
-    id: "",
-    name: "",
-    nameSecondLanguage: "",
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+}> = ({ formType, id, handleCloseForm }) => {
+  const { t, i18n } = useTranslation();
+  const [model, setModel] = useState<PackingUnitModel>(defaultModel);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // const [updateGuide] = useUpdatePackingUnitMutation();
-  // const [createGuide] = useCreatePackingUnitMutation();
-  // const [deleteGuide] = useDeletePackingUnitMutation();
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = usePackingUnitDetail(id, formType);
+  const { createMutation, updateMutation, deleteMutation } = usePackingUnitMutations();
 
   useEffect(() => {
-    if (formType != FormTypes.Add) {
-      const fetchData = async () => {
-        const result = await getPackingUnitById(id);
-        if (result) {
-          setModel(result.result);
-          setIsLoading(false);
-        }
-      };
-      fetchData();
+    if (fetchedModel) {
+      setModel(fetchedModel);
     }
-  }, []);
+  }, [fetchedModel]);
 
-  const handleDelete = async (): Promise<boolean> => {
-    const response = await deletePackingUnit(id);
-    if (response && response.isSuccess) {
-      afterAction();
-      return true;
-    } 
-    return false;
-  };
+  useEffect(() => {
+    if (formType === FormTypes.Add) {
+      setModel(defaultModel);
+    }
+  }, [formType]);
+
+  const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
+
   const validate = async () => {
     try {
       await PackingUnitSchema.validate(model, { abortEarly: false });
       setErrors({});
       return true;
     } catch (validationErrors) {
-      const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
-        if (error.path) validationErrorsMap[error.path] = error.message;
-      });
-      setErrors(validationErrorsMap);
+      setErrors(handleValidationErrors(validationErrors));
+      return false;
+    }
+  };
+
+  const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
+    try {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    } catch {
       return false;
     }
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
-    const response = await updatePackingUnit(model.id, model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await updateMutation.mutateAsync({ id: model.id, data: model });
       return true;
-    } 
-    return false;
+    } catch {
+      return false;
+    }
   };
+
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response = await createPackingUnit(model);
-    if (response && response.isSuccess) {
-      afterAction();
+    try {
+      await createMutation.mutateAsync(model);
       return true;
-    } 
-    return false;
+    } catch {
+      return false;
+    }
   };
 
   return (
@@ -101,66 +103,58 @@ const { t } = useTranslation();
       >
         <div>
           {isLoading ? (
-            <div
-              className="d-flex flex-row align-items-center justify-content-center"
-              style={{ height: "100px" }}
-            >
-              <div className="spinner-border text-primary" role="status"></div>
-            </div>
+            <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+                <p>
+                  {t("AreYouSureDelete")} {localizedEntityName(model, i18n.language)}
+                </p>
               ) : (
-                <>
-                  <div className="row mb-3">
-                    <div className="col col-md-6">
-                      <InputText
-                        type="text"
-                        className="form-input form-control"
-                        label={t("Name")}
-                        variant="outlined"
-                        fullWidth
-                        isRquired
-                        disabled={formType === FormTypes.Details}
-                        value={model?.name}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, name: value }
-                              : prevModel
-                          )
-                        }
-                        error={!!errors.name}
-                        helperText={errors.name ? t(errors.name) : undefined}
-                      />
-                    </div>
-                    <div className="col col-md-6">
-                      <InputText
-                        type="text"
-                        className="form-input form-control"
-                        label={t("NameSecondLanguage")}
-                        variant="outlined"
-                        fullWidth
-                        isRquired
-                        disabled={formType === FormTypes.Details}
-                        value={model?.nameSecondLanguage}
-                        onChange={(value) =>
-                          setModel((prevModel) =>
-                            prevModel
-                              ? {
-                                  ...prevModel,
-                                  nameSecondLanguage: value,
-                                }
-                              : prevModel
-                          )
-                        }
-                        error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
-                      />
-                    </div>
+                <div className="row mb-3">
+                  <div className="col col-md-6">
+                    <InputText
+                      type="text"
+                      className="form-input form-control"
+                      label={t("Name")}
+                      variant="outlined"
+                      fullWidth
+                      isRequired
+                      disabled={formType === FormTypes.Details}
+                      value={model?.name}
+                      onChange={(value) =>
+                        setModel((prevModel) =>
+                          prevModel ? { ...prevModel, name: value } : prevModel
+                        )
+                      }
+                      error={!!errors.name}
+                      helperText={errors.name ? t(errors.name) : undefined}
+                    />
                   </div>
-                </>
+                  <div className="col col-md-6">
+                    <InputText
+                      type="text"
+                      className="form-input form-control"
+                      label={t("NameSecondLanguage")}
+                      variant="outlined"
+                      fullWidth
+                      isRequired
+                      disabled={formType === FormTypes.Details}
+                      value={model?.nameSecondLanguage}
+                      onChange={(value) =>
+                        setModel((prevModel) =>
+                          prevModel ? { ...prevModel, nameSecondLanguage: value } : prevModel
+                        )
+                      }
+                      error={!!errors.nameSecondLanguage}
+                      helperText={
+                        errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
+                      }
+                    />
+                  </div>
+                </div>
               )}
             </>
           )}

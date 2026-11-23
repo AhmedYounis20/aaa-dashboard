@@ -1,6 +1,6 @@
-export enum AccountNature{
-    Debit,
-    Credit
+export enum AccountNature {
+  Debit,
+  Credit,
 }
 
 export const AccountNatureOptions = [

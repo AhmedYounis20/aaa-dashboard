@@ -1,5 +1,3 @@
 import { FormTypes } from "./FormType";
 
-export {
-    FormTypes
-}
+export { FormTypes };

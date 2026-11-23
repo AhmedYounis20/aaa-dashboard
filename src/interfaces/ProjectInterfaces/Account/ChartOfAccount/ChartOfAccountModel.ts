@@ -1,5 +1,5 @@
 import { AccountNature } from "./AccountNature";
-import { SubLeadgerType } from "./SubLeadgerType";
+import { SubLedgerType } from "./SubLedgerType";
 
 interface ChartOfAccountModel {
   id: string;
@@ -14,8 +14,7 @@ interface ChartOfAccountModel {
   isActiveAccount: boolean;
   accountNature: AccountNature;
   description?: string;
-  subLeadgerType?: SubLeadgerType;
+  subLeadgerType?: SubLedgerType;
 }
 
 export default ChartOfAccountModel;
-

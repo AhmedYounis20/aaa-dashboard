@@ -1,53 +1,58 @@
-import { ChartOfAccountModel } from "../../interfaces/ProjectInterfaces";
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
+import { ChartOfAccountModel } from "@/interfaces/ProjectInterfaces";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
 
 const apiEndPoint = "ChartOfAccounts";
-// GET all currencies
-const getChartOfAccounts = async (): Promise<ApiResult<
-  ChartOfAccountModel[]
->> => {
-  return await httpGet<ChartOfAccountModel[]>(apiEndPoint, {});
+
+const getChartOfAccounts = async (
+  signal?: AbortSignal
+): Promise<ApiResult<ChartOfAccountModel[]>> => {
+  return await httpGet<ChartOfAccountModel[]>(apiEndPoint, {}, { signal });
 };
 
-// GET a single currency by ID
 const getChartOfAccountById = async (
-  id: string
+  id: string,
+  signal?: AbortSignal
 ): Promise<ApiResult<ChartOfAccountModel> | null> => {
-  return await httpGet<ChartOfAccountModel>(`${apiEndPoint}/${id}`, {});
+  return await httpGet<ChartOfAccountModel>(`${apiEndPoint}/${id}`, {}, { signal });
 };
 
 const getDefaultChartOfAccount = async (
-  parentId: string | null
+  parentId: string | null,
+  signal?: AbortSignal
 ): Promise<ApiResult<ChartOfAccountModel>> => {
   return await httpGet<ChartOfAccountModel>(
-    `${apiEndPoint}/NextAccountDefaultData${
-      parentId == null ? "" : `?parentId=${parentId}`
-    }`,
-    {}
+    `${apiEndPoint}/NextAccountDefaultData${parentId == null ? "" : `?parentId=${parentId}`}`,
+    {},
+    { signal }
   );
 };
 
-// POST (Create) a new currency
 const createChartOfAccount = async (
   data: ChartOfAccountModel
 ): Promise<ApiResult<ChartOfAccountModel>> => {
-  return await httpPost<ChartOfAccountModel>(apiEndPoint, data);
+  return await httpPost<ChartOfAccountModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
-// PUT (Update) a currency
 const updateChartOfAccount = async (
   id: string,
   data: ChartOfAccountModel
 ): Promise<ApiResult<ChartOfAccountModel>> => {
-  return await httpPut<ChartOfAccountModel>(`${apiEndPoint}/${id}`, data);
+  return await httpPut<ChartOfAccountModel>(`${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
-// DELETE a currency by ID
-const deleteChartOfAccount = async (
-  id: string
-): Promise<ApiResult<ChartOfAccountModel>> => {
-  return await httpDelete<ChartOfAccountModel>(`${apiEndPoint}/${id}`, { id });
+const deleteChartOfAccount = async (id: string): Promise<ApiResult<ChartOfAccountModel>> => {
+  return await httpDelete<ChartOfAccountModel>(
+    `${apiEndPoint}/${id}`,
+    { id },
+    legacyMutationNotify
+  );
 };
 
 export {
@@ -56,5 +61,5 @@ export {
   createChartOfAccount,
   updateChartOfAccount,
   deleteChartOfAccount,
-  getDefaultChartOfAccount
+  getDefaultChartOfAccount,
 };

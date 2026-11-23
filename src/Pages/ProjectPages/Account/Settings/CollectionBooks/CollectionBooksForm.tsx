@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import BaseForm from '../../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { CollectionBookModel } from '../../../../../interfaces/ProjectInterfaces';
+import { useEffect, useState } from "react";
+import BaseForm from "../../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { CollectionBookModel } from "../../../../../interfaces/ProjectInterfaces";
 import {
   createCollectionBook,
   deleteCollectionBook,
   getCollectionBookById,
   updateCollectionBook,
 } from "../../../../../Apis/Account/CollectionBooksApi";
-import InputText from '../../../../../Components/Inputs/InputText';
-import { useTranslation } from 'react-i18next';
-import { CollectionBookSchema } from '../../../../../interfaces/ProjectInterfaces/Account/CollectionBooks/validation-collectionBook';
+import InputText from "../../../../../Components/Inputs/InputText";
+import { useTranslation } from "react-i18next";
+import { CollectionBookSchema } from "../../../../../interfaces/ProjectInterfaces/Account/CollectionBooks/validation-collectionBook";
 
 const CollectionBooksForm: React.FC<{
   formType: FormTypes;
@@ -24,9 +24,7 @@ const CollectionBooksForm: React.FC<{
     name: "",
     nameSecondLanguage: "",
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -39,7 +37,7 @@ const CollectionBooksForm: React.FC<{
             setModel(response.result);
           }
         } catch (error) {
-          console.error('Error fetching collection book:', error);
+          console.error("Error fetching collection book:", error);
         } finally {
           setIsLoading(false);
         }
@@ -70,10 +68,6 @@ const CollectionBooksForm: React.FC<{
       afterAction && afterAction();
       return true;
     } else {
-      console.log(response);
-      response?.errorMessages?.map((error: string) => {
-        console.log(error);
-      });
       return false;
     }
   };
@@ -92,10 +86,9 @@ const CollectionBooksForm: React.FC<{
     if ((await validate()) === false) return false;
     const response = await createCollectionBook(model);
     if (response?.result) {
-      console.log(response);
       afterAction && afterAction();
       return true;
-    } 
+    }
     return false;
   };
 
@@ -120,7 +113,9 @@ const CollectionBooksForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+                <p>
+                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+                </p>
               ) : (
                 <>
                   <div className="row mb-3">
@@ -135,9 +130,7 @@ const CollectionBooksForm: React.FC<{
                         value={model?.name}
                         onChange={(value) => {
                           setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, name: value }
-                              : prevModel
+                            prevModel ? { ...prevModel, name: value } : prevModel
                           );
                         }}
                         error={!!errors.name}
@@ -164,7 +157,9 @@ const CollectionBooksForm: React.FC<{
                           );
                         }}
                         error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined}
+                        helperText={
+                          errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
+                        }
                       />
                     </div>
                   </div>

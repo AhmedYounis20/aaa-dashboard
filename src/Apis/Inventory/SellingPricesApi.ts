@@ -1,42 +1,20 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import SellingPriceModel from "../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import SellingPriceModel from "@/interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import { createCrudApi } from "@/shared/api";
+import type { HttpTransportOptions } from "@/shared/api";
 
+const crud = createCrudApi<SellingPriceModel>("SellingPrices");
 
-const apiEndPoint = "SellingPrices";
-// GET all currencies
-const getSellingPrices = async (): Promise<ApiResult<SellingPriceModel[]>> => {
-  return await httpGet<SellingPriceModel[]>(apiEndPoint, {});
-};
+const getSellingPrices = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single currency by ID
-const getSellingPriceById = async (
-  id: string
-): Promise<ApiResult<SellingPriceModel>> => {
-  return await httpGet<SellingPriceModel>(`${apiEndPoint}/${id}`, {});
-};
+const getSellingPriceById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-// POST (Create) a new currency
-const createSellingPrice = async (
-  data: SellingPriceModel
-): Promise<ApiResult<SellingPriceModel>> => {
-  return await httpPost<SellingPriceModel>(apiEndPoint, data);
-};
+const createSellingPrice = (data: SellingPriceModel, options?: HttpTransportOptions) =>
+  crud.create(data, options);
 
-// PUT (Update) a currency
-const updateSellingPrice = async (
-  id: string,
-  data: SellingPriceModel
-): Promise<ApiResult<SellingPriceModel>> => {
-  return await httpPut<SellingPriceModel>(`${apiEndPoint}/${id}`, data);
-};
+const updateSellingPrice = (id: string, data: SellingPriceModel, options?: HttpTransportOptions) =>
+  crud.update(id, data, options);
 
-// DELETE a currency by ID
-const deleteSellingPrice = async (
-  id: string
-): Promise<ApiResult<SellingPriceModel>> => {
-  return await httpDelete<SellingPriceModel>(`${apiEndPoint}/${id}`, { id });
-};
+const deleteSellingPrice = (id: string, options?: HttpTransportOptions) => crud.remove(id, options);
 
 export {
   getSellingPrices,
