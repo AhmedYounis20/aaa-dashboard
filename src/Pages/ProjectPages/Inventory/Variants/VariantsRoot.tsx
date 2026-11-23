@@ -1,22 +1,49 @@
-import { useState } from "react";
-import { AppContent } from "../../../../Components";
-import VariantModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel";
+import { useCallback, useState } from "react";
+import { Alert } from "@mui/material";
+import { AppContent } from "@/Components";
+import VariantModel from "@/interfaces/ProjectInterfaces/Inventory/Variants/VariantModel";
 import { useTranslation } from "react-i18next";
-import { FormTypes } from "../../../../interfaces/Components/FormType";
 import VariantsForm from "./VariantsForm";
-import VariantAttributeValueModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantAttributeValueModel";
-import { SmartChip } from "../../../../Components/UI/SmartChip";
-import { getVariantPicture } from "../../../../Helper/variantAttachmentHelper";
-import ImagePreview from "../../../../Components/Images/ImagePreview";
-import { getVariantsPaginated } from "../../../../Apis/Inventory/VariantsApi";
+import VariantAttributeValueModel from "@/interfaces/ProjectInterfaces/Inventory/Variants/VariantAttributeValueModel";
+import { SmartChip } from "@/Components/UI/SmartChip";
+import { getVariantPicture } from "@/Helper/variantAttachmentHelper";
+import ImagePreview from "@/Components/Images/ImagePreview";
+import { getVariantsPaginated } from "@/Apis/Inventory/VariantsApi";
+import { useEntityListPage } from "@/hooks/queries";
 
+/**
+ * Variants stay server-side paginated. Query keys/hooks exist for detail/mutations;
+ * Product/Variant card Components folders are owned by phase-c-product-variant.
+ * List fetch errors are surfaced via AppContent ErrorState (Root-only; DataTable unchanged).
+ */
 const VariantsRoot = () => {
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>("");
-  const [reloadKey, setReloadKey] = useState(0);
-
   const { t } = useTranslation();
+  const {
+    showForm,
+    formType,
+    selectedId,
+    setFormType,
+    handleShowForm,
+    handleCloseForm,
+    handleSelectId,
+  } = useEntityListPage();
+  const [reloadKey, setReloadKey] = useState(0);
+  const [isError, setIsError] = useState(false);
+
+  const onFetchData = useCallback(async (params: unknown) => {
+    try {
+      const result = await getVariantsPaginated(params as never);
+      if (!result?.isSuccess) {
+        setIsError(true);
+        return result;
+      }
+      setIsError(false);
+      return result;
+    } catch (error) {
+      setIsError(true);
+      throw error;
+    }
+  }, []);
 
   const columns = [
     {
@@ -34,14 +61,8 @@ const VariantsRoot = () => {
         );
       },
     },
-    {
-      Header: t("Name"),
-      accessor: "name",
-    },
-    {
-      Header: t("Code"),
-      accessor: "code",
-    },
+    { Header: t("Name"), accessor: "name" },
+    { Header: t("Code"), accessor: "code" },
     {
       Header: t("Attributes"),
       accessor: "variantAttributeValues",
@@ -59,7 +80,6 @@ const VariantsRoot = () => {
         );
       },
     },
-
     {
       Header: t("Created At"),
       accessor: "createdAt",
@@ -68,18 +88,6 @@ const VariantsRoot = () => {
       },
     },
   ];
-
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
-
-  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
-
-
 
   return (
     <>
@@ -92,20 +100,30 @@ const VariantsRoot = () => {
           afterAction={() => setReloadKey((prev) => prev + 1)}
         />
       ) : (
-        <AppContent
-          tableType="table"
-          title={t("Variants Management")}
-          columns={columns}
-          btn={false}
-          handleShowForm={handleShowForm}
-          changeFormType={setFormType}
-          handleSelectId={handleSelectId}
-          showedit={true}
-          showdelete={true}
-          reloadKey={reloadKey}
-          serverSidePagination={true}
-          onFetchData={getVariantsPaginated}
-        />
+        <>
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {t("VariantsCreatedViaProducts")}
+          </Alert>
+          <AppContent
+            tableType="table"
+            title="Variants Management"
+            columns={columns}
+            btn={false}
+            handleShowForm={handleShowForm}
+            changeFormType={setFormType}
+            handleSelectId={handleSelectId}
+            showEdit={true}
+            showDelete={true}
+            reloadKey={reloadKey}
+            serverSidePagination={true}
+            onFetchData={onFetchData}
+            isError={isError}
+            onRetry={() => {
+              setIsError(false);
+              setReloadKey((prev) => prev + 1);
+            }}
+          />
+        </>
       )}
     </>
   );

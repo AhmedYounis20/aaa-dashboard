@@ -3,17 +3,13 @@ import ProductAttachmentModel from "../../../../../interfaces/ProjectInterfaces/
 import VariantAttachmentModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantAttachmentModel";
 import { FormTypes } from "../../../../../interfaces/Components";
 
-const toProductAttachments = (
-  attachments: VariantAttachmentModel[]
-): ProductAttachmentModel[] =>
+const toProductAttachments = (attachments: VariantAttachmentModel[]): ProductAttachmentModel[] =>
   attachments.map(({ variantId, ...rest }) => ({
     ...rest,
     productId: variantId,
   }));
 
-const toVariantAttachments = (
-  attachments: ProductAttachmentModel[]
-): VariantAttachmentModel[] =>
+const toVariantAttachments = (attachments: ProductAttachmentModel[]): VariantAttachmentModel[] =>
   attachments.map(({ productId, ...rest }) => ({
     ...rest,
     variantId: productId,
@@ -36,9 +32,7 @@ const VariantPictureUpload: React.FC<VariantPictureUploadProps> = ({
     productId={variantId}
     formType={formType}
     attachments={toProductAttachments(attachments)}
-    onAttachmentsChange={(next) =>
-      onAttachmentsChange(toVariantAttachments(next))
-    }
+    onAttachmentsChange={(next) => onAttachmentsChange(toVariantAttachments(next))}
   />
 );
 

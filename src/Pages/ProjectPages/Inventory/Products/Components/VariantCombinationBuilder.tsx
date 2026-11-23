@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   Grid,
   Switch,
@@ -8,24 +8,28 @@ import {
   Box,
   TextField,
   FormControlLabel,
-} from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import {
-  Delete as DeleteIcon,
-  Settings as SettingsIcon
-} from '@mui/icons-material';
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Paper,
+} from "@mui/material";
+import { Delete as DeleteIcon, Settings as SettingsIcon } from "@mui/icons-material";
 
-import ExpandableCard from '../../../../../Components/UI/ExpandableCard';
-import InputAutoComplete from '../../../../../Components/Inputs/InputAutoCompelete';
-import {v4 as uuid} from 'uuid';
-import { getAttributeDefinitions } from '../../../../../Apis/Inventory/AttributeDefinitionsApi';
-import { getAttributeValues } from '../../../../../Apis/Inventory/AttributeValuesApi';
+import ExpandableCard from "../../../../../Components/UI/ExpandableCard";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoComplete";
+import { v4 as uuid } from "uuid";
+import { getAttributeDefinitions } from "../../../../../Apis/Inventory/AttributeDefinitionsApi";
+import { getAttributeValues } from "../../../../../Apis/Inventory/AttributeValuesApi";
 
 // import { AttributeDefinitionDto } from '../../../../../interfaces/ProjectInterfaces/Inventory/Attributes/AttributeDefinitionDto';
-import AttributeDefinitionModel from '../../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel';
-import  AttributeValueModel  from '../../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValueModel';
-import ProductAttributeDefinitionModel from '../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttributeDefinitionModel';
-import { FormTypes } from '../../../../../interfaces/Components/FormType';
+import AttributeDefinitionModel from "../../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
+import AttributeValueModel from "../../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValueModel";
+import ProductAttributeDefinitionModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttributeDefinitionModel";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
 
 interface VariantCombination {
   id: string;
@@ -64,7 +68,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
   handleTranslate,
   formType,
   productName,
-  productAttributeDefinitions
+  productAttributeDefinitions,
 }) => {
   /* ----------------------------- state ----------------------------- */
   const [attributeDefinitions, setAttributeDefinitions] = useState<AttributeDefinitionModel[]>([]);
@@ -83,7 +87,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
 
   const attributeDefinitionNameMap = useMemo(() => {
     const map: Record<string, string> = {};
-    attributeDefinitions.forEach(def => {
+    attributeDefinitions.forEach((def) => {
       map[def.id] = def.name;
     });
     return map;
@@ -91,7 +95,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
 
   const attributeValueNameMap = useMemo(() => {
     const map: Record<string, string> = {};
-    attributeValues.forEach(val => {
+    attributeValues.forEach((val) => {
       if (val.id) {
         map[val.id] = val.name;
       }
@@ -101,7 +105,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
 
   const attributeValuesByDefinition = useMemo(() => {
     const map: Record<string, AttributeValueModel[]> = {};
-    attributeValues.forEach(val => {
+    attributeValues.forEach((val) => {
       if (!map[val.attributeDefinitionId]) {
         map[val.attributeDefinitionId] = [];
       }
@@ -133,8 +137,8 @@ const VariantCombinationBuilder: React.FC<Props> = ({
   useEffect(() => {
     if (!didInit.current && combinations.length > 0) {
       const usedAttributes: { [key: string]: string[] } = {};
-      combinations.forEach(combo => {
-        Object.keys(combo.attributeValues).forEach(attrDefId => {
+      combinations.forEach((combo) => {
+        Object.keys(combo.attributeValues).forEach((attrDefId) => {
           if (!usedAttributes[attrDefId]) {
             usedAttributes[attrDefId] = [];
           }
@@ -158,71 +162,80 @@ const VariantCombinationBuilder: React.FC<Props> = ({
 
   const getVariantAttributeDefinitionIds = () => {
     return productAttributeDefinitions
-      .filter(pad => pad.isVariant)
-      .map(pad => pad.attributeDefinitionId);
+      .filter((pad) => pad.isVariant)
+      .map((pad) => pad.attributeDefinitionId);
   };
 
   const getCombinationKey = useCallback((attributeValuesMap: { [key: string]: string }) => {
     const sortedKeys = Object.keys(attributeValuesMap).sort();
-    return sortedKeys.map(key => `${key}=${attributeValuesMap[key]}`).join('|');
+    return sortedKeys.map((key) => `${key}=${attributeValuesMap[key]}`).join("|");
   }, []);
 
-  const generateVariantName = useCallback((attributeValuesMap: { [key: string]: string }) => {
-    const valueNames: string[] = [];
-    Object.entries(attributeValuesMap).forEach(([attrDefId, valueId]) => {
-      const defName = attributeDefinitionNameMap[attrDefId];
-      const valueName = attributeValueNameMap[valueId];
-      if (defName && valueName) {
-        valueNames.push(`${defName}: ${valueName}`);
-      }
-    });
-    return `${productName} - ${valueNames.join(', ')}`;
-  }, [attributeDefinitionNameMap, attributeValueNameMap, productName]);
-
-  const generateAllCombinations = useCallback((attributes: { [key: string]: string[] }) => {
-    const combinations: VariantCombination[] = [];
-    const attributeIds = Object.keys(attributes);
-    
-    if (attributeIds.length === 0) {
-      return combinations;
-    }
-    
-    // Generate cartesian product of all selected attribute values
-    const cartesianProduct = generateCartesianProduct(attributeIds, attributes);
-    
-    cartesianProduct.forEach(combo => {
-      const name = generateVariantName(combo);
-      combinations.push({
-        id: uuid(),
-        name,
-        attributeValues: combo,
-        applyProductChanges: productApplyChanges
+  const generateVariantName = useCallback(
+    (attributeValuesMap: { [key: string]: string }) => {
+      const valueNames: string[] = [];
+      Object.entries(attributeValuesMap).forEach(([attrDefId, valueId]) => {
+        const defName = attributeDefinitionNameMap[attrDefId];
+        const valueName = attributeValueNameMap[valueId];
+        if (defName && valueName) {
+          valueNames.push(`${defName}: ${valueName}`);
+        }
       });
-    });
-    
-    return combinations;
-  }, [generateVariantName, getCombinationKey, productApplyChanges]);
+      return `${productName} - ${valueNames.join(", ")}`;
+    },
+    [attributeDefinitionNameMap, attributeValueNameMap, productName]
+  );
 
-  const buildCombinations = useCallback((attributes: { [key: string]: string[] }, existing: VariantCombination[]) => {
-    const existingMap = new Map<string, VariantCombination>();
-    existing.forEach(combo => {
-      existingMap.set(getCombinationKey(combo.attributeValues), combo);
-    });
+  const generateAllCombinations = useCallback(
+    (attributes: { [key: string]: string[] }) => {
+      const combinations: VariantCombination[] = [];
+      const attributeIds = Object.keys(attributes);
 
-    return generateAllCombinations(attributes).map(combo => {
-      const key = getCombinationKey(combo.attributeValues);
-      const existingCombo = existingMap.get(key);
-      if (existingCombo) {
-        return {
-          ...combo,
-          id: existingCombo.id,
-          applyProductChanges: existingCombo.applyProductChanges,
-          isExisting: existingCombo.isExisting
-        };
+      if (attributeIds.length === 0) {
+        return combinations;
       }
-      return combo;
-    });
-  }, [generateAllCombinations, getCombinationKey]);
+
+      // Generate cartesian product of all selected attribute values
+      const cartesianProduct = generateCartesianProduct(attributeIds, attributes);
+
+      cartesianProduct.forEach((combo) => {
+        const name = generateVariantName(combo);
+        combinations.push({
+          id: uuid(),
+          name,
+          attributeValues: combo,
+          applyProductChanges: productApplyChanges,
+        });
+      });
+
+      return combinations;
+    },
+    [generateVariantName, getCombinationKey, productApplyChanges]
+  );
+
+  const buildCombinations = useCallback(
+    (attributes: { [key: string]: string[] }, existing: VariantCombination[]) => {
+      const existingMap = new Map<string, VariantCombination>();
+      existing.forEach((combo) => {
+        existingMap.set(getCombinationKey(combo.attributeValues), combo);
+      });
+
+      return generateAllCombinations(attributes).map((combo) => {
+        const key = getCombinationKey(combo.attributeValues);
+        const existingCombo = existingMap.get(key);
+        if (existingCombo) {
+          return {
+            ...combo,
+            id: existingCombo.id,
+            applyProductChanges: existingCombo.applyProductChanges,
+            isExisting: existingCombo.isExisting,
+          };
+        }
+        return combo;
+      });
+    },
+    [generateAllCombinations, getCombinationKey]
+  );
 
   const applyBuiltCombinations = useCallback(
     (attributes: { [key: string]: string[] }, existing: VariantCombination[]) => {
@@ -235,18 +248,14 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       );
 
       const built = buildCombinations(attributes, existing).filter(
-        (combo) =>
-          !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
+        (combo) => !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
       );
       onChange(built);
     },
     [buildCombinations, generateAllCombinations, getCombinationKey, onChange]
   );
 
-  const handleAttributeSelectionChange = (
-    attributeDefinitionId: string,
-    newValueIds: string[]
-  ) => {
+  const handleAttributeSelectionChange = (attributeDefinitionId: string, newValueIds: string[]) => {
     const updatedSelectedAttributes = {
       ...selectedAttributes,
       [attributeDefinitionId]: newValueIds,
@@ -280,8 +289,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       Object.keys(nextSelectedAttributes).length !== Object.keys(selectedAttributes).length ||
       Object.keys(nextSelectedAttributes).some(
         (key) =>
-          (selectedAttributes[key] || []).length !==
-          (nextSelectedAttributes[key] || []).length
+          (selectedAttributes[key] || []).length !== (nextSelectedAttributes[key] || []).length
       );
 
     if (selectionChanged) {
@@ -299,12 +307,8 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       return;
     }
 
-    const nextCombinations = buildCombinations(
-      nextSelectedAttributes,
-      combinations
-    ).filter(
-      (combo) =>
-        !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
+    const nextCombinations = buildCombinations(nextSelectedAttributes, combinations).filter(
+      (combo) => !excludedComboKeysRef.current.has(getCombinationKey(combo.attributeValues))
     );
     const shouldUpdate =
       nextCombinations.length !== combinations.length ||
@@ -314,9 +318,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
         const existingKeys = Object.keys(existing.attributeValues);
         const nextKeys = Object.keys(combo.attributeValues);
         if (existingKeys.length !== nextKeys.length) return true;
-        return nextKeys.some(
-          (key) => existing.attributeValues[key] !== combo.attributeValues[key]
-        );
+        return nextKeys.some((key) => existing.attributeValues[key] !== combo.attributeValues[key]);
       });
 
     if (shouldUpdate) {
@@ -325,34 +327,37 @@ const VariantCombinationBuilder: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productAttributeDefinitions]);
 
-  const generateCartesianProduct = (attributeIds: string[], attributes: { [key: string]: string[] }) => {
+  const generateCartesianProduct = (
+    attributeIds: string[],
+    attributes: { [key: string]: string[] }
+  ) => {
     if (attributeIds.length === 0) return [{}];
-    
+
     const firstId = attributeIds[0];
     const restIds = attributeIds.slice(1);
     const restCombinations = generateCartesianProduct(restIds, attributes);
-    
+
     const combinations: { [key: string]: string }[] = [];
-    attributes[firstId]?.forEach(valueId => {
-      restCombinations.forEach(restCombo => {
+    attributes[firstId]?.forEach((valueId) => {
+      restCombinations.forEach((restCombo) => {
         combinations.push({ ...restCombo, [firstId]: valueId });
       });
     });
-    
+
     return combinations;
   };
 
   const getVariantAttributeDefinitions = useMemo(() => {
     const variantAttributeDefinitionIds = getVariantAttributeDefinitionIds();
-    return attributeDefinitions.filter(ad => variantAttributeDefinitionIds.includes(ad.id));
+    return attributeDefinitions.filter((ad) => variantAttributeDefinitionIds.includes(ad.id));
   }, [attributeDefinitions, productAttributeDefinitions]);
 
   // const isSameCombination = (combo1: VariantCombination, combo2: VariantCombination) => {
   //   const keys1 = Object.keys(combo1.attributeValues).sort();
   //   const keys2 = Object.keys(combo2.attributeValues).sort();
-    
+
   //   if (keys1.length !== keys2.length) return false;
-    
+
   //   return keys1.every(key => combo1.attributeValues[key] === combo2.attributeValues[key]);
   // };
 
@@ -377,12 +382,12 @@ const VariantCombinationBuilder: React.FC<Props> = ({
     try {
       const result = await getAttributeDefinitions();
       if (result?.isSuccess) {
-        const models = result.result;//.map(convertDtoToModel);
+        const models = result.result; //.map(convertDtoToModel);
         // const models = result.result.map(convertDtoToModel);
         setAttributeDefinitions(models);
       }
     } catch (err) {
-      console.error('Error fetching attribute definitions', err);
+      console.error("Error fetching attribute definitions", err);
     }
   };
 
@@ -393,7 +398,7 @@ const VariantCombinationBuilder: React.FC<Props> = ({
         setAttributeValues(result.result);
       }
     } catch (err) {
-      console.error('Error fetching attribute values', err);
+      console.error("Error fetching attribute values", err);
     }
   };
 
@@ -401,23 +406,27 @@ const VariantCombinationBuilder: React.FC<Props> = ({
     return attributeValuesByDefinition[attributeDefinitionId] || [];
   };
 
-  const handleToggleApply = useCallback((comboKey: string, checked: boolean) => {
-    const next = combinations.map(combo =>
-      getCombinationKey(combo.attributeValues) === comboKey
-        ? { ...combo, applyProductChanges: checked }
-        : combo
-    );
-    onChange(next);
-  }, [combinations, getCombinationKey, onChange]);
+  const handleToggleApply = useCallback(
+    (comboKey: string, checked: boolean) => {
+      const next = combinations.map((combo) =>
+        getCombinationKey(combo.attributeValues) === comboKey
+          ? { ...combo, applyProductChanges: checked }
+          : combo
+      );
+      onChange(next);
+    },
+    [combinations, getCombinationKey, onChange]
+  );
 
-  const handleDeleteCombination = useCallback((comboKey: string) => {
-    excludedComboKeysRef.current.add(comboKey);
-    onChange(
-      combinations.filter(
-        (combo) => getCombinationKey(combo.attributeValues) !== comboKey
-      )
-    );
-  }, [combinations, getCombinationKey, onChange]);
+  const handleDeleteCombination = useCallback(
+    (comboKey: string) => {
+      excludedComboKeysRef.current.add(comboKey);
+      onChange(
+        combinations.filter((combo) => getCombinationKey(combo.attributeValues) !== comboKey)
+      );
+    },
+    [combinations, getCombinationKey, onChange]
+  );
 
   const rows = useMemo<VariantCombinationRow[]>(() => {
     return combinations.map((combo, index) => ({
@@ -427,116 +436,30 @@ const VariantCombinationBuilder: React.FC<Props> = ({
       comboKey: getCombinationKey(combo.attributeValues),
       attributeValues: combo.attributeValues,
       applyProductChanges: combo.applyProductChanges,
-      isExisting: combo.isExisting
+      isExisting: combo.isExisting,
     }));
   }, [combinations, getCombinationKey, productName]);
 
-  const columns: GridColDef<VariantCombinationRow>[] = useMemo(() => ([
-    {
-      field: 'index',
-      headerName: handleTranslate('#'),
-      width: 70,
-      sortable: false,
-      filterable: false
-    },
-    {
-      field: 'name',
-      headerName: handleTranslate('Name'),
-      flex: 1,
-      minWidth: 200,
-      sortable: false,
-      filterable: false,
-      renderCell: () => (
-        <TextField
-          value={productName}
-          size="small"
-          fullWidth
-          disabled
-          variant="outlined"
-        />
-      )
-    },
-    {
-      field: 'attributes',
-      headerName: handleTranslate('Attributes'),
-      flex: 2,
-      minWidth: 260,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {Object.entries(params.row.attributeValues).map(([attrDefId, valueId]) => (
-            <Chip
-              key={`${attrDefId}-${valueId}`}
-              label={`${attributeDefinitionNameMap[attrDefId] || 'Unknown'}: ${attributeValueNameMap[valueId] || 'Unknown'}`}
-              size="small"
-              variant="outlined"
-              color="primary"
-            />
-          ))}
-        </Box>
-      )
-    },
-    {
-      field: 'applyProductChanges',
-      headerName: handleTranslate('Apply'),
-      width: 110,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Switch
-          checked={params.row.applyProductChanges}
-          onChange={e => handleToggleApply(params.row.comboKey, e.target.checked)}
-          size="small"
-          color="primary"
-          disabled={formType === FormTypes.Details}
-        />
-      )
-    },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 70,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      renderCell: (params) => (
-        formType !== FormTypes.Details ? (
-          <IconButton
-            size="small"
-            color="error"
-            onClick={() => handleDeleteCombination(params.row.comboKey)}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        ) : null
-      )
-    }
-  ]), [
-    attributeDefinitionNameMap,
-    attributeValueNameMap,
-    formType,
-    handleDeleteCombination,
-    handleToggleApply,
-    handleTranslate,
-    productName
-  ]);
+  const pagedRows = useMemo(() => {
+    const start = page * rowsPerPage;
+    return rows.slice(start, start + rowsPerPage);
+  }, [page, rows, rowsPerPage]);
 
   /* --------------------------- render ------------------------------ */
   return (
     <ExpandableCard
-      title={handleTranslate('Variant Combination Builder')}
+      title={handleTranslate("Variant Combination Builder")}
       icon={<SettingsIcon color="primary" />}
       defaultExpanded={false}
     >
       {/* --- attribute selectors --- */}
       <Grid container spacing={3} mb={2}>
-        {getVariantAttributeDefinitions.map(attrDef => (
+        {getVariantAttributeDefinitions.map((attrDef) => (
           <Grid item xs={12} md={6} key={attrDef.id}>
             <InputAutoComplete
-              options={getAttributeValuesForDefinition(attrDef.id).map(av => ({
+              options={getAttributeValuesForDefinition(attrDef.id).map((av) => ({
                 label: av.name,
-                value: av.id
+                value: av.id,
               }))}
               label={attrDef.name}
               value={selectedAttributes[attrDef.id] || []}
@@ -558,17 +481,17 @@ const VariantCombinationBuilder: React.FC<Props> = ({
             disabled={formType === FormTypes.Details}
           />
         }
-        label={handleTranslate('Apply Product Changes to New Variants')}
+        label={handleTranslate("Apply Product Changes to New Variants")}
       />
 
       {/* --- combinations table --- */}
       {combinations.length > 0 && (
         <Box mt={4}>
           <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}
           >
             <Typography variant="subtitle1" color="primary" fontWeight={600}>
-              {handleTranslate('Generated Variants')} ({combinations.length})
+              {handleTranslate("Generated Variants")} ({combinations.length})
             </Typography>
 
             <Chip
@@ -578,55 +501,111 @@ const VariantCombinationBuilder: React.FC<Props> = ({
             />
           </Box>
 
-          <Box sx={{ height: 420, width: '100%' }}>
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pagination
-              paginationModel={{ page, pageSize: rowsPerPage }}
-              onPaginationModelChange={(model) => {
-                setPage(model.page);
-                setRowsPerPage(model.pageSize);
+          <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 420 }}>
+            <Table stickyHeader size="small" aria-label="variant combinations">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700, width: 56 }}>{handleTranslate("#")}</TableCell>
+                  <TableCell sx={{ fontWeight: 700, minWidth: 160 }}>
+                    {handleTranslate("Name")}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, minWidth: 220 }}>
+                    {handleTranslate("Attributes")}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, width: 96 }} align="center">
+                    {handleTranslate("Apply")}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, width: 56 }} align="center" />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pagedRows.map((row) => (
+                  <TableRow key={row.id} hover>
+                    <TableCell>{row.index}</TableCell>
+                    <TableCell>
+                      <TextField
+                        value={productName}
+                        size="small"
+                        fullWidth
+                        disabled
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {Object.entries(row.attributeValues).map(([attrDefId, valueId]) => (
+                          <Chip
+                            key={`${attrDefId}-${valueId}`}
+                            label={`${attributeDefinitionNameMap[attrDefId] || "Unknown"}: ${attributeValueNameMap[valueId] || "Unknown"}`}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        ))}
+                      </Box>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Switch
+                        checked={row.applyProductChanges}
+                        onChange={(e) => handleToggleApply(row.comboKey, e.target.checked)}
+                        size="small"
+                        color="primary"
+                        disabled={formType === FormTypes.Details}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      {formType !== FormTypes.Details ? (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDeleteCombination(row.comboKey)}
+                          aria-label={handleTranslate("Delete")}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination
+              component="div"
+              count={rows.length}
+              page={page}
+              onPageChange={(_event, nextPage) => setPage(nextPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(parseInt(event.target.value, 10));
+                setPage(0);
               }}
-              pageSizeOptions={[10, 25, 50]}
-              disableRowSelectionOnClick
-              disableColumnMenu
-              disableColumnFilter
-              disableColumnSelector
-              disableDensitySelector
-              disableColumnResize
-              getRowHeight={() => 'auto'}
-              sx={(theme) => ({
-                '& .MuiDataGrid-columnHeaders': {
-                  bgcolor: theme.palette.grey[100],
-                  color: theme.palette.text.primary,
-                  fontWeight: 700
-                },
-                '& .MuiDataGrid-cell': {
-                  py: 1
-                }
-              })}
+              rowsPerPageOptions={[10, 25, 50]}
             />
-          </Box>
+          </TableContainer>
         </Box>
       )}
 
       {/* --- empty states --- */}
       {getVariantAttributeDefinitions.length === 0 && (
         <Typography align="center" sx={{ py: 4 }} variant="body2" color="text.secondary">
-          {handleTranslate('No variant attributes configured. Please select attribute definitions and mark them as variant attributes in the Product Attribute Definitions section above.')}
+          {handleTranslate(
+            "No variant attributes configured. Please select attribute definitions and mark them as variant attributes in the Product Attribute Definitions section above."
+          )}
         </Typography>
       )}
-      {getVariantAttributeDefinitions.length > 0 && Object.keys(selectedAttributes).length > 0 && combinations.length === 0 && (
-        <Typography align="center" sx={{ py: 4 }} variant="body2" color="text.secondary">
-          {handleTranslate('Select attribute values above to generate variant combinations')}
-        </Typography>
-      )}
-      {getVariantAttributeDefinitions.length > 0 && Object.keys(selectedAttributes).length === 0 && (
-        <Typography align="center" sx={{ py: 4 }} variant="body2" color="text.secondary">
-          {handleTranslate('No attribute values selected')}
-        </Typography>
-      )}
+      {getVariantAttributeDefinitions.length > 0 &&
+        Object.keys(selectedAttributes).length > 0 &&
+        combinations.length === 0 && (
+          <Typography align="center" sx={{ py: 4 }} variant="body2" color="text.secondary">
+            {handleTranslate("Select attribute values above to generate variant combinations")}
+          </Typography>
+        )}
+      {getVariantAttributeDefinitions.length > 0 &&
+        Object.keys(selectedAttributes).length === 0 && (
+          <Typography align="center" sx={{ py: 4 }} variant="body2" color="text.secondary">
+            {handleTranslate("No attribute values selected")}
+          </Typography>
+        )}
     </ExpandableCard>
   );
 };

@@ -1,36 +1,49 @@
-import { Box } from '@mui/material';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getAccountGuidesPaginated } from '../../../../Apis/Account/AccountGuidesApi';
-import { AppContent } from '../../../../Components';
-import { FormTypes } from '../../../../interfaces/Components';
-import AccountGuidesForm from './AccountGuidesForm';
+import { Box } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { getAccountGuidesPaginated } from "@/Apis/Account/AccountGuidesApi";
+import { AppContent } from "@/Components";
+import AccountGuidesForm from "./AccountGuidesForm";
+import { useEntityListPage } from "@/hooks/queries";
+import { useCallback, useState } from "react";
 
+/**
+ * Account guides remain server-side paginated via AppContent.onFetchData.
+ * List chrome uses useEntityListPage; Form mutations still call afterAction → reloadKey.
+ * Fetch errors use AppContent ErrorState (Root-only; DataTable unchanged).
+ */
 const AccountGuidesRoot = () => {
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>("");
+  const { t } = useTranslation();
+  const {
+    showForm,
+    formType,
+    selectedId,
+    setFormType,
+    handleShowForm,
+    handleCloseForm,
+    handleSelectId,
+    openAdd,
+  } = useEntityListPage();
   const [reloadKey, setReloadKey] = useState(0);
-  const {t} = useTranslation();
+  const [isError, setIsError] = useState(false);
 
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
+  const onFetchData = useCallback(async (params: unknown) => {
+    try {
+      const result = await getAccountGuidesPaginated(params as never);
+      if (!result?.isSuccess) {
+        setIsError(true);
+        return result;
+      }
+      setIsError(false);
+      return result;
+    } catch (error) {
+      setIsError(true);
+      throw error;
+    }
+  }, []);
 
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
-  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
-  const columns: { Header: string; accessor: string }[] = [
-    {
-      Header: "Name",
-      accessor: "name",
-    },
-    {
-      Header: "NameSecondLanguage",
-      accessor: "nameSecondLanguage",
-    },
+  const columns = [
+    { Header: "Name", accessor: "name" },
+    { Header: "NameSecondLanguage", accessor: "nameSecondLanguage" },
   ];
 
   return (
@@ -41,8 +54,8 @@ const AccountGuidesRoot = () => {
             id={selectedId}
             handleCloseForm={handleCloseForm}
             formType={formType}
-            afterAction={() => setReloadKey(prev => prev + 1)}
-            handleTranslate ={(key: string) => t(key)}
+            afterAction={() => setReloadKey((prev) => prev + 1)}
+            handleTranslate={(key: string) => t(key)}
           />
         )}
 
@@ -53,27 +66,23 @@ const AccountGuidesRoot = () => {
           addBtn
           btn
           startIcon
-          actionBtn={() => {
-            setFormType(FormTypes.Add);
-            handleShowForm();
-          }}
+          actionBtn={openAdd}
           handleSelectId={handleSelectId}
           changeFormType={setFormType}
           handleShowForm={handleShowForm}
-          defaultHiddenCols={[
-            "id",
-            "createdAt",
-            "createdBy",
-            "modifiedAt",
-            "modifiedBy",
-          ]}
+          defaultHiddenCols={["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"]}
           reloadKey={reloadKey}
           serverSidePagination={true}
-          onFetchData={getAccountGuidesPaginated}
+          onFetchData={onFetchData}
+          isError={isError}
+          onRetry={() => {
+            setIsError(false);
+            setReloadKey((prev) => prev + 1);
+          }}
         />
       </Box>
     </div>
   );
-}
+};
 
-export default AccountGuidesRoot
+export default AccountGuidesRoot;

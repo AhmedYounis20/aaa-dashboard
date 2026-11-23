@@ -9,7 +9,7 @@ Login Page → AuthProvider.login() → authApi → apiClient
                 ↓
          authStorage (localStorage tokens)
                 ↓
-         Redux userAuthStore (user profile for UI)
+         AuthContext / useAuth() (user profile for UI)
                 ↓
 ProtectedRoute → validates token expiry → renders app routes
                 ↓
@@ -17,6 +17,8 @@ apiClient interceptors → attach Bearer token + Accept-Language
                 ↓
 401 response → refreshTokens() → retry request OR logout
 ```
+
+Redux is **theme-only** (`global` slice). User identity lives solely in `AuthProvider` / `useAuth()` — do not reintroduce a Redux user slice.
 
 ## Components
 
@@ -36,7 +38,7 @@ apiClient interceptors → attach Bearer token + Accept-Language
 2. `AuthProvider.login()` calls `authApi.loginRequest()` (no auto-toast)
 3. On success:
    - Access + refresh tokens saved via `authStorage.setTokens()`
-   - User profile decoded from JWT and stored in React state + Redux
+   - User profile decoded from JWT and stored in AuthContext (`useAuth().user`)
    - User redirected to intended route (or `/`)
 4. On failure:
    - Login page displays error toasts from API `errorMessages`
@@ -67,12 +69,12 @@ Every request through `apiClient`:
 ## Logout Flow
 
 1. User clicks logout in `AppHeader`
-2. `AuthProvider.logout()` clears tokens, Redux user state, and navigates to `/login`
+2. `AuthProvider.logout()` clears tokens, AuthContext user state, and navigates to `/login`
 3. Refresh token is also removed (previously only access token was cleared)
 
 ## Security Notes
 
-- Tokens are stored in `localStorage` (existing behavior). Consider httpOnly cookies in a future sprint with backend support.
+- **localStorage token XSS tradeoff:** Access and refresh tokens are stored in `localStorage` so any XSS can exfiltrate them. Prefer httpOnly secure cookies once the backend supports cookie-based auth; until then, harden XSS defenses (CSP, sanitization) and treat client-side JWT checks as UX only.
 - JWT expiry is validated client-side before rendering protected routes.
 - Client-side checks are UX guards only; the backend must enforce authorization on every API call.
 

@@ -1,8 +1,8 @@
 interface SellingPriceModel {
-    id:string;
-    name:string,
-    nameSecondLanguage:string,
-    isDeletable? : boolean;
+  id: string;
+  name: string;
+  nameSecondLanguage: string;
+  isDeletable?: boolean;
 }
 
 export default SellingPriceModel;

@@ -1,7 +1,13 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import ProductModel from "../../interfaces/ProjectInterfaces/Inventory/Products/ProductModel";
-import ProductInputModel from "../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
+import ProductModel from "@/interfaces/ProjectInterfaces/Inventory/Products/ProductModel";
+import ProductInputModel from "@/interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
 
 const apiEndPoint = "products";
 
@@ -13,30 +19,26 @@ const getProductById = async (id: string): Promise<ApiResult<ProductModel>> => {
   return await httpGet<ProductModel>(`${apiEndPoint}/${id}`, {});
 };
 
-const getProductNextCode = async (
-  parentId?: string | null
-): Promise<ApiResult<string>> => {
+const getProductNextCode = async (parentId?: string | null): Promise<ApiResult<string>> => {
   return await httpGet<string>(
     `${apiEndPoint}/getNextCode${parentId ? `?parentId=${parentId}` : ""}`,
     {}
   );
 };
 
-const createProduct = async (
-  data: ProductInputModel
-): Promise<ApiResult<ProductModel>> => {
-  return await httpPost<ProductModel>(apiEndPoint, data);
+const createProduct = async (data: ProductInputModel): Promise<ApiResult<ProductModel>> => {
+  return await httpPost<ProductModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
 const updateProduct = async (
   id: string,
   data: ProductInputModel
 ): Promise<ApiResult<ProductModel>> => {
-  return await httpPut<ProductModel>(`${apiEndPoint}/${id}`, data);
+  return await httpPut<ProductModel>(`${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
 const deleteProduct = async (id: string): Promise<ApiResult<ProductModel>> => {
-  return await httpDelete<ProductModel>(`${apiEndPoint}/${id}`, { id });
+  return await httpDelete<ProductModel>(`${apiEndPoint}/${id}`, { id }, legacyMutationNotify);
 };
 
 export {

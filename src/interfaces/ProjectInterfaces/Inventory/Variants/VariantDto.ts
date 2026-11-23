@@ -46,5 +46,3 @@ export interface VariantDto {
   modifiedByName?: string;
   modifiedByNameSecondLanguage?: string;
 }
-
-

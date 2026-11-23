@@ -1,40 +1,25 @@
-import ProductAttachmentModel from '../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel';
-import { AttachmentType } from '../interfaces/ProjectInterfaces/Inventory/Products/AttachmentType';
-import ProductModel from '../interfaces/ProjectInterfaces/Inventory/Products/ProductModel';
-import AttachmentModel from '../interfaces/BaseModels/AttachmentModel';
+import ProductAttachmentModel from "../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel";
+import { AttachmentType } from "../interfaces/ProjectInterfaces/Inventory/Products/AttachmentType";
+import ProductModel from "../interfaces/ProjectInterfaces/Inventory/Products/ProductModel";
+import {
+  getItemPicture,
+  getItemAttachmentsByType,
+  getItemPrimaryAttachment,
+  sortItemAttachments,
+} from "@/modules/inventory/shared/itemAttachmentHelper";
 
+export const getProductPicture = (product?: ProductModel): string =>
+  getItemPicture(product?.name, product?.productPicture);
 
-export const getProductPicture = (product?: ProductModel): string => {
-  const attachment : AttachmentModel | undefined = product?.productPicture;
-  if (!attachment || !attachment?.fileContent ) {
-    return `https://ui-avatars.com/api/?name=${product?.name}`;
-  }
-
-  // First, try to find the primary attachment
-      return `data:${attachment.contentType};base64,${attachment.fileContent}`;
-
-}
 export const getProductAttachmentsByType = (
   attachments: ProductAttachmentModel[],
   attachmentType: AttachmentType
-): ProductAttachmentModel[] => {
-  return attachments.filter(att => att.attachmentType === attachmentType);
-};
+): ProductAttachmentModel[] => getItemAttachmentsByType(attachments, attachmentType);
 
-export const getProductPrimaryAttachment = (attachments: ProductAttachmentModel[]): ProductAttachmentModel | null => {
-  return attachments.find(att => att.isPrimary) || null;
-};
+export const getProductPrimaryAttachment = (
+  attachments: ProductAttachmentModel[]
+): ProductAttachmentModel | null => getItemPrimaryAttachment(attachments);
 
-export const sortProductAttachments = (attachments: ProductAttachmentModel[]): ProductAttachmentModel[] => {
-  return [...attachments].sort((a, b) => {
-    // Primary attachments first
-    if (a.isPrimary && !b.isPrimary) return -1;
-    if (!a.isPrimary && b.isPrimary) return 1;
-    
-    // Then by display order
-    return a.displayOrder - b.displayOrder;
-  });
-};
-
-
-
+export const sortProductAttachments = (
+  attachments: ProductAttachmentModel[]
+): ProductAttachmentModel[] => sortItemAttachments(attachments);

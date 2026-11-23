@@ -5,54 +5,73 @@ import DataTable from "../../Tables/DataTable";
 import DataTreeTable from "../../Tables/DataTreeTable";
 import { FormTypes } from "@/interfaces/Components/FormType";
 import { EmptyState, ErrorState, LoadingState } from "@/Components/feedback";
+import type { FetchDataResult, TableColumnDef } from "@/Components/Tables/types";
 
-export interface TableColumn {
-  Header: string;
-  accessor?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  renderCell?: (row: any) => React.ReactNode;
-}
+export type { TableColumnDef as TableColumn };
 
-type AppContentProps = {
+type AppContentProps<
+  T extends { id?: string; parentId?: string | null; nodeType?: number } = Record<
+    string,
+    unknown
+  > & {
+    id?: string;
+    parentId?: string | null;
+    nodeType?: number;
+  },
+> = {
   tableType: "tree" | "table";
+  /** i18n key, or an already-translated label */
   title: string;
   btnName?: string;
   btn?: boolean;
   addBtn?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actionBtn?: (...args: any[]) => void;
+  actionBtn?: () => void;
   btnColor?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
   endIcon?: React.ReactNode;
   startIcon?: React.ReactNode;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns?: TableColumn[] | any[];
+  columns?: TableColumnDef[];
   handleShowForm?: () => void;
   changeFormType?: (formType: FormTypes) => void;
   handleSelectId?: (id: string) => void;
   handleSelectParentId?: (id: string) => void;
   defaultHiddenCols?: string[];
+  showDelete?: boolean;
+  showEdit?: boolean;
+  showAdd?: boolean;
+  /** @deprecated Use showDelete */
   showdelete?: boolean;
+  /** @deprecated Use showEdit */
   showedit?: boolean;
+  /** @deprecated Use showAdd */
   showadd?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showEditButtonIf?: (row: any) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showDeleteButtonIf?: (row: any) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  showAddButtonIf?: (row: any) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: any[];
+  showEditButtonIf?: (row: T) => boolean;
+  showDeleteButtonIf?: (row: T) => boolean;
+  showAddButtonIf?: (row: T) => boolean;
+  data?: T[];
   loading?: boolean;
   isError?: boolean;
   onRetry?: () => void;
   onRefresh?: () => void;
   reloadKey?: number;
   serverSidePagination?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onFetchData?: (params: any) => Promise<any>;
+  // Params kept broad so legacy Roots typed as `(params: unknown)` still assign.
+  onFetchData?: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: any
+  ) => Promise<FetchDataResult<T> | null | undefined>;
+  emptyMessage?: string;
 };
 
-export default function AppContent({
+export default function AppContent<
+  T extends { id?: string; parentId?: string | null; nodeType?: number } = Record<
+    string,
+    unknown
+  > & {
+    id?: string;
+    parentId?: string | null;
+    nodeType?: number;
+  },
+>({
   tableType,
   columns,
   handleSelectId,
@@ -63,6 +82,9 @@ export default function AppContent({
   actionBtn,
   btnColor,
   defaultHiddenCols,
+  showDelete,
+  showEdit,
+  showAdd,
   showdelete,
   showedit,
   showadd,
@@ -78,9 +100,24 @@ export default function AppContent({
   reloadKey,
   serverSidePagination = false,
   onFetchData,
-}: AppContentProps) {
-  const { t } = useTranslation();
+  emptyMessage,
+}: AppContentProps<T>) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
+
+  const resolvedShowDelete = showDelete ?? showdelete;
+  const resolvedShowEdit = showEdit ?? showedit;
+  const resolvedShowAdd = showAdd ?? showadd;
+
+  const displayTitle = i18n.exists(title) ? t(title) : title;
+  const addLabel = t("Add");
+  // Server-side lists own empty/error inside DataTable (parent often has no `data`).
+  // Client lists: EmptyState only when the parent truly has zero rows — never when data exists
+  // but the grid failed to mount (that is a DataTable/AG Grid bug, not an empty list).
+  const isEmpty =
+    !serverSidePagination && !loading && !isError && Array.isArray(data) && data.length === 0;
+  // Header Add only when there is data (or still loading with rows). Empty lists use EmptyState CTA only.
+  const showHeaderAdd = btn && !isEmpty;
 
   const defaultHiddenColumns = defaultHiddenCols || [
     "id",
@@ -97,120 +134,90 @@ export default function AppContent({
         display: "flex",
         flexDirection: "column",
         gap: 3,
-        transition: "all 0.3s ease",
       }}
     >
-      {/* Header Section */}
       <Stack
-        direction={"row"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
         sx={{
           p: 3,
           backgroundColor: theme.palette.background.paper,
-          borderRadius: 1.25,
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          transition: "all 0.3s ease",
+          borderRadius: 1,
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Box>
           <Typography
-            variant='h4'
+            variant="h4"
             sx={{
               fontWeight: 700,
-              color: theme.palette.primary.main,
-              textTransform: "capitalize",
-              letterSpacing: "0.5px",
+              color: theme.palette.text.primary,
               mb: 0.5,
             }}
           >
-            {t(title)}
+            {displayTitle}
           </Typography>
           <Typography
-            variant='body2'
+            variant="body2"
             sx={{
               color: theme.palette.text.secondary,
               fontWeight: 500,
             }}
           >
-            {t("Manage")} {t(title).toLowerCase()}
+            {t("Manage")} {displayTitle}
           </Typography>
         </Box>
 
-        {btn && (
+        {showHeaderAdd && (
           <Button
-            variant='contained'
+            variant="contained"
+            disableElevation
             onClick={actionBtn}
             color={btnColor || "primary"}
             startIcon={<AddIcon />}
             sx={{
-              px: 4,
-              py: 1.5,
-              borderRadius: 2,
+              px: 3,
+              py: 1,
+              borderRadius: 1,
               textTransform: "none",
               fontWeight: 600,
-              fontSize: "0.95rem",
-              boxShadow: `0 4px 12px ${theme.palette.primary.main}40`,
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              position: "relative",
-              overflow: "hidden",
-              "&:hover": {
-                boxShadow: `0 6px 20px ${theme.palette.primary.main}60`,
-                transform: "translateY(-2px)",
-                background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-              },
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                left: "-100%",
-                width: "100%",
-                height: "100%",
-                background:
-                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                transition: "left 0.6s",
-              },
-              "&:hover::before": {
-                left: "100%",
-              },
             }}
           >
-            {t("Add")} {t(title)}
+            {addLabel}
           </Button>
         )}
       </Stack>
 
-      {/* Table Section */}
       <Box
         sx={{
           backgroundColor: theme.palette.background.paper,
-          borderRadius: 1.25,
+          borderRadius: 1,
           overflow: "hidden",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          transition: "all 0.3s ease",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         {isError ? (
           <ErrorState onRetry={onRetry} />
         ) : loading && (!data || data.length === 0) ? (
           <LoadingState />
-        ) : !loading && data && data.length === 0 ? (
+        ) : isEmpty ? (
           <EmptyState
-            actionLabel={btn ? `${t("Add")} ${t(title)}` : undefined}
+            message={emptyMessage}
+            actionLabel={btn ? addLabel : undefined}
             onAction={btn ? actionBtn : undefined}
           />
         ) : tableType === "tree" ? (
           <DataTreeTable
             columns={columns}
-            data={data}
+            data={data as (T & { id: string })[]}
             handleShowForm={handleShowForm}
             changeFormType={changeFormType}
             handleSelectId={handleSelectId}
             handleSelectParentId={handleSelectParentId}
-            showadd={showadd}
-            showedit={showedit}
-            showdelete={showdelete}
+            showAdd={resolvedShowAdd}
+            showEdit={resolvedShowEdit}
+            showDelete={resolvedShowDelete}
             showEditButtonIf={showEditButtonIf}
             showDeleteButtonIf={showDeleteButtonIf}
             showAddButtonIf={showAddButtonIf}
@@ -220,12 +227,12 @@ export default function AppContent({
             data={data}
             loading={loading}
             onRefresh={onRefresh}
-            showdelete={showdelete}
-            showedit={showedit}
+            showDelete={resolvedShowDelete}
+            showEdit={resolvedShowEdit}
             handleSelectId={handleSelectId}
             changeFormType={changeFormType}
             handleShowForm={handleShowForm}
-            defaultHiddenColumns={defaultHiddenColumns as any}
+            defaultHiddenColumns={defaultHiddenColumns}
             defaultColumns={columns}
             showEditButtonIf={showEditButtonIf}
             showDeleteButtonIf={showDeleteButtonIf}

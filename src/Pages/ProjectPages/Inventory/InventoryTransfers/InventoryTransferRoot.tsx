@@ -1,76 +1,92 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import {
-  getTransfersByStatus,
-  createTransfer,
-  approveTransfer,
-  rejectTransfer,
-  getInventoryTransfers,
-} from '../../../../Apis/Inventory/InventoryTransferApi';
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   InventoryTransferModel,
   InventoryTransferStatus,
   InventoryTransferType,
-} from '../../../../interfaces/ProjectInterfaces/Inventory/InventoryTransferModel';
-import InventoryTransferForm from './InventoryTransferForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { RootState } from '../../../../Storage/Redux/store';
-import { toastify } from '../../../../Helper/toastify';
+} from "@/interfaces/ProjectInterfaces/Inventory/InventoryTransferModel";
+import InventoryTransferForm from "./InventoryTransferForm";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { toastify } from "@/Helper/toastify";
+import { useAuth } from "@/features/auth";
+import { ErrorState } from "@/Components/feedback";
+import { useInventoryTransferMutations, useInventoryTransfersList } from "@/hooks/queries";
 
 const isPendingTransfer = (transfer: InventoryTransferModel) => {
   const status = transfer.status;
   return (
     status === InventoryTransferStatus.Pending ||
-    status === 'Pending' ||
+    status === "Pending" ||
     status === 0 ||
-    status === '0'
+    status === "0"
   );
 };
 
 const getTransferTypeLabel = (transferType: InventoryTransferType | number) => {
-  if (transferType === InventoryTransferType.Conditional || transferType === 0) return 'Conditional';
-  return 'Direct';
+  if (transferType === InventoryTransferType.Conditional || transferType === 0)
+    return "Conditional";
+  return "Direct";
 };
 
-const getStatusLabel = (status: InventoryTransferModel['status']) => {
-  if (status === InventoryTransferStatus.Pending || status === 0 || status === '0' || status === 'Pending')
-    return 'Pending';
-  if (status === InventoryTransferStatus.Approved || status === 1 || status === '1' || status === 'Approved')
-    return 'Approved';
-  if (status === InventoryTransferStatus.Rejected || status === 2 || status === '2' || status === 'Rejected')
-    return 'Rejected';
-  return String(status ?? '');
+const getStatusLabel = (status: InventoryTransferModel["status"]) => {
+  if (
+    status === InventoryTransferStatus.Pending ||
+    status === 0 ||
+    status === "0" ||
+    status === "Pending"
+  )
+    return "Pending";
+  if (
+    status === InventoryTransferStatus.Approved ||
+    status === 1 ||
+    status === "1" ||
+    status === "Approved"
+  )
+    return "Approved";
+  if (
+    status === InventoryTransferStatus.Rejected ||
+    status === 2 ||
+    status === "2" ||
+    status === "Rejected"
+  )
+    return "Rejected";
+  return String(status ?? "");
 };
 
 const InventoryTransferRoot = () => {
   const { t } = useTranslation();
-  const user = useSelector((state: RootState) => state.userAuthStore);
-  const [transfers, setTransfers] = useState<InventoryTransferModel[]>([]);
-  const [status, setStatus] = useState('All');
+  const { user } = useAuth();
+  const [status, setStatus] = useState("All");
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
   const [selectedTransfer, setSelectedTransfer] = useState<InventoryTransferModel | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [transferTypeFilter, setTransferTypeFilter] = useState<InventoryTransferType | 'All'>('All');
+  const [transferTypeFilter, setTransferTypeFilter] = useState<InventoryTransferType | "All">(
+    "All"
+  );
 
-  const fetchTransfers = async () => {
-    setLoading(true);
-    const result = status === 'All' ? await getInventoryTransfers() : await getTransfersByStatus(status);
-    if (result && result.isSuccess) {
-      let filtered = result.result || [];
-      if (transferTypeFilter !== 'All') {
-        filtered = filtered.filter((tr: InventoryTransferModel) => tr.transferType === transferTypeFilter);
-      }
-      setTransfers(filtered);
+  const { data = [], isLoading, isFetching, isError, refetch } = useInventoryTransfersList(status);
+  const { createMutation, approveMutation, rejectMutation } = useInventoryTransferMutations();
+
+  const transfers = useMemo(() => {
+    if (transferTypeFilter === "All") return data;
+    return data.filter((tr) => tr.transferType === transferTypeFilter);
+  }, [data, transferTypeFilter]);
+
+  const loading =
+    isLoading ||
+    isFetching ||
+    createMutation.isPending ||
+    approveMutation.isPending ||
+    rejectMutation.isPending;
+
+  const requireCurrentUserId = (): string | null => {
+    const userId = user?.id?.trim();
+    if (!userId) {
+      toastify(t("User not found"), "error");
+      return null;
     }
-    setLoading(false);
+    return userId;
   };
-
-  useEffect(() => {
-    fetchTransfers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, transferTypeFilter]);
 
   const handleAdd = () => {
     setFormType(FormTypes.Add);
@@ -79,120 +95,126 @@ const InventoryTransferRoot = () => {
   };
 
   const handleApprove = async (id: string) => {
-    setLoading(true);
-    await approveTransfer(id);
-    fetchTransfers();
-    setLoading(false);
+    if (!requireCurrentUserId()) return;
+    try {
+      await approveMutation.mutateAsync(id);
+    } catch {
+      /* toasted in mutation */
+    }
   };
 
   const handleReject = async (id: string) => {
-    if (!user?.id) {
-      toastify(t('User not found'), 'error');
-      return;
-    }
-    const reason = prompt(t('Enter rejection reason') || '');
+    const approverId = requireCurrentUserId();
+    if (!approverId) return;
+    const reason = prompt(t("Enter rejection reason") || "");
     if (reason === null) return;
-    setLoading(true);
-    await rejectTransfer(id, user.id, reason || undefined);
-    fetchTransfers();
-    setLoading(false);
+    try {
+      await rejectMutation.mutateAsync({
+        id,
+        approverId,
+        reason: reason || undefined,
+      });
+    } catch {
+      /* toasted in mutation */
+    }
   };
 
   const handleFormSubmit = async (data: InventoryTransferModel) => {
-    setLoading(true);
-    if (formType === FormTypes.Add) {
-      const result = await createTransfer(data);
-      if (result && result.isSuccess) {
-        setShowForm(false);
-        fetchTransfers();
-        setLoading(false);
-        return true;
-      }
-      setLoading(false);
+    if (formType !== FormTypes.Add) return false;
+    try {
+      await createMutation.mutateAsync(data);
+      setShowForm(false);
+      return true;
+    } catch {
       return false;
     }
-    setLoading(false);
-    return false;
   };
 
   return (
     <div className="container">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>{t('Inventory Transfers')}</h2>
+        <h2>{t("Inventory Transfers")}</h2>
         <button className="btn btn-primary" onClick={handleAdd} disabled={loading}>
-          {t('Add Transfer')}
+          {t("Add Transfer")}
         </button>
       </div>
       <div className="mb-3 d-flex align-items-center">
-        <label>{t('Status')}</label>
+        <label>{t("Status")}</label>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
           className="form-select w-auto d-inline-block ms-2"
           disabled={loading}
         >
-          <option value="All">{t('All')}</option>
-          <option value="Pending">{t('Pending')}</option>
-          <option value="Approved">{t('Approved')}</option>
-          <option value="Rejected">{t('Rejected')}</option>
+          <option value="All">{t("All")}</option>
+          <option value="Pending">{t("Pending")}</option>
+          <option value="Approved">{t("Approved")}</option>
+          <option value="Rejected">{t("Rejected")}</option>
         </select>
-        <label className="ms-3">{t('Transfer Type')}</label>
+        <label className="ms-3">{t("Transfer Type")}</label>
         <select
           value={transferTypeFilter}
-          onChange={(e) => setTransferTypeFilter(e.target.value as InventoryTransferType | 'All')}
+          onChange={(e) => setTransferTypeFilter(e.target.value as InventoryTransferType | "All")}
           className="form-select w-auto d-inline-block ms-2"
           disabled={loading}
         >
-          <option value="All">{t('All')}</option>
-          <option value={InventoryTransferType.Conditional}>{t('Conditional')}</option>
-          <option value={InventoryTransferType.Direct}>{t('Direct')}</option>
+          <option value="All">{t("All")}</option>
+          <option value={InventoryTransferType.Conditional}>{t("Conditional")}</option>
+          <option value={InventoryTransferType.Direct}>{t("Direct")}</option>
         </select>
       </div>
-      {loading ? (
+      {isError ? (
+        <ErrorState onRetry={() => void refetch()} />
+      ) : loading ? (
         <div className="text-center my-4">
           <div className="spinner-border text-primary" role="status"></div>
         </div>
+      ) : transfers.length === 0 ? (
+        <div className="text-center my-4 text-muted">{t("NoData")}</div>
       ) : (
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>{t('Source Branch')}</th>
-              <th>{t('Destination Branch')}</th>
-              <th>{t('Transfer Type')}</th>
-              <th>{t('Status')}</th>
-              <th>{t('LineItems')}</th>
-              <th>{t('Approved At')}</th>
-              <th>{t('Actions')}</th>
+              <th>{t("Source Branch")}</th>
+              <th>{t("Destination Branch")}</th>
+              <th>{t("Transfer Type")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("LineItems")}</th>
+              <th>{t("Approved At")}</th>
+              <th>{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
             {transfers.map((tr) => (
               <tr key={tr.id}>
                 <td>{tr.sourceBranchName || tr.sourceBranch?.name || tr.sourceBranchId}</td>
-                <td>{tr.destinationBranchName || tr.destinationBranch?.name || tr.destinationBranchId}</td>
+                <td>
+                  {tr.destinationBranchName || tr.destinationBranch?.name || tr.destinationBranchId}
+                </td>
                 <td>{t(getTransferTypeLabel(tr.transferType))}</td>
                 <td>{t(getStatusLabel(tr.status))}</td>
                 <td>{tr.items?.length ?? 0}</td>
-                <td>{tr.approvedAt ? new Date(tr.approvedAt).toLocaleString() : '-'}</td>
+                <td>{tr.approvedAt ? new Date(tr.approvedAt).toLocaleString() : "-"}</td>
                 <td>
-                  {tr.transferType === InventoryTransferType.Conditional && isPendingTransfer(tr) && (
-                    <>
-                      <button
-                        className="btn btn-sm btn-success me-2"
-                        onClick={() => handleApprove(tr.id ?? '')}
-                        disabled={loading}
-                      >
-                        {t('Approve')}
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleReject(tr.id ?? '')}
-                        disabled={loading}
-                      >
-                        {t('Reject')}
-                      </button>
-                    </>
-                  )}
+                  {tr.transferType === InventoryTransferType.Conditional &&
+                    isPendingTransfer(tr) && (
+                      <>
+                        <button
+                          className="btn btn-sm btn-success me-2"
+                          onClick={() => handleApprove(tr.id ?? "")}
+                          disabled={loading}
+                        >
+                          {t("Approve")}
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleReject(tr.id ?? "")}
+                          disabled={loading}
+                        >
+                          {t("Reject")}
+                        </button>
+                      </>
+                    )}
                 </td>
               </tr>
             ))}
@@ -204,7 +226,7 @@ const InventoryTransferRoot = () => {
           formType={formType}
           model={selectedTransfer || undefined}
           handleCloseForm={() => setShowForm(false)}
-          afterAction={fetchTransfers}
+          afterAction={() => void refetch()}
           onSubmit={handleFormSubmit}
         />
       )}

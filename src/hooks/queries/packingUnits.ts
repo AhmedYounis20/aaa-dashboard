@@ -4,10 +4,10 @@ import {
   getPackingUnitById,
   getPackingUnits,
   updatePackingUnit,
-} from "../../Apis/Inventory/PackingUnitsApi";
-import PackingUnitModel from "../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
-import { FormTypes } from "../../interfaces/Components/FormType";
-import { queryKeys } from "../../lib/queryKeys";
+} from "@/Apis/Inventory/PackingUnitsApi";
+import PackingUnitModel from "@/interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { queryKeys } from "@/lib/queryKeys";
 import { useEntityDetail } from "./useEntityDetail";
 import { useEntityList } from "./useEntityList";
 import { useEntityMutations } from "./useEntityMutations";

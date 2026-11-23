@@ -1,103 +1,69 @@
-import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from "react";
-import { FormTypes } from "../../../../../interfaces/Components";
-
-import Loader from "../../../../../Components/Loader";
-import { AppContent } from "../../../../../Components";
-import { getCostCenters } from "../../../../../Apis/Account/CostCenterApi";
+import { useTranslation } from "react-i18next";
+import Loader from "@/Components/Loader";
+import { AppContent } from "@/Components";
 import CostCenterForm from "./CostCenterForm";
-import { CostCenterModel } from "../../../../../interfaces/ProjectInterfaces/Account/CostCenters/costCenterModel";
-import { NodeType } from '../../../../../interfaces/Components/NodeType';
+import { CostCenterModel } from "@/interfaces/ProjectInterfaces/Account/CostCenters/costCenterModel";
+import { NodeType } from "@/interfaces/Components/NodeType";
+import { useCostCentersList, useEntityListPage } from "@/hooks/queries";
 
 const columns = [
-  {
-    Header: "",
-    accessor: "",
-  },
-  {
-    Header: "Name",
-    accessor: "name",
-  },
-  {
-    Header: "Name (Second Language)",
-    accessor: "nameSecondLanguage",
-  },
+  { Header: "", accessor: "" },
+  { Header: "Name", accessor: "name" },
+  { Header: "Name (Second Language)", accessor: "nameSecondLanguage" },
 ];
 
 const CostCenterRoot = () => {
   const { t } = useTranslation();
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>("");
-  const [parentId, setParentId] = useState<string | null>(null);
-  const [data, setData] = useState<CostCenterModel[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {
+    showForm,
+    formType,
+    selectedId,
+    parentId,
+    setFormType,
+    setParentId,
+    handleShowForm,
+    handleCloseForm,
+    handleSelectId,
+    openAdd,
+  } = useEntityListPage({ withParent: true });
 
-  const fetchData = async () => {
-    const result = await getCostCenters();
-    if (result && result.isSuccess) {
-      setData(result.result);
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
-  const handleCloseForm = () => {
-    setShowForm(false);
-  };
+  const { data = [], isLoading, isFetching, isError, refetch } = useCostCentersList();
 
-  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="h-full">
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <>
-          {showForm && (
-            <CostCenterForm
-              id={selectedId}
-              parentId={parentId}
-              formType={formType}
-              handleCloseForm={handleCloseForm}
-              afterAction =  {()=> fetchData()}
-            />
-          )}
-
-          {data && (
-            <AppContent
-              tableType="tree"
-              data={data}
-              title={t("CostCenters")}
-              btn
-              addBtn
-              actionBtn={() => {
-                setParentId("");
-                setFormType(FormTypes.Add);
-                handleShowForm();
-              }}
-              startIcon
-              columns={columns}
-              handleSelectId={handleSelectId}
-              handleSelectParentId={setParentId}
-              changeFormType={setFormType}
-              handleShowForm={handleShowForm}
-              showAddButtonIf={(row) => row.nodeType === NodeType.Category}
-              defaultHiddenCols={[
-                "id",
-                "createdAt",
-                "createdBy",
-                "modifiedAt",
-                "modifiedBy",
-              ]}
-            />
-          )}
-        </>
+      {showForm && (
+        <CostCenterForm
+          id={selectedId}
+          parentId={parentId ?? null}
+          formType={formType}
+          handleCloseForm={handleCloseForm}
+          afterAction={() => void refetch()}
+        />
       )}
+      <AppContent
+        tableType="tree"
+        data={data as CostCenterModel[]}
+        loading={isFetching}
+        isError={isError}
+        onRetry={() => void refetch()}
+        onRefresh={() => void refetch()}
+        title={t("CostCenters")}
+        btn
+        addBtn
+        actionBtn={openAdd}
+        startIcon
+        columns={columns}
+        handleSelectId={handleSelectId}
+        handleSelectParentId={setParentId}
+        changeFormType={setFormType}
+        handleShowForm={handleShowForm}
+        showAddButtonIf={(row) => row.nodeType === NodeType.Category}
+        defaultHiddenCols={["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"]}
+      />
     </div>
   );
 };

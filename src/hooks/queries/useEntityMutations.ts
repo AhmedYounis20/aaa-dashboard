@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { unwrapApiResult } from "../../lib/unwrapApiResult";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import { toastify } from "@/Helper/toastify";
+import { ApiError, unwrapApiResultWithMeta } from "@/lib/unwrapApiResult";
 
 interface UseEntityMutationsOptions<TData, TInput> {
   listQueryKey: readonly unknown[];
@@ -8,6 +9,22 @@ interface UseEntityMutationsOptions<TData, TInput> {
   createFn: (data: TInput) => Promise<ApiResult<TData>>;
   updateFn: (id: string, data: TInput) => Promise<ApiResult<TData>>;
   deleteFn: (id: string) => Promise<ApiResult<TData>>;
+}
+
+function toastMutationError(error: unknown): void {
+  if (error instanceof ApiError) {
+    error.messages.forEach((message) => toastify(message, "error"));
+    return;
+  }
+  if (error instanceof Error && error.message) {
+    toastify(error.message, "error");
+  }
+}
+
+function toastMutationSuccess(successMessage: string): void {
+  if (successMessage) {
+    toastify(successMessage, "success");
+  }
 }
 
 export function useEntityMutations<TData, TInput = TData>({
@@ -24,14 +41,19 @@ export function useEntityMutations<TData, TInput = TData>({
   };
 
   const createMutation = useMutation({
-    mutationFn: async (data: TInput) => unwrapApiResult(await createFn(data)),
-    onSuccess: invalidateList,
+    mutationFn: async (data: TInput) => unwrapApiResultWithMeta(await createFn(data)),
+    onSuccess: async (payload) => {
+      toastMutationSuccess(payload.successMessage);
+      await invalidateList();
+    },
+    onError: toastMutationError,
   });
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: TInput }) =>
-      unwrapApiResult(await updateFn(id, data)),
-    onSuccess: async (_data, variables) => {
+      unwrapApiResultWithMeta(await updateFn(id, data)),
+    onSuccess: async (payload, variables) => {
+      toastMutationSuccess(payload.successMessage);
       await invalidateList();
       if (detailQueryKey) {
         await queryClient.invalidateQueries({
@@ -39,25 +61,25 @@ export function useEntityMutations<TData, TInput = TData>({
         });
       }
     },
+    onError: toastMutationError,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => unwrapApiResult(await deleteFn(id)),
-    onSuccess: async (_data, id) => {
+    mutationFn: async (id: string) => unwrapApiResultWithMeta(await deleteFn(id)),
+    onSuccess: async (payload, id) => {
+      toastMutationSuccess(payload.successMessage);
       await invalidateList();
       if (detailQueryKey) {
         queryClient.removeQueries({ queryKey: detailQueryKey(id) });
       }
     },
+    onError: toastMutationError,
   });
 
   return {
     createMutation,
     updateMutation,
     deleteMutation,
-    isMutating:
-      createMutation.isPending ||
-      updateMutation.isPending ||
-      deleteMutation.isPending,
+    isMutating: createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
   };
 }

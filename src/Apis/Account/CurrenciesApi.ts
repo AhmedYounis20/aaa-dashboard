@@ -1,47 +1,19 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import CurrencyModel from "../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
+import CurrencyModel from "@/interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
+import { createCrudApi } from "@/shared/api";
+import type { HttpTransportOptions } from "@/shared/api";
 
-const apiEndPoint = "currencies";
+const crud = createCrudApi<CurrencyModel>("currencies");
 
-// GET all currencies
-const getCurrencies = async (): Promise<ApiResult<CurrencyModel[]>> => {
-  return await httpGet<CurrencyModel[]>(apiEndPoint, {});
-};
+const getCurrencies = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single currency by ID
-const getCurrencyById = async (
-  id: string
-): Promise<ApiResult<CurrencyModel>> => {
-  return await httpGet<CurrencyModel>(`${apiEndPoint}/${id}`, {});
-};
+const getCurrencyById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-// CREATE a new currency
-const createCurrency = async (
-  data: CurrencyModel
-): Promise<ApiResult<CurrencyModel>> => {
-  return await httpPost<CurrencyModel>(apiEndPoint, data);
-};
+const createCurrency = (data: CurrencyModel, options?: HttpTransportOptions) =>
+  crud.create(data, options);
 
-// UPDATE a currency
-const updateCurrency = async (
-  id: string,
-  data: CurrencyModel
-): Promise<ApiResult<CurrencyModel>> => {
-  return await httpPut<CurrencyModel>(`${apiEndPoint}/${id}`, data);
-};
+const updateCurrency = (id: string, data: CurrencyModel, options?: HttpTransportOptions) =>
+  crud.update(id, data, options);
 
-// DELETE a currency
-const deleteCurrency = async (
-  id: string
-): Promise<ApiResult<CurrencyModel>> => {
-  return await httpDelete<CurrencyModel>(`${apiEndPoint}/${id}`, {});
-};
+const deleteCurrency = (id: string, options?: HttpTransportOptions) => crud.remove(id, options);
 
-export {
-  getCurrencies,
-  getCurrencyById,
-  createCurrency,
-  updateCurrency,
-  deleteCurrency,
-};
+export { getCurrencies, getCurrencyById, createCurrency, updateCurrency, deleteCurrency };

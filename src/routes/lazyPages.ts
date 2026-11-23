@@ -4,26 +4,24 @@ export const ChartOfAccountsRoot = lazy(
   () => import("@/Pages/ProjectPages/Account/ChartOfAccounts/ChartOfAccountsRoot")
 );
 export const BanksRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/Banks/BanksRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/Banks/BanksRoot")
 );
 export const TaxesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/Taxes/TaxesRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/Taxes/TaxesRoot")
 );
 export const CashInBoxesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/CashInBoxes/CashInBoxesRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/CashInBoxes/CashInBoxesRoot")
 );
 export const CustomersRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/Customers/CustomersRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/Customers/CustomersRoot")
 );
 export const SuppliersRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/Suppliers/SuppliersRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/Suppliers/SuppliersRoot")
 );
 export const FixedAssetsRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/FixedAssets/FixedAssetsRoot")
+  () => import("@/Pages/ProjectPages/Account/SubLedgers/FixedAssets/FixedAssetsRoot")
 );
-export const BranchesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/SubLeadgers/Branches")
-);
+export const BranchesRoot = lazy(() => import("@/Pages/ProjectPages/Account/SubLedgers/Branches"));
 export const GlSettingsRoot = lazy(
   () => import("@/Pages/ProjectPages/Account/Settings/GlSettings/GlSettingsRoot")
 );
@@ -51,20 +49,20 @@ export const PackingUnitsRoot = lazy(
 export const ManufacturerCompaniesRoot = lazy(
   () => import("@/Pages/ProjectPages/Inventory/ManufacturerCompanies/ManufacturerCompaniesRoot")
 );
-export const CompinedEntriesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/Entries/CompinedEntries/CompinedEntriesRoot")
+export const CombinedEntriesRoot = lazy(
+  () => import("@/modules/account/entries/pages/CombinedEntriesPage")
 );
 export const PaymentVouchersRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/Entries/PaymentVouchers/PaymentVouchersRoot")
+  () => import("@/modules/account/entries/pages/PaymentVouchersPage")
 );
 export const ReceiptVouchersRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/Entries/ReceiptVouchers/ReceiptVouchersRoot")
+  () => import("@/modules/account/entries/pages/ReceiptVouchersPage")
 );
 export const JournalEntriesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/Entries/JournalEntries/JournalEntriesRoot")
+  () => import("@/modules/account/entries/pages/JournalEntriesPage")
 );
 export const OpeningEntriesRoot = lazy(
-  () => import("@/Pages/ProjectPages/Account/Entries/OpeningEntries/OpeningEntriesRoot")
+  () => import("@/modules/account/entries/pages/OpeningEntriesPage")
 );
 export const ProductsRoot = lazy(
   () => import("@/Pages/ProjectPages/Inventory/Products/ProductsRoot")

@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AttachmentModel from "../../interfaces/BaseModels/AttachmentModel";
+import { attachmentPreviewSrc } from "@/shared/attachments/attachmentContent";
 import UploadIcon from "@mui/icons-material/Upload";
 import { Add, Delete } from "@mui/icons-material";
 import { IconButton, Box, Typography, Card, CardContent, Grid, useTheme } from "@mui/material";
-import DescriptionIcon from '@mui/icons-material/Description';
+import DescriptionIcon from "@mui/icons-material/Description";
 import ImagePreview from "../Images/ImagePreview";
 import { useTranslation } from "react-i18next";
 
 interface InputFileProps {
   allowedTypes: string[];
   onFilesChange: (attachments: AttachmentModel[]) => void;
-  multiSelect: boolean ;
+  multiSelect: boolean;
   value: AttachmentModel[];
   onlySelectedTypes: boolean;
-  disabled : boolean ;
+  disabled: boolean;
 }
 
 const InputFile: React.FC<InputFileProps> = ({
@@ -22,15 +23,20 @@ const InputFile: React.FC<InputFileProps> = ({
   multiSelect = false,
   value = [],
   onlySelectedTypes = false,
-  disabled = false
+  disabled = false,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const [attachments, setAttachments] = useState<AttachmentModel[]>(value);
+  const syncingFromProps = useRef(false);
+  const valueKey = value
+    .map(
+      (file) =>
+        `${file.attachmentId ?? ""}:${file.fileName}:${file.contentUrl ?? ""}:${file.fileContent?.length ?? 0}`
+    )
+    .join("|");
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
@@ -44,48 +50,48 @@ const InputFile: React.FC<InputFileProps> = ({
     // Limit number of files to maxFiles
 
     // Convert files to AttachmentModel
-    const attachmentPromises = validFiles.map((file) =>
-      convertToAttachmentModel(file)
-    );
+    const attachmentPromises = validFiles.map((file) => convertToAttachmentModel(file));
 
     const newAttachments = await Promise.all(attachmentPromises);
 
     setAttachments(newAttachments);
   };
 
-    const handleAddFile = async (
-      event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-      const files = event.target.files;
-      if (!files) return;
+  const handleAddFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
 
-      const fileArray = Array.from(files);
+    const fileArray = Array.from(files);
 
-      // Filter files by allowed types
-      const validFiles = fileArray.filter(
-        (file) => allowedTypes.includes(file.type) || !onlySelectedTypes
-      );
+    // Filter files by allowed types
+    const validFiles = fileArray.filter(
+      (file) => allowedTypes.includes(file.type) || !onlySelectedTypes
+    );
 
-      // Limit number of files to maxFiles
+    // Limit number of files to maxFiles
 
-      // Convert files to AttachmentModel
-      const attachmentPromises = validFiles.map((file) =>
-        convertToAttachmentModel(file)
-      );
+    // Convert files to AttachmentModel
+    const attachmentPromises = validFiles.map((file) => convertToAttachmentModel(file));
 
-      const newAttachments = await Promise.all(attachmentPromises);
+    const newAttachments = await Promise.all(attachmentPromises);
 
-      setAttachments((prevattachments) =>
-        prevattachments
-          ? [ ...prevattachments,...newAttachments ]
-          : [...newAttachments]
-      );
-    };
+    setAttachments((prevattachments) =>
+      prevattachments ? [...prevattachments, ...newAttachments] : [...newAttachments]
+    );
+  };
 
-    useEffect(()=>{
-      if(onFilesChange!=null)
-      onFilesChange(attachments);
-    },[attachments])
+  useEffect(() => {
+    syncingFromProps.current = true;
+    setAttachments(value ?? []);
+  }, [valueKey]);
+
+  useEffect(() => {
+    if (syncingFromProps.current) {
+      syncingFromProps.current = false;
+      return;
+    }
+    if (onFilesChange != null) onFilesChange(attachments);
+  }, [attachments]);
 
   const convertToAttachmentModel = (file: File): Promise<AttachmentModel> => {
     return new Promise((resolve, reject) => {
@@ -94,10 +100,7 @@ const InputFile: React.FC<InputFileProps> = ({
         const result = reader.result as string;
         let fileContent = result;
 
-        if (
-          fileContent.startsWith("data:") ||
-          fileContent.startsWith("base64,")
-        ) {
+        if (fileContent.startsWith("data:") || fileContent.startsWith("base64,")) {
           const commaIndex = fileContent.indexOf(",");
           fileContent = fileContent.substring(commaIndex + 1); // Remove the prefix
         }
@@ -106,7 +109,7 @@ const InputFile: React.FC<InputFileProps> = ({
           fileName: file.name,
           fileContent: fileContent,
           contentType: file.type,
-          attachmentId:null
+          attachmentId: null,
         });
       };
       reader.onerror = reject;
@@ -114,12 +117,10 @@ const InputFile: React.FC<InputFileProps> = ({
     });
   };
 
-  const removeSelectedFile = (index : number)=> {
-
-      setAttachments(attachments.filter((e) => (e != attachments[index])));
-      if(onFilesChange != null)
-      onFilesChange(attachments);
-  }
+  const removeSelectedFile = (index: number) => {
+    setAttachments(attachments.filter((e) => e != attachments[index]));
+    if (onFilesChange != null) onFilesChange(attachments);
+  };
   return (
     <Card sx={{ p: 2, backgroundColor: theme.palette.background.paper }}>
       <Box sx={{ ml: 2.5, mb: 2 }}>
@@ -138,10 +139,10 @@ const InputFile: React.FC<InputFileProps> = ({
 
           <IconButton
             size="large"
-            sx={{ 
+            sx={{
               borderRadius: 2.5,
               color: theme.palette.primary.main,
-              '&:hover': {
+              "&:hover": {
                 backgroundColor: theme.palette.primary.light,
                 color: theme.palette.primary.contrastText,
               },
@@ -150,9 +151,7 @@ const InputFile: React.FC<InputFileProps> = ({
             disabled={disabled}
           >
             <UploadIcon />
-            <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>
-              {t("Upload")}
-            </Typography>
+            <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>{t("Upload")}</Typography>
           </IconButton>
         </Box>
         {attachments.length > 0 && multiSelect && (
@@ -171,10 +170,10 @@ const InputFile: React.FC<InputFileProps> = ({
 
             <IconButton
               size="medium"
-              sx={{ 
+              sx={{
                 borderRadius: 2.5,
                 color: theme.palette.secondary.main,
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: theme.palette.secondary.light,
                   color: theme.palette.secondary.contrastText,
                 },
@@ -183,16 +182,14 @@ const InputFile: React.FC<InputFileProps> = ({
               disabled={disabled}
             >
               <Add />
-              <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>
-                {t("Add")}
-              </Typography>
+              <Typography sx={{ fontSize: 20, opacity: 0.7, ml: 0.5 }}>{t("Add")}</Typography>
             </IconButton>
           </Box>
         )}
         <Box>
           <IconButton
             size="medium"
-            sx={{ 
+            sx={{
               borderRadius: 2.5,
               color: theme.palette.text.secondary,
             }}
@@ -201,61 +198,62 @@ const InputFile: React.FC<InputFileProps> = ({
           >
             <Typography sx={{ fontSize: 20, opacity: 0.7 }}>
               {attachments.length
-                ? attachments.length +
-                  " " +
-                  (attachments.length > 1 ? t("Files") : t("File"))
+                ? attachments.length + " " + (attachments.length > 1 ? t("Files") : t("File"))
                 : t("NoFiles")}
             </Typography>
           </IconButton>
         </Box>
       </Box>
       {attachments.length > 0 && (
-        <Box sx={{ 
-          maxHeight: 200, 
-          overflowY: "scroll",
-          '&::-webkit-scrollbar': {
-            width: 8,
-          },
-          '&::-webkit-scrollbar-track': {
-            background: theme.palette.grey[100],
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.grey[400],
-            borderRadius: 1,
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            background: theme.palette.grey[600],
-          },
-        }}>
+        <Box
+          sx={{
+            maxHeight: 200,
+            overflowY: "scroll",
+            "&::-webkit-scrollbar": {
+              width: 8,
+            },
+            "&::-webkit-scrollbar-track": {
+              background: theme.palette.grey[100],
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: theme.palette.grey[400],
+              borderRadius: 1,
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: theme.palette.grey[600],
+            },
+          }}
+        >
           {attachments.map((attachment, index) => (
             <Box key={index}>
-              <Card sx={{ 
-                mb: 1, 
-                backgroundColor: theme.palette.grey[50],
-                border: `1px solid ${theme.palette.divider}`,
-              }}>
+              <Card
+                sx={{
+                  mb: 1,
+                  backgroundColor: theme.palette.grey[50],
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
                 <CardContent sx={{ p: 2 }}>
                   <Grid container spacing={2} alignItems="center">
                     <Grid item xs={3}>
-                      <Box sx={{ textAlign: 'center' }}>
+                      <Box sx={{ textAlign: "center" }}>
                         <Box>
-                          {attachment.contentType.startsWith("image") ? (
+                          {(!attachment.contentType ||
+                            attachment.contentType.startsWith("image")) &&
+                          attachmentPreviewSrc(attachment) ? (
                             <ImagePreview
-                              src={
-                                "data:" +
-                                attachment.contentType +
-                                ";base64," +
-                                attachment.fileContent
-                              }
+                              src={attachmentPreviewSrc(attachment)}
                               alt={t("Image")}
                               height={50}
                               width={50}
                             />
                           ) : (
-                            <DescriptionIcon sx={{ 
-                              fontSize: 50, 
-                              color: theme.palette.text.secondary 
-                            }} />
+                            <DescriptionIcon
+                              sx={{
+                                fontSize: 50,
+                                color: theme.palette.text.secondary,
+                              }}
+                            />
                           )}
                         </Box>
                         <Typography variant="caption" color="text.secondary">
@@ -277,7 +275,7 @@ const InputFile: React.FC<InputFileProps> = ({
                             onClick={() => removeSelectedFile(index)}
                             sx={{
                               color: theme.palette.error.main,
-                              '&:hover': {
+                              "&:hover": {
                                 backgroundColor: theme.palette.error.light,
                                 color: theme.palette.error.contrastText,
                               },

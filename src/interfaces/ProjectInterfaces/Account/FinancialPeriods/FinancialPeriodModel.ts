@@ -4,9 +4,9 @@ interface FinancialPeriodModel {
   periodTypeByMonth: number;
   startDate: Date | null;
   endDate: Date | null;
-  isEditable? : boolean;
-  isDeletable? : boolean;
-  isNameEditable : boolean;
+  isEditable?: boolean;
+  isDeletable?: boolean;
+  isNameEditable: boolean;
 }
 
 export default FinancialPeriodModel;

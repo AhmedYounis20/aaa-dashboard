@@ -1,37 +1,48 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import { createProduct, deleteProduct, getProductById, getProductNextCode, updateProduct } from "../../../../Apis/Inventory/ProductsApi";
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
+import {
+  createProduct,
+  deleteProduct,
+  getProductById,
+  getProductNextCode,
+  updateProduct,
+} from "../../../../Apis/Inventory/ProductsApi";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
 // import ProductModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductModel';
-import { ProductType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType';
-import { DiscountType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType';
-import SupplierModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel';
-import { getSuppliers } from '../../../../Apis/Account/SuppliersApi';
-import { getTaxes } from '../../../../Apis/Account/TaxesApi';
-import { TaxModel } from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel';
-import ManufacturerCompanyModel from '../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel';
-import { getManufacturerCompanies } from '../../../../Apis/Inventory/ManufacturerCompaniesApi';
-import { getBranches } from '../../../../Apis/Account/BranchesApi';
-import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
+import { ProductType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
+import { DiscountType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
+import SupplierModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Suppliers/SupplierModel";
+import { getSuppliers } from "../../../../Apis/Account/SuppliersApi";
+import { getTaxes } from "../../../../Apis/Account/TaxesApi";
+import { TaxModel } from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Taxes/TaxModel";
+import ManufacturerCompanyModel from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
+import { getManufacturerCompanies } from "../../../../Apis/Inventory/ManufacturerCompaniesApi";
+import { getBranches } from "../../../../Apis/Account/BranchesApi";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
 // Removed imports for properties that belong to Variants, not Products
-import { EMPTY_UUID } from '../../../../Utilities/SD';
-import { InventoryThresholdScope } from '../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope';
-import InventoryThresholdsInput from './Components/InventoryThresholdsInput';
-import ExpiryLevelsInput from './Components/ExpiryLevelsInput';
+import { EMPTY_UUID } from "../../../../Utilities/SD";
+import { InventoryThresholdScope } from "../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
+import InventoryThresholdsInput from "./Components/InventoryThresholdsInput";
+import ExpiryLevelsInput from "./Components/ExpiryLevelsInput";
 import { v4 as uuid } from "uuid";
-import { ProductNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType';
-import { NodeType } from '../../../../interfaces/Components/NodeType';
-import ProductPictureUpload from './Components/ProductPictureUpload';
-import VariantCombinationBuilder from './Components/VariantCombinationBuilder';
-import ProductAttributeDefinitionsSelector from './Components/ProductAttributeDefinitionsSelector';
-import ProductPackingUnitsInput from './Components/ProductPackingUnitsInput';
-import ProductBasicInfoCard from './Components/ProductBasicInfoCard';
-import ProductCodesAndTypeCard from './Components/ProductCodesAndTypeCard';
-import ProductDetailsAndDiscountsCard from './Components/ProductDetailsAndDiscountsCard';
+import { ProductNodeType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType";
+import { NodeType } from "../../../../interfaces/Components/NodeType";
+import ProductPictureUpload from "./Components/ProductPictureUpload";
+import VariantCombinationBuilder from "./Components/VariantCombinationBuilder";
+import ProductAttributeDefinitionsSelector from "./Components/ProductAttributeDefinitionsSelector";
+import ProductPackingUnitsInput from "./Components/ProductPackingUnitsInput";
+import {
+  ItemBasicInfoCard,
+  ItemCodesAndTypeCard,
+  ItemDetailsAndDiscountsCard,
+} from "@/modules/inventory/shared";
 import type { ValidationError } from "yup";
-import ProductPackingUnitModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel';
-import ProductInputModel, { buildProductValidationSchema } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel';
+import ProductPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
+import ProductInputModel, {
+  buildProductValidationSchema,
+} from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductInputModel";
+import { localizedEntityName } from "../../../../Helper/localizedEntityName";
 
 const ProductsForm: React.FC<{
   formType: FormTypes;
@@ -41,8 +52,8 @@ const ProductsForm: React.FC<{
   afterAction: () => void;
   handleTranslate: (key: string) => string;
 }> = ({ formType, id, parentId, handleCloseForm, afterAction, handleTranslate }) => {
-  const { t } = useTranslation();
-  
+  const { t, i18n } = useTranslation();
+
   const createProductPackingUnit: (
     isDefault?: boolean,
     orderNumber?: number
@@ -66,7 +77,7 @@ const ProductsForm: React.FC<{
 
     return packingUnit;
   };
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [model, setModel] = useState<ProductInputModel>({
     id: EMPTY_UUID,
@@ -107,15 +118,15 @@ const ProductsForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([]);
-  const [manufacturerCompanies, setManufacturerCompanies] = useState<ManufacturerCompanyModel[]>([]);
+  const [manufacturerCompanies, setManufacturerCompanies] = useState<ManufacturerCompanyModel[]>(
+    []
+  );
   const [taxes, setTaxes] = useState<TaxModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
 
   const validationSchema = buildProductValidationSchema(t);
 
-  const setModelWithProductTypeGuard: Dispatch<SetStateAction<ProductInputModel>> = (
-    value
-  ) => {
+  const setModelWithProductTypeGuard: Dispatch<SetStateAction<ProductInputModel>> = (value) => {
     setModel((prev) => {
       const next = typeof value === "function" ? value(prev) : value;
       if (
@@ -143,9 +154,7 @@ const ProductsForm: React.FC<{
       const fetchData = async () => {
         const result = await getSuppliers();
         if (result) {
-          setSuppliers(
-            result.result.filter((e) => e.nodeType == ProductNodeType.Domain)
-          );
+          setSuppliers(result.result.filter((e) => e.nodeType == ProductNodeType.Domain));
         }
         const companiesResult = await getManufacturerCompanies();
         if (companiesResult) {
@@ -159,7 +168,7 @@ const ProductsForm: React.FC<{
         if (branchesResult?.result) {
           setBranches(branchesResult.result);
         }
-      }
+      };
       fetchData();
     }
   }, [formType]);
@@ -194,16 +203,19 @@ const ProductsForm: React.FC<{
               ...result.result,
               sellingPriceDiscounts: result.result.sellingPriceDiscounts ?? [],
               costCenters: (result.result.costCenters ?? []).map(
-                (c: { id?: string; costCenterId: string | null; percent: number }) =>
-                  ({ ...c, id: c.id ?? uuid() })
+                (c: { id?: string; costCenterId: string | null; percent: number }) => ({
+                  ...c,
+                  id: c.id ?? uuid(),
+                })
               ),
               packingUnits: result.result.packingUnits ?? [],
               variantCombinations:
-                result.result.variantCombinations?.map(c => ({
+                result.result.variantCombinations?.map((c) => ({
                   ...c,
-                  isExisting: true
+                  isExisting: true,
                 })) ?? [],
-              inventoryThresholdScope: result.result.inventoryThresholdScope ?? InventoryThresholdScope.All,
+              inventoryThresholdScope:
+                result.result.inventoryThresholdScope ?? InventoryThresholdScope.All,
               inventoryThresholdBranchId: result.result.inventoryThresholdBranchId ?? null,
               inventoryThresholds: (result.result.inventoryThresholds ?? []).sort(
                 (a: { level: number }, b: { level: number }) => a.level - b.level
@@ -248,17 +260,18 @@ const ProductsForm: React.FC<{
     if (response && response.isSuccess) {
       afterAction();
       return true;
-    } 
+    }
     return false;
   };
-  
+
   const handleUpdate = async () => {
-    if ((await validate()) === false) return false;    
+    if ((await validate()) === false) return false;
     const basePayload = {
       ...model,
-      costCenters: model.costCenters?.filter(
-        (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
-      ) ?? [],
+      costCenters:
+        model.costCenters?.filter(
+          (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
+        ) ?? [],
     };
     const payload =
       model.nodeType === ProductNodeType.Category
@@ -271,19 +284,17 @@ const ProductsForm: React.FC<{
     }
     return false;
   };
-  
+
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
 
     const basePayload = {
       ...model,
-      costCenters : model.costCenters?.filter(
-        (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
-      ) ?? [],
-      variantCombinations:
-        model.productType === ProductType.Stock
-          ? model.variantCombinations
-          : [],
+      costCenters:
+        model.costCenters?.filter(
+          (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
+        ) ?? [],
+      variantCombinations: model.productType === ProductType.Stock ? model.variantCombinations : [],
     };
     const payload =
       model.nodeType === ProductNodeType.Category
@@ -320,10 +331,13 @@ const ProductsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+                <p>
+                  {t("AreYouSureDelete")} {localizedEntityName(model, i18n.language)}
+                </p>
               ) : (
                 <>
-                  <ProductBasicInfoCard
+                  <ItemBasicInfoCard
+                    kind="product"
                     formType={formType}
                     model={model}
                     setModel={setModelWithProductTypeGuard}
@@ -348,7 +362,8 @@ const ProductsForm: React.FC<{
                   {/* Detailed sections - Only for Domain products */}
                   {model.nodeType === ProductNodeType.Domain && (
                     <>
-                      <ProductCodesAndTypeCard
+                      <ItemCodesAndTypeCard
+                        kind="product"
                         formType={formType}
                         model={model}
                         setModel={setModelWithProductTypeGuard}
@@ -356,7 +371,8 @@ const ProductsForm: React.FC<{
                         handleTranslate={handleTranslate}
                       />
 
-                      <ProductDetailsAndDiscountsCard
+                      <ItemDetailsAndDiscountsCard
+                        kind="product"
                         formType={formType}
                         model={model}
                         setModel={setModelWithProductTypeGuard}
@@ -373,13 +389,17 @@ const ProductsForm: React.FC<{
                           branchId={model.inventoryThresholdBranchId}
                           thresholds={model.inventoryThresholds ?? []}
                           onScopeChange={(scope) =>
-                            setModel((prev) => prev ? { ...prev, inventoryThresholdScope: scope } : prev)
+                            setModel((prev) =>
+                              prev ? { ...prev, inventoryThresholdScope: scope } : prev
+                            )
                           }
                           onBranchChange={(branchId) =>
-                            setModel((prev) => prev ? { ...prev, inventoryThresholdBranchId: branchId } : prev)
+                            setModel((prev) =>
+                              prev ? { ...prev, inventoryThresholdBranchId: branchId } : prev
+                            )
                           }
                           onThresholdsChange={(inventoryThresholds) =>
-                            setModel((prev) => prev ? { ...prev, inventoryThresholds } : prev)
+                            setModel((prev) => (prev ? { ...prev, inventoryThresholds } : prev))
                           }
                           branches={branches}
                           handleTranslate={handleTranslate}
@@ -391,7 +411,7 @@ const ProductsForm: React.FC<{
                           formType={formType}
                           levels={model.expiryLevels ?? []}
                           onLevelsChange={(expiryLevels) =>
-                            setModel((prev) => prev ? { ...prev, expiryLevels } : prev)
+                            setModel((prev) => (prev ? { ...prev, expiryLevels } : prev))
                           }
                           handleTranslate={handleTranslate}
                           errors={errors}
@@ -400,12 +420,10 @@ const ProductsForm: React.FC<{
                       <div className="card card-body shadow-sm mb-3 rounded-3 border border-light-subtle">
                         <ProductPackingUnitsInput
                           productPackingUnits={model.packingUnits || []}
-                          handleTranslate={(key)=>handleTranslate(key)}
+                          handleTranslate={(key) => handleTranslate(key)}
                           formType={formType}
                           handleUpdate={(items) =>
-                            setModel((prev) =>
-                              prev ? { ...prev, packingUnits: items } : prev
-                            )
+                            setModel((prev) => (prev ? { ...prev, packingUnits: items } : prev))
                           }
                           errors={errors}
                         />
@@ -417,7 +435,9 @@ const ProductsForm: React.FC<{
                   {model.nodeType === ProductNodeType.Domain && (
                     <ProductAttributeDefinitionsSelector
                       productAttributeDefinitions={model.productAttributeDefinitions || []}
-                      onChange={(productAttributeDefinitions) => setModel(prev => prev ? { ...prev, productAttributeDefinitions } : prev)}
+                      onChange={(productAttributeDefinitions) =>
+                        setModel((prev) => (prev ? { ...prev, productAttributeDefinitions } : prev))
+                      }
                       handleTranslate={handleTranslate}
                       formType={formType}
                     />
@@ -426,19 +446,23 @@ const ProductsForm: React.FC<{
                   {/* Variant Combination Builder - Stock domain products only */}
                   {model.nodeType === ProductNodeType.Domain &&
                     model.productType === ProductType.Stock && (
-                    <VariantCombinationBuilder
-                      combinations={model.variantCombinations || []}
-                      onChange={(combinations) => setModel(prev => prev ? { ...prev, variantCombinations: combinations } : prev)}
-                      onProductApplyChanges={(val: boolean) => {
-                        setModel(prev => prev ? { ...prev, applyProductChanges: val } : prev);
-                      }}
-                      productApplyChanges={model.applyProductChanges ?? true}
-                      handleTranslate={handleTranslate}
-                      formType={formType}
-                      productName={model.name || ''}
-                      productAttributeDefinitions={model.productAttributeDefinitions || []}
-                    />
-                  )}
+                      <VariantCombinationBuilder
+                        combinations={model.variantCombinations || []}
+                        onChange={(combinations) =>
+                          setModel((prev) =>
+                            prev ? { ...prev, variantCombinations: combinations } : prev
+                          )
+                        }
+                        onProductApplyChanges={(val: boolean) => {
+                          setModel((prev) => (prev ? { ...prev, applyProductChanges: val } : prev));
+                        }}
+                        productApplyChanges={model.applyProductChanges ?? true}
+                        handleTranslate={handleTranslate}
+                        formType={formType}
+                        productName={model.name || ""}
+                        productAttributeDefinitions={model.productAttributeDefinitions || []}
+                      />
+                    )}
                 </>
               )}
             </>
@@ -450,6 +474,3 @@ const ProductsForm: React.FC<{
 };
 
 export default ProductsForm;
-
-
-

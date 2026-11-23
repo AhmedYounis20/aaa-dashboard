@@ -1,6 +1,13 @@
-import { ApiResult } from '../../interfaces/ApiResponse';
-import FinancialPeriodModel from '../../interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel';
-import { httpGet, httpPost, httpPut, httpDelete } from '../Axios/axiosMethods';
+import { ApiResult } from "@/interfaces/ApiResponse";
+import FinancialPeriodModel from "@/interfaces/ProjectInterfaces/Account/FinancialPeriods/FinancialPeriodModel";
+import {
+  httpGet,
+  httpPost,
+  httpPut,
+  httpDelete,
+  legacyGetNotify,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
 
 export interface ImportTransactionOutputDtoModel {
   id: string;
@@ -63,26 +70,51 @@ export interface UpdateImportTransactionRequest {
 
 const apiEndPoint = "ImportTransactions";
 
-export const createImportTransaction = async (data: CreateImportTransactionRequest): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
-  return await httpPost<ImportTransactionOutputDtoModel>(apiEndPoint, data);
+export const createImportTransaction = async (
+  data: CreateImportTransactionRequest
+): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
+  return await httpPost<ImportTransactionOutputDtoModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
-export const getImportTransactions = async (): Promise<ApiResult<ImportTransactionOutputDtoModel[]>> => {
-  return await httpGet<ImportTransactionOutputDtoModel[]>(apiEndPoint, {});
+export const getImportTransactions = async (): Promise<
+  ApiResult<ImportTransactionOutputDtoModel[]>
+> => {
+  return await httpGet<ImportTransactionOutputDtoModel[]>(apiEndPoint, {}, legacyGetNotify);
 };
 
-export const getImportTransactionById = async (id: string): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
-  return await httpGet<ImportTransactionOutputDtoModel>(`/${apiEndPoint}/${id}`, {});
+export const getImportTransactionById = async (
+  id: string
+): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
+  return await httpGet<ImportTransactionOutputDtoModel>(
+    `/${apiEndPoint}/${id}`,
+    {},
+    legacyGetNotify
+  );
 };
 
-export const updateImportTransaction = async (id: string, data: UpdateImportTransactionRequest): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
-  return await httpPut<ImportTransactionOutputDtoModel>(`/${apiEndPoint}/${id}`, data);
+export const updateImportTransaction = async (
+  id: string,
+  data: UpdateImportTransactionRequest
+): Promise<ApiResult<ImportTransactionOutputDtoModel>> => {
+  return await httpPut<ImportTransactionOutputDtoModel>(
+    `/${apiEndPoint}/${id}`,
+    data,
+    legacyMutationNotify
+  );
 };
 
 export const deleteImportTransaction = async (id: string): Promise<ApiResult<boolean>> => {
-  return await httpDelete<boolean>(`/${apiEndPoint}/${id}`, {});
+  return await httpDelete<boolean>(`/${apiEndPoint}/${id}`, {}, legacyMutationNotify);
 };
 
-export const getImportTransactionNumber = async (dateTime: Date): Promise<ApiResult<{transactionNumber: string, financialPeriodId: string, financialPeriodNumber: string}>> => {
-  return await httpGet<{transactionNumber: string, financialPeriodId: string, financialPeriodNumber: string}>(`/${apiEndPoint}/GetTransactionNumber`, { dateTime: dateTime.toISOString() });
+export const getImportTransactionNumber = async (
+  dateTime: Date
+): Promise<
+  ApiResult<{ transactionNumber: string; financialPeriodId: string; financialPeriodNumber: string }>
+> => {
+  return await httpGet<{
+    transactionNumber: string;
+    financialPeriodId: string;
+    financialPeriodNumber: string;
+  }>(`/${apiEndPoint}/GetTransactionNumber`, { dateTime: dateTime.toISOString() }, legacyGetNotify);
 };

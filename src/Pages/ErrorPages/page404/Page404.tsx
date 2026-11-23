@@ -10,19 +10,13 @@ const Page404 = () => {
             <div className="text-center">
               <h1 className="display-3">404</h1>
               <h4 className="pt-3">{t("OopsYoureLost")}</h4>
-              <p className="text-muted">
-                {t("PageNotFound")}
-              </p>
+              <p className="text-muted">{t("PageNotFound")}</p>
             </div>
             <div className="input-group mt-4">
               <span className="input-group-text">
                 <i className="bi bi-search"></i>
               </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder={t("WhatAreYouLookingFor")}
-              />
+              <input type="text" className="form-control" placeholder={t("WhatAreYouLookingFor")} />
               <button className="btn btn-info ms-2">{t("Search")}</button>
             </div>
           </div>
@@ -30,6 +24,6 @@ const Page404 = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Page404
+export default Page404;

@@ -43,8 +43,10 @@ const ExpiryLevelsInput: React.FC<{
     const nextLevel = sortedLevels.length + 1;
     const newRow: ExpiryLevelModel = {
       level: nextLevel,
-      daysFrom: sortedLevels.length > 0 ? (sortedLevels[sortedLevels.length - 1].daysTo ?? 0) + 1 : 0,
-      daysTo: sortedLevels.length > 0 ? (sortedLevels[sortedLevels.length - 1].daysTo ?? 0) + 30 : 30,
+      daysFrom:
+        sortedLevels.length > 0 ? (sortedLevels[sortedLevels.length - 1].daysTo ?? 0) + 1 : 0,
+      daysTo:
+        sortedLevels.length > 0 ? (sortedLevels[sortedLevels.length - 1].daysTo ?? 0) + 30 : 30,
       enableNotification: false,
     };
     onLevelsChange([...sortedLevels, newRow]);
@@ -61,9 +63,7 @@ const ExpiryLevelsInput: React.FC<{
     field: keyof ExpiryLevelModel,
     value: number | boolean
   ) => {
-    const updated = sortedLevels.map((row, i) =>
-      i === index ? { ...row, [field]: value } : row
-    );
+    const updated = sortedLevels.map((row, i) => (i === index ? { ...row, [field]: value } : row));
     onLevelsChange(updated);
   };
 
@@ -72,12 +72,7 @@ const ExpiryLevelsInput: React.FC<{
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="mb-0">{handleTranslate("Expiry Levels")}</h6>
         {formType !== FormTypes.Details && (
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<Add />}
-            onClick={handleAddRow}
-          >
+          <Button variant="outlined" size="small" startIcon={<Add />} onClick={handleAddRow}>
             {handleTranslate("Add Row")}
           </Button>
         )}
@@ -137,9 +132,7 @@ const ExpiryLevelsInput: React.FC<{
                     }
                     disabled={formType === FormTypes.Details}
                   />
-                  <span className="ms-1 small text-muted">
-                    {handleTranslate("Enable")}
-                  </span>
+                  <span className="ms-1 small text-muted">{handleTranslate("Enable")}</span>
                 </TableCell>
                 {formType !== FormTypes.Details && (
                   <TableCell align="right">

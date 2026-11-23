@@ -32,41 +32,32 @@ const PackingUnitsRoot = () => {
     <div className="w-full">
       <Box>
         {showForm && (
-          <PackingUnitsForm
-            id={selectedId}
-            handleCloseForm={handleCloseForm}
-            formType={formType}
-          />
+          <PackingUnitsForm id={selectedId} handleCloseForm={handleCloseForm} formType={formType} />
         )}
 
-        {!isError && (
-          <AppContent
-            tableType="table"
-            data={data}
-            loading={isFetching}
-            onRefresh={() => void refetch()}
-            title={t("PackingUnits")}
-            columns={columns}
-            btnName={t("AddNew")}
-            addBtn
-            btn
-            startIcon
-            actionBtn={() => {
-              setFormType(FormTypes.Add);
-              handleShowForm();
-            }}
-            handleSelectId={handleSelectId}
-            changeFormType={setFormType}
-            handleShowForm={handleShowForm}
-            defaultHiddenCols={[
-              "id",
-              "createdAt",
-              "createdBy",
-              "modifiedAt",
-              "modifiedBy",
-            ]}
-          />
-        )}
+        <AppContent
+          tableType="table"
+          data={data}
+          loading={isFetching}
+          isError={isError}
+          onRetry={() => void refetch()}
+          onRefresh={() => void refetch()}
+          title="PackingUnits"
+          columns={columns}
+          btnName={t("AddNew")}
+          addBtn
+          btn
+          startIcon
+          actionBtn={() => {
+            setFormType(FormTypes.Add);
+            handleShowForm();
+          }}
+          handleSelectId={handleSelectId}
+          changeFormType={setFormType}
+          handleShowForm={handleShowForm}
+          emptyMessage={t("EmptyMasterDataHint")}
+          defaultHiddenCols={["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"]}
+        />
       </Box>
     </div>
   );

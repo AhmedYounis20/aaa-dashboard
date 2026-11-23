@@ -6,6 +6,7 @@ import ManufacturerCompanyModel from "../../../../interfaces/ProjectInterfaces/I
 import InputText from "../../../../Components/Inputs/InputText";
 import { ManufacturerCompanySchema } from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/validation-manufacturerCompany";
 import Loader from "../../../../Components/Loader";
+import { ErrorState } from "../../../../Components/feedback";
 import { handleValidationErrors } from "../../../../Helper/validationHelper";
 import {
   useManufacturerCompanyDetail,
@@ -27,10 +28,12 @@ const ManufacturerCompaniesForm: React.FC<{
   const [model, setModel] = useState<ManufacturerCompanyModel>(defaultModel);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: fetchedModel, isLoading: isDetailLoading } = useManufacturerCompanyDetail(
-    id,
-    formType
-  );
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = useManufacturerCompanyDetail(id, formType);
   const { createMutation, updateMutation, deleteMutation } = useManufacturerCompanyMutations();
 
   useEffect(() => {
@@ -46,6 +49,7 @@ const ManufacturerCompaniesForm: React.FC<{
   }, [formType]);
 
   const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const validate = async () => {
     try {
@@ -59,6 +63,7 @@ const ManufacturerCompaniesForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
     try {
       await deleteMutation.mutateAsync(id);
       return true;
@@ -68,6 +73,7 @@ const ManufacturerCompaniesForm: React.FC<{
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
     try {
       await updateMutation.mutateAsync({ id: model.id, data: model });
@@ -100,6 +106,8 @@ const ManufacturerCompaniesForm: React.FC<{
         <div>
           {isLoading ? (
             <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -115,7 +123,7 @@ const ManufacturerCompaniesForm: React.FC<{
                       label={t("Name")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.name}
                       onChange={(value) =>
@@ -134,14 +142,12 @@ const ManufacturerCompaniesForm: React.FC<{
                       label={t("NameSecondLanguage")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.nameSecondLanguage}
                       onChange={(value) =>
                         setModel((prevModel) =>
-                          prevModel
-                            ? { ...prevModel, nameSecondLanguage: value }
-                            : prevModel
+                          prevModel ? { ...prevModel, nameSecondLanguage: value } : prevModel
                         )
                       }
                       error={!!errors.nameSecondLanguage}

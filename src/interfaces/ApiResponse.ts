@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type ApiResponse< T = any> = {
+export type ApiResponse<T = unknown> = {
   data?: ApiResult<T>;
-  error?: any;
+  error?: unknown;
 };
 
-export type ApiResult<T = any> = {
+export type ApiResult<T = unknown> = {
   statusCode: number;
   isSuccess: boolean;
   errorMessages?: Array<string>;
   result: T;
   successMessage: string;
 };
-

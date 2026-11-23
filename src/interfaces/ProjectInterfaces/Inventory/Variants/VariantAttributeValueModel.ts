@@ -1,7 +1,6 @@
 import AttributeDefinitionModel from "../AttributeDefinitions/AttributeDefinitionModel";
 import AttributeValueModel from "../AttributeValues/AttributeValueModel";
 
-
 interface VariantAttributeValueModel {
   id: string;
   variantId: string;
@@ -18,5 +17,3 @@ interface VariantAttributeValueModel {
 }
 
 export default VariantAttributeValueModel;
-
-

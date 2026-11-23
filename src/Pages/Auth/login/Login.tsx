@@ -26,8 +26,7 @@ const Login: React.FC = () => {
     password: "",
   });
 
-  const redirectPath =
-    (location.state as { from?: string } | null)?.from ?? "/";
+  const redirectPath = (location.state as { from?: string } | null)?.from ?? "/";
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {

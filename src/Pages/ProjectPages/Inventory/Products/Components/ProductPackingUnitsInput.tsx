@@ -3,7 +3,7 @@ import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
 import ProductPackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductPackingUnitModel";
 import { getPackingUnits } from "../../../../../Apis/Inventory/PackingUnitsApi";
-import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoComplete";
 import PackingUnitModel from "../../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
 import { Add, Settings, Delete } from "@mui/icons-material";
 import { FormControlLabel, Switch } from "@mui/material";
@@ -18,13 +18,7 @@ const ProductPackingUnitsInput: React.FC<{
   handleUpdate: (productPackingUnits: ProductPackingUnitModel[]) => void;
   handleTranslate: (key: string) => string;
   errors: Record<string, string>;
-}> = ({
-  formType,
-  productPackingUnits,
-  handleUpdate,
-  errors = {},
-  handleTranslate,
-}) => {
+}> = ({ formType, productPackingUnits, handleUpdate, errors = {}, handleTranslate }) => {
   const [packingUnits, setPackingUnits] = useState<PackingUnitModel[]>([]);
   const [sellingPrices, setSellingPrices] = useState<SellingPriceModel[]>([]);
 
@@ -66,20 +60,16 @@ const ProductPackingUnitsInput: React.FC<{
 
   const handleDiscountChange = (index: number, value: number | null) => {
     const updated = productPackingUnits.map((item, i) =>
-      i === index ? { ...item, partsCount: value ?? 0 } : item,
+      i === index ? { ...item, partsCount: value ?? 0 } : item
     );
     handleUpdate(updated);
   };
 
-  const handleSellingPriceChange = (
-    rowIndex: number,
-    priceId: string,
-    value: number | null,
-  ) => {
+  const handleSellingPriceChange = (rowIndex: number, priceId: string, value: number | null) => {
     const updated = productPackingUnits.map((unit, i) => {
       if (i !== rowIndex) return unit;
       const newPrices = unit.sellingPrices?.map((sp) =>
-        sp.sellingPriceId === priceId ? { ...sp, amount: value ?? 0 } : sp,
+        sp.sellingPriceId === priceId ? { ...sp, amount: value ?? 0 } : sp
       );
       return { ...unit, sellingPrices: newPrices };
     });
@@ -113,9 +103,8 @@ const ProductPackingUnitsInput: React.FC<{
     }
   };
 
-  const createInitialSellingPrices =
-    (): ProductPackingUnitSellingPriceModel[] =>
-      sellingPrices.map((sp) => ({ sellingPriceId: sp.id, amount: 0 }));
+  const createInitialSellingPrices = (): ProductPackingUnitSellingPriceModel[] =>
+    sellingPrices.map((sp) => ({ sellingPriceId: sp.id, amount: 0 }));
 
   const createProductPackingUnit = (): ProductPackingUnitModel => ({
     id: "",
@@ -172,33 +161,19 @@ const ProductPackingUnitsInput: React.FC<{
         <table className="table table-bordered table-striped align-middle text-center mb-2">
           <thead className="table-light">
             <tr>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("PackingUnits")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("PartsCount")}
-              </th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("PackingUnits")}</th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("PartsCount")}</th>
               <th style={{ minWidth: "200px" }}>{handleTranslate("Equals")}</th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("IsDefaultSales")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("IsDefaultPurchases")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("LastCostPrice")}
-              </th>
-              <th style={{ minWidth: "150px" }}>
-                {handleTranslate("AverageCostPrice")}
-              </th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("IsDefaultSales")}</th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("IsDefaultPurchases")}</th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("LastCostPrice")}</th>
+              <th style={{ minWidth: "150px" }}>{handleTranslate("AverageCostPrice")}</th>
               {sellingPrices
                 .sort((a, b) => a.id.localeCompare(b.id))
                 .map((sp) => (
                   <th key={sp.id} style={{ minWidth: "150px" }}>
                     <div className="fw-semibold text-primary">{sp.name}</div>
-                    <div className="text-muted small">
-                      {sp.nameSecondLanguage}
-                    </div>
+                    <div className="text-muted small">{sp.nameSecondLanguage}</div>
                   </th>
                 ))}
               <th>
@@ -215,9 +190,7 @@ const ProductPackingUnitsInput: React.FC<{
                       .filter(
                         (e) =>
                           e.id == unit.packingUnitId ||
-                          productPackingUnits.findIndex(
-                            (a) => a.packingUnitId == e.id,
-                          ) == -1,
+                          productPackingUnits.findIndex((a) => a.packingUnitId == e.id) == -1
                       )
                       .map((pu) => ({
                         label: pu.name,
@@ -234,9 +207,7 @@ const ProductPackingUnitsInput: React.FC<{
                     handleBlur={null}
                     defaultSelect
                     error={!!errors[`packingUnits[${rowIndex}].packingUnitId`]}
-                    helperText={handleTranslate(
-                      errors[`packingUnits[${rowIndex}].packingUnitId`],
-                    )}
+                    helperText={handleTranslate(errors[`packingUnits[${rowIndex}].packingUnitId`])}
                   />
                 </td>
                 <td>
@@ -244,16 +215,11 @@ const ProductPackingUnitsInput: React.FC<{
                     className="form-control"
                     variant="outlined"
                     fullWidth
-                    disabled={
-                      formType === FormTypes.Details ||
-                      unit.isDefaultPackingUnit
-                    }
+                    disabled={formType === FormTypes.Details || unit.isDefaultPackingUnit}
                     value={unit.partsCount ?? 0}
                     onChange={(value) => handleDiscountChange(rowIndex, value)}
                     error={!!errors[`packingUnits[${rowIndex}].partsCount`]}
-                    helperText={handleTranslate(
-                      errors[`packingUnits[${rowIndex}].partsCount`],
-                    )}
+                    helperText={handleTranslate(errors[`packingUnits[${rowIndex}].partsCount`])}
                   />
                 </td>
                 <td>
@@ -263,8 +229,7 @@ const ProductPackingUnitsInput: React.FC<{
                     fullWidth
                     value={
                       " ( " +
-                      (packingUnits.find((e) => e.id == unit.packingUnitId)
-                        ?.name ?? "") +
+                      (packingUnits.find((e) => e.id == unit.packingUnitId)?.name ?? "") +
                       " ) " +
                       " = " +
                       unit.partsCount.toString() +
@@ -272,9 +237,7 @@ const ProductPackingUnitsInput: React.FC<{
                       (packingUnits.find(
                         (e) =>
                           e.id ==
-                          productPackingUnits.find(
-                            (e) => e.isDefaultPackingUnit,
-                          )?.packingUnitId,
+                          productPackingUnits.find((e) => e.isDefaultPackingUnit)?.packingUnitId
                       )?.name ?? "")
                     }
                     disabled
@@ -302,10 +265,7 @@ const ProductPackingUnitsInput: React.FC<{
                         disabled={formType === FormTypes.Details}
                         checked={unit.isDefaultPurchases}
                         onChange={({ target }) =>
-                          handleUpdateIsDefaultPurchase(
-                            rowIndex,
-                            target.checked,
-                          )
+                          handleUpdateIsDefaultPurchase(rowIndex, target.checked)
                         }
                       />
                     }
@@ -331,9 +291,7 @@ const ProductPackingUnitsInput: React.FC<{
                           return {
                             ...unit,
                             lastCostPrice:
-                              unit.partsCount == 0
-                                ? 0
-                                : defaultPrice * unit.partsCount,
+                              unit.partsCount == 0 ? 0 : defaultPrice * unit.partsCount,
                           };
                         });
                         handleUpdate(finalUpdated);
@@ -342,9 +300,7 @@ const ProductPackingUnitsInput: React.FC<{
                       }
                     }}
                     error={!!errors[`packingUnits[${rowIndex}].lastCostPrice`]}
-                    helperText={handleTranslate(
-                      errors[`packingUnits[${rowIndex}].lastCostPrice`],
-                    )}
+                    helperText={handleTranslate(errors[`packingUnits[${rowIndex}].lastCostPrice`])}
                   />
                 </td>
                 <td>
@@ -366,9 +322,7 @@ const ProductPackingUnitsInput: React.FC<{
                           return {
                             ...unit,
                             averageCostPrice:
-                              unit.partsCount == 0
-                                ? 0
-                                : defaultPrice * unit.partsCount,
+                              unit.partsCount == 0 ? 0 : defaultPrice * unit.partsCount,
                           };
                         });
                         handleUpdate(finalUpdated);
@@ -376,11 +330,9 @@ const ProductPackingUnitsInput: React.FC<{
                         handleUpdate(updated);
                       }
                     }}
-                    error={
-                      !!errors[`packingUnits[${rowIndex}].averageCostPrice`]
-                    }
+                    error={!!errors[`packingUnits[${rowIndex}].averageCostPrice`]}
                     helperText={handleTranslate(
-                      errors[`packingUnits[${rowIndex}].averageCostPrice`],
+                      errors[`packingUnits[${rowIndex}].averageCostPrice`]
                     )}
                   />
                 </td>
@@ -393,21 +345,11 @@ const ProductPackingUnitsInput: React.FC<{
                       disabled={formType === FormTypes.Details}
                       value={sellingPrice.amount ?? 0}
                       onChange={(value) =>
-                        handleSellingPriceChange(
-                          rowIndex,
-                          sellingPrice.sellingPriceId,
-                          value,
-                        )
+                        handleSellingPriceChange(rowIndex, sellingPrice.sellingPriceId, value)
                       }
-                      error={
-                        !!errors[
-                          `packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`
-                        ]
-                      }
+                      error={!!errors[`packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`]}
                       helperText={handleTranslate(
-                        errors[
-                          `packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`
-                        ],
+                        errors[`packingUnits[${rowIndex}].sellingPrices[${sellidx}].amount`]
                       )}
                     />
                   </td>

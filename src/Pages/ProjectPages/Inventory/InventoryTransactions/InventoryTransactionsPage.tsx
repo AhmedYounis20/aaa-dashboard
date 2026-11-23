@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -23,8 +23,7 @@ import {
   Paper,
   Alert,
   CircularProgress,
-
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Search as SearchIcon,
@@ -32,51 +31,77 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
-  Schedule as ScheduleIcon
-} from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import ImportTransactionForm from './ImportTransactionForm';
-import ExportTransactionForm from './ExportTransactionForm';
-import { 
-  getStockBalances, 
-  StockBalanceModel,
-} from '../../../../Apis/Inventory/StockBalanceApi';
-import { 
-  getImportTransactions, 
+  Schedule as ScheduleIcon,
+} from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import ImportTransactionForm from "./ImportTransactionForm";
+import ExportTransactionForm from "./ExportTransactionForm";
+import { getStockBalances, StockBalanceModel } from "../../../../Apis/Inventory/StockBalanceApi";
+import {
+  getImportTransactions,
   ImportTransactionOutputDtoModel,
-} from '../../../../Apis/Inventory/ImportTransactionsApi';
-import { 
-  getExportTransactions, 
+} from "../../../../Apis/Inventory/ImportTransactionsApi";
+import {
+  getExportTransactions,
   ExportTransactionOutputDtoModel,
-} from '../../../../Apis/Inventory/ExportTransactionsApi';
-import { getBranches } from '../../../../Apis/Account/BranchesApi';
-import { getChartOfAccounts } from '../../../../Apis/Account/ChartOfAccountsApi';
-import BranchModel from '../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel';
-import ChartOfAccountModel from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/ChartOfAccountModel';
+} from "../../../../Apis/Inventory/ExportTransactionsApi";
+import { getBranches } from "../../../../Apis/Account/BranchesApi";
+import { getChartOfAccounts } from "../../../../Apis/Account/ChartOfAccountsApi";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
+import ChartOfAccountModel from "../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/ChartOfAccountModel";
+
+/** Format API date as local calendar date without UTC day-shift. */
+const formatLocalCalendarDate = (value: string | Date | null | undefined): string => {
+  if (!value) return "";
+  const raw = String(value);
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [, y, m, d] = match;
+    return `${y}-${m}-${d}`;
+  }
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 // Helper functions for status icons and colors
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'draft': return <ScheduleIcon />;
-    case 'pending': return <WarningIcon />;
-    case 'approved': return <CheckCircleIcon />;
-    case 'received':
-    case 'issued': return <CheckCircleIcon />;
-    case 'cancelled': return <CancelIcon />;
-    default: return <ScheduleIcon />;
+    case "draft":
+      return <ScheduleIcon />;
+    case "pending":
+      return <WarningIcon />;
+    case "approved":
+      return <CheckCircleIcon />;
+    case "received":
+    case "issued":
+      return <CheckCircleIcon />;
+    case "cancelled":
+      return <CancelIcon />;
+    default:
+      return <ScheduleIcon />;
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'draft': return 'default';
-    case 'pending': return 'warning';
-    case 'approved': return 'info';
-    case 'received':
-    case 'issued': return 'success';
-    case 'cancelled': return 'error';
-    default: return 'default';
+    case "draft":
+      return "default";
+    case "pending":
+      return "warning";
+    case "approved":
+      return "info";
+    case "received":
+    case "issued":
+      return "success";
+    case "cancelled":
+      return "error";
+    default:
+      return "default";
   }
 };
 
@@ -105,18 +130,22 @@ const InventoryTransactionsPage: React.FC = () => {
   const { t } = useTranslation();
   const [tabValue, setTabValue] = useState(0);
   const [stockBalances, setStockBalances] = useState<StockBalanceModel[]>([]);
-  const [importTransactions, setImportTransactions] = useState<ImportTransactionOutputDtoModel[]>([]);
-  const [exportTransactions, setExportTransactions] = useState<ExportTransactionOutputDtoModel[]>([]);
+  const [importTransactions, setImportTransactions] = useState<ImportTransactionOutputDtoModel[]>(
+    []
+  );
+  const [exportTransactions, setExportTransactions] = useState<ExportTransactionOutputDtoModel[]>(
+    []
+  );
   const [branches, setBranches] = useState<BranchModel[]>([]);
   const [parties, setParties] = useState<ChartOfAccountModel[]>([]);
   const [loadedTabs, setLoadedTabs] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form states
   const [showImportForm, setShowImportForm] = useState(false);
   const [showExportForm, setShowExportForm] = useState(false);
-  const [selectedFormId, setSelectedFormId] = useState<string>('');
+  const [selectedFormId, setSelectedFormId] = useState<string>("");
   const [selectedFormType, setSelectedFormType] = useState<FormTypes>(FormTypes.Add);
 
   const ensureBranches = async () => {
@@ -158,7 +187,7 @@ const InventoryTransactionsPage: React.FC = () => {
 
       setLoadedTabs((prev) => ({ ...prev, [tab]: true }));
     } catch {
-      setError(t('Failed to load data'));
+      setError(t("Failed to load data"));
     } finally {
       setLoading(false);
     }
@@ -173,13 +202,13 @@ const InventoryTransactionsPage: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const handleShowImportForm = (formType: FormTypes = FormTypes.Add, id: string = '') => {
+  const handleShowImportForm = (formType: FormTypes = FormTypes.Add, id: string = "") => {
     setSelectedFormType(formType);
     setSelectedFormId(id);
     setShowImportForm(true);
   };
 
-  const handleShowExportForm = (formType: FormTypes = FormTypes.Add, id: string = '') => {
+  const handleShowExportForm = (formType: FormTypes = FormTypes.Add, id: string = "") => {
     setSelectedFormType(formType);
     setSelectedFormId(id);
     setShowExportForm(true);
@@ -187,12 +216,12 @@ const InventoryTransactionsPage: React.FC = () => {
 
   const handleCloseImportForm = () => {
     setShowImportForm(false);
-    setSelectedFormId('');
+    setSelectedFormId("");
   };
 
   const handleCloseExportForm = () => {
     setShowExportForm(false);
-    setSelectedFormId('');
+    setSelectedFormId("");
   };
 
   const handleAfterAction = () => {
@@ -200,8 +229,6 @@ const InventoryTransactionsPage: React.FC = () => {
     handleCloseImportForm();
     handleCloseExportForm();
   };
-
-
 
   if (loading) {
     return (
@@ -214,9 +241,9 @@ const InventoryTransactionsPage: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        {t('Inventory Transactions')}
+        {t("Inventory Transactions")}
       </Typography>
-      
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -225,23 +252,20 @@ const InventoryTransactionsPage: React.FC = () => {
 
       <Card>
         <CardContent>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tabValue} onChange={handleTabChange}>
-              <Tab label={t('Stock Balance')} />
-              <Tab label={t('Warehouse Receipts')} />
-              <Tab label={t('Store Issues')} />
+              <Tab label={t("Stock Balance")} />
+              <Tab label={t("Warehouse Receipts")} />
+              <Tab label={t("Store Issues")} />
             </Tabs>
           </Box>
 
           <TabPanel value={tabValue} index={0}>
-            <StockBalanceView 
-              stockBalances={stockBalances}
-              branches={branches}
-            />
+            <StockBalanceView stockBalances={stockBalances} branches={branches} />
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            <ImportTransactionsView 
+            <ImportTransactionsView
               transactions={importTransactions}
               branches={branches}
               parties={parties}
@@ -251,7 +275,7 @@ const InventoryTransactionsPage: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
-            <ExportTransactionsView 
+            <ExportTransactionsView
               transactions={exportTransactions}
               branches={branches}
               parties={parties}
@@ -291,8 +315,8 @@ const StockBalanceView: React.FC<{
   branches: BranchModel[];
 }> = ({ stockBalances, branches }) => {
   const { t } = useTranslation();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState<string>("");
 
   const filteredBalances = stockBalances.filter((balance) => {
     const matchesSearch =
@@ -310,23 +334,20 @@ const StockBalanceView: React.FC<{
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label={t('SearchVariants')}
+            label={t("SearchVariants")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
-              startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              startAdornment: <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />,
             }}
           />
         </Grid>
         <Grid item xs={12} md={6}>
           <FormControl fullWidth>
-            <InputLabel>{t('Branch')}</InputLabel>
-            <Select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-            >
-              <MenuItem value="">{t('All Branches')}</MenuItem>
-              {branches.map(branch => (
+            <InputLabel>{t("Branch")}</InputLabel>
+            <Select value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
+              <MenuItem value="">{t("All Branches")}</MenuItem>
+              {branches.map((branch) => (
                 <MenuItem key={branch.id} value={branch.id}>
                   {branch.name}
                 </MenuItem>
@@ -340,17 +361,17 @@ const StockBalanceView: React.FC<{
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t('Variant')}</TableCell>
-              <TableCell>{t('Product')}</TableCell>
-              <TableCell>{t('Code')}</TableCell>
-              <TableCell>{t('Branch')}</TableCell>
-              <TableCell>{t('Packing Unit')}</TableCell>
-              <TableCell align="right">{t('Current Balance')}</TableCell>
-              <TableCell align="right">{t('Min Balance')}</TableCell>
-              <TableCell align="right">{t('Max Balance')}</TableCell>
-              <TableCell align="right">{t('Unit Cost')}</TableCell>
-              <TableCell align="right">{t('Total Value')}</TableCell>
-              <TableCell>{t('Status')}</TableCell>
+              <TableCell>{t("Variant")}</TableCell>
+              <TableCell>{t("Product")}</TableCell>
+              <TableCell>{t("Code")}</TableCell>
+              <TableCell>{t("Branch")}</TableCell>
+              <TableCell>{t("Packing Unit")}</TableCell>
+              <TableCell align="right">{t("Current Balance")}</TableCell>
+              <TableCell align="right">{t("Min Balance")}</TableCell>
+              <TableCell align="right">{t("Max Balance")}</TableCell>
+              <TableCell align="right">{t("Unit Cost")}</TableCell>
+              <TableCell align="right">{t("Total Value")}</TableCell>
+              <TableCell>{t("Status")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -360,9 +381,9 @@ const StockBalanceView: React.FC<{
                 (balance.branchName ? { name: balance.branchName } : undefined);
 
               const getStatus = () => {
-                if (balance.currentBalance <= balance.minimumBalance) return 'low';
-                if (balance.currentBalance >= balance.maximumBalance) return 'overstock';
-                return 'normal';
+                if (balance.currentBalance <= balance.minimumBalance) return "low";
+                if (balance.currentBalance >= balance.maximumBalance) return "overstock";
+                return "normal";
               };
 
               return (
@@ -380,7 +401,13 @@ const StockBalanceView: React.FC<{
                   <TableCell>
                     <Chip
                       label={t(getStatus())}
-                      color={getStatus() === 'normal' ? 'success' : getStatus() === 'low' ? 'warning' : 'error'}
+                      color={
+                        getStatus() === "normal"
+                          ? "success"
+                          : getStatus() === "low"
+                            ? "warning"
+                            : "error"
+                      }
                       size="small"
                     />
                   </TableCell>
@@ -406,65 +433,74 @@ const ImportTransactionsView: React.FC<{
 
   return (
     <Box>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">{t('Warehouse Receipts')}</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={onCreateNew}
-        >
-          {t('New Receipt')}
+      <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6">{t("Warehouse Receipts")}</Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={onCreateNew}>
+          {t("New Receipt")}
         </Button>
       </Box>
 
       <Grid container spacing={2}>
         {transactions.map((transaction) => {
-          const branch = branches.find(b => b.id === transaction.branchId);
-          const supplier = parties.find(s => s.id === transaction.transactionPartyId);
-          
+          const branch = branches.find((b) => b.id === transaction.branchId);
+          const supplier = parties.find((s) => s.id === transaction.transactionPartyId);
+
           return (
             <Grid item xs={12} md={6} lg={4} key={transaction.id}>
               <Card>
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" color="primary">
-                      {transaction.documentNumber || 'No Number'}
+                      {transaction.documentNumber || "No Number"}
                     </Typography>
                     <Chip
-                      icon={getStatusIcon(transaction.status ?? 'draft')}
-                      label={t(transaction.status ?? 'draft')}
-                      color={getStatusColor(transaction.status ?? 'draft') as 'default' | 'warning' | 'info' | 'success' | 'error'}
+                      icon={getStatusIcon(transaction.status ?? "draft")}
+                      label={t(transaction.status ?? "draft")}
+                      color={
+                        getStatusColor(transaction.status ?? "draft") as
+                          "default" | "warning" | "info" | "success" | "error"
+                      }
                       size="small"
                     />
                   </Box>
-                  
+
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {new Date(transaction.transactionDate).toLocaleDateString()}
+                    {formatLocalCalendarDate(transaction.transactionDate)}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('Party')}:</strong> {supplier?.name}
+                    <strong>{t("Party")}:</strong> {supplier?.name}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('Branch')}:</strong> {branch?.name}
+                    <strong>{t("Branch")}:</strong> {branch?.name}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('LineItems')}:</strong> {transaction.items.length}
+                    <strong>{t("LineItems")}:</strong> {transaction.items.length}
                   </Typography>
-                  
+
                   <Typography variant="h6" color="primary" gutterBottom>
-                    ${transaction.items?.reduce((sum, item) => sum + (item.totalCost || 0), 0).toFixed(2) || '0.00'}
+                    $
+                    {transaction.items
+                      ?.reduce((sum, item) => sum + (item.totalCost || 0), 0)
+                      .toFixed(2) || "0.00"}
                   </Typography>
-                  
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+
+                  <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                     <Button
                       size="small"
                       startIcon={<ViewIcon />}
                       onClick={() => onView(transaction)}
                     >
-                      {t('View')}
+                      {t("View")}
                     </Button>
                   </Box>
                 </CardContent>
@@ -489,65 +525,74 @@ const ExportTransactionsView: React.FC<{
 
   return (
     <Box>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">{t('Store Issues')}</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={onCreateNew}
-        >
-          {t('New Issue')}
+      <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6">{t("Store Issues")}</Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={onCreateNew}>
+          {t("New Issue")}
         </Button>
       </Box>
 
       <Grid container spacing={2}>
         {transactions.map((transaction) => {
-          const branch = branches.find(b => b.id === transaction.branchId);
-          const customer = parties.find(c => c.id === transaction.transactionPartyId);
-          
+          const branch = branches.find((b) => b.id === transaction.branchId);
+          const customer = parties.find((c) => c.id === transaction.transactionPartyId);
+
           return (
             <Grid item xs={12} md={6} lg={4} key={transaction.id}>
               <Card>
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" color="primary">
-                      {transaction.documentNumber || 'No Number'}
+                      {transaction.documentNumber || "No Number"}
                     </Typography>
                     <Chip
-                      icon={getStatusIcon(transaction.status ?? 'draft')}
-                      label={t(transaction.status ?? 'draft')}
-                      color={getStatusColor(transaction.status ?? 'draft') as 'default' | 'warning' | 'info' | 'success' | 'error'}
+                      icon={getStatusIcon(transaction.status ?? "draft")}
+                      label={t(transaction.status ?? "draft")}
+                      color={
+                        getStatusColor(transaction.status ?? "draft") as
+                          "default" | "warning" | "info" | "success" | "error"
+                      }
                       size="small"
                     />
                   </Box>
-                  
+
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {new Date(transaction.transactionDate).toLocaleDateString()}
+                    {formatLocalCalendarDate(transaction.transactionDate)}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('Party')}:</strong> {customer?.name}
+                    <strong>{t("Party")}:</strong> {customer?.name}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('Branch')}:</strong> {branch?.name}
+                    <strong>{t("Branch")}:</strong> {branch?.name}
                   </Typography>
-                  
+
                   <Typography variant="body2" gutterBottom>
-                    <strong>{t('LineItems')}:</strong> {transaction.items.length}
+                    <strong>{t("LineItems")}:</strong> {transaction.items.length}
                   </Typography>
-                  
+
                   <Typography variant="h6" color="primary" gutterBottom>
-                    ${transaction.items?.reduce((sum, item) => sum + (item.totalCost || 0), 0).toFixed(2) || '0.00'}
+                    $
+                    {transaction.items
+                      ?.reduce((sum, item) => sum + (item.totalCost || 0), 0)
+                      .toFixed(2) || "0.00"}
                   </Typography>
-                  
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+
+                  <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                     <Button
                       size="small"
                       startIcon={<ViewIcon />}
                       onClick={() => onView(transaction)}
                     >
-                      {t('View')}
+                      {t("View")}
                     </Button>
                   </Box>
                 </CardContent>
@@ -560,5 +605,4 @@ const ExportTransactionsView: React.FC<{
   );
 };
 
-
-export default InventoryTransactionsPage; 
+export default InventoryTransactionsPage;

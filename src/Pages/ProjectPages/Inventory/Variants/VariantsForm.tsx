@@ -9,14 +9,14 @@ import BaseForm from "../../../../Components/Forms/BaseForm";
 import { FormTypes } from "../../../../interfaces/Components/FormType";
 import { ProductType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType";
 import { DiscountType } from "../../../../interfaces/ProjectInterfaces/Inventory/Products/DiscountType";
-import SupplierModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Suppliers/SupplierModel";
+import SupplierModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Suppliers/SupplierModel";
 import { getSuppliers } from "../../../../Apis/Account/SuppliersApi";
 import { getTaxes } from "../../../../Apis/Account/TaxesApi";
-import { TaxModel } from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Taxes/TaxModel";
+import { TaxModel } from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Taxes/TaxModel";
 import ManufacturerCompanyModel from "../../../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
 import { getManufacturerCompanies } from "../../../../Apis/Inventory/ManufacturerCompaniesApi";
 import { getBranches } from "../../../../Apis/Account/BranchesApi";
-import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import BranchModel from "../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
 import { EMPTY_UUID } from "../../../../Utilities/SD";
 import { InventoryThresholdScope } from "../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
 import InventoryThresholdsInput from "../Products/Components/InventoryThresholdsInput";
@@ -26,12 +26,17 @@ import { ProductNodeType } from "../../../../interfaces/ProjectInterfaces/Invent
 import { NodeType } from "../../../../interfaces/Components/NodeType";
 import VariantPictureUpload from "./Components/VariantPictureUpload";
 import VariantPackingUnitsInput from "./Components/VariantPackingUnitsInput";
-import VariantBasicInfoCard from "./Components/VariantBasicInfoCard";
-import VariantCodesAndTypeCard from "./Components/VariantCodesAndTypeCard";
-import VariantDetailsAndDiscountsCard from "./Components/VariantDetailsAndDiscountsCard";
+import {
+  ItemBasicInfoCard,
+  ItemCodesAndTypeCard,
+  ItemDetailsAndDiscountsCard,
+} from "@/modules/inventory/shared";
 import type { ValidationError } from "yup";
 import VariantPackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantPackingUnitModel";
-import VariantInputModel, { buildVariantValidationSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantInputModel";
+import VariantInputModel, {
+  buildVariantValidationSchema,
+} from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantInputModel";
+import { localizedEntityName } from "../../../../Helper/localizedEntityName";
 
 const VariantsForm: React.FC<{
   formType: FormTypes;
@@ -39,18 +44,12 @@ const VariantsForm: React.FC<{
   handleCloseForm: () => void;
   afterAction: () => void;
   handleTranslate: (key: string) => string;
-}> = ({
-  formType,
-  id,
-  handleCloseForm,
-  afterAction,
-  handleTranslate,
-}) => {
-  const { t } = useTranslation();
+}> = ({ formType, id, handleCloseForm, afterAction, handleTranslate }) => {
+  const { t, i18n } = useTranslation();
 
   const createVariantPackingUnit: (
     isDefault?: boolean,
-    orderNumber?: number,
+    orderNumber?: number
   ) => VariantPackingUnitModel = (isDefault = false, orderNumber = 0) => {
     const packingUnit: VariantPackingUnitModel = {
       id: "",
@@ -109,9 +108,9 @@ const VariantsForm: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(formType !== FormTypes.Add);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([]);
-  const [manufacturerCompanies, setManufacturerCompanies] = useState<
-    ManufacturerCompanyModel[]
-  >([]);
+  const [manufacturerCompanies, setManufacturerCompanies] = useState<ManufacturerCompanyModel[]>(
+    []
+  );
   const [taxes, setTaxes] = useState<TaxModel[]>([]);
   const [branches, setBranches] = useState<BranchModel[]>([]);
 
@@ -122,9 +121,7 @@ const VariantsForm: React.FC<{
       const fetchData = async () => {
         const result = await getSuppliers();
         if (result) {
-          setSuppliers(
-            result.result.filter((e) => e.nodeType == ProductNodeType.Domain),
-          );
+          setSuppliers(result.result.filter((e) => e.nodeType == ProductNodeType.Domain));
         }
         const companiesResult = await getManufacturerCompanies();
         if (companiesResult) {
@@ -150,11 +147,9 @@ const VariantsForm: React.FC<{
       return true;
     } catch (validationErrors) {
       const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as ValidationError).inner.forEach(
-        (error: ValidationError) => {
-          if (error.path) validationErrorsMap[error.path] = error.message;
-        },
-      );
+      (validationErrors as ValidationError).inner.forEach((error: ValidationError) => {
+        if (error.path) validationErrorsMap[error.path] = error.message;
+      });
       setErrors(validationErrorsMap);
       return false;
     }
@@ -178,10 +173,13 @@ const VariantsForm: React.FC<{
           setModel({
             ...result.result,
             costCenters: (result.result.costCenters ?? []).map(
-              (c: { id?: string; costCenterId: string | null; percent: number }) =>
-                ({ ...c, id: c.id ?? uuid() })
+              (c: { id?: string; costCenterId: string | null; percent: number }) => ({
+                ...c,
+                id: c.id ?? uuid(),
+              })
             ),
-            inventoryThresholdScope: result.result.inventoryThresholdScope ?? InventoryThresholdScope.All,
+            inventoryThresholdScope:
+              result.result.inventoryThresholdScope ?? InventoryThresholdScope.All,
             inventoryThresholdBranchId: result.result.inventoryThresholdBranchId ?? null,
             inventoryThresholds: (result.result.inventoryThresholds ?? []).sort(
               (a: { level: number }, b: { level: number }) => a.level - b.level
@@ -222,9 +220,10 @@ const VariantsForm: React.FC<{
     if ((await validate()) === false) return false;
     const payload = {
       ...model,
-      costCenters: model.costCenters?.filter(
-        (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
-      ) ?? [],
+      costCenters:
+        model.costCenters?.filter(
+          (c) => c.costCenterId != null && c.costCenterId !== "" && c.percent > 0
+        ) ?? [],
     };
     const response = await updateVariant(id, payload);
     if (response && response.isSuccess) {
@@ -257,11 +256,12 @@ const VariantsForm: React.FC<{
             <>
               {formType === FormTypes.Delete ? (
                 <p>
-                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+                  {t("AreYouSureDelete")} {localizedEntityName(model, i18n.language)}
                 </p>
               ) : (
                 <>
-                  <VariantBasicInfoCard
+                  <ItemBasicInfoCard
+                    kind="variant"
                     formType={formType}
                     model={model}
                     setModel={setModel}
@@ -276,14 +276,13 @@ const VariantsForm: React.FC<{
                     attachments={model.variantAttachments || []}
                     onAttachmentsChange={(attachments) =>
                       setModel((prev) =>
-                        prev
-                          ? { ...prev, variantAttachments: attachments }
-                          : prev,
+                        prev ? { ...prev, variantAttachments: attachments } : prev
                       )
                     }
                   />
 
-                  <VariantCodesAndTypeCard
+                  <ItemCodesAndTypeCard
+                    kind="variant"
                     formType={formType}
                     model={model}
                     setModel={setModel}
@@ -291,7 +290,8 @@ const VariantsForm: React.FC<{
                     handleTranslate={handleTranslate}
                   />
 
-                  <VariantDetailsAndDiscountsCard
+                  <ItemDetailsAndDiscountsCard
+                    kind="variant"
                     formType={formType}
                     model={model}
                     setModel={setModel}
@@ -308,13 +308,17 @@ const VariantsForm: React.FC<{
                       branchId={model.inventoryThresholdBranchId}
                       thresholds={model.inventoryThresholds ?? []}
                       onScopeChange={(scope) =>
-                        setModel((prev) => prev ? { ...prev, inventoryThresholdScope: scope } : prev)
+                        setModel((prev) =>
+                          prev ? { ...prev, inventoryThresholdScope: scope } : prev
+                        )
                       }
                       onBranchChange={(branchId) =>
-                        setModel((prev) => prev ? { ...prev, inventoryThresholdBranchId: branchId } : prev)
+                        setModel((prev) =>
+                          prev ? { ...prev, inventoryThresholdBranchId: branchId } : prev
+                        )
                       }
                       onThresholdsChange={(inventoryThresholds) =>
-                        setModel((prev) => prev ? { ...prev, inventoryThresholds } : prev)
+                        setModel((prev) => (prev ? { ...prev, inventoryThresholds } : prev))
                       }
                       branches={branches}
                       handleTranslate={handleTranslate}
@@ -326,7 +330,7 @@ const VariantsForm: React.FC<{
                       formType={formType}
                       levels={model.expiryLevels ?? []}
                       onLevelsChange={(expiryLevels) =>
-                        setModel((prev) => prev ? { ...prev, expiryLevels } : prev)
+                        setModel((prev) => (prev ? { ...prev, expiryLevels } : prev))
                       }
                       handleTranslate={handleTranslate}
                       errors={errors}
@@ -338,9 +342,7 @@ const VariantsForm: React.FC<{
                       handleTranslate={(key) => handleTranslate(key)}
                       formType={formType}
                       handleUpdate={(items) =>
-                        setModel((prev) =>
-                          prev ? { ...prev, packingUnits: items } : prev,
-                        )
+                        setModel((prev) => (prev ? { ...prev, packingUnits: items } : prev))
                       }
                       errors={errors}
                     />

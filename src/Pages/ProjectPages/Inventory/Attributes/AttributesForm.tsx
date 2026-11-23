@@ -5,24 +5,15 @@ import { FormTypes } from "../../../../interfaces/Components/FormType";
 import AttributeDefinitionModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
 import AttributeValueModel from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValueModel";
 import InputText from "../../../../Components/Inputs/InputText";
-import {
-  Box,
-  Switch,
-  FormControlLabel,
-  Divider,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Switch, FormControlLabel, Divider, Typography, useTheme } from "@mui/material";
 import { AttributeDefinitionSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinition-validation";
 import EditableTable from "../../../../Components/Tables/EditableTable";
 import * as yup from "yup";
 import { AttributeValueSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/AttributeValues/AttributeValue-validation";
 
 import Loader from "@/Components/Loader";
-import {
-  useAttributeDetail,
-  useAttributeMutations,
-} from "@/hooks/queries";
+import { ErrorState } from "@/Components/feedback";
+import { useAttributeDetail, useAttributeMutations } from "@/hooks/queries";
 
 const defaultModel: AttributeDefinitionModel = {
   id: "",
@@ -40,15 +31,15 @@ const AttributesForm: React.FC<{
   const { t } = useTranslation();
   const [model, setModel] = useState<AttributeDefinitionModel>({ ...defaultModel });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [rowErrors, setRowErrors] = useState<
-    Record<number, Record<string, string>>
-  >({});
+  const [rowErrors, setRowErrors] = useState<Record<number, Record<string, string>>>({});
   const theme = useTheme();
 
-  const { data: fetchedModel, isLoading: isDetailLoading } = useAttributeDetail(
-    id,
-    formType
-  );
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = useAttributeDetail(id, formType);
   const { createMutation, updateMutation, deleteMutation } = useAttributeMutations();
 
   useEffect(() => {
@@ -64,8 +55,10 @@ const AttributesForm: React.FC<{
   }, [formType]);
 
   const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
     try {
       await deleteMutation.mutateAsync(id);
       return true;
@@ -75,6 +68,7 @@ const AttributesForm: React.FC<{
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
     try {
       await updateMutation.mutateAsync({ id: model.id, data: model });
@@ -109,11 +103,9 @@ const AttributesForm: React.FC<{
             await AttributeValueSchema.validate(value, { abortEarly: false });
           } catch (validationErrors) {
             const validationErrorsMap: Record<string, string> = {};
-            (validationErrors as yup.ValidationError).inner.forEach(
-              (error: any) => {
-                if (error.path) validationErrorsMap[error.path] = error.message;
-              }
-            );
+            (validationErrors as yup.ValidationError).inner.forEach((error: any) => {
+              if (error.path) validationErrorsMap[error.path] = error.message;
+            });
             newRowErrors[i] = validationErrorsMap;
             hasRowErrors = true;
           }
@@ -132,10 +124,7 @@ const AttributesForm: React.FC<{
     }
   };
 
-  const updateValueAt = (
-    index: number,
-    partial: Partial<AttributeValueModel>
-  ) => {
+  const updateValueAt = (index: number, partial: Partial<AttributeValueModel>) => {
     setModel((prev) => {
       const values = [...(prev.predefinedValues || [])];
       values[index] = { ...values[index], ...partial } as AttributeValueModel;
@@ -185,12 +174,12 @@ const AttributesForm: React.FC<{
   };
 
   return (
-    <div className='container h-full'>
+    <div className="container h-full">
       <BaseForm
         formType={formType}
         handleCloseForm={handleCloseForm}
         isModal
-        size='large'
+        size="large"
         handleAdd={handleAdd}
         handleUpdate={handleUpdate}
         handleDelete={handleDelete}
@@ -198,6 +187,8 @@ const AttributesForm: React.FC<{
         <div>
           {isLoading ? (
             <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -206,29 +197,27 @@ const AttributesForm: React.FC<{
                 </p>
               ) : (
                 <>
-                  <div className='row mb-3'>
-                    <div className='col col-md-6 mb-2'>
+                  <div className="row mb-3">
+                    <div className="col col-md-6 mb-2">
                       <InputText
-                        type='text'
-                        className='form-input form-control'
+                        type="text"
+                        className="form-input form-control"
                         label={t("Name")}
-                        variant='outlined'
+                        variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
-                        onChange={(value) =>
-                          setModel((prev) => ({ ...prev, name: value }))
-                        }
+                        onChange={(value) => setModel((prev) => ({ ...prev, name: value }))}
                         error={Boolean(errors.name)}
                         helperText={errors.name ? t(errors.name) : undefined}
                       />
                     </div>
-                    <div className='col col-md-6 mb-2'>
+                    <div className="col col-md-6 mb-2">
                       <InputText
-                        type='text'
-                        className='form-input form-control'
+                        type="text"
+                        className="form-input form-control"
                         label={t("NameSecondLanguage")}
-                        variant='outlined'
+                        variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
@@ -240,16 +229,14 @@ const AttributesForm: React.FC<{
                         }
                         error={Boolean(errors.nameSecondLanguage)}
                         helperText={
-                          errors.nameSecondLanguage
-                            ? t(errors.nameSecondLanguage)
-                            : undefined
+                          errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
                         }
                       />
                     </div>
                   </div>
 
-                  <div className='row mb-3'>
-                    <div className='col col-md-3'>
+                  <div className="row mb-3">
+                    <div className="col col-md-3">
                       <FormControlLabel
                         control={
                           <Switch
@@ -280,7 +267,7 @@ const AttributesForm: React.FC<{
                       pl: 1,
                     }}
                   >
-                    <Typography variant='h6'>{t("Values")}</Typography>
+                    <Typography variant="h6">{t("Values")}</Typography>
                   </Box>
                   <EditableTable
                     rows={model.predefinedValues}
@@ -293,9 +280,7 @@ const AttributesForm: React.FC<{
                       },
                       { key: "isActive", label: t("IsActive"), type: "switch" },
                     ]}
-                    onChangeRow={(index, updated) =>
-                      updateValueAt(index, updated)
-                    }
+                    onChangeRow={(index, updated) => updateValueAt(index, updated)}
                     addText={t("AddValue")}
                     onAddRow={handleAddValueClick}
                     disabled={formType === FormTypes.Details}

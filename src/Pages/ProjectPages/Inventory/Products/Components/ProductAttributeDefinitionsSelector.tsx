@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Typography,
@@ -7,20 +7,18 @@ import {
   FormControlLabel,
   Switch,
   Box,
-  Alert
-} from '@mui/material';
-import {
-  Settings as SettingsIcon
-} from '@mui/icons-material';
+  Alert,
+} from "@mui/material";
+import { Settings as SettingsIcon } from "@mui/icons-material";
 
-import ExpandableCard from '../../../../../Components/UI/ExpandableCard';
-import InputAutoComplete from '../../../../../Components/Inputs/InputAutoCompelete';
+import ExpandableCard from "../../../../../Components/UI/ExpandableCard";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoComplete";
 
-import { getAttributeDefinitions } from '../../../../../Apis/Inventory/AttributeDefinitionsApi';
+import { getAttributeDefinitions } from "../../../../../Apis/Inventory/AttributeDefinitionsApi";
 // import { AttributeDefinitionDto } from '../../../../../interfaces/ProjectInterfaces/Inventory/Attributes/AttributeDefinitionDto';
-import AttributeDefinitionModel from '../../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel';
-import ProductAttributeDefinitionModel from '../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttributeDefinitionModel';
-import { FormTypes } from '../../../../../interfaces/Components/FormType';
+import AttributeDefinitionModel from "../../../../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
+import ProductAttributeDefinitionModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttributeDefinitionModel";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
 
 interface Props {
   productAttributeDefinitions: ProductAttributeDefinitionModel[];
@@ -33,10 +31,12 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
   productAttributeDefinitions,
   onChange,
   handleTranslate,
-  formType
+  formType,
 }) => {
   const [attributeDefinitions, setAttributeDefinitions] = useState<AttributeDefinitionModel[]>([]);
-  const [selectedAttributeDefinitionIds, setSelectedAttributeDefinitionIds] = useState<string[]>([]);
+  const [selectedAttributeDefinitionIds, setSelectedAttributeDefinitionIds] = useState<string[]>(
+    []
+  );
 
   useEffect(() => {
     fetchAttributeDefinitions();
@@ -44,7 +44,7 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
 
   useEffect(() => {
     // Initialize selected attributes from existing product attribute definitions
-    const selectedIds = productAttributeDefinitions.map(pad => pad.attributeDefinitionId);
+    const selectedIds = productAttributeDefinitions.map((pad) => pad.attributeDefinitionId);
     setSelectedAttributeDefinitionIds(selectedIds);
   }, [productAttributeDefinitions]);
 
@@ -56,50 +56,52 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
         setAttributeDefinitions(models);
       }
     } catch (err) {
-      console.error('Error fetching attribute definitions', err);
+      console.error("Error fetching attribute definitions", err);
     }
   };
 
   const handleAttributeSelectionChange = (newSelectedIds: string[]) => {
     setSelectedAttributeDefinitionIds(newSelectedIds);
-    
+
     // Create ProductAttributeDefinitionModel objects for selected attributes
-    const newProductAttributeDefinitions: ProductAttributeDefinitionModel[] = newSelectedIds.map(attributeDefinitionId => {
-      // Check if this attribute definition already exists
-      const existing = productAttributeDefinitions.find(pad => pad.attributeDefinitionId === attributeDefinitionId);
-      
-      if (existing) {
-        // Keep existing settings
-        return existing;
-      } else {
-        // Create new with default settings
-        return {
-          id: '00000000-0000-0000-0000-000000000000', // Guid.Empty
-          productId: '00000000-0000-0000-0000-000000000000', // Guid.Empty
-          attributeDefinitionId,
-          attributeDefinition: attributeDefinitions.find(ad => ad.id === attributeDefinitionId),
-          isVariant: true, // Default to true for variant attributes
-          createdAt: '',
-          modifiedAt: ''
-        };
+    const newProductAttributeDefinitions: ProductAttributeDefinitionModel[] = newSelectedIds.map(
+      (attributeDefinitionId) => {
+        // Check if this attribute definition already exists
+        const existing = productAttributeDefinitions.find(
+          (pad) => pad.attributeDefinitionId === attributeDefinitionId
+        );
+
+        if (existing) {
+          // Keep existing settings
+          return existing;
+        } else {
+          // Create new with default settings
+          return {
+            id: "00000000-0000-0000-0000-000000000000", // Guid.Empty
+            productId: "00000000-0000-0000-0000-000000000000", // Guid.Empty
+            attributeDefinitionId,
+            attributeDefinition: attributeDefinitions.find((ad) => ad.id === attributeDefinitionId),
+            isVariant: true, // Default to true for variant attributes
+            createdAt: "",
+            modifiedAt: "",
+          };
+        }
       }
-    });
-    
+    );
+
     onChange(newProductAttributeDefinitions);
   };
 
   const handleIsVariantChange = (attributeDefinitionId: string, isVariant: boolean) => {
-    const updated = productAttributeDefinitions.map(pad => 
-      pad.attributeDefinitionId === attributeDefinitionId 
-        ? { ...pad, isVariant }
-        : pad
+    const updated = productAttributeDefinitions.map((pad) =>
+      pad.attributeDefinitionId === attributeDefinitionId ? { ...pad, isVariant } : pad
     );
     onChange(updated);
   };
 
   const getAttributeDefinitionName = (attributeDefinitionId: string) => {
-    const definition = attributeDefinitions.find(ad => ad.id === attributeDefinitionId);
-    return definition?.name || 'Unknown';
+    const definition = attributeDefinitions.find((ad) => ad.id === attributeDefinitionId);
+    return definition?.name || "Unknown";
   };
 
   // const getAttributeDefinitionCode = (attributeDefinitionId: string) => {
@@ -107,18 +109,19 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
   //   return definition?.code || '';
   // };
 
-  const variantAttributes = productAttributeDefinitions.filter(pad => pad.isVariant);
-  const nonVariantAttributes = productAttributeDefinitions.filter(pad => !pad.isVariant);
+  const variantAttributes = productAttributeDefinitions.filter((pad) => pad.isVariant);
+  const nonVariantAttributes = productAttributeDefinitions.filter((pad) => !pad.isVariant);
 
   return (
     <ExpandableCard
-      title={handleTranslate('Product Attribute Definitions')}
+      title={handleTranslate("Product Attribute Definitions")}
       icon={<SettingsIcon color="primary" />}
       defaultExpanded={true}
     >
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>{handleTranslate('ProductAttributeDefinitionsInfo')}:</strong> {handleTranslate('ProductAttributeDefinitionsDescription')}
+          <strong>{handleTranslate("ProductAttributeDefinitionsInfo")}:</strong>{" "}
+          {handleTranslate("ProductAttributeDefinitionsDescription")}
         </Typography>
       </Alert>
 
@@ -126,11 +129,11 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12}>
           <InputAutoComplete
-            options={attributeDefinitions.map(ad => ({
-              label: `${ad.name} (${ad.id.slice(0,8)})`,
-              value: ad.id
+            options={attributeDefinitions.map((ad) => ({
+              label: `${ad.name} (${ad.id.slice(0, 8)})`,
+              value: ad.id,
             }))}
-            label={handleTranslate('Select Attribute Definitions')}
+            label={handleTranslate("Select Attribute Definitions")}
             value={selectedAttributeDefinitionIds}
             onChange={(v: string[] | null) => handleAttributeSelectionChange(v ?? [])}
             multiple
@@ -144,15 +147,22 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
       {productAttributeDefinitions.length > 0 && (
         <Box>
           <Typography variant="h6" gutterBottom>
-            {handleTranslate('Configure Selected Attributes')}
+            {handleTranslate("Configure Selected Attributes")}
           </Typography>
-          
+
           <Grid container spacing={2}>
             {productAttributeDefinitions.map((pad) => (
               <Grid item xs={12} md={6} key={pad.attributeDefinitionId}>
                 <Card variant="outlined">
                   <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
+                    >
                       <Typography variant="subtitle1" fontWeight={600}>
                         {getAttributeDefinitionName(pad.attributeDefinitionId)}
                       </Typography>
@@ -163,12 +173,14 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
                         variant="outlined" 
                       /> */}
                     </Box>
-                    
+
                     <FormControlLabel
                       control={
                         <Switch
                           checked={pad.isVariant}
-                          onChange={(e) => handleIsVariantChange(pad.attributeDefinitionId, e.target.checked)}
+                          onChange={(e) =>
+                            handleIsVariantChange(pad.attributeDefinitionId, e.target.checked)
+                          }
                           disabled={formType === FormTypes.Details}
                           color="primary"
                         />
@@ -176,13 +188,12 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
                       label={
                         <Box>
                           <Typography variant="body2">
-                            {handleTranslate('Use for Variants')}
+                            {handleTranslate("Use for Variants")}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {pad.isVariant 
-                              ? handleTranslate('Variants will have values for this attribute')
-                              : handleTranslate('This attribute applies to the product only')
-                            }
+                            {pad.isVariant
+                              ? handleTranslate("Variants will have values for this attribute")
+                              : handleTranslate("This attribute applies to the product only")}
                           </Typography>
                         </Box>
                       }
@@ -200,20 +211,23 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
         <Box mt={3}>
           <Alert severity="success">
             <Typography variant="body2">
-              <strong>{handleTranslate('Summary')}:</strong>
+              <strong>{handleTranslate("Summary")}:</strong>
             </Typography>
             <Typography variant="body2" component="div">
-              • {handleTranslate('Total Attributes')}: {productAttributeDefinitions.length}
+              • {handleTranslate("Total Attributes")}: {productAttributeDefinitions.length}
             </Typography>
             <Typography variant="body2" component="div">
-              • {handleTranslate('Variant Attributes')}: {variantAttributes.length}
+              • {handleTranslate("Variant Attributes")}: {variantAttributes.length}
             </Typography>
             <Typography variant="body2" component="div">
-              • {handleTranslate('Product-only Attributes')}: {nonVariantAttributes.length}
+              • {handleTranslate("Product-only Attributes")}: {nonVariantAttributes.length}
             </Typography>
             {variantAttributes.length > 0 && (
               <Typography variant="body2" component="div" sx={{ mt: 1 }}>
-                <strong>{handleTranslate('Variant Attributes')}:</strong> {variantAttributes.map(va => getAttributeDefinitionName(va.attributeDefinitionId)).join(', ')}
+                <strong>{handleTranslate("Variant Attributes")}:</strong>{" "}
+                {variantAttributes
+                  .map((va) => getAttributeDefinitionName(va.attributeDefinitionId))
+                  .join(", ")}
               </Typography>
             )}
           </Alert>
@@ -222,12 +236,14 @@ const ProductAttributeDefinitionsSelector: React.FC<Props> = ({
 
       {/* Empty State */}
       {productAttributeDefinitions.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Box sx={{ textAlign: "center", py: 4 }}>
           <Typography variant="body2" color="text.secondary">
-            {handleTranslate('No attribute definitions selected')}
+            {handleTranslate("No attribute definitions selected")}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {handleTranslate('Select attribute definitions above to configure them for this product')}
+            {handleTranslate(
+              "Select attribute definitions above to configure them for this product"
+            )}
           </Typography>
         </Box>
       )}

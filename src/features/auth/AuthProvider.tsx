@@ -7,15 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../../Apis/Identity/authApi";
 import { UserLoginModel } from "../../interfaces/Auth/UserLoginModel";
 import { UserModel } from "../../interfaces/Auth/UserModel";
-import {
-  initialuserState,
-  setLoggedInUser,
-} from "../../Storage/Redux/userAuthSlice";
 import { refreshTokens } from "../../lib/apiClient";
 import { setUnauthorizedHandler } from "./authEvents";
 import { authStorage } from "./authStorage";
@@ -37,7 +32,6 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserModel | null>(null);
@@ -45,23 +39,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearSession = useCallback(() => {
     authStorage.clear();
     setUser(null);
-    dispatch(setLoggedInUser(initialuserState));
-  }, [dispatch]);
+  }, []);
 
   const logout = useCallback(() => {
     clearSession();
     navigate("/login", { replace: true });
   }, [clearSession, navigate]);
 
-  const establishSession = useCallback(
-    (accessToken: string, refreshToken: string) => {
-      authStorage.setTokens(accessToken, refreshToken);
-      const userData = decodeUserFromToken(accessToken);
-      setUser(userData);
-      dispatch(setLoggedInUser(userData));
-    },
-    [dispatch]
-  );
+  const establishSession = useCallback((accessToken: string, refreshToken: string) => {
+    authStorage.setTokens(accessToken, refreshToken);
+    const userData = decodeUserFromToken(accessToken);
+    setUser(userData);
+  }, []);
 
   const login = useCallback(
     async (
@@ -104,7 +93,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = decodeUserFromToken(accessToken);
           if (!cancelled) {
             setUser(userData);
-            dispatch(setLoggedInUser(userData));
           }
         } catch {
           clearSession();
@@ -119,7 +107,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               const userData = decodeUserFromToken(newAccessToken);
               setUser(userData);
-              dispatch(setLoggedInUser(userData));
             } catch {
               clearSession();
             }
@@ -143,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [clearSession, dispatch]);
+  }, [clearSession]);
 
   useEffect(() => {
     if (!user) return;
@@ -157,7 +144,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (newToken) {
               const userData = decodeUserFromToken(newToken);
               setUser(userData);
-              dispatch(setLoggedInUser(userData));
             }
           }
         });
@@ -165,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(intervalId);
-  }, [dispatch, user]);
+  }, [user]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

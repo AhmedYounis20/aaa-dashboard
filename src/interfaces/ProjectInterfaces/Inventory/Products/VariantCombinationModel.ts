@@ -7,5 +7,3 @@ interface VariantCombinationModel {
 }
 
 export default VariantCombinationModel;
-
-

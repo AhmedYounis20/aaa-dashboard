@@ -5,16 +5,12 @@ export const SmartChip: React.FC<{ value: string }> = ({ value }) => {
   return (
     <Chip
       label={value}
-      size='small'
-      variant='filled'
+      size="small"
+      variant="filled"
       className="mx-1"
       sx={{
-        backgroundColor: value
-          ? theme.palette.success.main
-          : theme.palette.error.main,
-        color: value
-          ? theme.palette.success.contrastText
-          : theme.palette.error.contrastText,
+        backgroundColor: value ? theme.palette.success.main : theme.palette.error.main,
+        color: value ? theme.palette.success.contrastText : theme.palette.error.contrastText,
       }}
     />
   );

@@ -1,18 +1,28 @@
-import { useEffect, useState } from 'react';
-import { createChartOfAccount, deleteChartOfAccount, getChartOfAccountById, getDefaultChartOfAccount, updateChartOfAccount} from "../../../../Apis/Account/ChartOfAccountsApi";
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { AccountGuideModel, AccountNatureOptions, ChartOfAccountModel } from '../../../../interfaces/ProjectInterfaces';
-import { FormControlLabel, Switch } from '@mui/material';
-import InputSelect from '../../../../Components/Inputs/InputSelect';
-import InputAutoComplete from '../../../../Components/Inputs/InputAutoCompelete';
-import { AccountNature } from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature';
-import Loader from '../../../../Components/Loader';
-import updateModel from '../../../../Helper/updateModelHelper';
+import { useEffect, useState } from "react";
+import {
+  createChartOfAccount,
+  deleteChartOfAccount,
+  getChartOfAccountById,
+  getDefaultChartOfAccount,
+  updateChartOfAccount,
+} from "../../../../Apis/Account/ChartOfAccountsApi";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import {
+  AccountGuideModel,
+  AccountNatureOptions,
+  ChartOfAccountModel,
+} from "../../../../interfaces/ProjectInterfaces";
+import { FormControlLabel, Switch } from "@mui/material";
+import InputSelect from "../../../../Components/Inputs/InputSelect";
+import InputAutoComplete from "../../../../Components/Inputs/InputAutoComplete";
+import { AccountNature } from "../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/AccountNature";
+import Loader from "../../../../Components/Loader";
+import updateModel from "../../../../Helper/updateModelHelper";
 import { getAccountGuides } from "../../../../Apis/Account/AccountGuidesApi";
-import InputText from '../../../../Components/Inputs/InputText';
-import { ChartOfAccountSchema } from '../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/validation-chartOfAccount';
-import * as yup from 'yup';
+import InputText from "../../../../Components/Inputs/InputText";
+import { ChartOfAccountSchema } from "../../../../interfaces/ProjectInterfaces/Account/ChartOfAccount/validation-chartOfAccount";
+import * as yup from "yup";
 
 const ChartOfAccountsForm: React.FC<{
   formType: FormTypes;
@@ -21,14 +31,7 @@ const ChartOfAccountsForm: React.FC<{
   handleCloseForm: () => void;
   afterAction: () => void;
   handleTranslate: (key: string) => string;
-}> = ({
-  formType,
-  id,
-  parentId,
-  handleCloseForm,
-  afterAction,
-  handleTranslate,
-}) => {
+}> = ({ formType, id, parentId, handleCloseForm, afterAction, handleTranslate }) => {
   const [accountguides, setAccountGuides] = useState<AccountGuideModel[]>([]);
   useEffect(() => {
     if (formType != FormTypes.Delete) {
@@ -89,10 +92,6 @@ const ChartOfAccountsForm: React.FC<{
       afterAction();
       return true;
     } else if (response) {
-      console.log(response);
-      response.errorMessages?.map((error: string) => {
-        console.log(error);
-      });
       return false;
     }
     return false;
@@ -129,7 +128,7 @@ const ChartOfAccountsForm: React.FC<{
     if (response && response.isSuccess) {
       afterAction();
       return true;
-    } 
+    }
     return false;
   };
 
@@ -154,7 +153,9 @@ const ChartOfAccountsForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{handleTranslate("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
+                <p>
+                  {handleTranslate("AreYouSureDelete")} {model?.nameSecondLanguage}
+                </p>
               ) : (
                 <>
                   <div className="row mb-3">
@@ -165,7 +166,7 @@ const ChartOfAccountsForm: React.FC<{
                         label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -202,7 +203,11 @@ const ChartOfAccountsForm: React.FC<{
                           )
                         }
                         error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage ? handleTranslate(errors.nameSecondLanguage) : undefined}
+                        helperText={
+                          errors.nameSecondLanguage
+                            ? handleTranslate(errors.nameSecondLanguage)
+                            : undefined
+                        }
                       />
                     </div>
                   </div>
@@ -214,14 +219,12 @@ const ChartOfAccountsForm: React.FC<{
                         label={handleTranslate("Code")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.code}
                         onChange={(value) =>
                           setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, code: value }
-                              : prevModel
+                            prevModel ? { ...prevModel, code: value } : prevModel
                           )
                         }
                         error={!!errors.code}
@@ -238,11 +241,7 @@ const ChartOfAccountsForm: React.FC<{
                         defaultValue={model?.accountNature}
                         disabled={formType === FormTypes.Details}
                         multiple={false}
-                        onChange={({
-                          target,
-                        }: {
-                          target: { value: AccountNature };
-                        }) => {
+                        onChange={({ target }: { target: { value: AccountNature } }) => {
                           updateModel(setModel, "accountNature", target.value);
                         }}
                         name={"AccountNature"}
@@ -286,11 +285,7 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isPostedAccount}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              updateModel(
-                                setModel,
-                                "isPostedAccount",
-                                target.checked
-                              )
+                              updateModel(setModel, "isPostedAccount", target.checked)
                             }
                           />
                         }
@@ -304,11 +299,7 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isActiveAccount}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              updateModel(
-                                setModel,
-                                "isActiveAccount",
-                                target.checked
-                              )
+                              updateModel(setModel, "isActiveAccount", target.checked)
                             }
                           />
                         }
@@ -324,11 +315,7 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isStopDealing}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              updateModel(
-                                setModel,
-                                "isStopDealing",
-                                target.checked
-                              )
+                              updateModel(setModel, "isStopDealing", target.checked)
                             }
                           />
                         }
@@ -342,11 +329,7 @@ const ChartOfAccountsForm: React.FC<{
                             checked={model?.isDepreciable}
                             disabled={formType === FormTypes.Details}
                             onChange={({ target }) =>
-                              updateModel(
-                                setModel,
-                                "isDepreciable",
-                                target.checked
-                              )
+                              updateModel(setModel, "isDepreciable", target.checked)
                             }
                           />
                         }

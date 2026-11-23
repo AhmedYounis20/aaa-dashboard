@@ -1,6 +1,6 @@
-export enum FormTypes{
-    Add,
-    Edit,
-    Delete,
-    Details
+export enum FormTypes {
+  Add,
+  Edit,
+  Delete,
+  Details,
 }

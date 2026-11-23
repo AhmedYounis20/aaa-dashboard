@@ -5,11 +5,11 @@ import {
   getAttributeDefinitionByIdWithValues,
   getAttributeDefinitions,
   updateAttributeDefinition,
-} from "../../Apis/Inventory/AttributeDefinitionsApi";
-import AttributeDefinitionModel from "../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
-import { FormTypes } from "../../interfaces/Components/FormType";
-import { queryKeys } from "../../lib/queryKeys";
-import { unwrapApiResult } from "../../lib/unwrapApiResult";
+} from "@/Apis/Inventory/AttributeDefinitionsApi";
+import AttributeDefinitionModel from "@/interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { queryKeys } from "@/lib/queryKeys";
+import { unwrapApiResult } from "@/lib/unwrapApiResult";
 import { useEntityList } from "./useEntityList";
 import { useEntityMutations } from "./useEntityMutations";
 
@@ -25,8 +25,7 @@ export function useAttributeDetail(id: string, formType: FormTypes) {
 
   return useQuery({
     queryKey: queryKeys.attributes.detail(id),
-    queryFn: async () =>
-      unwrapApiResult(await getAttributeDefinitionByIdWithValues(id)),
+    queryFn: async () => unwrapApiResult(await getAttributeDefinitionByIdWithValues(id)),
     enabled,
   });
 }

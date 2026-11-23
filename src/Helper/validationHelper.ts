@@ -1,8 +1,8 @@
-import * as yup from 'yup';
+import * as yup from "yup";
 
 export const handleValidationErrors = (validationErrors: unknown): Record<string, string> => {
   const validationErrorsMap: Record<string, string> = {};
-  
+
   if (validationErrors instanceof yup.ValidationError) {
     validationErrors.inner.forEach((error) => {
       if (error.path) {
@@ -10,6 +10,6 @@ export const handleValidationErrors = (validationErrors: unknown): Record<string
       }
     });
   }
-  
+
   return validationErrorsMap;
-}; 
+};

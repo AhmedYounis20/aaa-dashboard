@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from "react";
+import { logger } from "@/shared/api";
 import ErrorState from "./ErrorState";
 
 interface AppErrorBoundaryProps {
@@ -18,9 +19,7 @@ class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundary
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    if (import.meta.env.DEV) {
-      console.error("AppErrorBoundary:", error, info.componentStack);
-    }
+    logger.error("AppErrorBoundary:", error, info.componentStack);
   }
 
   handleReset = () => {
@@ -29,12 +28,7 @@ class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorBoundary
 
   render() {
     if (this.state.hasError) {
-      return (
-        <ErrorState
-          message={this.state.error?.message}
-          onRetry={this.handleReset}
-        />
-      );
+      return <ErrorState message={this.state.error?.message} onRetry={this.handleReset} />;
     }
 
     return this.props.children;

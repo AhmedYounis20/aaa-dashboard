@@ -61,13 +61,7 @@ const SellingPricesRoot = () => {
           handleSelectId={handleSelectId}
           changeFormType={setFormType}
           handleShowForm={handleShowForm}
-          defaultHiddenCols={[
-            "id",
-            "createdAt",
-            "createdBy",
-            "modifiedAt",
-            "modifiedBy",
-          ]}
+          defaultHiddenCols={["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"]}
         />
       </Box>
     </div>

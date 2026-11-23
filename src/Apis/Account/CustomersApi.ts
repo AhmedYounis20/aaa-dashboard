@@ -1,6 +1,12 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import CustomerModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/Customers/CustomerModel";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
+import CustomerModel from "@/interfaces/ProjectInterfaces/Account/SubLedgers/Customers/CustomerModel";
 
 const apiEndPoint = "customers";
 
@@ -10,9 +16,7 @@ const getCustomers = async (): Promise<ApiResult<CustomerModel[]>> => {
 };
 
 // GET a single customer by ID
-const getCustomerById = async (
-  id: string
-): Promise<ApiResult<CustomerModel>> => {
+const getCustomerById = async (id: string): Promise<ApiResult<CustomerModel>> => {
   return await httpGet<CustomerModel>(`${apiEndPoint}/${id}`, {});
 };
 
@@ -21,18 +25,14 @@ const getDefaultCustomer = async (
   parentId: string | null
 ): Promise<ApiResult<CustomerModel> | null> => {
   return await httpGet<CustomerModel>(
-    `${apiEndPoint}/NextAccountDefaultData${
-      parentId == null ? "" : `?parentId=${parentId}`
-    }`,
+    `${apiEndPoint}/NextAccountDefaultData${parentId == null ? "" : `?parentId=${parentId}`}`,
     {}
   );
 };
 
 // CREATE a new customer
-const createCustomer = async (
-  data: CustomerModel
-): Promise<ApiResult<CustomerModel>> => {
-  return await httpPost<CustomerModel>(apiEndPoint, data);
+const createCustomer = async (data: CustomerModel): Promise<ApiResult<CustomerModel>> => {
+  return await httpPost<CustomerModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
 // UPDATE a customer
@@ -40,14 +40,12 @@ const updateCustomer = async (
   id: string,
   data: CustomerModel
 ): Promise<ApiResult<CustomerModel>> => {
-  return await httpPut<CustomerModel>(`${apiEndPoint}/${id}`, data);
+  return await httpPut<CustomerModel>(`${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
 // DELETE a customer
-const deleteCustomer = async (
-  id: string
-): Promise<ApiResult<CustomerModel>> => {
-  return await httpDelete<CustomerModel>(`${apiEndPoint}/${id}`, {});
+const deleteCustomer = async (id: string): Promise<ApiResult<CustomerModel>> => {
+  return await httpDelete<CustomerModel>(`${apiEndPoint}/${id}`, {}, legacyMutationNotify);
 };
 
 export {

@@ -4,4 +4,4 @@ interface AttachmentResult {
   fileType: string;
 }
 
-export default AttachmentResult; 
+export default AttachmentResult;

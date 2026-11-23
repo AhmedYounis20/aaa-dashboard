@@ -1,26 +1,22 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
+import { resolveError, resolveHelperText, resolveRequired, type BaseInputProps } from "./types";
 
-interface InputTextProps {
-  label?: string;
+interface InputTextProps extends Omit<BaseInputProps<string>, "value"> {
   value: string | null;
-  onChange?: (value: string) => void | null;
-  disabled?: boolean;
-  error?: boolean;
-  helperText?: string;
   fullWidth?: boolean;
   size?: "small" | "medium";
   type?: string;
   className?: string;
   variant?: "outlined" | "filled" | "standard";
-  isRquired?: boolean;
 }
 
 const InputText: React.FC<InputTextProps> = ({
   label,
   value,
-  onChange = null,
+  onChange,
+  name,
   disabled = false,
   error = false,
   helperText = "",
@@ -29,22 +25,29 @@ const InputText: React.FC<InputTextProps> = ({
   type = "text",
   className = "",
   variant = "outlined",
-  isRquired = false,
+  required,
+  isRequired,
 }) => {
   const { t } = useTranslation();
+  const isReq = resolveRequired({ required, isRequired });
+  const hasError = resolveError(error);
+  const help = resolveHelperText(error, helperText);
+
   return (
     <TextField
       type={type}
-      label={label ? `${label}${isRquired ? ` (${t("Required")})` : ""}` : ""}
-      value={value}
-      onChange={(e) => onChange && onChange(e.target.value)}
+      name={name}
+      label={label ? `${label}${isReq ? ` (${t("Required")})` : ""}` : ""}
+      value={value ?? ""}
+      onChange={(e) => onChange?.(e.target.value)}
       disabled={disabled}
-      error={error}
-      helperText={helperText}
+      error={hasError}
+      helperText={help}
       fullWidth={fullWidth}
       size={size}
       variant={variant}
       className={className}
+      required={isReq}
     />
   );
 };

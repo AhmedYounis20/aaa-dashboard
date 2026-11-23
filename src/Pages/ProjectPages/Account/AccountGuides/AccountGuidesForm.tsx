@@ -1,12 +1,17 @@
-import { useEffect, useState } from 'react';
-import BaseForm from '../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import { AccountGuideModel } from '../../../../interfaces/ProjectInterfaces';
-import { createAccountGuide, deleteAccountGuide, getAccountGuideById, updateAccountGuide } from "../../../../Apis/Account/AccountGuidesApi"
-import InputText from '../../../../Components/Inputs/InputText';
-import { useTranslation } from 'react-i18next';
-import { AccountGuideSchema } from '../../../../interfaces/ProjectInterfaces/Account/AccountGuides/validation-accountGuide';
-import * as yup from 'yup';
+import { useEffect, useState } from "react";
+import BaseForm from "../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../interfaces/Components/FormType";
+import { AccountGuideModel } from "../../../../interfaces/ProjectInterfaces";
+import {
+  createAccountGuide,
+  deleteAccountGuide,
+  getAccountGuideById,
+  updateAccountGuide,
+} from "../../../../Apis/Account/AccountGuidesApi";
+import InputText from "../../../../Components/Inputs/InputText";
+import { useTranslation } from "react-i18next";
+import { AccountGuideSchema } from "../../../../interfaces/ProjectInterfaces/Account/AccountGuides/validation-accountGuide";
+import * as yup from "yup";
 
 const AccountGuidesForm: React.FC<{
   formType: FormTypes;
@@ -21,9 +26,7 @@ const AccountGuidesForm: React.FC<{
     name: "",
     nameSecondLanguage: "",
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -44,7 +47,7 @@ const AccountGuidesForm: React.FC<{
     if (response && response.isSuccess) {
       afterAction();
       return true;
-    } 
+    }
     return false;
   };
   const validate = async () => {
@@ -73,12 +76,10 @@ const AccountGuidesForm: React.FC<{
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
     const response = await createAccountGuide(model);
-    console.log(response);
     if (response && response.isSuccess) {
-      console.log(response);
       afterAction();
       return true;
-    } 
+    }
     return false;
   };
 
@@ -103,7 +104,9 @@ const AccountGuidesForm: React.FC<{
           ) : (
             <>
               {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}?</p>
+                <p>
+                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}?
+                </p>
               ) : (
                 <>
                   <div className="row mb-3">
@@ -114,14 +117,12 @@ const AccountGuidesForm: React.FC<{
                         label={handleTranslate("Name")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
                           setModel((prevModel) =>
-                            prevModel
-                              ? { ...prevModel, name: value }
-                              : prevModel
+                            prevModel ? { ...prevModel, name: value } : prevModel
                           )
                         }
                         error={!!errors.name}
@@ -135,7 +136,7 @@ const AccountGuidesForm: React.FC<{
                         label={handleTranslate("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -149,7 +150,11 @@ const AccountGuidesForm: React.FC<{
                           )
                         }
                         error={!!errors.nameSecondLanguage}
-                        helperText={errors.nameSecondLanguage ? handleTranslate(errors.nameSecondLanguage) : undefined}
+                        helperText={
+                          errors.nameSecondLanguage
+                            ? handleTranslate(errors.nameSecondLanguage)
+                            : undefined
+                        }
                       />
                     </div>
                   </div>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { v4 as uuid } from "uuid";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -20,31 +20,71 @@ import {
   Select,
   MenuItem,
   Switch,
-  FormControlLabel
-} from '@mui/material';
+  FormControlLabel,
+} from "@mui/material";
 import {
   CloudUpload as CloudUploadIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-  Visibility as VisibilityIcon
-} from '@mui/icons-material';
-import ProductAttachmentModel from '../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel';
-import { AttachmentType } from '../../../../../interfaces/ProjectInterfaces/Inventory/Products/AttachmentType';
-import AttachmentModel from '../../../../../interfaces/BaseModels/AttachmentModel';
-import { FormTypes } from '../../../../../interfaces/Components';
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
+import ProductAttachmentModel from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductAttachmentModel";
+import { AttachmentType } from "../../../../../interfaces/ProjectInterfaces/Inventory/Products/AttachmentType";
+import AttachmentModel from "../../../../../interfaces/BaseModels/AttachmentModel";
+import { FormTypes } from "../../../../../interfaces/Components";
+import { attachmentPreviewSrc } from "@/shared/attachments/attachmentContent";
+import { useResolvedSrc } from "@/Components/Images/useResolvedSrc";
 
 interface ProductPictureUploadProps {
   productId: string;
   attachments: ProductAttachmentModel[];
-  formType:FormTypes;
+  formType: FormTypes;
   onAttachmentsChange: (attachments: ProductAttachmentModel[]) => void;
 }
+
+const DialogPreview = ({ src }: { src: string }) => {
+  const image = useResolvedSrc(src);
+  if (!image) return null;
+  return (
+    <Box sx={{ textAlign: "center" }}>
+      <img
+        src={image}
+        alt="Preview"
+        style={{ maxWidth: "100%", maxHeight: "300px", objectFit: "contain" }}
+      />
+    </Box>
+  );
+};
+
+const AttachmentCardMedia = ({
+  attachment,
+  height,
+  alt,
+}: {
+  attachment?: AttachmentModel | null;
+  height: number;
+  alt: string;
+}) => {
+  const raw =
+    !attachment || (attachment.contentType && !attachment.contentType.startsWith("image"))
+      ? null
+      : attachmentPreviewSrc(attachment) || null;
+  const image = useResolvedSrc(raw);
+  return (
+    <CardMedia
+      component="img"
+      height={height}
+      image={image || "/placeholder-image.jpg"}
+      alt={alt}
+    />
+  );
+};
 
 const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
   productId,
   attachments,
   formType,
-  onAttachmentsChange
+  onAttachmentsChange,
 }) => {
   const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState(false);
@@ -53,15 +93,9 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const getPreviewUrl = (attachment?: AttachmentModel | null) => {
-    if (!attachment) {
-      return null;
-    }
-
-    if (!attachment.contentType.startsWith('image')) {
-      return null;
-    }
-
-    return `data:${attachment.contentType};base64,${attachment.fileContent}`;
+    if (!attachment) return null;
+    if (attachment.contentType && !attachment.contentType.startsWith("image")) return null;
+    return attachmentPreviewSrc(attachment) || null;
   };
 
   const convertToAttachmentModel = (file: File): Promise<AttachmentModel> => {
@@ -71,10 +105,7 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
         const result = reader.result as string;
         let fileContent = result;
 
-        if (
-          fileContent.startsWith("data:") ||
-          fileContent.startsWith("base64,")
-        ) {
+        if (fileContent.startsWith("data:") || fileContent.startsWith("base64,")) {
           const commaIndex = fileContent.indexOf(",");
           fileContent = fileContent.substring(commaIndex + 1);
         }
@@ -83,7 +114,7 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
           fileName: file.name,
           fileContent: fileContent,
           contentType: file.type,
-          attachmentId: uuid()
+          attachmentId: null,
         });
       };
       reader.onerror = reject;
@@ -97,20 +128,20 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
       const attachment = await convertToAttachmentModel(file);
       setSelectedAttachment(attachment);
       setPreviewUrl(getPreviewUrl(attachment));
-      
+
       // Initialize editingAttachment for new attachment
       setEditingAttachment({
         id: uuid(),
         productId: productId,
-        attachmentId: uuid(),
-        description: '',
+        attachmentId: "",
+        description: "",
         attachmentType: AttachmentType.Picture,
         isPrimary: attachments.length === 0, // Set as primary if it's the first attachment
         displayOrder: attachments.length,
-        createdAt: '',
-        modifiedAt: ''
+        createdAt: "",
+        modifiedAt: "",
       });
-      
+
       setOpenDialog(true);
     }
   };
@@ -126,38 +157,50 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
     );
     const baseAttachment = isEditingExisting ? editingAttachment.attachment : undefined;
     const attachmentPayload = selectedAttachment ?? baseAttachment;
+    const isNewFile = selectedAttachment != null;
 
     if (!attachmentPayload) {
       return;
     }
 
-    const resolvedAttachmentId =
-      editingAttachment.attachmentId || attachmentPayload.attachmentId || uuid();
+    const serverAttachmentId = isEditingExisting
+      ? editingAttachment.attachment?.attachmentId || editingAttachment.attachmentId || null
+      : null;
 
     const newAttachment: ProductAttachmentModel = {
       id: editingAttachment.id || uuid(),
       productId: productId,
-      attachmentId: resolvedAttachmentId,
-      description: editingAttachment.description || '',
+      attachmentId:
+        isNewFile && !isEditingExisting
+          ? ""
+          : serverAttachmentId || attachmentPayload.attachmentId || "",
+      description: editingAttachment.description || "",
       attachmentType: editingAttachment.attachmentType || AttachmentType.Picture,
       isPrimary: editingAttachment.isPrimary || false,
       displayOrder: editingAttachment.displayOrder ?? attachments.length,
       attachment: {
         ...attachmentPayload,
-        attachmentId: resolvedAttachmentId
+        attachmentId: isNewFile
+          ? isEditingExisting
+            ? serverAttachmentId
+            : null
+          : (attachmentPayload.attachmentId ?? null),
+        fileContent: isNewFile
+          ? (selectedAttachment?.fileContent ?? "")
+          : (attachmentPayload.fileContent ?? ""),
       },
       createdAt: editingAttachment.createdAt || now,
-      modifiedAt: now
+      modifiedAt: now,
     };
 
     let updatedAttachments = isEditingExisting
-      ? attachments.map(att => att.id === editingAttachment.id ? newAttachment : att)
+      ? attachments.map((att) => (att.id === editingAttachment.id ? newAttachment : att))
       : [...attachments, newAttachment];
 
     if (newAttachment.isPrimary) {
-      updatedAttachments = updatedAttachments.map(att => ({
+      updatedAttachments = updatedAttachments.map((att) => ({
         ...att,
-        isPrimary: att.id === newAttachment.id
+        isPrimary: att.id === newAttachment.id,
       }));
     }
 
@@ -166,7 +209,7 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
   };
 
   const handleDeleteAttachment = (attachmentId: string) => {
-    const updatedAttachments = attachments.filter(att => att.id !== attachmentId);
+    const updatedAttachments = attachments.filter((att) => att.id !== attachmentId);
     onAttachmentsChange(updatedAttachments);
   };
 
@@ -185,48 +228,43 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
   };
 
   const handleSetPrimary = (attachmentId: string) => {
-    const updatedAttachments = attachments.map(att => ({
+    const updatedAttachments = attachments.map((att) => ({
       ...att,
-      isPrimary: att.id === attachmentId
+      isPrimary: att.id === attachmentId,
     }));
     onAttachmentsChange(updatedAttachments);
   };
 
-  const primaryAttachment = attachments.find(att => att.isPrimary);
-  const otherAttachments = attachments.filter(att => !att.isPrimary);
+  const primaryAttachment = attachments.find((att) => att.isPrimary);
+  const otherAttachments = attachments.filter((att) => !att.isPrimary);
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h6">{t("Product Attachments")}</Typography>
         <Button
           variant="contained"
           startIcon={<CloudUploadIcon />}
-                    disabled={formType === FormTypes.Details}
+          disabled={formType === FormTypes.Details}
           component="label"
         >
           {t("Upload Attachment")}
-          <input
-            type="file"
-            hidden
-            accept="image/*,.pdf,.doc,.docx"
-            onChange={handleFileSelect}
-          />
+          <input type="file" hidden accept="image/*,.pdf,.doc,.docx" onChange={handleFileSelect} />
         </Button>
       </Box>
 
       {attachments.length === 0 ? (
         <Box
           sx={{
-            border: '2px dashed #ccc',
+            border: "2px dashed #ccc",
             borderRadius: 2,
             p: 4,
-            textAlign: 'center',
-            backgroundColor: '#f9f9f9',
-            mb:2
+            textAlign: "center",
+            backgroundColor: "#f9f9f9",
+            mb: 2,
           }}
         >
-          <CloudUploadIcon sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
+          <CloudUploadIcon sx={{ fontSize: 48, color: "#ccc", mb: 2 }} />
           <Typography variant="body1" color="textSecondary">
             {t("No attachments uploaded yet")}
           </Typography>
@@ -235,36 +273,32 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
           </Typography>
         </Box>
       ) : (
-        <Grid container spacing={2} sx={{mb:2}}>
+        <Grid container spacing={2} sx={{ mb: 2 }}>
           {/* Primary Attachment */}
           {primaryAttachment && (
             <Grid item xs={12} md={6}>
-              <Card sx={{ position: 'relative' }}>
-                <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1 }}>
+              <Card sx={{ position: "relative" }}>
+                <Box sx={{ position: "absolute", top: 8, left: 8, zIndex: 1 }}>
                   <Typography
                     variant="caption"
                     sx={{
-                      backgroundColor: 'primary.main',
-                      color: 'white',
+                      backgroundColor: "primary.main",
+                      color: "white",
                       px: 1,
                       py: 0.5,
-                      borderRadius: 1
+                      borderRadius: 1,
                     }}
                   >
                     {t("Primary")}
                   </Typography>
                 </Box>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={getPreviewUrl(primaryAttachment.attachment) || '/placeholder-image.jpg'}
-                  alt={primaryAttachment.description || 'Primary attachment'}
+                <AttachmentCardMedia
+                  attachment={primaryAttachment.attachment}
+                  height={200}
+                  alt={primaryAttachment.description || "Primary attachment"}
                 />
                 <CardActions>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEditAttachment(primaryAttachment)}
-                  >
+                  <IconButton size="small" onClick={() => handleEditAttachment(primaryAttachment)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton
@@ -282,12 +316,11 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
           {/* Other Attachments */}
           {otherAttachments.map((attachment) => (
             <Grid item xs={12} sm={6} md={3} key={attachment.id}>
-              <Card sx={{ position: 'relative' }}>
-                <CardMedia
-                  component="img"
-                  height="150"
-                  image={getPreviewUrl(attachment.attachment) || '/placeholder-image.jpg'}
-                  alt={attachment.description || 'Attachment'}
+              <Card sx={{ position: "relative" }}>
+                <AttachmentCardMedia
+                  attachment={attachment.attachment}
+                  height={150}
+                  alt={attachment.description || "Attachment"}
                 />
                 <CardActions>
                   <IconButton
@@ -297,10 +330,7 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
                   >
                     <VisibilityIcon />
                   </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEditAttachment(attachment)}
-                  >
+                  <IconButton size="small" onClick={() => handleEditAttachment(attachment)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton
@@ -323,21 +353,17 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
           {editingAttachment?.id ? t("Edit Attachment") : t("Add Attachment")}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            {previewUrl && (
-              <Box sx={{ textAlign: 'center' }}>
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  style={{ maxWidth: '100%', maxHeight: '300px', objectFit: 'contain' }}
-                />
-              </Box>
-            )}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            {previewUrl && <DialogPreview src={previewUrl} />}
 
             <TextField
               label={t("Description")}
-              value={editingAttachment?.description || ''}
-              onChange={(e) => setEditingAttachment(prev => prev ? { ...prev, description: e.target.value } : null)}
+              value={editingAttachment?.description || ""}
+              onChange={(e) =>
+                setEditingAttachment((prev) =>
+                  prev ? { ...prev, description: e.target.value } : null
+                )
+              }
               fullWidth
               multiline
               rows={2}
@@ -347,7 +373,11 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
               <InputLabel>{t("Attachment Type")}</InputLabel>
               <Select
                 value={editingAttachment?.attachmentType || AttachmentType.Picture}
-                onChange={(e) => setEditingAttachment(prev => prev ? { ...prev, attachmentType: e.target.value as AttachmentType } : null)}
+                onChange={(e) =>
+                  setEditingAttachment((prev) =>
+                    prev ? { ...prev, attachmentType: e.target.value as AttachmentType } : null
+                  )
+                }
               >
                 <MenuItem value={AttachmentType.Picture}>{t("Picture")}</MenuItem>
                 <MenuItem value={AttachmentType.License}>{t("License")}</MenuItem>
@@ -362,7 +392,11 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
               label={t("Display Order")}
               type="number"
               value={editingAttachment?.displayOrder ?? attachments.length}
-              onChange={(e) => setEditingAttachment(prev => prev ? { ...prev, displayOrder: parseInt(e.target.value) || 0 } : null)}
+              onChange={(e) =>
+                setEditingAttachment((prev) =>
+                  prev ? { ...prev, displayOrder: parseInt(e.target.value) || 0 } : null
+                )
+              }
               fullWidth
             />
 
@@ -370,7 +404,11 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
               control={
                 <Switch
                   checked={editingAttachment?.isPrimary || false}
-                  onChange={(e) => setEditingAttachment(prev => prev ? { ...prev, isPrimary: e.target.checked } : null)}
+                  onChange={(e) =>
+                    setEditingAttachment((prev) =>
+                      prev ? { ...prev, isPrimary: e.target.checked } : null
+                    )
+                  }
                 />
               }
               label={t("Set as Primary")}
@@ -389,6 +427,3 @@ const ProductPictureUpload: React.FC<ProductPictureUploadProps> = ({
 };
 
 export default ProductPictureUpload;
-
-
-

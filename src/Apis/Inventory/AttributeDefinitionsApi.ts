@@ -1,12 +1,10 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
+import { ApiResult } from "@/interfaces/ApiResponse";
 import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import AttributeDefinitionModel from "../../interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
+import AttributeDefinitionModel from "@/interfaces/ProjectInterfaces/Inventory/AttributeDefinitions/AttributeDefinitionModel";
 
 const apiEndPoint = "AttributeDefinitions";
 
-const getAttributeDefinitions = async (): Promise<
-  ApiResult<AttributeDefinitionModel[]>
-> => {
+const getAttributeDefinitions = async (): Promise<ApiResult<AttributeDefinitionModel[]>> => {
   return await httpGet<AttributeDefinitionModel[]>(apiEndPoint, {});
 };
 
@@ -19,10 +17,7 @@ const getAttributeDefinitionById = async (
 const getAttributeDefinitionByIdWithValues = async (
   id: string
 ): Promise<ApiResult<AttributeDefinitionModel>> => {
-  return await httpGet<AttributeDefinitionModel>(
-    `${apiEndPoint}/${id}/with-Values`,
-    {}
-  );
+  return await httpGet<AttributeDefinitionModel>(`${apiEndPoint}/${id}/with-Values`, {});
 };
 
 const createAttributeDefinition = async (

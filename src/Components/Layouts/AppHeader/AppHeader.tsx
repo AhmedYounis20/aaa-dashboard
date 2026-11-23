@@ -15,14 +15,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import FlexBetween from "../../FlexBetween";
-import {
-  DarkModeOutlined,
-  LightModeOutlined,
-  SettingsOutlined,
-  Language,
-  AccountCircle,
-  NotificationsNone,
-} from "@mui/icons-material";
+import { DarkModeOutlined, LightModeOutlined, Language, AccountCircle } from "@mui/icons-material";
 import { MdMenuOpen } from "react-icons/md";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import { setMode } from "../../../Storage/Redux/global";
@@ -38,14 +31,11 @@ type AppHeaderProps = {
 
 function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
   const dispatch = useDispatch();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const theme = useTheme();
   const { i18n, t } = useTranslation();
-  const [languageMenuAnchor, setLanguageMenuAnchor] =
-    useState<null | HTMLElement>(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
-    null
-  );
+  const [languageMenuAnchor, setLanguageMenuAnchor] = useState<null | HTMLElement>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const isMobile = useMediaQuery("(max-width: 992px)");
 
   const changeLanguage = (lng: "en" | "ar") => {
@@ -84,20 +74,17 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
         backdropFilter: "blur(5px)",
         WebkitBackdropFilter: "blur(5px)",
         width: "100%",
-        transition: theme.transitions.create(
-          ["left", "width", "background-color"],
-          {
-            duration: theme.transitions.duration.standard,
-            easing: theme.transitions.easing.easeInOut,
-          }
-        ),
+        transition: theme.transitions.create(["left", "width", "background-color"], {
+          duration: theme.transitions.duration.standard,
+          easing: theme.transitions.easing.easeInOut,
+        }),
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* LEFT SIDE */}
-        <FlexBetween gap='2rem'>
+        <FlexBetween gap="2rem">
           <Box
-            className='header-logo'
+            className="header-logo"
             sx={{
               display: "flex",
               alignItems: "center",
@@ -105,7 +92,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               fontWeight: "bold",
             }}
           >
-            <DashboardIcon sx={{ width: 28, height: 28 }} color='info' />
+            <DashboardIcon sx={{ width: 28, height: 28 }} color="info" />
             <Typography
               sx={{
                 color: theme.palette.text.primary,
@@ -115,10 +102,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               ERP System
             </Typography>
           </Box>
-          <IconButton
-            className='menu-button'
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          >
+          <IconButton className="menu-button" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <MdMenuOpen
               style={{
                 transform: !isSidebarOpen ? "rotate(180deg)" : "rotate(0deg)",
@@ -157,7 +141,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <ThemedTooltip title={t("ChangeLanguage")} placement='bottom'>
+            <ThemedTooltip title={t("ChangeLanguage")} placement="bottom">
               <Language />
             </ThemedTooltip>
           </IconButton>
@@ -207,31 +191,12 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <ThemedTooltip title={t("SwitchTheme")} placement='bottom'>
+            <ThemedTooltip title={t("SwitchTheme")} placement="bottom">
               {theme.palette.mode === "dark" ? (
-                <LightModeOutlined
-                  sx={{ fontSize: theme.typography.pxToRem(25) }}
-                />
+                <LightModeOutlined sx={{ fontSize: theme.typography.pxToRem(25) }} />
               ) : (
-                <DarkModeOutlined
-                  sx={{ fontSize: theme.typography.pxToRem(25) }}
-                />
+                <DarkModeOutlined sx={{ fontSize: theme.typography.pxToRem(25) }} />
               )}
-            </ThemedTooltip>
-          </IconButton>
-
-          {/* Notifications */}
-          <IconButton
-            sx={{
-              color: theme.palette.text.secondary,
-              "&:hover": {
-                backgroundColor: theme.palette.action.hover,
-                color: theme.palette.primary.main,
-              },
-            }}
-          >
-            <ThemedTooltip title={t("Notifications")} placement='bottom'>
-              <NotificationsNone />
             </ThemedTooltip>
           </IconButton>
 
@@ -246,7 +211,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
               },
             }}
           >
-            <ThemedTooltip title={t("AccountSettings")} placement='bottom'>
+            <ThemedTooltip title={t("AccountSettings")} placement="bottom">
               <AccountCircle />
             </ThemedTooltip>
           </IconButton>
@@ -281,19 +246,11 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
                   <AccountCircle />
                 </Avatar>
                 <Box>
-                  <Typography variant='body2' fontWeight={600}>
-                    Admin User
-                  </Typography>
-                  <Typography variant='caption' color='text.secondary'>
-                    admin@example.com
+                  <Typography variant="body2" fontWeight={600}>
+                    {user?.fullName || user?.email || t("AdminUser")}
                   </Typography>
                 </Box>
               </Box>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={() => setUserMenuAnchor(null)} sx={{ py: 1.5 }}>
-              <SettingsOutlined sx={{ mr: 1, fontSize: 20 }} />
-              {t("Settings")}
             </MenuItem>
             <Divider />
             <MenuItem
@@ -302,7 +259,7 @@ function AppHeader({ isSidebarOpen, setIsSidebarOpen }: AppHeaderProps) {
                 py: 1.5,
                 color: theme.palette.error.main,
                 "&:hover": {
-                  backgroundColor: "#ffcece",
+                  backgroundColor: theme.palette.error.light + "33",
                 },
               }}
             >

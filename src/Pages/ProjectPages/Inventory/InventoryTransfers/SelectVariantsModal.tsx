@@ -1,26 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Box, Typography, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Button, Paper } from '@mui/material';
-import { getVariants } from '../../../../Apis/Inventory/VariantsApi';
-import { getStockBalancesByBranch, StockBalanceModel } from '../../../../Apis/Inventory/StockBalanceApi';
-import VariantModel from '../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  Box,
+  Typography,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox,
+  Button,
+  Paper,
+} from "@mui/material";
+import { getVariants } from "../../../../Apis/Inventory/VariantsApi";
+import {
+  getStockBalancesByBranch,
+  StockBalanceModel,
+} from "../../../../Apis/Inventory/StockBalanceApi";
+import VariantModel from "../../../../interfaces/ProjectInterfaces/Inventory/Variants/VariantModel";
+import { useTranslation } from "react-i18next";
 
 interface SelectVariantsModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (variants: VariantModel[]) => void;
+  onConfirm: (variants: VariantModel[]) => void | Promise<void>;
   sourceBranchId: string;
   alreadySelectedIds: string[];
 }
 
 const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '80vw',
+  position: "absolute" as const,
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80vw",
   maxWidth: 900,
-  bgcolor: 'background.paper',
+  bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: 3,
   p: 4,
@@ -36,7 +53,7 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
   const { t } = useTranslation();
   const [variants, setVariants] = useState<VariantModel[]>([]);
   const [branchBalances, setBranchBalances] = useState<StockBalanceModel[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
@@ -74,7 +91,8 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
   );
 
   const areAllFilteredSelected =
-    filteredVariants.every((variant) => selected.includes(variant.id)) && filteredVariants.length > 0;
+    filteredVariants.every((variant) => selected.includes(variant.id)) &&
+    filteredVariants.length > 0;
 
   const handleSelect = (id: string) => {
     setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
@@ -82,9 +100,13 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
 
   const handleSelectAll = () => {
     if (areAllFilteredSelected) {
-      setSelected((prev) => prev.filter((id) => !filteredVariants.some((variant) => variant.id === id)));
+      setSelected((prev) =>
+        prev.filter((id) => !filteredVariants.some((variant) => variant.id === id))
+      );
     } else {
-      setSelected((prev) => [...new Set([...prev, ...filteredVariants.map((variant) => variant.id)])]);
+      setSelected((prev) => [
+        ...new Set([...prev, ...filteredVariants.map((variant) => variant.id)]),
+      ]);
     }
   };
 
@@ -99,15 +121,15 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>
         <Typography variant="h6" mb={2}>
-          {t('SelectVariants')}
+          {t("SelectVariants")}
         </Typography>
         {!sourceBranchId && (
           <Typography color="warning.main" variant="body2" mb={2}>
-            {t('SelectSourceBranchForStock')}
+            {t("SelectSourceBranchForStock")}
           </Typography>
         )}
         <TextField
-          label={t('Search')}
+          label={t("Search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           fullWidth
@@ -123,26 +145,30 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
                     checked={areAllFilteredSelected}
                     onChange={handleSelectAll}
                     indeterminate={
-                      !areAllFilteredSelected && filteredVariants.some((variant) => selected.includes(variant.id))
+                      !areAllFilteredSelected &&
+                      filteredVariants.some((variant) => selected.includes(variant.id))
                     }
                   />
                 </TableCell>
-                <TableCell>{t('Variant')}</TableCell>
-                <TableCell>{t('Product')}</TableCell>
-                <TableCell>{t('Code')}</TableCell>
-                <TableCell>{t('Available Balance')}</TableCell>
+                <TableCell>{t("Variant")}</TableCell>
+                <TableCell>{t("Product")}</TableCell>
+                <TableCell>{t("Code")}</TableCell>
+                <TableCell>{t("Available Balance")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredVariants.map((variant) => (
                 <TableRow key={variant.id} hover>
                   <TableCell padding="checkbox">
-                    <Checkbox checked={selected.includes(variant.id)} onChange={() => handleSelect(variant.id)} />
+                    <Checkbox
+                      checked={selected.includes(variant.id)}
+                      onChange={() => handleSelect(variant.id)}
+                    />
                   </TableCell>
                   <TableCell>{variant.name}</TableCell>
                   <TableCell>{variant.productName}</TableCell>
                   <TableCell>{variant.code}</TableCell>
-                  <TableCell>{sourceBranchId ? getAvailableBalance(variant.id) : '-'}</TableCell>
+                  <TableCell>{sourceBranchId ? getAvailableBalance(variant.id) : "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -150,10 +176,10 @@ const SelectVariantsModal: React.FC<SelectVariantsModalProps> = ({
         </TableContainer>
         <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="outlined" onClick={onClose}>
-            {t('Cancel')}
+            {t("Cancel")}
           </Button>
           <Button variant="contained" onClick={handleConfirm} disabled={selected.length === 0}>
-            {t('Confirm')}
+            {t("Confirm")}
           </Button>
         </Box>
       </Box>

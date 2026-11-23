@@ -1,5 +1,5 @@
-import VariantModel from './Variants/VariantModel';
-import VariantPackingUnitModel from './Variants/VariantPackingUnitModel';
+import VariantModel from "./Variants/VariantModel";
+import VariantPackingUnitModel from "./Variants/VariantPackingUnitModel";
 
 export enum InventoryTransferStatus {
   Pending = 0,
@@ -13,7 +13,7 @@ export enum InventoryTransferType {
 }
 
 export const InventoryTransferTypeOptions = Object.entries(InventoryTransferType)
-  .filter(([, value]) => typeof value === 'number')
+  .filter(([, value]) => typeof value === "number")
   .map(([key, value]) => ({ label: key, value }));
 
 export interface InventoryTransferLineModel {

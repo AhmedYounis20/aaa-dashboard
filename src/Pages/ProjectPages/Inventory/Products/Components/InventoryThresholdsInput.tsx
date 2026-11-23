@@ -1,11 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { IconButton, Button, FormControl, InputLabel, Select, MenuItem, Checkbox, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import {
+  IconButton,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import { FormTypes } from "../../../../../interfaces/Components/FormType";
 import { InventoryThresholdScope } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdScope";
 import { InventoryThresholdModel } from "../../../../../interfaces/ProjectInterfaces/Inventory/InventoryThresholdModel";
-import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/Subleadgers/Branches/BranchModel";
+import BranchModel from "../../../../../interfaces/ProjectInterfaces/Account/SubLedgers/Branches/BranchModel";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
-import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoComplete";
 import { Add, Delete } from "@mui/icons-material";
 
 const MAX_THRESHOLD_ROWS = 5;
@@ -37,9 +52,7 @@ const InventoryThresholdsInput: React.FC<{
 
   useEffect(() => {
     if (branches?.length) {
-      setBranchesOptions(
-        branches.map((b) => ({ label: b.name ?? b.id, value: b.id }))
-      );
+      setBranchesOptions(branches.map((b) => ({ label: b.name ?? b.id, value: b.id })));
     }
   }, [branches]);
 
@@ -146,7 +159,9 @@ const InventoryThresholdsInput: React.FC<{
                     onChange={(v) => handleThresholdChange(index, "minQuantity", v)}
                     disabled={formType === FormTypes.Details}
                     error={!!errors[`inventoryThresholds[${index}].minQuantity`]}
-                    helperText={handleTranslate(errors[`inventoryThresholds[${index}].minQuantity`] ?? "")}
+                    helperText={handleTranslate(
+                      errors[`inventoryThresholds[${index}].minQuantity`] ?? ""
+                    )}
                   />
                 </TableCell>
                 <TableCell>
@@ -156,7 +171,9 @@ const InventoryThresholdsInput: React.FC<{
                     onChange={(v) => handleThresholdChange(index, "maxQuantity", v)}
                     disabled={formType === FormTypes.Details}
                     error={!!errors[`inventoryThresholds[${index}].maxQuantity`]}
-                    helperText={handleTranslate(errors[`inventoryThresholds[${index}].maxQuantity`] ?? "")}
+                    helperText={handleTranslate(
+                      errors[`inventoryThresholds[${index}].maxQuantity`] ?? ""
+                    )}
                   />
                 </TableCell>
                 <TableCell>

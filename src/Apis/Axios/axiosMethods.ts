@@ -1,14 +1,45 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { toastify } from "../../Helper/toastify";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import { toastify } from "@/Helper/toastify";
 import {
   httpDelete as httpDeleteRaw,
   httpGet as httpGetRaw,
   httpPost as httpPostRaw,
   httpPut as httpPutRaw,
   ApiRequestOptions,
-} from "../../lib/apiClient";
+  HttpTransportOptions,
+} from "@/lib/apiClient";
 
-function notifyApiResult<T>(result: ApiResult<T>, options: Required<ApiRequestOptions>): void {
+/**
+ * Toast policy (axiosMethods layer):
+ *
+ * Mutations (POST / PUT / DELETE):
+ * - Defaults **off** so TanStack Query mutation `onSuccess` / `onError`
+ *   (see `useEntityMutations`) owns feedback.
+ * - Legacy pages that still call Apis directly should pass `legacyMutationNotify`.
+ *
+ * GET:
+ * - Default `notifyError: false` so Query-backed lists/details can show ErrorState
+ *   without a duplicate toast.
+ * - Legacy `useEffect` fetches that still rely on toasts (no ErrorState) should
+ *   pass `legacyGetNotify`.
+ */
+export const legacyMutationNotify: Required<
+  Pick<ApiRequestOptions, "notifySuccess" | "notifyError">
+> = {
+  notifySuccess: true,
+  notifyError: true,
+};
+
+/** Opt-in GET error toasts for legacy useEffect fetches without Query ErrorState. */
+export const legacyGetNotify: Required<Pick<ApiRequestOptions, "notifySuccess" | "notifyError">> = {
+  notifySuccess: false,
+  notifyError: true,
+};
+
+function notifyApiResult<T>(
+  result: ApiResult<T>,
+  options: Required<Pick<ApiRequestOptions, "notifySuccess" | "notifyError">>
+): void {
   if (!result.isSuccess) {
     if (options.notifyError) {
       result.errorMessages?.forEach((message) => toastify(message, "error"));
@@ -21,11 +52,29 @@ function notifyApiResult<T>(result: ApiResult<T>, options: Required<ApiRequestOp
   }
 }
 
-function withDefaults(options?: ApiRequestOptions): Required<ApiRequestOptions> {
+function withMutationDefaults(
+  options?: ApiRequestOptions
+): Required<Pick<ApiRequestOptions, "notifySuccess" | "notifyError">> {
   return {
-    notifySuccess: options?.notifySuccess ?? true,
-    notifyError: options?.notifyError ?? true,
+    notifySuccess: options?.notifySuccess ?? false,
+    notifyError: options?.notifyError ?? false,
   };
+}
+
+function withGetDefaults(
+  options?: ApiRequestOptions
+): Required<Pick<ApiRequestOptions, "notifySuccess" | "notifyError">> {
+  return {
+    notifySuccess: options?.notifySuccess ?? false,
+    notifyError: options?.notifyError ?? false,
+  };
+}
+
+function transportOf(options?: ApiRequestOptions): HttpTransportOptions | undefined {
+  if (!options) return undefined;
+  const { signal, timeout } = options;
+  if (signal === undefined && timeout === undefined) return undefined;
+  return { signal, timeout };
 }
 
 const httpPost = async <T>(
@@ -33,8 +82,8 @@ const httpPost = async <T>(
   data: object,
   options?: ApiRequestOptions
 ): Promise<ApiResult<T>> => {
-  const notifyOptions = withDefaults(options);
-  const result = await httpPostRaw<T>(url, data);
+  const notifyOptions = withMutationDefaults(options);
+  const result = await httpPostRaw<T>(url, data, transportOf(options));
   notifyApiResult(result, notifyOptions);
   return result;
 };
@@ -44,8 +93,8 @@ const httpGet = async <T>(
   params: object,
   options?: ApiRequestOptions
 ): Promise<ApiResult<T>> => {
-  const notifyOptions = withDefaults({ notifySuccess: false, ...options });
-  const result = await httpGetRaw<T>(url, params);
+  const notifyOptions = withGetDefaults(options);
+  const result = await httpGetRaw<T>(url, params, transportOf(options));
   notifyApiResult(result, notifyOptions);
   return result;
 };
@@ -55,8 +104,8 @@ const httpPut = async <T>(
   data: object,
   options?: ApiRequestOptions
 ): Promise<ApiResult<T>> => {
-  const notifyOptions = withDefaults(options);
-  const result = await httpPutRaw<T>(url, data);
+  const notifyOptions = withMutationDefaults(options);
+  const result = await httpPutRaw<T>(url, data, transportOf(options));
   notifyApiResult(result, notifyOptions);
   return result;
 };
@@ -66,10 +115,11 @@ const httpDelete = async <T>(
   data: object,
   options?: ApiRequestOptions
 ): Promise<ApiResult<T>> => {
-  const notifyOptions = withDefaults(options);
-  const result = await httpDeleteRaw<T>(url, data);
+  const notifyOptions = withMutationDefaults(options);
+  const result = await httpDeleteRaw<T>(url, data, transportOf(options));
   notifyApiResult(result, notifyOptions);
   return result;
 };
 
 export { httpPost, httpGet, httpPut, httpDelete };
+export type { ApiRequestOptions };

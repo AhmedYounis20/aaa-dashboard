@@ -12,7 +12,7 @@ This guide explains how to migrate a CRUD module from manual `useState` + `useEf
 
 ## Step 1 — Add query keys
 
-In `src/lib/queryKeys.ts`:
+In `src/shared/lib/queryKeys.ts` (re-exported from `src/lib/queryKeys.ts`):
 
 ```typescript
 myEntity: {
@@ -123,7 +123,14 @@ const handleAdd = async () => {
 };
 ```
 
-Use `mutateAsync` so `BaseForm` knows success/failure. API toasts still come from `axiosMethods`.
+Use `mutateAsync` so `BaseForm` knows success/failure.
+
+### Mutation toasts (important)
+
+- `axiosMethods` **POST/PUT/DELETE** default to `notifySuccess: false` / `notifyError: false`.
+- Migrated modules toast from `useEntityMutations` `onSuccess` / `onError` (server `successMessage` / `ApiError.messages`).
+- Legacy Apis that still call mutations outside Query pass `legacyMutationNotify` (exported from `axiosMethods`) so UX stays the same until they migrate.
+- Do **not** pass `legacyMutationNotify` from Query-backed entity Apis (Currencies, PackingUnits, Banks, Taxes, SellingPrices, Attributes, ManufacturerCompanies) — that would double-toast.
 
 ## Step 5 — Verify
 
@@ -133,6 +140,20 @@ Use `mutateAsync` so `BaseForm` knows success/failure. API toasts still come fro
 - [ ] Update → list reflects changes
 - [ ] Delete → row removed from list
 - [ ] React Query DevTools shows cache entries (dev mode)
+
+## Reference-data hooks
+
+For dropdowns / shared lookups (not full CRUD pages), use the long-`staleTime` hooks in `hooks/queries/referenceData.ts`:
+
+| Hook | Query key |
+|------|-----------|
+| `useCurrencies` | `queryKeys.currencies.all` |
+| `useBranches` | `queryKeys.branches.all` |
+| `useChartOfAccounts` | `queryKeys.chartOfAccounts.all` |
+| `useCostCenters` | `queryKeys.costCenters.all` |
+| `useCollectionBooks` | `queryKeys.collectionBooks.all` |
+
+`staleTime` is `REF_DATA_STALE_TIME_MS` (30 minutes). Prefer these over ad-hoc `useEffect` + `get*` in forms.
 
 ## Query key conventions
 

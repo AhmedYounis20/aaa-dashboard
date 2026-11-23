@@ -8,10 +8,9 @@ import { CurrencySchema } from "../../../../../interfaces/ProjectInterfaces/Acco
 import InputText from "../../../../../Components/Inputs/InputText";
 import InputNumber from "../../../../../Components/Inputs/InputNumber";
 import Loader from "../../../../../Components/Loader";
-import {
-  useCurrencyDetail,
-  useCurrencyMutations,
-} from "../../../../../hooks/queries";
+import { ErrorState } from "../../../../../Components/feedback";
+import { useCurrencyDetail, useCurrencyMutations } from "../../../../../hooks/queries";
+import { localizedEntityName } from "../../../../../Helper/localizedEntityName";
 
 const defaultModel: CurrencyModel = {
   id: "",
@@ -27,12 +26,18 @@ const CurrenciesForm: React.FC<{
   formType: FormTypes;
   id: string;
   handleCloseForm: () => void;
-}> = ({ formType, id, handleCloseForm }) => {
-  const { t } = useTranslation();
+  title?: string;
+}> = ({ formType, id, handleCloseForm, title }) => {
+  const { t, i18n } = useTranslation();
   const [model, setModel] = useState<CurrencyModel>({ ...defaultModel, id });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: fetchedModel, isLoading: isDetailLoading } = useCurrencyDetail(id, formType);
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = useCurrencyDetail(id, formType);
   const { createMutation, updateMutation, deleteMutation } = useCurrencyMutations();
 
   useEffect(() => {
@@ -48,6 +53,7 @@ const CurrenciesForm: React.FC<{
   }, [formType]);
 
   const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const validate = async () => {
     try {
@@ -67,6 +73,7 @@ const CurrenciesForm: React.FC<{
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
     try {
       await updateMutation.mutateAsync({ id: model.id, data: model });
@@ -87,6 +94,7 @@ const CurrenciesForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
     try {
       await deleteMutation.mutateAsync(id);
       return true;
@@ -103,16 +111,19 @@ const CurrenciesForm: React.FC<{
         handleDelete={handleDelete}
         handleUpdate={handleUpdate}
         handleAdd={handleAdd}
+        title={title}
         isModal
       >
         <div>
           {isLoading ? (
             <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
                 <p>
-                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+                  {t("AreYouSureDelete")} {localizedEntityName(model, i18n.language)}
                 </p>
               ) : (
                 <>
@@ -124,7 +135,7 @@ const CurrenciesForm: React.FC<{
                         label={t("Name")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.name}
                         onChange={(value) =>
@@ -141,7 +152,7 @@ const CurrenciesForm: React.FC<{
                         label={t("NameSecondLanguage")}
                         variant="outlined"
                         fullWidth
-                        isRquired
+                        isRequired
                         disabled={formType === FormTypes.Details}
                         value={model?.nameSecondLanguage}
                         onChange={(value) =>
@@ -175,7 +186,7 @@ const CurrenciesForm: React.FC<{
                       <InputNumber
                         className="form-input form-control"
                         label={t("ExchangeRate")}
-                        isRquired
+                        isRequired
                         variant="outlined"
                         fullWidth
                         disabled={formType === FormTypes.Details}
@@ -206,9 +217,7 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsDefault")}
                         />
-                        {errors.isDefault && (
-                          <FormHelperText>{t(errors.isDefault)}</FormHelperText>
-                        )}
+                        {errors.isDefault && <FormHelperText>{t(errors.isDefault)}</FormHelperText>}
                       </FormControl>
                     </div>
                     <div className="col col-md-6">
@@ -228,9 +237,7 @@ const CurrenciesForm: React.FC<{
                           }
                           label={t("IsActive")}
                         />
-                        {errors.isActive && (
-                          <FormHelperText>{t(errors.isActive)}</FormHelperText>
-                        )}
+                        {errors.isActive && <FormHelperText>{t(errors.isActive)}</FormHelperText>}
                       </FormControl>
                     </div>
                   </div>

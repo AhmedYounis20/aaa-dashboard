@@ -8,7 +8,7 @@ export function useLatestAsync() {
   const tokensRef = useRef<Map<string, number>>(new Map());
 
   const runLatest = useCallback(
-    async <T,>(
+    async <T>(
       key: string,
       action: (signal: { isCurrent: () => boolean }) => Promise<T>
     ): Promise<T | undefined> => {

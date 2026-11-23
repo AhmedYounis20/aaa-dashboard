@@ -1,4 +1,4 @@
-export interface AutoCompleteItem{
-    label : string,
-    value : any
+export interface AutoCompleteItem {
+  label: string;
+  value: any;
 }

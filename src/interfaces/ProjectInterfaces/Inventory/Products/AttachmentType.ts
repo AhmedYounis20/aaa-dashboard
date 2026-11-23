@@ -4,7 +4,7 @@ export enum AttachmentType {
   Manual = 3,
   Certificate = 4,
   Warranty = 5,
-  Other = 6
+  Other = 6,
 }
 
 export const AttachmentTypeOptions = [
@@ -13,5 +13,5 @@ export const AttachmentTypeOptions = [
   { value: AttachmentType.Manual, label: "Manual" },
   { value: AttachmentType.Certificate, label: "Certificate" },
   { value: AttachmentType.Warranty, label: "Warranty" },
-  { value: AttachmentType.Other, label: "Other" }
+  { value: AttachmentType.Other, label: "Other" },
 ];

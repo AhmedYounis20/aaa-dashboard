@@ -6,11 +6,10 @@ import PackingUnitModel from "../../../../interfaces/ProjectInterfaces/Inventory
 import InputText from "../../../../Components/Inputs/InputText";
 import { PackingUnitSchema } from "../../../../interfaces/ProjectInterfaces/Inventory/PackingUnits/validation-packingUnit";
 import Loader from "../../../../Components/Loader";
+import { ErrorState } from "../../../../Components/feedback";
 import { handleValidationErrors } from "../../../../Helper/validationHelper";
-import {
-  usePackingUnitDetail,
-  usePackingUnitMutations,
-} from "../../../../hooks/queries";
+import { usePackingUnitDetail, usePackingUnitMutations } from "../../../../hooks/queries";
+import { localizedEntityName } from "../../../../Helper/localizedEntityName";
 
 const defaultModel: PackingUnitModel = {
   id: "",
@@ -23,11 +22,16 @@ const PackingUnitsForm: React.FC<{
   id: string;
   handleCloseForm: () => void;
 }> = ({ formType, id, handleCloseForm }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [model, setModel] = useState<PackingUnitModel>(defaultModel);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: fetchedModel, isLoading: isDetailLoading } = usePackingUnitDetail(id, formType);
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = usePackingUnitDetail(id, formType);
   const { createMutation, updateMutation, deleteMutation } = usePackingUnitMutations();
 
   useEffect(() => {
@@ -43,6 +47,7 @@ const PackingUnitsForm: React.FC<{
   }, [formType]);
 
   const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const validate = async () => {
     try {
@@ -56,6 +61,7 @@ const PackingUnitsForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
     try {
       await deleteMutation.mutateAsync(id);
       return true;
@@ -65,6 +71,7 @@ const PackingUnitsForm: React.FC<{
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
     try {
       await updateMutation.mutateAsync({ id: model.id, data: model });
@@ -97,11 +104,13 @@ const PackingUnitsForm: React.FC<{
         <div>
           {isLoading ? (
             <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
                 <p>
-                  {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+                  {t("AreYouSureDelete")} {localizedEntityName(model, i18n.language)}
                 </p>
               ) : (
                 <div className="row mb-3">
@@ -112,7 +121,7 @@ const PackingUnitsForm: React.FC<{
                       label={t("Name")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.name}
                       onChange={(value) =>
@@ -131,14 +140,12 @@ const PackingUnitsForm: React.FC<{
                       label={t("NameSecondLanguage")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.nameSecondLanguage}
                       onChange={(value) =>
                         setModel((prevModel) =>
-                          prevModel
-                            ? { ...prevModel, nameSecondLanguage: value }
-                            : prevModel
+                          prevModel ? { ...prevModel, nameSecondLanguage: value } : prevModel
                         )
                       }
                       error={!!errors.nameSecondLanguage}

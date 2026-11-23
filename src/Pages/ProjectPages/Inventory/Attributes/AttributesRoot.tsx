@@ -40,11 +40,7 @@ const AttributesRoot = () => {
     <div className="w-full">
       <Box>
         {showForm && (
-          <AttributesForm
-            id={selectedId}
-            handleCloseForm={handleCloseForm}
-            formType={formType}
-          />
+          <AttributesForm id={selectedId} handleCloseForm={handleCloseForm} formType={formType} />
         )}
 
         <AppContent
@@ -67,13 +63,7 @@ const AttributesRoot = () => {
           handleSelectId={handleSelectId}
           changeFormType={setFormType}
           handleShowForm={handleShowForm}
-          defaultHiddenCols={[
-            "id",
-            "createdAt",
-            "createdBy",
-            "modifiedAt",
-            "modifiedBy",
-          ]}
+          defaultHiddenCols={["id", "createdAt", "createdBy", "modifiedAt", "modifiedBy"]}
         />
       </Box>
     </div>

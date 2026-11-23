@@ -4,10 +4,10 @@ import {
   getCurrencies,
   getCurrencyById,
   updateCurrency,
-} from "../../Apis/Account/CurrenciesApi";
-import CurrencyModel from "../../interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
-import { FormTypes } from "../../interfaces/Components/FormType";
-import { queryKeys } from "../../lib/queryKeys";
+} from "@/Apis/Account/CurrenciesApi";
+import CurrencyModel from "@/interfaces/ProjectInterfaces/Account/Currencies/CurrencyModel";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { queryKeys } from "@/lib/queryKeys";
 import { useEntityDetail } from "./useEntityDetail";
 import { useEntityList } from "./useEntityList";
 import { useEntityMutations } from "./useEntityMutations";

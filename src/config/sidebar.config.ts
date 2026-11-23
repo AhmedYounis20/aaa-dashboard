@@ -46,7 +46,7 @@ export const sidebarItemsData: ISidebarItem[] = [
       {
         title: "ChartOfAccounts",
         icon: React.createElement(TableChartOutlined),
-        path: "/chartOfAccounts",
+        path: "/chart-of-accounts",
       },
     ],
   },
@@ -57,37 +57,37 @@ export const sidebarItemsData: ISidebarItem[] = [
       {
         title: "Banks",
         icon: React.createElement(AccountBalanceOutlined),
-        path: "/subleadgers/banks",
+        path: "/sub-ledgers/banks",
       },
       {
         title: "Taxes",
         icon: React.createElement(ReceiptOutlined),
-        path: "/subleadgers/taxes",
+        path: "/sub-ledgers/taxes",
       },
       {
         title: "CashInBoxes",
         icon: React.createElement(LocalAtmOutlined),
-        path: "/subleadgers/cashInBoxes",
+        path: "/sub-ledgers/cash-in-boxes",
       },
       {
         title: "Customers",
         icon: React.createElement(PeopleOutlined),
-        path: "/subleadgers/customers",
+        path: "/sub-ledgers/customers",
       },
       {
         title: "Suppliers",
         icon: React.createElement(LocalShippingOutlined),
-        path: "/subleadgers/suppliers",
+        path: "/sub-ledgers/suppliers",
       },
       {
         title: "FixedAssets",
         icon: React.createElement(WarehouseOutlined),
-        path: "/subleadgers/fixedAssets",
+        path: "/sub-ledgers/fixed-assets",
       },
       {
         title: "Branches",
         icon: React.createElement(StoreOutlined),
-        path: "/subleadgers/Branches",
+        path: "/sub-ledgers/branches",
       },
     ],
   },
@@ -96,29 +96,29 @@ export const sidebarItemsData: ISidebarItem[] = [
     icon: React.createElement(SettingsOutlined),
     submenu: [
       {
-        title: "Glsettings",
+        title: "GlSettings",
         icon: React.createElement(BookmarkBorderOutlined),
-        path: "/glSettings",
+        path: "/gl-settings",
       },
       {
         title: "AccountGuides",
         icon: React.createElement(BookOutlined),
-        path: "/accountguides",
+        path: "/account-guides",
       },
       {
         title: "CollectionBooks",
         icon: React.createElement(LibraryBooksOutlined),
-        path: "/collectionBooks",
+        path: "/collection-books",
       },
       {
         title: "CostCenter",
         icon: React.createElement(CategoryOutlined),
-        path: "/costCenter",
+        path: "/cost-centers",
       },
       {
         title: "FinancialPeriods",
         icon: React.createElement(CalendarTodayOutlined),
-        path: "/financialPeriods",
+        path: "/financial-periods",
       },
       {
         title: "Currencies",
@@ -128,17 +128,17 @@ export const sidebarItemsData: ISidebarItem[] = [
       {
         title: "SellingPrices",
         icon: React.createElement(AttachMoneyOutlined),
-        path: "/sellingPrices",
+        path: "/selling-prices",
       },
       {
         title: "PackingUnits",
         icon: React.createElement(InventoryOutlined),
-        path: "/packingUnits",
+        path: "/packing-units",
       },
       {
         title: "ManufacturerCompanies",
         icon: React.createElement(FactoryOutlined),
-        path: "/manufacturerCompanies",
+        path: "/manufacturer-companies",
       },
     ],
   },
@@ -149,27 +149,27 @@ export const sidebarItemsData: ISidebarItem[] = [
       {
         title: "CombinedEntries",
         icon: React.createElement(ReceiptOutlined),
-        path: "/compinedentries",
+        path: "/combined-entries",
       },
       {
         title: "PaymentVouchers",
         icon: React.createElement(MoneyOutlined),
-        path: "/paymentVouchers",
+        path: "/payment-vouchers",
       },
       {
         title: "ReceiptVouchers",
         icon: React.createElement(MonetizationOnOutlined),
-        path: "/receiptVouchers",
+        path: "/receipt-vouchers",
       },
       {
         title: "JournalEntries",
         icon: React.createElement(BookOutlined),
-        path: "/journalEntries",
+        path: "/journal-entries",
       },
       {
         title: "OpeningEntries",
         icon: React.createElement(AccountBalanceOutlined),
-        path: "/openingEntries",
+        path: "/opening-entries",
       },
     ],
   },
@@ -200,7 +200,7 @@ export const sidebarItemsData: ISidebarItem[] = [
       {
         title: "Attributes",
         icon: React.createElement(TuneOutlined),
-        path: "/Attributes",
+        path: "/attributes",
       },
     ],
   },

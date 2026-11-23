@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react"
-import { FormTypes } from "../../../../../interfaces/Components"
+import { useEffect, useState } from "react";
+import { FormTypes } from "../../../../../interfaces/Components";
 import {
   costCenterMapper,
   CostCenterModel,
 } from "../../../../../interfaces/ProjectInterfaces/Account/CostCenters/costCenterModel";
-import {
-  NodeType,
-  NodeTypeOptions,
-} from "../../../../../interfaces/Components/NodeType";
+import { NodeType, NodeTypeOptions } from "../../../../../interfaces/Components/NodeType";
 import {
   createCostCenter,
   deleteCostCenter,
@@ -16,16 +13,26 @@ import {
   updateCostCenter,
 } from "../../../../../Apis/Account/CostCenterApi";
 import BaseForm from "../../../../../Components/Forms/BaseForm";
-import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, IconButton, FormHelperText } from "@mui/material";
+import {
+  Box,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  FormHelperText,
+} from "@mui/material";
 import { getChartOfAccounts } from "../../../../../Apis/Account/ChartOfAccountsApi";
 // import DeleteIcon from '@mui/icons-material/Delete';
 import InputSelect from "../../../../../Components/Inputs/InputSelect";
 import CostCenterType, {
   CostCenterTypeOptions,
 } from "../../../../../interfaces/ProjectInterfaces/Account/CostCenters/costCenterType";
-import InputAutoComplete from "../../../../../Components/Inputs/InputAutoCompelete";
+import InputAutoComplete from "../../../../../Components/Inputs/InputAutoComplete";
 import { CostCentersSchema } from "../../../../../interfaces/ProjectInterfaces/Account/CostCenters/validation-costCenter";
-import * as yup from 'yup';
+import * as yup from "yup";
 import { ChartOfAccountModel } from "../../../../../interfaces/ProjectInterfaces";
 import { Delete } from "@mui/icons-material";
 import InputText from "../../../../../Components/Inputs/InputText";
@@ -43,7 +50,8 @@ function CostCenterForm({
   formType: FormTypes;
   parentId: string | null;
   handleCloseForm: () => void;
- afterAction: () => void }) {
+  afterAction: () => void;
+}) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [model, setModel] = useState<CostCenterModel>({
@@ -56,17 +64,11 @@ function CostCenterForm({
     costCenterType: CostCenterType.NotRelated,
     chartOfAccounts: [],
   });
-  const [isLoading, setIsLoading] = useState<boolean>(
-    formType != FormTypes.Add
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(formType != FormTypes.Add);
 
-  const {t} = useTranslation();
-  const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>(
-    []
-  );
-  const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState<
-    ChartOfAccountModel[]
-  >([]);
+  const { t } = useTranslation();
+  const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
+  const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState<ChartOfAccountModel[]>([]);
   useEffect(() => {
     if (formType != FormTypes.Delete) {
       const fetchData = async () => {
@@ -79,24 +81,21 @@ function CostCenterForm({
     }
   }, [formType]);
 
- useEffect(() => {
-    if (formType !== FormTypes.Add ) {
-          const fetchData = async () => {
-            const result = await getCostCenterById(id);
-            
-            if (result && result.isSuccess) {
-              console.log("entry:",result);
-              // Ensure a new object reference is created to trigger re-render
-              setModel(costCenterMapper(result.result));
+  useEffect(() => {
+    if (formType !== FormTypes.Add) {
+      const fetchData = async () => {
+        const result = await getCostCenterById(id);
 
-              setIsLoading(false);
-            }
-          };
-        fetchData();
+        if (result && result.isSuccess) {
+          // Ensure a new object reference is created to trigger re-render
+          setModel(costCenterMapper(result.result));
 
-      }
+          setIsLoading(false);
+        }
+      };
+      fetchData();
     }
-  , [formType,id]);
+  }, [formType, id]);
 
   const validate = async () => {
     try {
@@ -115,9 +114,8 @@ function CostCenterForm({
 
   const handleAdd = async () => {
     if ((await validate()) === false) return false;
-    const response= await createCostCenter(model);
+    const response = await createCostCenter(model);
     if (response.isSuccess) {
-      console.log(response);
       afterAction();
       return true;
     }
@@ -125,10 +123,8 @@ function CostCenterForm({
   };
 
   const handleUpdate = async () => {
-    console.log(chartOfAccounts, "charts of accounts");
-    const response = await updateCostCenter(id,model);
+    const response = await updateCostCenter(id, model);
     if (response.isSuccess) {
-      console.log(response);
       afterAction();
       return true;
     }
@@ -136,9 +132,8 @@ function CostCenterForm({
   };
 
   const handleDelete = async () => {
-    const response= await deleteCostCenter(id);
-       if (response.isSuccess) {
-      console.log(response);
+    const response = await deleteCostCenter(id);
+    if (response.isSuccess) {
       afterAction();
       return true;
     }
@@ -162,13 +157,9 @@ function CostCenterForm({
     }));
   };
 
-  useEffect(() => {
-    console.log(errors);
-  }, [errors]);
+  useEffect(() => {}, [errors]);
 
-  useEffect(() => {
-    console.log(model);
-  }, [model]);
+  useEffect(() => {}, [model]);
 
   return (
     <div className="h-full">
@@ -189,183 +180,173 @@ function CostCenterForm({
             <div className="spinner-border text-primary" role="status"></div>
           </div>
         ) : (
-            <>
-              {formType === FormTypes.Delete ? (
-                <p>{t("AreYouSureDelete")} {model?.nameSecondLanguage}</p>
-              ) : (
-          <Box display={"flex"} flexDirection={"column"} gap={2}>
-            <Box display={"flex"} gap={1}>
-              <InputText
-                type="text"
-                label={t("Name")}
-                isRquired
-                variant="outlined"
-                fullWidth
-                disabled={formType === FormTypes.Details}
-                value={model?.name}
-                onChange={(e) => {
-                  setModel({ ...model, name: e });
-                }}
-                error={!!errors.name}
-              />
-              <InputText
-                type="text"
-                label={t("NameSecondLanguage")}
-                isRquired
-                variant="outlined"
-                fullWidth
-                disabled={formType === FormTypes.Details}
-                value={model?.nameSecondLanguage}
-                onChange={(e) => {
-                  setModel({ ...model, nameSecondLanguage: e });
-                }}
-                error={!!errors.nameSecondLanguage}
-              />
-            </Box>
-            <InputSelect
-              options={NodeTypeOptions.map((e) => ({
-                ...e,
-                label: t(e.label),
-              }))}
-              label={t("NodeType")}
-              defaultValue={model?.nodeType}
-              disabled={formType !== FormTypes.Add}
-              multiple={false}
-              onChange={({ target }: { target: { value: NodeType } }) => {
-                setModel((prevModel) =>
-                  prevModel
-                    ? {
-                        ...prevModel,
-                        nodeType: target.value,
-                      }
-                    : prevModel
-                );
-              }}
-              name={"nodeType"}
-              onBlur={undefined}
-              error={!!errors.nodeType}
-            />
-            {errors.nodeType && (
-              <FormHelperText error>{t(errors.nodeType)}</FormHelperText>
-            )}
-
-            {model?.nodeType === NodeType.Domain && (
-              <>
+          <>
+            {formType === FormTypes.Delete ? (
+              <p>
+                {t("AreYouSureDelete")} {model?.nameSecondLanguage}
+              </p>
+            ) : (
+              <Box display={"flex"} flexDirection={"column"} gap={2}>
                 <Box display={"flex"} gap={1}>
-                  <InputSelect
-                    options={CostCenterTypeOptions.map((e) => ({
-                      ...e,
-                      label: t(e.label),
-                    }))}
-                    label={t("CostCenterType")}
-                    defaultValue={model?.costCenterType}
-                    disabled={formType !== FormTypes.Add}
-                    multiple={false}
-                    onChange={({
-                      target,
-                    }: {
-                      target: { value: CostCenterType };
-                    }) => {
-                      setModel((prevModel) =>
-                        prevModel
-                          ? {
-                              ...prevModel,
-                              costCenterType: target.value,
-                            }
-                          : prevModel
-                      );
-                    }}
-                    name={"costCenterType"}
-                    onBlur={undefined}
-                    error={!!errors.costCenterType}
-                  />
-                  {errors.costCenterType && (
-                    <FormHelperText error>{t(errors.costCenterType)}</FormHelperText>
-                  )}
-                  <InputNumber
-                    label={t("Percent")}
-                    value={model?.percent}
-                    onChange={(value) => {
-                      setModel({
-                        ...model,
-                        percent: value,
-                      });
-                    }}
-                    inputType="percent"
-                    error={!!errors.percent}
-                    helperText={errors.percent ? t(errors.percent) : undefined}
+                  <InputText
+                    type="text"
+                    label={t("Name")}
+                    isRequired
+                    variant="outlined"
+                    fullWidth
                     disabled={formType === FormTypes.Details}
+                    value={model?.name}
+                    onChange={(e) => {
+                      setModel({ ...model, name: e });
+                    }}
+                    error={!!errors.name}
+                  />
+                  <InputText
+                    type="text"
+                    label={t("NameSecondLanguage")}
+                    isRequired
+                    variant="outlined"
+                    fullWidth
+                    disabled={formType === FormTypes.Details}
+                    value={model?.nameSecondLanguage}
+                    onChange={(e) => {
+                      setModel({ ...model, nameSecondLanguage: e });
+                    }}
+                    error={!!errors.nameSecondLanguage}
                   />
                 </Box>
-                {model?.costCenterType === CostCenterType.RelatedToAccount && (
-                  <InputAutoComplete
-                    options={chartOfAccounts?.map(
-                      (item: { name: string; id: string }) => {
-                        return {
-                          label: item.name,
-                          value: item.id,
-                        };
-                      }
+                <InputSelect
+                  options={NodeTypeOptions.map((e) => ({
+                    ...e,
+                    label: t(e.label),
+                  }))}
+                  label={t("NodeType")}
+                  defaultValue={model?.nodeType}
+                  disabled={formType !== FormTypes.Add}
+                  multiple={false}
+                  onChange={({ target }: { target: { value: NodeType } }) => {
+                    setModel((prevModel) =>
+                      prevModel
+                        ? {
+                            ...prevModel,
+                            nodeType: target.value,
+                          }
+                        : prevModel
+                    );
+                  }}
+                  name={"nodeType"}
+                  onBlur={undefined}
+                  error={!!errors.nodeType}
+                />
+                {errors.nodeType && <FormHelperText error>{t(errors.nodeType)}</FormHelperText>}
+
+                {model?.nodeType === NodeType.Domain && (
+                  <>
+                    <Box display={"flex"} gap={1}>
+                      <InputSelect
+                        options={CostCenterTypeOptions.map((e) => ({
+                          ...e,
+                          label: t(e.label),
+                        }))}
+                        label={t("CostCenterType")}
+                        defaultValue={model?.costCenterType}
+                        disabled={formType !== FormTypes.Add}
+                        multiple={false}
+                        onChange={({ target }: { target: { value: CostCenterType } }) => {
+                          setModel((prevModel) =>
+                            prevModel
+                              ? {
+                                  ...prevModel,
+                                  costCenterType: target.value,
+                                }
+                              : prevModel
+                          );
+                        }}
+                        name={"costCenterType"}
+                        onBlur={undefined}
+                        error={!!errors.costCenterType}
+                      />
+                      {errors.costCenterType && (
+                        <FormHelperText error>{t(errors.costCenterType)}</FormHelperText>
+                      )}
+                      <InputNumber
+                        label={t("Percent")}
+                        value={model?.percent}
+                        onChange={(value) => {
+                          setModel({
+                            ...model,
+                            percent: value,
+                          });
+                        }}
+                        inputType="percent"
+                        error={!!errors.percent}
+                        helperText={errors.percent ? t(errors.percent) : undefined}
+                        disabled={formType === FormTypes.Details}
+                      />
+                    </Box>
+                    {model?.costCenterType === CostCenterType.RelatedToAccount && (
+                      <InputAutoComplete
+                        options={chartOfAccounts?.map((item: { name: string; id: string }) => {
+                          return {
+                            label: item.name,
+                            value: item.id,
+                          };
+                        })}
+                        label={t("ChartOfAccounts")}
+                        value={model.chartOfAccounts}
+                        disabled={formType === FormTypes.Details}
+                        onChange={(value: string[] | undefined) => {
+                          setModel((prevModel) => {
+                            return prevModel
+                              ? {
+                                  ...prevModel,
+                                  chartOfAccounts: value || [],
+                                }
+                              : prevModel;
+                          });
+                        }}
+                        multiple={true}
+                        name={"chartofAccounts"}
+                        handleBlur={null}
+                        error={!!errors.chartOfAccounts}
+                        helperText={t(errors.chartOfAccounts)}
+                      />
                     )}
-                    label={t("ChartOfAccounts")}
-                    value={model.chartOfAccounts}
-                    disabled={formType === FormTypes.Details}
-                    onChange={(value: string[] | undefined) => {
-                      setModel((prevModel) => {
-                        console.log("prevModel:", prevModel);
-                        console.log("value:", value);
-                        return prevModel
-                          ? {
-                              ...prevModel,
-                              chartOfAccounts: value || [],
-                            }
-                          : prevModel;
-                      });
-                    }}
-                    multiple={true}
-                    name={"chartofAccounts"}
-                    handleBlur={null}
-                    error={!!errors.chartOfAccounts}
-                    helperText={t(errors.chartOfAccounts)}
-                  />
+                    {model?.costCenterType === CostCenterType.RelatedToAccount && (
+                      <TableContainer>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell align="center">{t("Account")}</TableCell>
+                              <TableCell align="center">{t("Code")}</TableCell>
+                              <TableCell align="center"></TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {selectedChartOfAccounts?.map((item: any, index) => (
+                              <TableRow key={index}>
+                                <TableCell align="center">{item?.name}</TableCell>
+                                <TableCell align="center">{item?.code}</TableCell>
+                                <TableCell align="center">
+                                  <IconButton onClick={() => handleDeleteRow(item?.id)}>
+                                    <Delete />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    )}
+                  </>
                 )}
-                {model?.costCenterType === CostCenterType.RelatedToAccount && (
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell align="center">{t("Account")}</TableCell>
-                          <TableCell align="center">{t("Code")}</TableCell>
-                          <TableCell align="center"></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedChartOfAccounts?.map((item: any, index) => (
-                          <TableRow key={index}>
-                            <TableCell align="center">{item?.name}</TableCell>
-                            <TableCell align="center">{item?.code}</TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                onClick={() => handleDeleteRow(item?.id)}
-                              >
-                                <Delete />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </>
+              </Box>
             )}
-          </Box>
-              )}
-            </>
-          )}
+          </>
+        )}
       </BaseForm>
     </div>
   );
 }
 
-export default CostCenterForm
+export default CostCenterForm;

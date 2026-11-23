@@ -1,150 +1,105 @@
-import { useEffect, useState } from 'react';
-import { getProducts } from "../../../../Apis/Inventory/ProductsApi";
-import { FormTypes } from '../../../../interfaces/Components/FormType';
-import ProductsForm from './ProductsForm';
-import Loader from '../../../../Components/Loader';
-import { AppContent } from '../../../../Components';
-import ProductModel from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductModel';
-import { useTranslation } from 'react-i18next';
-import { ProductType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductType';
-import { ProductNodeType } from '../../../../interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType';
-import { getEnumString } from '../../../../Helper/enumHelper';
-import { getProductPicture } from '../../../../Helper/productAttachmentHelper';
-import ImagePreview from '../../../../Components/Images/ImagePreview';
-import { NodeType } from '../../../../interfaces/Components/NodeType';
+import { lazy, Suspense } from "react";
+import Loader from "@/Components/Loader";
+import { AppContent } from "@/Components";
+import ProductModel from "@/interfaces/ProjectInterfaces/Inventory/Products/ProductModel";
+import { useTranslation } from "react-i18next";
+import { ProductType } from "@/interfaces/ProjectInterfaces/Inventory/Products/ProductType";
+import { ProductNodeType } from "@/interfaces/ProjectInterfaces/Inventory/Products/ProductNodeType";
+import { getEnumString } from "@/Helper/enumHelper";
+import { getProductPicture } from "@/Helper/productAttachmentHelper";
+import ImagePreview from "@/Components/Images/ImagePreview";
+import { useEntityListPage, useProductsList } from "@/hooks/queries";
+
+const ProductsForm = lazy(() => import("./ProductsForm"));
 
 const ProductsRoot = () => {
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [formType, setFormType] = useState<FormTypes>(FormTypes.Add);
-  const [selectedId, setSelectedId] = useState<string>("");
-  const [parentId, setParentId] = useState<string | null>(null);
-  const [data, setData] = useState<ProductModel[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const { t } = useTranslation();
+  const {
+    showForm,
+    formType,
+    selectedId,
+    parentId,
+    setFormType,
+    setParentId,
+    handleShowForm,
+    handleCloseForm,
+    handleSelectId,
+    openAdd,
+  } = useEntityListPage({ withParent: true });
+
+  const { data = [], isLoading, isFetching, isError, refetch } = useProductsList();
 
   const columns = [
     {
       Header: t("Picture"),
       accessor: "productAttachments",
-      renderCell: ({data}: {data:ProductModel}) => {
+      renderCell: ({ data }: { data: ProductModel }) => {
         const productPicture = getProductPicture(data);
         return (
-         <ImagePreview
-          src={productPicture}
-          alt={data.name || "attachment"}
-          height={50}
-          width={50}
-        />
+          <ImagePreview
+            src={productPicture}
+            alt={data.name || "attachment"}
+            height={50}
+            width={50}
+          />
         );
       },
     },
-    {
-      Header: t("Code"),
-      accessor: "code",
-    },
-    {
-      Header: t("Name"),
-      accessor: "name",
-    },
-    {
-      Header: t("Name Second Language"),
-      accessor: "nameSecondLanguage",
-    },
+    { Header: t("Code"), accessor: "code" },
+    { Header: t("Name"), accessor: "name" },
+    { Header: t("Name Second Language"), accessor: "nameSecondLanguage" },
     {
       Header: t("Type"),
       accessor: "productType",
-      renderCell: (row:{value:any}) => getEnumString(ProductType, row.value),
+      renderCell: (row: { value: unknown }) => getEnumString(ProductType, row.value as ProductType),
     },
     {
       Header: t("Node Type"),
       accessor: "nodeType",
-      renderCell: (row : {value:any} ) => getEnumString(ProductNodeType, row.value),
-    }
+      renderCell: (row: { value: unknown }) =>
+        getEnumString(ProductNodeType, row.value as ProductNodeType),
+    },
   ];
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    setLoadError(null);
-    try {
-      // Products are a category tree; backend exposes GetAll (no paginated tree endpoint).
-      const result = await getProducts();
-      if (result.isSuccess) {
-        setData(result.result || []);
-      } else {
-        setLoadError(t("FailedToLoadProduct", "Failed to load products."));
-      }
-    } catch {
-      setLoadError(t("FailedToLoadProduct", "Failed to load products."));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void fetchData();
-  }, []);
-
-  const handleShowForm = () => {
-    setShowForm(true);
-  };
-
-  const handleSelectId: (id: string) => void = (id) => setSelectedId(id);
-
-  const handleAdd = () => {
-    setFormType(FormTypes.Add);
-    setSelectedId("");
-    setParentId(null);
-    handleShowForm();
-  };
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setSelectedId("");
-    setParentId(null);
-  };
-
-  const handleAfterAction = () => {
-    void fetchData();
-  };
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (loadError) {
-    return <div className="p-3 text-danger">{loadError}</div>;
-  }
-
   return (
     <>
       {showForm ? (
-        <ProductsForm
-          formType={formType}
-          id={selectedId}
-          parentId={parentId}
-          handleCloseForm={handleCloseForm}
-          afterAction={handleAfterAction}
-          handleTranslate={t}
-        />
+        <Suspense fallback={<Loader />}>
+          <ProductsForm
+            formType={formType}
+            id={selectedId}
+            parentId={parentId ?? null}
+            handleCloseForm={handleCloseForm}
+            afterAction={() => void refetch()}
+            handleTranslate={t}
+          />
+        </Suspense>
       ) : (
         <AppContent
           tableType="tree"
-          title={t("Products Management")}
+          title="Products Management"
           data={data}
           columns={columns}
           btnName={t("AddNew")}
           addBtn
           btn
           startIcon
-          actionBtn={handleAdd}
+          actionBtn={openAdd}
           handleShowForm={handleShowForm}
           changeFormType={setFormType}
           handleSelectId={handleSelectId}
           handleSelectParentId={setParentId}
-          showedit={true}
-          showdelete={true}
-          showAddButtonIf={(row) => row.nodeType === NodeType.Category}
+          showEdit={true}
+          showDelete={true}
+          loading={isFetching}
+          isError={isError}
+          onRetry={() => void refetch()}
+          onRefresh={() => void refetch()}
+          showAddButtonIf={(row) => row.nodeType === ProductNodeType.Category}
         />
       )}
     </>

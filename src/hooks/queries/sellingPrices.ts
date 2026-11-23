@@ -4,10 +4,10 @@ import {
   getSellingPriceById,
   getSellingPrices,
   updateSellingPrice,
-} from "../../Apis/Inventory/SellingPricesApi";
-import SellingPriceModel from "../../interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
-import { FormTypes } from "../../interfaces/Components/FormType";
-import { queryKeys } from "../../lib/queryKeys";
+} from "@/Apis/Inventory/SellingPricesApi";
+import SellingPriceModel from "@/interfaces/ProjectInterfaces/Inventory/SellingPrices/SellingPriceModel";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { queryKeys } from "@/lib/queryKeys";
 import { useEntityDetail } from "./useEntityDetail";
 import { useEntityList } from "./useEntityList";
 import { useEntityMutations } from "./useEntityMutations";

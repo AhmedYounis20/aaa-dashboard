@@ -1,42 +1,20 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import PackingUnitModel from "../../interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import PackingUnitModel from "@/interfaces/ProjectInterfaces/Inventory/PackingUnits/PackingUnitModel";
+import { createCrudApi } from "@/shared/api";
+import type { HttpTransportOptions } from "@/shared/api";
 
+const crud = createCrudApi<PackingUnitModel>("PackingUnits");
 
-const apiEndPoint = "PackingUnits";
-// GET all currencies
-const getPackingUnits = async (): Promise<ApiResult<PackingUnitModel[]>> => {
-  return await httpGet<PackingUnitModel[]>(apiEndPoint, {});
-};
+const getPackingUnits = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single currency by ID
-const getPackingUnitById = async (
-  id: string
-): Promise<ApiResult<PackingUnitModel>> => {
-  return await httpGet<PackingUnitModel>(`${apiEndPoint}/${id}`, {});
-};
+const getPackingUnitById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-// POST (Create) a new currency
-const createPackingUnit = async (
-  data: PackingUnitModel
-): Promise<ApiResult<PackingUnitModel>> => {
-  return await httpPost<PackingUnitModel>(apiEndPoint, data);
-};
+const createPackingUnit = (data: PackingUnitModel, options?: HttpTransportOptions) =>
+  crud.create(data, options);
 
-// PUT (Update) a currency
-const updatePackingUnit = async (
-  id: string,
-  data: PackingUnitModel
-): Promise<ApiResult<PackingUnitModel>> => {
-  return await httpPut<PackingUnitModel>(`${apiEndPoint}/${id}`, data);
-};
+const updatePackingUnit = (id: string, data: PackingUnitModel, options?: HttpTransportOptions) =>
+  crud.update(id, data, options);
 
-// DELETE a currency by ID
-const deletePackingUnit = async (
-  id: string
-): Promise<ApiResult<PackingUnitModel>> => {
-  return await httpDelete<PackingUnitModel>(`${apiEndPoint}/${id}`, { id });
-};
+const deletePackingUnit = (id: string, options?: HttpTransportOptions) => crud.remove(id, options);
 
 export {
   getPackingUnits,

@@ -59,12 +59,3 @@ interface VariantModel {
 }
 
 export default VariantModel;
-
-
-
-
-
-
-
-
-

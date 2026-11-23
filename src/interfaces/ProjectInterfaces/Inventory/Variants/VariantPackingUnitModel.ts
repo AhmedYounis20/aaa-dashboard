@@ -18,14 +18,3 @@ interface VariantPackingUnitModel {
 }
 
 export default VariantPackingUnitModel;
-
-
-
-
-
-
-
-
-
-
-

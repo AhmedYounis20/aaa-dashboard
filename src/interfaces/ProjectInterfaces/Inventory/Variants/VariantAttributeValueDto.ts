@@ -15,5 +15,3 @@ export interface VariantAttributeValueDto {
   modifiedByName?: string;
   modifiedByNameSecondLanguage?: string;
 }
-
-

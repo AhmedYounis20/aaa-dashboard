@@ -1,4 +1,4 @@
 export interface DataTreeTable {
-    Header  : string,
-    accessor :string,
+  Header: string;
+  accessor: string;
 }

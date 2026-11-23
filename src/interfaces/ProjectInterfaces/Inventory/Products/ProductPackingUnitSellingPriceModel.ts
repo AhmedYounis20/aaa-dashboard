@@ -4,5 +4,3 @@ interface ProductPackingUnitSellingPriceModel {
 }
 
 export default ProductPackingUnitSellingPriceModel;
-
-

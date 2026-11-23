@@ -45,9 +45,7 @@ interface VariantCreateCommand {
   expiryLevels?: ExpiryLevelModel[];
 }
 
-export const buildVariantValidationSchema = (
-  t: (key: string) => string,
-) =>
+export const buildVariantValidationSchema = (t: (key: string) => string) =>
   yup.object().shape({
     name: yup.string().required(t("Name is required")),
     nameSecondLanguage: yup.string().required(t("Name Second Language is required")),
@@ -62,35 +60,26 @@ export const buildVariantValidationSchema = (
     packingUnits: yup.array().of(
       yup.object().shape({
         packingUnitId: yup.string().required(t("Packing unit is required")),
-        lastCostPrice: yup
-          .number()
-          .moreThan(0, t("Price must be greater than zero")),
-        averageCostPrice: yup
-          .number()
-          .moreThan(0, t("Price must be greater than zero")),
+        lastCostPrice: yup.number().moreThan(0, t("Price must be greater than zero")),
+        averageCostPrice: yup.number().moreThan(0, t("Price must be greater than zero")),
         sellingPrices: yup.array().of(
           yup.object().shape({
-            amount: yup
-              .number()
-              .moreThan(0, t("Price must be greater than zero")),
-          }),
+            amount: yup.number().moreThan(0, t("Price must be greater than zero")),
+          })
         ),
-      }),
+      })
     ),
     sellingPriceDiscounts: yup.array().of(
       yup.object().shape({
-        discount: yup
-          .number()
-          .when("discountType", {
-            is: DiscountType.Percent,
-            then: (schema) =>
-              schema
-                .min(0, t("Discount must be zero or greater"))
-                .max(100, t("Discount must be 100 or less")),
-            otherwise: (schema) =>
-              schema.min(0, t("Discount must be zero or greater")),
-          }),
-      }),
+        discount: yup.number().when("discountType", {
+          is: DiscountType.Percent,
+          then: (schema) =>
+            schema
+              .min(0, t("Discount must be zero or greater"))
+              .max(100, t("Discount must be 100 or less")),
+          otherwise: (schema) => schema.min(0, t("Discount must be zero or greater")),
+        }),
+      })
     ),
     costCenters: yup.array().of(
       yup.object().shape({
@@ -99,12 +88,11 @@ export const buildVariantValidationSchema = (
           .number()
           .min(0, t("Percent must be zero or greater"))
           .max(100, t("Percent must be 100 or less")),
-      }),
+      })
     ),
     inventoryThresholdBranchId: yup.string().when("inventoryThresholdScope", {
       is: InventoryThresholdScope.Branch,
-      then: (schema) =>
-        schema.required(t("Branch is required when scope is Branch")),
+      then: (schema) => schema.required(t("Branch is required when scope is Branch")),
       otherwise: (schema) => schema.nullable().notRequired(),
     }),
     inventoryThresholds: yup.array().of(
@@ -120,49 +108,55 @@ export const buildVariantValidationSchema = (
             function (value) {
               const { minQuantity } = this.parent;
               return value != null && minQuantity != null && value > minQuantity;
-            },
+            }
           ),
         enableNotification: yup.boolean().required(),
-      }),
+      })
     ),
-    expiryLevels: yup.array().of(
-      yup.object().shape({
-        level: yup.number().required(),
-        daysFrom: yup.number().required(),
-        daysTo: yup
-          .number()
-          .required()
-          .test(
-            "days-from-less-than-days-to",
-            t("EXPIRY_LEVEL_DAYS_FROM_MUST_BE_LESS_THAN_DAYS_TO"),
-            function (value) {
-              const { daysFrom } = this.parent;
-              return value != null && daysFrom != null && value > daysFrom;
-            },
-          ),
-        enableNotification: yup.boolean().required(),
-      }),
-    ).test(
-      "expiry-levels-no-overlap",
-      t("EXPIRY_LEVEL_RANGES_MUST_NOT_OVERLAP"),
-      function (levels) {
-        if (!levels || levels.length <= 1) return true;
-        const sorted = [...levels].sort((a, b) => a.level - b.level);
-        for (let i = 0; i < sorted.length; i++) {
-          if (i > 0 && sorted[i].level !== sorted[i - 1].level + 1) return false;
-          for (let j = i + 1; j < sorted.length; j++) {
-            const a = sorted[i];
-            const b = sorted[j];
-            if (a.daysFrom != null && a.daysTo != null && b.daysFrom != null && b.daysTo != null) {
-              if (a.daysFrom <= b.daysTo && b.daysFrom <= a.daysTo) return false;
+    expiryLevels: yup
+      .array()
+      .of(
+        yup.object().shape({
+          level: yup.number().required(),
+          daysFrom: yup.number().required(),
+          daysTo: yup
+            .number()
+            .required()
+            .test(
+              "days-from-less-than-days-to",
+              t("EXPIRY_LEVEL_DAYS_FROM_MUST_BE_LESS_THAN_DAYS_TO"),
+              function (value) {
+                const { daysFrom } = this.parent;
+                return value != null && daysFrom != null && value > daysFrom;
+              }
+            ),
+          enableNotification: yup.boolean().required(),
+        })
+      )
+      .test(
+        "expiry-levels-no-overlap",
+        t("EXPIRY_LEVEL_RANGES_MUST_NOT_OVERLAP"),
+        function (levels) {
+          if (!levels || levels.length <= 1) return true;
+          const sorted = [...levels].sort((a, b) => a.level - b.level);
+          for (let i = 0; i < sorted.length; i++) {
+            if (i > 0 && sorted[i].level !== sorted[i - 1].level + 1) return false;
+            for (let j = i + 1; j < sorted.length; j++) {
+              const a = sorted[i];
+              const b = sorted[j];
+              if (
+                a.daysFrom != null &&
+                a.daysTo != null &&
+                b.daysFrom != null &&
+                b.daysTo != null
+              ) {
+                if (a.daysFrom <= b.daysTo && b.daysFrom <= a.daysTo) return false;
+              }
             }
           }
+          return true;
         }
-        return true;
-      },
-    ),
+      ),
   });
 
 export default VariantCreateCommand;
-
-

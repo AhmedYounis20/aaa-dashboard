@@ -6,10 +6,8 @@ import SellingPriceModel from "@/interfaces/ProjectInterfaces/Inventory/SellingP
 import InputText from "@/Components/Inputs/InputText";
 import { SellingPriceSchema } from "@/interfaces/ProjectInterfaces/Inventory/SellingPrices/validation-sellingPrice";
 import Loader from "@/Components/Loader";
-import {
-  useSellingPriceDetail,
-  useSellingPriceMutations,
-} from "@/hooks/queries";
+import { ErrorState } from "@/Components/feedback";
+import { useSellingPriceDetail, useSellingPriceMutations } from "@/hooks/queries";
 
 const defaultModel: SellingPriceModel = {
   id: "",
@@ -26,12 +24,13 @@ const SellingPricesForm: React.FC<{
   const [model, setModel] = useState<SellingPriceModel>({ ...defaultModel });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: fetchedModel, isLoading: isDetailLoading } = useSellingPriceDetail(
-    id,
-    formType
-  );
-  const { createMutation, updateMutation, deleteMutation } =
-    useSellingPriceMutations();
+  const {
+    data: fetchedModel,
+    isLoading: isDetailLoading,
+    isError,
+    refetch,
+  } = useSellingPriceDetail(id, formType);
+  const { createMutation, updateMutation, deleteMutation } = useSellingPriceMutations();
 
   useEffect(() => {
     if (fetchedModel) {
@@ -46,6 +45,7 @@ const SellingPricesForm: React.FC<{
   }, [formType]);
 
   const isLoading = formType !== FormTypes.Add && isDetailLoading;
+  const isDetailError = formType !== FormTypes.Add && isError;
 
   const validate = async () => {
     try {
@@ -65,6 +65,7 @@ const SellingPricesForm: React.FC<{
   };
 
   const handleDelete = async (): Promise<boolean> => {
+    if (isDetailError) return false;
     try {
       await deleteMutation.mutateAsync(id);
       return true;
@@ -74,6 +75,7 @@ const SellingPricesForm: React.FC<{
   };
 
   const handleUpdate = async () => {
+    if (isDetailError) return false;
     if ((await validate()) === false) return false;
     try {
       await updateMutation.mutateAsync({ id: model.id, data: model });
@@ -106,6 +108,8 @@ const SellingPricesForm: React.FC<{
         <div>
           {isLoading ? (
             <Loader />
+          ) : isDetailError ? (
+            <ErrorState onRetry={() => void refetch()} />
           ) : (
             <>
               {formType === FormTypes.Delete ? (
@@ -121,12 +125,10 @@ const SellingPricesForm: React.FC<{
                       label={t("Name")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.name}
-                      onChange={(value) =>
-                        setModel((prevModel) => ({ ...prevModel, name: value }))
-                      }
+                      onChange={(value) => setModel((prevModel) => ({ ...prevModel, name: value }))}
                       error={!!errors.name}
                       helperText={errors.name ? t(errors.name) : undefined}
                     />
@@ -138,7 +140,7 @@ const SellingPricesForm: React.FC<{
                       label={t("NameSecondLanguage")}
                       variant="outlined"
                       fullWidth
-                      isRquired
+                      isRequired
                       disabled={formType === FormTypes.Details}
                       value={model?.nameSecondLanguage}
                       onChange={(value) =>
@@ -149,9 +151,7 @@ const SellingPricesForm: React.FC<{
                       }
                       error={!!errors.nameSecondLanguage}
                       helperText={
-                        errors.nameSecondLanguage
-                          ? t(errors.nameSecondLanguage)
-                          : undefined
+                        errors.nameSecondLanguage ? t(errors.nameSecondLanguage) : undefined
                       }
                     />
                   </div>

@@ -1,37 +1,31 @@
-import { useEffect, useState } from 'react';
-import BaseForm from '../../../../../Components/Forms/BaseForm';
-import { FormTypes } from '../../../../../interfaces/Components/FormType';
-import { FormControlLabel, Stack, Switch, Typography } from '@mui/material';
-import GlSettingsModel from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/GlSettingsModel';
-import { DecimalDigitsNumberOptions } from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/DecimalDigitsNumber';
-import InputSelect from '../../../../../Components/Inputs/InputSelect';
-import DepreciationApplication, { DepreciationApplicationOptions } from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/DepreciationApplication';
-import Loader from '../../../../../Components/Loader';
-import { GLSettingsSchema } from '../../../../../interfaces/ProjectInterfaces/Account/GlSettings/validation-GLSettings';
-import * as yup from 'yup';
-import {
-  getGlSettings,
-  updateGlSettings,
-} from "../../../../../Apis/Account/GlSettingsApi";
-import InputNumber from '../../../../../Components/Inputs/InputNumber';
-import { useTranslation } from 'react-i18next';
-
+import { useEffect, useState } from "react";
+import BaseForm from "../../../../../Components/Forms/BaseForm";
+import { FormTypes } from "../../../../../interfaces/Components/FormType";
+import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
+import GlSettingsModel from "../../../../../interfaces/ProjectInterfaces/Account/GlSettings/GlSettingsModel";
+import { DecimalDigitsNumberOptions } from "../../../../../interfaces/ProjectInterfaces/Account/GlSettings/DecimalDigitsNumber";
+import InputSelect from "../../../../../Components/Inputs/InputSelect";
+import DepreciationApplication, {
+  DepreciationApplicationOptions,
+} from "../../../../../interfaces/ProjectInterfaces/Account/GlSettings/DepreciationApplication";
+import Loader from "../../../../../Components/Loader";
+import { ErrorState } from "../../../../../Components/feedback";
+import { GLSettingsSchema } from "../../../../../interfaces/ProjectInterfaces/Account/GlSettings/validation-GLSettings";
+import InputNumber from "../../../../../Components/Inputs/InputNumber";
+import { useTranslation } from "react-i18next";
+import { handleValidationErrors } from "../../../../../Helper/validationHelper";
+import { useGlSettings, useGlSettingsMutation } from "../../../../../hooks/queries";
 
 const GlSettingsRoot: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [model, setModel] = useState<GlSettingsModel>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const {t}=  useTranslation();
-  const fetchData = async () => {
-    const result = await getGlSettings();
-    if (result) {
-      setModel(result.result);
-      setIsLoading(false);
-    }
-  };
-    useEffect(() => {
-      fetchData();
-    }, []);
+  const { t } = useTranslation();
+  const { data, isLoading, isError, refetch } = useGlSettings();
+  const updateMutation = useGlSettingsMutation();
+
+  useEffect(() => {
+    if (data) setModel(data);
+  }, [data]);
 
   const validate = async () => {
     try {
@@ -39,27 +33,21 @@ const GlSettingsRoot: React.FC = () => {
       setErrors({});
       return true;
     } catch (validationErrors) {
-      const validationErrorsMap: Record<string, string> = {};
-      (validationErrors as yup.ValidationError).inner.forEach((error) => {
-        if (error.path) validationErrorsMap[error.path] = error.message;
-      });
-      setErrors(validationErrorsMap);
-      console.log(validationErrorsMap);
+      setErrors(handleValidationErrors(validationErrors));
       return false;
     }
   };
 
   const handleUpdate = async () => {
-    if(await validate() === false) return false;
-    if (model) {
-      const result = await updateGlSettings(model);
-      if (result && result.isSuccess) {
-        setModel(
-          result.result
-        );
-      }
+    if (isError || !model) return false;
+    if ((await validate()) === false) return false;
+    try {
+      const payload = await updateMutation.mutateAsync(model);
+      setModel(payload.data);
+      return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   return (
@@ -67,19 +55,21 @@ const GlSettingsRoot: React.FC = () => {
       <BaseForm
         formType={FormTypes.Edit}
         isModal={false}
-        handleUpdate={handleUpdate}
+        handleUpdate={isError ? undefined : handleUpdate}
         handleAdd={undefined}
         handleDelete={undefined}
-        handleCloseForm={fetchData}
+        handleCloseForm={() => void refetch()}
       >
         <div>
           <Typography variant="h2" mb={3}>
             {" "}
-            {t("Glsettings")}
+            {t("GlSettings")}
           </Typography>
           <div>
             {isLoading ? (
               <Loader />
+            ) : isError ? (
+              <ErrorState onRetry={() => void refetch()} />
             ) : (
               <div>
                 <Stack spacing={2}>
@@ -115,11 +105,7 @@ const GlSettingsRoot: React.FC = () => {
                         label={t("DepreciationApplication")}
                         defaultValue={model?.depreciationApplication}
                         multiple={false}
-                        onChange={({
-                          target,
-                        }: {
-                          target: { value: DepreciationApplication };
-                        }) => {
+                        onChange={({ target }: { target: { value: DepreciationApplication } }) => {
                           setModel((prevModel) =>
                             prevModel
                               ? {
@@ -137,14 +123,13 @@ const GlSettingsRoot: React.FC = () => {
                     </div>
                     {/* <div className="col col-md-6"></div> */}
                   </div>
-                  {model?.depreciationApplication ==
-                    DepreciationApplication.Monthly && (
+                  {model?.depreciationApplication == DepreciationApplication.Monthly && (
                     <div>
                       <InputNumber
                         className="form-input form-control"
                         label={t("MonthDays")}
                         variant="outlined"
-                        isRquired
+                        isRequired
                         fullWidth
                         value={model?.monthDays}
                         onChange={(value) =>
@@ -169,11 +154,7 @@ const GlSettingsRoot: React.FC = () => {
                       control={
                         <Switch
                           checked={model?.isAllowingEditVoucher}
-                          onChange={({
-                            target,
-                          }: {
-                            target: { checked: boolean };
-                          }) =>
+                          onChange={({ target }: { target: { checked: boolean } }) =>
                             setModel((prevModel) =>
                               prevModel
                                 ? {
@@ -193,11 +174,7 @@ const GlSettingsRoot: React.FC = () => {
                       control={
                         <Switch
                           checked={model?.isAllowingNegativeBalances}
-                          onChange={({
-                            target,
-                          }: {
-                            target: { checked: boolean };
-                          }) =>
+                          onChange={({ target }: { target: { checked: boolean } }) =>
                             setModel((prevModel) =>
                               prevModel
                                 ? {
@@ -219,11 +196,7 @@ const GlSettingsRoot: React.FC = () => {
                       control={
                         <Switch
                           checked={model?.isAllowingDeleteVoucher}
-                          onChange={({
-                            target,
-                          }: {
-                            target: { checked: boolean };
-                          }) =>
+                          onChange={({ target }: { target: { checked: boolean } }) =>
                             setModel((prevModel) =>
                               prevModel
                                 ? {

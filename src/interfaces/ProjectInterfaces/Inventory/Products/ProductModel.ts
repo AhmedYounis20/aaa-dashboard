@@ -68,12 +68,3 @@ interface ProductModel {
 }
 
 export default ProductModel;
-
-
-
-
-
-
-
-
-

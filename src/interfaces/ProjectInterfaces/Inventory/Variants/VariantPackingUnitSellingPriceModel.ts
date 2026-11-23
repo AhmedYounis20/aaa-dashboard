@@ -4,13 +4,3 @@ interface VariantPackingUnitSellingPriceModel {
 }
 
 export default VariantPackingUnitSellingPriceModel;
-
-
-
-
-
-
-
-
-
-

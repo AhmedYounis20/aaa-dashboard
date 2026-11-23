@@ -9,7 +9,7 @@ interface ProductAttachmentModel {
   description?: string;
   isPrimary: boolean;
   displayOrder: number;
-  attachment?: AttachmentModel
+  attachment?: AttachmentModel;
   createdAt: string;
   modifiedAt: string;
   createdByName?: string;
@@ -19,14 +19,3 @@ interface ProductAttachmentModel {
 }
 
 export default ProductAttachmentModel;
-
-
-
-
-
-
-
-
-
-
-

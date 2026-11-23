@@ -1,54 +1,28 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import CashInBoxModel from "../../interfaces/ProjectInterfaces/Account/Subleadgers/CashInBoxes/CashInBoxModel";
+import CashInBoxModel from "@/interfaces/ProjectInterfaces/Account/SubLedgers/CashInBoxes/CashInBoxModel";
+import { createCrudApi, httpGet } from "@/shared/api";
+import type { HttpTransportOptions } from "@/shared/api";
 
-const apiEndPoint = "cashInBoxes";
+const endpoint = "cashInBoxes";
+const crud = createCrudApi<CashInBoxModel>(endpoint);
 
-// GET all cash in boxes
-const getCashInBoxes = async (): Promise<ApiResult<CashInBoxModel[]>> => {
-  return await httpGet<CashInBoxModel[]>(apiEndPoint, {});
-};
+const getCashInBoxes = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single cash in box by ID
-const getCashInBoxById = async (
-  id: string
-): Promise<ApiResult<CashInBoxModel>> => {
-  return await httpGet<CashInBoxModel>(`${apiEndPoint}/${id}`, {});
-};
+const getCashInBoxById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-// GET default model data (for add form)
-const getDefaultCashInBox = async (
-  parentId: string | null
-): Promise<ApiResult<CashInBoxModel> | null> => {
-  return await httpGet<CashInBoxModel>(
-    `${apiEndPoint}/NextAccountDefaultData${
-      parentId == null ? "" : `?parentId=${parentId}`
-    }`,
-    {}
+const getDefaultCashInBox = (parentId: string | null, signal?: AbortSignal) =>
+  httpGet<CashInBoxModel>(
+    `${endpoint}/NextAccountDefaultData${parentId == null ? "" : `?parentId=${parentId}`}`,
+    {},
+    { signal }
   );
-};
 
-// CREATE a new cash in box
-const createCashInBox = async (
-  data: CashInBoxModel
-): Promise<ApiResult<CashInBoxModel>> => {
-  return await httpPost<CashInBoxModel>(apiEndPoint, data);
-};
+const createCashInBox = (data: CashInBoxModel, options?: HttpTransportOptions) =>
+  crud.create(data, options);
 
-// UPDATE a cash in box
-const updateCashInBox = async (
-  id: string,
-  data: CashInBoxModel
-): Promise<ApiResult<CashInBoxModel>> => {
-  return await httpPut<CashInBoxModel>(`${apiEndPoint}/${id}`, data);
-};
+const updateCashInBox = (id: string, data: CashInBoxModel, options?: HttpTransportOptions) =>
+  crud.update(id, data, options);
 
-// DELETE a cash in box
-const deleteCashInBox = async (
-  id: string
-): Promise<ApiResult<CashInBoxModel>> => {
-  return await httpDelete<CashInBoxModel>(`${apiEndPoint}/${id}`, {});
-};
+const deleteCashInBox = (id: string, options?: HttpTransportOptions) => crud.remove(id, options);
 
 export {
   getCashInBoxes,

@@ -1,7 +1,13 @@
-import { AccountGuideModel } from "../../interfaces/ProjectInterfaces";
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import { PaginatedResponse, PaginationParams } from "../../interfaces/Pagination";
+import { AccountGuideModel } from "@/interfaces/ProjectInterfaces";
+import { ApiResult } from "@/interfaces/ApiResponse";
+import {
+  httpDelete,
+  httpGet,
+  httpPost,
+  httpPut,
+  legacyMutationNotify,
+} from "../Axios/axiosMethods";
+import { PaginatedResponse, PaginationParams } from "@/interfaces/Pagination";
 
 const apiEndPoint = "AccountGuides";
 
@@ -14,16 +20,11 @@ const getAccountGuides = async (): Promise<ApiResult<AccountGuideModel[]> | null
 const getAccountGuidesPaginated = async (
   params: PaginationParams
 ): Promise<ApiResult<PaginatedResponse<AccountGuideModel>> | null> => {
-  return await httpGet<PaginatedResponse<AccountGuideModel>>(
-    `${apiEndPoint}/paginated`,
-    params
-  );
+  return await httpGet<PaginatedResponse<AccountGuideModel>>(`${apiEndPoint}/paginated`, params);
 };
 
 // GET a single currency by ID
-const getAccountGuideById = async (
-  id: string
-): Promise<ApiResult<AccountGuideModel> | null> => {
+const getAccountGuideById = async (id: string): Promise<ApiResult<AccountGuideModel> | null> => {
   return await httpGet<AccountGuideModel>(`${apiEndPoint}/${id}`, {});
 };
 
@@ -31,7 +32,7 @@ const getAccountGuideById = async (
 const createAccountGuide = async (
   data: AccountGuideModel
 ): Promise<ApiResult<AccountGuideModel> | null> => {
-  return await httpPost<AccountGuideModel>(apiEndPoint, data);
+  return await httpPost<AccountGuideModel>(apiEndPoint, data, legacyMutationNotify);
 };
 
 // PUT (Update) a currency
@@ -39,14 +40,19 @@ const updateAccountGuide = async (
   id: string,
   data: AccountGuideModel
 ): Promise<ApiResult<AccountGuideModel> | null> => {
-  return await httpPut<AccountGuideModel>(`${apiEndPoint}/${id}`, data);
+  return await httpPut<AccountGuideModel>(`${apiEndPoint}/${id}`, data, legacyMutationNotify);
 };
 
 // DELETE a currency by ID
-const deleteAccountGuide = async (
-  id: string
-): Promise<ApiResult<AccountGuideModel> | null> => {
-  return await httpDelete<AccountGuideModel>(`${apiEndPoint}/${id}`, { id });
+const deleteAccountGuide = async (id: string): Promise<ApiResult<AccountGuideModel> | null> => {
+  return await httpDelete<AccountGuideModel>(`${apiEndPoint}/${id}`, { id }, legacyMutationNotify);
 };
 
-export { getAccountGuides, getAccountGuidesPaginated, getAccountGuideById, createAccountGuide, updateAccountGuide, deleteAccountGuide }
+export {
+  getAccountGuides,
+  getAccountGuidesPaginated,
+  getAccountGuideById,
+  createAccountGuide,
+  updateAccountGuide,
+  deleteAccountGuide,
+};

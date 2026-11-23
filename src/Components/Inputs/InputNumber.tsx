@@ -1,29 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-  import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { resolveError, resolveHelperText, resolveRequired, type BaseInputProps } from "./types";
 
-interface InputNumberProps {
-  label?: string;
+interface InputNumberProps extends Omit<BaseInputProps<number>, "value"> {
   value: number | null;
-  onChange?: (value: number) => void;
-  disabled?: boolean;
-  error?: boolean;
-  helperText?: string;
   fullWidth?: boolean;
   size?: "small" | "medium";
   className?: string;
   variant?: "outlined" | "filled" | "standard";
-  isRquired?: boolean;
   inputType?: "number" | "percent";
   precision?: number | null;
-  allowEmpty?: boolean; // new: allow empty input (no forced zero on blur)
+  allowEmpty?: boolean;
 }
 
 const InputNumber: React.FC<InputNumberProps> = ({
-  label="",
+  label = "",
   value,
   onChange,
+  name,
   disabled = false,
   error = false,
   helperText = "",
@@ -31,12 +27,16 @@ const InputNumber: React.FC<InputNumberProps> = ({
   size = "small",
   className = "",
   variant = "outlined",
-  isRquired = false,
+  required,
+  isRequired,
   inputType = "number",
   precision = null,
   allowEmpty = false,
 }) => {
   const { t } = useTranslation();
+  const isReq = resolveRequired({ required, isRequired });
+  const hasError = resolveError(error);
+  const help = resolveHelperText(error, helperText);
   const [inputValue, setInputValue] = useState<string>("");
 
   // Helper: Clamp percent and format with precision
@@ -120,27 +120,27 @@ const InputNumber: React.FC<InputNumberProps> = ({
 
   return (
     <TextField
-      type="number" // use text to handle custom input (allow comma etc)
-      label={`${label}${isRquired ? ` (${t("Required")})` : ""}`}
+      type="number"
+      name={name}
+      label={`${label}${isReq ? ` (${t("Required")})` : ""}`}
       value={inputValue}
       onChange={handleChange}
       onBlur={handleBlur}
       disabled={disabled}
-      error={error}
-      helperText={helperText}
+      error={hasError}
+      helperText={help}
       fullWidth={fullWidth}
       size={size}
       variant={variant}
       className={className}
+      required={isReq}
       inputProps={{
         inputMode: "decimal",
         pattern: "[0-9]*[.,]?[0-9]*",
       }}
       InputProps={{
         endAdornment:
-          inputType === "percent" ? (
-            <InputAdornment position="end">%</InputAdornment>
-          ) : null,
+          inputType === "percent" ? <InputAdornment position="end">%</InputAdornment> : null,
       }}
     />
   );

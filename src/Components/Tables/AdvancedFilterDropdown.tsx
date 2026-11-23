@@ -1,8 +1,4 @@
-import {
-  Add as AddIcon,
-  Close as CloseIcon,
-  Delete as DeleteIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Close as CloseIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -91,12 +87,10 @@ export function AdvancedFilterDropdown({
     }
   }, [gridApi]);
 
-  const availableColumns = Object.entries(columnLabels).map(
-    ([field, label]) => ({
-      field,
-      label,
-    })
-  );
+  const availableColumns = Object.entries(columnLabels).map(([field, label]) => ({
+    field,
+    label,
+  }));
 
   const operators = [
     { value: "contains", label: t("contains") },
@@ -130,14 +124,8 @@ export function AdvancedFilterDropdown({
     }
   };
 
-  const handleChange = (
-    id: string,
-    key: keyof FilterCondition,
-    newValue: string
-  ) => {
-    setConditions(
-      conditions.map((c) => (c.id === id ? { ...c, [key]: newValue } : c))
-    );
+  const handleChange = (id: string, key: keyof FilterCondition, newValue: string) => {
+    setConditions(conditions.map((c) => (c.id === id ? { ...c, [key]: newValue } : c)));
   };
 
   const handleApply = () => {
@@ -224,12 +212,12 @@ export function AdvancedFilterDropdown({
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      <Box display='flex' justifyContent='space-between' alignItems='center'>
-        <Typography variant='h6' sx={{ fontSize: "1rem", fontWeight: 600 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 600 }}>
           {t("Advanced Filter")}
         </Typography>
-        <IconButton size='small' onClick={onClose}>
-          <CloseIcon fontSize='small' />
+        <IconButton size="small" onClick={onClose}>
+          <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
 
@@ -242,12 +230,7 @@ export function AdvancedFilterDropdown({
         }}
       >
         {conditions.length === 0 && (
-          <Typography
-            variant='body2'
-            color='text.secondary'
-            align='center'
-            sx={{ py: 2 }}
-          >
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 2 }}>
             {t("No filters applied")}
           </Typography>
         )}
@@ -259,27 +242,17 @@ export function AdvancedFilterDropdown({
                   <RadioGroup
                     row
                     value={condition.logicalOperator || "AND"}
-                    onChange={(e) =>
-                      handleChange(
-                        condition.id,
-                        "logicalOperator",
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleChange(condition.id, "logicalOperator", e.target.value)}
                   >
                     <FormControlLabel
-                      value='AND'
-                      control={<Radio size='small' />}
+                      value="AND"
+                      control={<Radio size="small" />}
                       label={t("AND")}
                     />
-                    <FormControlLabel
-                      value='OR'
-                      control={<Radio size='small' />}
-                      label={t("OR")}
-                    />
+                    <FormControlLabel value="OR" control={<Radio size="small" />} label={t("OR")} />
                   </RadioGroup>
                 ) : (
-                  <Typography variant='caption' color='text.secondary'>
+                  <Typography variant="caption" color="text.secondary">
                     {t("AND")}
                   </Typography>
                 )}
@@ -296,19 +269,15 @@ export function AdvancedFilterDropdown({
                 bgcolor: theme.palette.action.hover,
               }}
             >
-              <FormControl size='small' sx={{ flex: 1, minWidth: 100 }}>
+              <FormControl size="small" sx={{ flex: 1, minWidth: 100 }}>
                 <Select
                   value={condition.field}
-                  onChange={(e) =>
-                    handleChange(condition.id, "field", e.target.value)
-                  }
+                  onChange={(e) => handleChange(condition.id, "field", e.target.value)}
                   displayEmpty
                   renderValue={(selected) => {
                     if (!selected)
                       return (
-                        <span style={{ color: theme.palette.text.disabled }}>
-                          {t("Column")}
-                        </span>
+                        <span style={{ color: theme.palette.text.disabled }}>{t("Column")}</span>
                       );
                     return columnLabels[selected] || selected;
                   }}
@@ -321,12 +290,10 @@ export function AdvancedFilterDropdown({
                 </Select>
               </FormControl>
 
-              <FormControl size='small' sx={{ width: 110 }}>
+              <FormControl size="small" sx={{ width: 110 }}>
                 <Select
                   value={condition.operator}
-                  onChange={(e) =>
-                    handleChange(condition.id, "operator", e.target.value)
-                  }
+                  onChange={(e) => handleChange(condition.id, "operator", e.target.value)}
                 >
                   {operators.map((op) => (
                     <MenuItem key={op.value} value={op.value}>
@@ -337,22 +304,20 @@ export function AdvancedFilterDropdown({
               </FormControl>
 
               <TextField
-                size='small'
+                size="small"
                 placeholder={t("Value")}
                 value={condition.value}
-                onChange={(e) =>
-                  handleChange(condition.id, "value", e.target.value)
-                }
+                onChange={(e) => handleChange(condition.id, "value", e.target.value)}
                 sx={{ flex: 1 }}
               />
 
               <ThemedTooltip title={t("Delete")}>
                 <IconButton
-                  size='small'
-                  color='error'
+                  size="small"
+                  color="error"
                   onClick={() => handleRemoveCondition(condition.id)}
                 >
-                  <DeleteIcon fontSize='small' />
+                  <DeleteIcon fontSize="small" />
                 </IconButton>
               </ThemedTooltip>
             </Box>
@@ -363,7 +328,7 @@ export function AdvancedFilterDropdown({
       <Button
         startIcon={<AddIcon />}
         onClick={handleAddCondition}
-        size='small'
+        size="small"
         sx={{ alignSelf: "flex-start" }}
       >
         {t("Add Condition")}
@@ -371,11 +336,11 @@ export function AdvancedFilterDropdown({
 
       <Divider />
 
-      <Box display='flex' justifyContent='flex-end' gap={1}>
-        <Button onClick={handleClear} color='error' size='small'>
+      <Box display="flex" justifyContent="flex-end" gap={1}>
+        <Button onClick={handleClear} color="error" size="small">
           {t("Clear All")}
         </Button>
-        <Button onClick={handleApply} variant='contained' size='small'>
+        <Button onClick={handleApply} variant="contained" size="small">
           {t("Apply")}
         </Button>
       </Box>

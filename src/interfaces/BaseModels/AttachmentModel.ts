@@ -1,8 +1,9 @@
 interface AttachmentModel {
-  attachmentId? : string | null;
+  attachmentId?: string | null;
   fileName: string;
-  fileContent: string;
+  fileContent?: string;
   contentType: string;
+  contentUrl?: string | null;
 }
 
-export default AttachmentModel; 
+export default AttachmentModel;

@@ -1,4 +1,4 @@
-import FinancialPeriodModel from '../../Account/FinancialPeriods/FinancialPeriodModel';
+import FinancialPeriodModel from "../../Account/FinancialPeriods/FinancialPeriodModel";
 
 export interface ImportTransactionLineModel {
   id: string;

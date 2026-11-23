@@ -10,19 +10,13 @@ const Page500 = () => {
             <div className="text-center">
               <h1 className="display-3">500</h1>
               <h4 className="pt-3">{t("HoustonProblem")}</h4>
-              <p className="text-muted">
-                {t("PageTemporarilyUnavailable")}
-              </p>
+              <p className="text-muted">{t("PageTemporarilyUnavailable")}</p>
             </div>
             <div className="input-group mt-4">
               <span className="input-group-text">
                 <i className="bi bi-search"></i>
               </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder={t("WhatAreYouLookingFor")}
-              />
+              <input type="text" className="form-control" placeholder={t("WhatAreYouLookingFor")} />
               <button className="btn btn-info ms-2">{t("Search")}</button>
             </div>
           </div>
@@ -32,5 +26,4 @@ const Page500 = () => {
   );
 };
 
-
-export default Page500
+export default Page500;

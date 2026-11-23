@@ -1,47 +1,28 @@
-import { ApiResult } from "../../interfaces/ApiResponse";
-import { httpDelete, httpGet, httpPost, httpPut } from "../Axios/axiosMethods";
-import { CollectionBookModel } from "../../interfaces/ProjectInterfaces";
+import { CollectionBookModel } from "@/interfaces/ProjectInterfaces";
+import { httpDelete, httpPost, httpPut, legacyMutationNotify } from "@/Apis/Axios/axiosMethods";
+import { createCrudApi } from "@/shared/api";
 
-const apiEndPoint = "CollectionBooks";
+const endpoint = "CollectionBooks";
+const crud = createCrudApi<CollectionBookModel>(endpoint);
 
-// GET all collection books
-const getCollectionBooks = async (): Promise<ApiResult<CollectionBookModel[]>> => {
-  return await httpGet<CollectionBookModel[]>(apiEndPoint, {});
-};
+const getCollectionBooks = (signal?: AbortSignal) => crud.getAll({ signal });
 
-// GET a single collection book by ID
-const getCollectionBookById = async (
-  id: string
-): Promise<ApiResult<CollectionBookModel> | null> => {
-  return await httpGet<CollectionBookModel>(`${apiEndPoint}/${id}`, {});
-};
+const getCollectionBookById = (id: string, signal?: AbortSignal) => crud.getById(id, { signal });
 
-// POST (Create) a new collection book
-const createCollectionBook = async (
-  data: CollectionBookModel
-): Promise<ApiResult<CollectionBookModel> | null> => {
-  return await httpPost<CollectionBookModel>(apiEndPoint, data);
-};
+/** Forms still call mutations directly; keep legacy toasts. */
+const createCollectionBook = (data: CollectionBookModel) =>
+  httpPost<CollectionBookModel>(endpoint, data, legacyMutationNotify);
 
-// PUT (Update) a collection book
-const updateCollectionBook = async (
-  id: string,
-  data: CollectionBookModel
-): Promise<ApiResult<CollectionBookModel> | null> => {
-  return await httpPut<CollectionBookModel>(`${apiEndPoint}/${id}`, data);
-};
+const updateCollectionBook = (id: string, data: CollectionBookModel) =>
+  httpPut<CollectionBookModel>(`${endpoint}/${id}`, data, legacyMutationNotify);
 
-// DELETE a collection book by ID
-const deleteCollectionBook = async (
-  id: string
-): Promise<ApiResult<CollectionBookModel> | null> => {
-  return await httpDelete<CollectionBookModel>(`${apiEndPoint}/${id}`, { id });
-};
+const deleteCollectionBook = (id: string) =>
+  httpDelete<CollectionBookModel>(`${endpoint}/${id}`, { id }, legacyMutationNotify);
 
 export {
   getCollectionBooks,
   getCollectionBookById,
   createCollectionBook,
   updateCollectionBook,
-  deleteCollectionBook
+  deleteCollectionBook,
 };

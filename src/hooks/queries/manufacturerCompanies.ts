@@ -4,10 +4,10 @@ import {
   getManufacturerCompanies,
   getManufacturerCompanyById,
   updateManufacturerCompany,
-} from "../../Apis/Inventory/ManufacturerCompaniesApi";
-import ManufacturerCompanyModel from "../../interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
-import { FormTypes } from "../../interfaces/Components/FormType";
-import { queryKeys } from "../../lib/queryKeys";
+} from "@/Apis/Inventory/ManufacturerCompaniesApi";
+import ManufacturerCompanyModel from "@/interfaces/ProjectInterfaces/Inventory/ManufacturerCompanies/ManufacturerCompanyModel";
+import { FormTypes } from "@/interfaces/Components/FormType";
+import { queryKeys } from "@/lib/queryKeys";
 import { useEntityDetail } from "./useEntityDetail";
 import { useEntityList } from "./useEntityList";
 import { useEntityMutations } from "./useEntityMutations";
